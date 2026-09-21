@@ -30,6 +30,27 @@
             border-color: rgba(99, 102, 241, 0.5);
         }
 
+        /* تنسيق ورقة الروشتة للطباعة */
+        .prescription-paper {
+            width: 100%;
+            max-width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            background: #ffffff;
+            color: #1e293b;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        @media print {
+            body { background: white !important; color: black !important; }
+            .no-print { display: none !important; }
+            .prescription-paper { box-shadow: none !important; width: 100% !important; margin: 0 !important; }
+            header, footer, .fixed { display: none !important; }
+            input, textarea { border: none !important; background: transparent !important; resize: none; }
+        }
+
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #020617; }
         ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
@@ -39,14 +60,14 @@
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between relative overflow-x-hidden selection:bg-indigo-500 selection:text-white">
 
     <!-- خلفية مضيئة متحرّكة ذكية -->
-    <div class="fixed inset-0 overflow-hidden pointer-events-none -z-10">
+    <div class="fixed inset-0 overflow-hidden pointer-events-none -z-10 no-print">
         <div class="absolute -top-48 -left-48 w-[500px] h-[500px] bg-indigo-600/15 rounded-full blur-[140px] animate-pulse"></div>
         <div class="absolute top-1/3 -right-48 w-[500px] h-[500px] bg-cyan-600/15 rounded-full blur-[140px] animate-pulse" style="animation-duration: 5s;"></div>
         <div class="absolute -bottom-48 left-1/3 w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-[140px] animate-pulse" style="animation-duration: 7s;"></div>
     </div>
 
     <!-- Header -->
-    <header class="border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-xl sticky top-0 z-50 transition-all duration-300">
+    <header class="border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-xl sticky top-0 z-50 transition-all duration-300 no-print">
         <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-3 space-x-reverse group cursor-pointer" onclick="switchTab('tools')">
                 <div id="siteLogoBox" class="bg-indigo-600 text-white p-2.5 rounded-xl font-black text-xl shadow-lg shadow-indigo-600/30 group-hover:scale-110 transition duration-300">YS</div>
@@ -54,30 +75,31 @@
             </div>
             
             <nav id="mainNav" class="hidden md:flex space-x-2 space-x-reverse text-sm text-slate-300 items-center bg-slate-950/60 p-1.5 rounded-2xl border border-slate-800/60 shadow-inner">
-                <button onclick="switchTab('tools')" class="px-4 py-2 rounded-xl hover:text-white hover:bg-indigo-600/20 transition font-bold text-indigo-400">الأدوات الذكية</button>
-                <button onclick="switchTab('webservice')" class="px-4 py-2 rounded-xl hover:text-white hover:bg-cyan-600/20 transition font-medium">تصميم المواقع</button>
-                <button onclick="switchTab('features')" class="px-4 py-2 rounded-xl hover:text-white hover:bg-indigo-600/20 transition font-medium">المميزات</button>
-                <button onclick="switchTab('auth')" class="px-4 py-2 rounded-xl hover:text-white hover:bg-indigo-600/20 transition font-medium flex items-center gap-1.5">
+                <button onclick="switchTab('tools')" class="px-3.5 py-2 rounded-xl hover:text-white hover:bg-indigo-600/20 transition font-bold text-indigo-400">الأدوات الذكية</button>
+                <button onclick="switchTab('prescription')" class="px-3.5 py-2 rounded-xl hover:text-white hover:bg-emerald-600/20 transition font-medium text-emerald-400">📄 كتابة روشتة</button>
+                <button onclick="switchTab('webservice')" class="px-3.5 py-2 rounded-xl hover:text-white hover:bg-cyan-600/20 transition font-medium">تصميم المواقع</button>
+                <button onclick="switchTab('features')" class="px-3.5 py-2 rounded-xl hover:text-white hover:bg-indigo-600/20 transition font-medium">المميزات</button>
+                <button onclick="switchTab('auth')" class="px-3.5 py-2 rounded-xl hover:text-white hover:bg-indigo-600/20 transition font-medium flex items-center gap-1.5">
                     <span id="navAuthLabel">حسابي / بياناتي</span>
                 </button>
-                <button onclick="switchTab('admin')" class="hover:text-amber-300 transition font-medium text-amber-400 border border-amber-500/30 px-3.5 py-1.5 rounded-xl bg-amber-500/10 shadow-sm hover:bg-amber-500/20">⚙️ لوحة المسؤول</button>
+                <button onclick="switchTab('admin')" class="hover:text-amber-300 transition font-medium text-amber-400 border border-amber-500/30 px-3 py-1.5 rounded-xl bg-amber-500/10 shadow-sm hover:bg-amber-500/20">⚙️ المسؤول</button>
             </nav>
         </div>
     </header>
 
     <!-- Main Content -->
-    <main class="max-w-4xl mx-auto px-4 py-12 flex-grow w-full animate-fade-in">
+    <main class="max-w-5xl mx-auto px-4 py-12 flex-grow w-full animate-fade-in">
         
         <!-- نافذة القفل الإجباري العامة -->
-        <div id="globalLockScreen" class="glass-card rounded-3xl p-8 md:p-12 text-center space-y-6 max-w-xl mx-auto my-12 transition-all duration-500">
+        <div id="globalLockScreen" class="glass-card rounded-3xl p-8 md:p-12 text-center space-y-6 max-w-xl mx-auto my-12 transition-all duration-500 no-print">
             <div class="w-20 h-20 bg-indigo-600/20 border border-indigo-500/50 text-indigo-400 rounded-3xl flex items-center justify-center text-4xl mx-auto shadow-inner animate-bounce" style="animation-duration: 3s;">🔒</div>
             <h2 class="text-3xl font-black text-white">المنصة مغلقة بالكامل</h2>
-            <p class="text-slate-300 text-sm leading-relaxed">عذراً، لا يمكنك تصفح الأدوات أو خدمات الموقع إلا بعد تسجيل الدخول بحسابك الشخصي أو إنشاء حساب جديد ببياناتك الخاصة.</p>
+            <p class="text-slate-300 text-sm leading-relaxed">عذراً، لا يمكنك تصفح الأدوات أو الروشتات الطبية إلا بعد تسجيل الدخول بحسابك الشخصي أو إنشاء حساب جديد ببياناتك الخاصة.</p>
             <div class="flex flex-col sm:flex-row gap-3 justify-center pt-2">
-                <button onclick="openAuthMode('login')" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 py-3.5 rounded-xl transition shadow-lg shadow-indigo-600/30 hover:scale-105">
+                <button type="button" onclick="openAuthMode('login')" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 py-3.5 rounded-xl transition shadow-lg shadow-indigo-600/30 hover:scale-105">
                     تسجيل الدخول
                 </button>
-                <button onclick="openAuthMode('register')" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 font-bold px-6 py-3.5 rounded-xl transition border border-cyan-500/30 shadow-md hover:scale-105">
+                <button type="button" onclick="openAuthMode('register')" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 font-bold px-6 py-3.5 rounded-xl transition border border-cyan-500/30 shadow-md hover:scale-105">
                     إنشاء حساب جديد ببياناتك
                 </button>
             </div>
@@ -88,7 +110,6 @@
 
             <!-- 1. قسم الأدوات والتحويل -->
             <section id="toolsSection" class="tab-content space-y-8">
-                
                 <!-- البانر الترويجي الفخم المتكامل -->
                 <div class="relative rounded-3xl overflow-hidden shadow-2xl bg-slate-900 border border-indigo-500/30 group transition-all duration-500 hover:border-indigo-500/60 hover:shadow-indigo-500/20">
                     <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style="background-image: url('https://i.ibb.co/gL4SPgnT/image.png');"></div>
@@ -124,7 +145,7 @@
                         </div>
                     </div>
 
-                    <button id="convertBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-indigo-600/30 hover:scale-[1.01] active:scale-[0.99]">
+                    <button type="button" id="convertBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-indigo-600/30 hover:scale-[1.01] active:scale-[0.99]">
                         تشغيل الأداة والمعالجة الفورية
                     </button>
 
@@ -137,7 +158,97 @@
                 </div>
             </section>
 
-            <!-- 2. قسم خدمة تصميم المواقع -->
+            <!-- 2. قسم الروشتة وقابلية الكتابة مع الأختام -->
+            <section id="prescriptionSection" class="tab-content hidden space-y-6">
+                <div class="flex justify-between items-center glass-card p-4 rounded-2xl no-print">
+                    <div>
+                        <h2 class="text-xl font-black text-emerald-400">نموذج روشتة طبية (مستشفى أمان) قابلة للكتابة</h2>
+                        <p class="text-slate-300 text-xs">اكتب بيانات الطبيب والمريض والأدوية في الحقول المخصصة ثم اطبعها مباشرة بالأختام</p>
+                    </div>
+                    <button type="button" onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-5 py-2.5 rounded-xl transition shadow-lg flex items-center gap-2">
+                        <span>🖨️</span> طباعة الروشتة
+                    </button>
+                </div>
+
+                <!-- ورقة الروشتة التفاعلية -->
+                <div class="prescription-paper p-8 flex flex-col justify-between border border-slate-300 rounded-xl relative overflow-hidden">
+                    <div>
+                        <!-- رأس الروشتة -->
+                        <div class="flex justify-between items-start border-b-2 border-red-600 pb-4 mb-6">
+                            <div class="flex items-center space-x-3 space-x-reverse">
+                                <div class="w-16 h-16 rounded-full border-4 border-blue-900 flex items-center justify-center relative bg-white shadow-inner">
+                                    <span class="text-blue-900 font-black text-2xl">أما</span>
+                                    <div class="absolute top-1 right-2 w-3 h-3 bg-red-600 rounded-full"></div>
+                                </div>
+                            </div>
+
+                            <div class="text-left">
+                                <div class="bg-blue-900 text-white px-6 py-1.5 rounded-l-full rounded-r-lg inline-block text-xl font-black tracking-wide shadow">
+                                    مستشفى أمان
+                                </div>
+                                <div class="text-red-600 font-black tracking-widest text-lg mt-1">
+                                    A MAN HOSPITAL
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- الحقول القابلة للكتابة (الطبيب، المريض، التاريخ) -->
+                        <div class="grid grid-cols-2 gap-4 text-sm font-bold text-slate-800 mb-6">
+                            <div class="space-y-3">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-24">الطبيب المعالج :</span>
+                                    <input type="text" placeholder="اكتب اسم الطبيب هنا..." class="border-b border-dotted border-slate-400 bg-transparent flex-grow px-2 py-1 text-blue-900 font-bold focus:outline-none focus:border-blue-600">
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-24">اسم المريض :</span>
+                                    <input type="text" placeholder="اكتب اسم المريض هنا..." class="border-b border-dotted border-slate-400 bg-transparent flex-grow px-2 py-1 text-blue-900 font-bold focus:outline-none focus:border-blue-600">
+                                </div>
+                            </div>
+                            <div class="space-y-3 text-left">
+                                <div class="flex items-center justify-end gap-2">
+                                    <span>التاريخ :</span>
+                                    <input type="text" value="2026/09/21" class="border-b border-dotted border-slate-400 bg-transparent w-36 px-2 py-1 text-center text-blue-900 font-bold focus:outline-none focus:border-blue-600">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- علامة Rx ومساحة كتابة الأدوية -->
+                        <div class="flex items-start gap-3 mb-6">
+                            <span class="text-red-600 font-serif italic text-4xl font-bold">R/</span>
+                            <div class="flex-grow">
+                                <textarea rows="6" placeholder="اكتب العلاج، الأدوية، أو التعليمات الطبية هنا..." class="w-full bg-transparent border border-dashed border-slate-300 rounded-xl p-3 text-blue-900 font-medium focus:outline-none focus:border-blue-500 leading-relaxed text-lg" style="font-family: 'Courier New', Courier, monospace;"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- الأختام الأصلية المائلة (كما في الصورة) -->
+                        <div class="relative h-36 my-6 pointer-events-none">
+                            <!-- ختم أيسر مائل -->
+                            <div class="absolute left-6 top-0 border-2 border-dashed border-blue-700 p-2.5 rounded-lg transform -rotate-12 bg-blue-50/20 w-44 text-center shadow-sm opacity-90">
+                                <p class="text-blue-900 font-black text-xs">مستشفى أمان</p>
+                                <p class="text-blue-900 font-bold text-[10px]">شركات</p>
+                                <p class="text-blue-900 text-[10px] mt-1 border-t border-blue-300 pt-0.5">التوقيع / ....................</p>
+                            </div>
+
+                            <!-- ختم أيمن مائل -->
+                            <div class="absolute right-6 top-6 border-2 border-dashed border-blue-700 p-2.5 rounded-lg transform rotate-6 bg-blue-50/20 w-44 text-center shadow-sm opacity-90">
+                                <p class="text-blue-900 font-black text-xs">مستشفى أمان</p>
+                                <p class="text-blue-900 font-bold text-[10px]">شركات</p>
+                                <p class="text-blue-900 text-[10px] mt-1 border-t border-blue-300 pt-0.5">التوقيع / ....................</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- التذييل -->
+                    <div class="border-t-2 border-red-600 pt-3 text-center text-xs font-bold text-slate-800 space-y-1">
+                        <p>٢٩ ب شارع رياض تقاطع شارع مصطفى فهمي - مدينة نصر</p>
+                        <p class="text-[11px] text-slate-700 font-semibold" dir="ltr">
+                            ت : ٢٨١٦٦٥٦ - ٢٨١٦٦٥٧ ف : ٢٨١٦٦٥١ م : ٠١١٤٧٧٧١٦٥ - ٠١١٤٧٧٧١٦٤
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. قسم خدمة تصميم المواقع -->
             <section id="webserviceSection" class="tab-content hidden glass-card border-cyan-500/30 rounded-3xl p-8 md:p-12 shadow-2xl relative overflow-hidden transition-all duration-300">
                 <div class="text-center max-w-2xl mx-auto mb-8">
                     <span class="bg-cyan-500/10 text-cyan-400 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider border border-cyan-500/20 shadow-sm">قسم خدمة العملاء</span>
@@ -176,7 +287,7 @@
                 </form>
             </section>
 
-            <!-- 3. قسم المميزات -->
+            <!-- 4. قسم المميزات -->
             <section id="featuresSection" class="tab-content hidden space-y-8">
                 <div class="text-center mb-8">
                     <h2 class="text-3xl md:text-4xl font-black mb-3">مميزات منصتنا الذكية</h2>
@@ -203,8 +314,8 @@
 
         </div>
 
-        <!-- 4. قسم المصادقة وإدارة الحساب الشخصي -->
-        <section id="authSection" class="tab-content hidden max-w-md mx-auto glass-card rounded-2xl p-8 shadow-2xl transition-all">
+        <!-- 5. قسم المصادقة وإدارة الحساب الشخصي -->
+        <section id="authSection" class="tab-content hidden max-w-md mx-auto glass-card rounded-2xl p-8 shadow-2xl transition-all no-print">
             <div id="loginFormContainer">
                 <h2 class="text-2xl font-black mb-2 text-center">تسجيل الدخول لمنصتك</h2>
                 <p class="text-slate-400 text-xs text-center mb-6">أدخل بريدك وكلمة المرور الخاصة بحسابك</p>
@@ -287,8 +398,8 @@
             </div>
         </section>
 
-        <!-- 5. لوحة تحكم المسؤول الشاملة المتقدمة -->
-        <section id="adminSection" class="tab-content hidden max-w-2xl mx-auto glass-card border-amber-500/40 rounded-2xl p-8 shadow-2xl">
+        <!-- 6. لوحة تحكم المسؤول الشاملة المتقدمة -->
+        <section id="adminSection" class="tab-content hidden max-w-2xl mx-auto glass-card border-amber-500/40 rounded-2xl p-8 shadow-2xl no-print">
             <div id="adminLoginBox">
                 <div class="text-center mb-6">
                     <span class="text-amber-400 text-3xl">🛡️</span>
@@ -381,7 +492,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="border-t border-slate-800/80 bg-slate-950/80 backdrop-blur-md py-6 text-center text-sm text-slate-500">
+    <footer class="border-t border-slate-800/80 bg-slate-950/80 backdrop-blur-md py-6 text-center text-sm text-slate-500 no-print">
         <p id="footerText">&copy; 2026 YourSmartSite. جميع الحقوق محفوظة.</p>
     </footer>
 
@@ -401,7 +512,7 @@
                 return;
             }
 
-            const sections = ['toolsSection', 'webserviceSection', 'featuresSection', 'authSection', 'adminSection'];
+            const sections = ['toolsSection', 'prescriptionSection', 'webserviceSection', 'featuresSection', 'authSection', 'adminSection'];
             sections.forEach(sec => {
                 const el = document.getElementById(sec);
                 if(el) el.classList.add('hidden');
@@ -430,7 +541,6 @@
             const logoText = localStorage.getItem('admin_logo_text') || 'YS';
             const logoBg = localStorage.getItem('admin_logo_bg') || 'bg-indigo-600';
             const heading = localStorage.getItem('admin_heading') || 'منصة أدواتك الذكية الشاملة';
-            const subHeading = localStorage.getItem('admin_sub') || 'حول ملفاتك، أنجز مهامك، واستمتع بأدوات رقمية سريعة ومجانية.';
 
             document.getElementById('siteBrandName').textContent = brand;
             document.getElementById('pageTitle').textContent = brand;
@@ -438,7 +548,6 @@
             logoBox.textContent = logoText;
             logoBox.className = `${logoBg} text-white p-2.5 rounded-xl font-black text-xl shadow-lg transition duration-300`;
             document.getElementById('mainHeading').textContent = heading;
-            document.getElementById('mainSubHeading').textContent = subHeading;
 
             document.getElementById('settingBrandName').value = brand;
             document.getElementById('settingLogoText').value = logoText;
