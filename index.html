@@ -3,21 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="pageTitle">YourSmartSite - منصة الأدوات والروشتات الطبية</title>
-    <!-- Tailwind CSS CDN -->
+    <title>YourSmartSite - منصة الأدوات والروشتات الطبية</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Cairo', sans-serif; }
-        
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-            animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
         .glass-card {
             background: rgba(15, 23, 42, 0.75);
             backdrop-filter: blur(16px);
@@ -25,8 +15,6 @@
             border: 1px solid rgba(99, 102, 241, 0.2);
             box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
         }
-
-        /* أنماط الروشتات المختلفة */
         .prescription-paper {
             width: 100%;
             max-width: 210mm;
@@ -35,78 +23,69 @@
             box-shadow: 0 0 20px rgba(0,0,0,0.3);
             position: relative;
             box-sizing: border-box;
-            transition: all 0.3s ease;
         }
-        .style-aman { background: #f7f7f9; color: #1e293b; font-family: 'Cairo', sans-serif; }
-        .style-classic { background: #ffffff; color: #000000; font-family: 'Serif', Georgia, serif; }
-        .style-modern { background: #ffffff; color: #1e293b; font-family: 'Sans-Serif', Helvetica, sans-serif; }
-
+        .style-aman { background: #f7f7f9; color: #1e293b; }
+        .style-classic { background: #ffffff; color: #000000; font-family: serif; }
+        .style-modern { background: #ffffff; color: #1e293b; font-family: sans-serif; }
         @media print {
-            body { background: white !important; color: black !important; }
             .no-print { display: none !important; }
             .prescription-paper { box-shadow: none !important; width: 100% !important; margin: 0 !important; }
-            header, footer, .fixed { display: none !important; }
-            input, textarea { border: none !important; background: transparent !important; resize: none; box-shadow: none !important; }
-            .style-aman, .style-classic, .style-modern { background: white !important; color: black !important; }
-            .style-aman .bg-blue-900 { background: transparent !important; color: black !important; border: 1px solid black !important;}
-            .prescription-paper textarea.border-dashed { border-color: black !important; }
+            body { background: white !important; color: black !important; }
         }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
 
-    <!-- Header (مخفي في شاشة القفل) -->
-    <header id="mainHeader" class="border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-xl sticky top-0 z-50 no-print hidden">
+    <!-- الهيدر (يظهر بعد تسجيل الدخول) -->
+    <header id="mainHeader" class="border-b border-slate-800 bg-slate-950/80 backdrop-blur-xl sticky top-0 z-50 no-print hidden">
         <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-3 space-x-reverse cursor-pointer" onclick="switchTab('tools')">
-                <div class="bg-indigo-600 text-white p-2.5 rounded-xl font-black text-xl shadow-lg shadow-indigo-600/30">YS</div>
-                <span class="text-2xl font-black tracking-wide bg-gradient-to-r from-indigo-400 via-blue-300 to-indigo-500 bg-clip-text text-transparent">YourSmartSite</span>
+                <div class="bg-indigo-600 text-white p-2.5 rounded-xl font-black text-xl shadow-lg">YS</div>
+                <span class="text-2xl font-black bg-gradient-to-r from-indigo-400 to-blue-500 bg-clip-text text-transparent">YourSmartSite</span>
             </div>
-            <nav id="mainNav" class="flex space-x-2 space-x-reverse text-sm text-slate-300 items-center bg-slate-950/60 p-1.5 rounded-2xl border border-slate-800/60 shadow-inner">
-                <button onclick="switchTab('tools')" class="px-3.5 py-2 rounded-xl hover:text-white hover:bg-indigo-600/20 transition font-medium">الأدوات الذكية</button>
-                <button onclick="switchTab('prescription')" class="px-3.5 py-2 rounded-xl hover:text-white hover:bg-blue-600/20 transition font-medium text-blue-400">📄 كتابة روشتة</button>
-                <button onclick="switchTab('auth')" class="px-3.5 py-2 rounded-xl hover:text-white hover:bg-indigo-600/20 transition font-medium">👤 حسابي</button>
+            <nav class="flex space-x-2 space-x-reverse text-sm text-slate-300 items-center">
+                <button onclick="switchTab('tools')" class="px-3.5 py-2 rounded-xl hover:text-white hover:bg-indigo-600/20 transition">الأدوات الذكية</button>
+                <button onclick="switchTab('prescription')" class="px-3.5 py-2 rounded-xl hover:text-white hover:bg-blue-600/20 transition text-blue-400 font-bold">📄 كتابة روشتة</button>
             </nav>
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="max-w-5xl mx-auto px-4 py-12 flex-grow w-full animate-fade-in">
+    <main class="max-w-5xl mx-auto px-4 py-12 flex-grow w-full">
         
-        <!-- شاشة القفل الإجباري (تظهر افتراضياً) -->
-        <div id="globalLockScreen" class="glass-card rounded-3xl p-8 md:p-12 text-center space-y-6 max-w-xl mx-auto my-12 transition-all duration-500 no-print">
-            <div class="w-20 h-20 bg-indigo-600/20 border border-indigo-500/50 text-indigo-400 rounded-3xl flex items-center justify-center text-4xl mx-auto shadow-inner animate-bounce" style="animation-duration: 3s;">🔒</div>
+        <!-- شاشة القفل الإجباري -->
+        <div id="globalLockScreen" class="glass-card rounded-3xl p-8 md:p-12 text-center space-y-6 max-w-xl mx-auto my-12 no-print">
+            <div class="w-20 h-20 bg-indigo-600/20 border border-indigo-500/50 text-indigo-400 rounded-3xl flex items-center justify-center text-4xl mx-auto animate-bounce">🔒</div>
             <h2 class="text-3xl font-black text-white">المنصة مغلقة</h2>
-            <p class="text-slate-300 text-sm leading-relaxed">عذراً، لا يمكنك تصفح الأدوات أو الروشتات الطبية إلا بعد تسجيل الدخول بحسابك الشخصي أو إنشاء حساب جديد.</p>
+            <p class="text-slate-300 text-sm leading-relaxed">عذراً، لا يمكنك تصفح الأدوات أو الروشتات الطبية إلا بعد تسجيل الدخول أو إنشاء حساب جديد.</p>
             <div class="flex flex-col sm:flex-row gap-3 justify-center pt-2">
-                <button type="button" onclick="openAuthMode('login')" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 py-3.5 rounded-xl transition shadow-lg shadow-indigo-600/30 hover:scale-105">
+                <button type="button" onclick="unlockPlatform()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 py-3.5 rounded-xl transition shadow-lg">
                     تسجيل الدخول
                 </button>
-                <button type="button" onclick="openAuthMode('register')" class="bg-slate-800 hover:bg-slate-700 text-blue-400 font-bold px-6 py-3.5 rounded-xl transition border border-blue-500/30 shadow-md hover:scale-105">
+                <button type="button" onclick="unlockPlatform()" class="bg-slate-800 hover:bg-slate-700 text-blue-400 font-bold px-6 py-3.5 rounded-xl transition border border-blue-500/30">
                     إنشاء حساب جديد
                 </button>
             </div>
         </div>
 
-        <!-- محتوى المنصة (مخفي افتراضياً) -->
+        <!-- محتوى المنصة الرئيسي -->
         <div id="protectedPlatformContent" class="hidden space-y-12">
 
-            <!-- 1. قسم الأدوات -->
+            <!-- قسم الأدوات -->
             <section id="toolsSection" class="tab-content space-y-8">
                 <div class="glass-card rounded-2xl p-6 md:p-8">
-                    <h2 class="text-2xl font-black mb-6">مرحباً بك في منصتك الذكية</h2>
+                    <h2 class="text-2xl font-black mb-6">مرحباً بك في المنصة</h2>
                     <label class="block text-sm font-semibold text-slate-300 mb-4">اختر الأداة المطلوبة:</label>
-                    <select id="conversionType" class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-blue-500 transition shadow-inner cursor-pointer">
-                    <option value="img-to-jpg">🖼️ تحويل الصورة إلى JPG</option>
-                    <option value="text-uppercase">✍️ تحويل النص إلى أحرف كبيرة</option>
+                    <select class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-blue-500">
+                        <option>🖼️ تحويل الصورة إلى JPG</option>
+                        <option>✍️ تحويل النص إلى أحرف كبيرة</option>
                     </select>
-                    <button type="button" id="convertBtn" class="w-full mt-6 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg">
-                        تشغيل الأداة والمعالجة الفورية
+                    <button type="button" class="w-full mt-6 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl transition shadow-lg">
+                        تشغيل الأداة
                     </button>
                 </div>
             </section>
 
-            <!-- 2. قسم الروشتة الشامل -->
+            <!-- قسم الروشتة -->
             <section id="prescriptionSection" class="tab-content hidden space-y-6">
                 <div class="glass-card p-4 rounded-2xl no-print flex flex-col md:flex-row gap-4 justify-between items-center sticky top-24 z-40 border border-blue-500/40">
                     <div>
@@ -116,74 +95,114 @@
                     <div class="flex items-center gap-3 bg-slate-900 p-2 rounded-xl border border-slate-700">
                         <label class="text-xs font-bold text-slate-400 pr-2">النمط:</label>
                         <select id="styleSelector" onchange="changePrescriptionStyle()" class="bg-slate-800 text-sm text-white px-3 py-1.5 rounded-lg border border-slate-600 cursor-pointer">
-                            <option value="style-aman">📄 مستشفى أمان (النمط المطابق)</option>
+                            <option value="style-aman">📄 مستشفى أمان (المطابق للصورة)</option>
                             <option value="style-classic">📑 كلاسيكي (رسمي)</option>
                             <option value="style-modern">📰 حديث (بسيط)</option>
                         </select>
                     </div>
-                    <button type="button" onclick="window.print()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-2.5 rounded-xl transition shadow-lg flex items-center gap-2">
-                        <span>🖨️</span> طباعة الروشتة
+                    <button type="button" onclick="window.print()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-2.5 rounded-xl transition shadow-lg">
+                        🖨️ طباعة الروشتة
                     </button>
                 </div>
 
-                <!-- حاوية الروشتة (تتغير بناءً على النمط) -->
-                <div id="prescriptionContainer" class="prescription-paper p-8 flex flex-col justify-between rounded-xl style-aman animate-fade-in border-2 border-slate-300">
-                    
-                    <!-- المحتوى الأساسي (نمط أمان) -->
-                    <div id="prescriptionContentArea">
-                        <div id="amanTemplate" class="style-aman-template">
-                            <div class="flex justify-between items-start border-b-2 border-red-600 pb-3 mb-6 relative">
-                                <div class="flex items-center">
-                                    <div class="w-20 h-20 rounded-full border-4 border-blue-900 flex flex-col items-center justify-center relative bg-white shadow-md">
-                                        <span class="text-blue-900 font-black text-xs">مستشفى</span>
-                                        <span class="text-blue-900 font-black text-lg -mt-1">أمان</span>
-                                        <div class="absolute top-2 right-3 w-3 h-3 bg-red-600 rounded-full"></div>
-                                    </div>
-                                </div>
-                                <div class="text-left">
-                                    <div class="bg-blue-900 text-white px-8 py-2 rounded-l-full rounded-r-xl inline-block text-2xl font-black tracking-wider shadow">
-                                        مستشفى أمان
-                                    </div>
-                                    <div class="text-red-600 font-black tracking-[0.25em] text-base mt-1.5 mr-1">
-                                        A MAN HOSPITAL
-                                    </div>
+                <!-- حاوية الروشتة -->
+                <div id="prescriptionContainer" class="prescription-paper p-8 flex flex-col justify-between rounded-xl style-aman border-2 border-slate-300">
+                    <div>
+                        <!-- رأس الروشتة (نمط أمان) -->
+                        <div class="flex justify-between items-start border-b-2 border-red-600 pb-3 mb-6 relative">
+                            <div class="flex items-center">
+                                <div class="w-20 h-20 rounded-full border-4 border-blue-900 flex flex-col items-center justify-center relative bg-white shadow-md">
+                                    <span class="text-blue-900 font-black text-xs">مستشفى</span>
+                                    <span class="text-blue-900 font-black text-lg -mt-1">أمان</span>
+                                    <div class="absolute top-2 right-3 w-3 h-3 bg-red-600 rounded-full"></div>
                                 </div>
                             </div>
-
-                            <div class="grid grid-cols-2 gap-4 text-sm font-bold text-slate-900 mb-6">
-                                <div class="space-y-3">
-                                    <div class="flex items-center gap-2">
-                                        <span class="w-28 text-slate-800 font-bold">الطبيب المعالج :</span>
-                                        <input type="text" placeholder="اكتب اسم الطبيب..." class="border-b border-dotted border-slate-500 bg-transparent flex-grow px-2 py-1 text-blue-900 font-bold focus:outline-none">
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <span class="w-28 text-slate-800 font-bold">اسم المريض :</span>
-                                        <input type="text" placeholder="اكتب اسم المريض..." class="border-b border-dotted border-slate-500 bg-transparent flex-grow px-2 py-1 text-blue-900 font-bold focus:outline-none">
-                                    </div>
+                            <div class="text-left">
+                                <div class="bg-blue-900 text-white px-8 py-2 rounded-l-full rounded-r-xl inline-block text-2xl font-black shadow">
+                                    مستشفى أمان
                                 </div>
-                                <div class="space-y-3 text-left">
-                                    <div class="flex items-center justify-end gap-2">
-                                        <span class="text-slate-800 font-bold">التاريخ :</span>
-                                        <input type="text" value="<?php echo date('Y/m/d'); ?>" class="border-b border-dotted border-slate-500 bg-transparent w-36 px-2 py-1 text-center text-blue-900 font-bold focus:outline-none">
-                                    </div>
+                                <div class="text-red-600 font-black tracking-[0.25em] text-base mt-1.5 mr-1">
+                                    A MAN HOSPITAL
                                 </div>
                             </div>
+                        </div>
 
-                            <div class="flex items-start gap-3 mb-8">
-                                <span class="text-red-600 font-serif italic text-4xl font-bold">R/</span>
-                                <div class="flex-grow">
-                                    <textarea rows="7" placeholder="اكتب العلاج هنا..." class="w-full bg-transparent border border-dashed border-slate-400 rounded-xl p-3 text-blue-950 font-bold focus:outline-none leading-relaxed text-xl" style="font-family: 'Courier New', Courier, monospace;"></textarea>
+                        <!-- الحقول -->
+                        <div class="grid grid-cols-2 gap-4 text-sm font-bold text-slate-900 mb-6">
+                            <div class="space-y-3">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-28">الطبيب المعالج :</span>
+                                    <input type="text" placeholder="اسم الطبيب..." class="border-b border-dotted border-slate-500 bg-transparent flex-grow px-2 py-1 text-blue-900 focus:outline-none">
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-28">اسم المريض :</span>
+                                    <input type="text" placeholder="اسم المريض..." class="border-b border-dotted border-slate-500 bg-transparent flex-grow px-2 py-1 text-blue-900 focus:outline-none">
                                 </div>
                             </div>
-
-                            <!-- الأختام الأصلية -->
-                            <div class="relative h-44 my-4 pointer-events-none no-print">
-                                <div class="absolute left-4 top-0 border-2 border-dashed border-blue-700 p-2.5 rounded-lg transform -rotate-12 bg-blue-50/10 w-48 text-center shadow-sm opacity-85">
-                                    <p class="text-blue-900 font-black text-xs">مستشفى أمان</p>
-                                    <p class="text-blue-900 font-bold text-[11px]">شركات</p>
-                                    <p class="text-blue-900 text-[10px] mt-1 border-t border-blue-300 pt-0.5">التوقيع / ....................</p>
+                            <div class="space-y-3 text-left">
+                                <div class="flex items-center justify-end gap-2">
+                                    <span>التاريخ :</span>
+                                    <input type="text" value="2026/09/21" class="border-b border-dotted border-slate-500 bg-transparent w-36 px-2 py-1 text-center text-blue-900 focus:outline-none">
                                 </div>
-                                <div class="absolute right-4 top-10 border-2 border-dashed border-blue-700 p-2.5 rounded-lg transform rotate-6 bg-blue-50/10 w-48 text-center shadow-sm opacity-85">
-                                    <p class="text-blue-900 font-black text-xs">مستشفى أمان</p>
-                                    <p class="text-blue-900 font-bold text-[11px]">شركات</p>
-                                    <p class="text-blue-900 text-[10px] mt-1 border-t border-blue-300 pt
+                            </div>
+                        </div>
+
+                        <!-- العلاج -->
+                        <div class="flex items-start gap-3 mb-8">
+                            <span class="text-red-600 font-serif italic text-4xl font-bold">R/</span>
+                            <div class="flex-grow">
+                                <textarea rows="7" placeholder="اكتب العلاج هنا..." class="w-full bg-transparent border border-dashed border-slate-400 rounded-xl p-3 text-blue-950 font-bold focus:outline-none text-xl"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- أختام أمان المائلة -->
+                        <div class="relative h-44 my-4 pointer-events-none no-print">
+                            <div class="absolute left-4 top-0 border-2 border-dashed border-blue-700 p-2.5 rounded-lg transform -rotate-12 bg-blue-50/10 w-48 text-center opacity-85">
+                                <p class="text-blue-900 font-black text-xs">مستشفى أمان</p>
+                                <p class="text-blue-900 font-bold text-[11px]">شركات</p>
+                                <p class="text-blue-900 text-[10px] mt-1 border-t border-blue-300 pt-0.5">التوقيع / ....................</p>
+                            </div>
+                            <div class="absolute right-4 top-10 border-2 border-dashed border-blue-700 p-2.5 rounded-lg transform rotate-6 bg-blue-50/10 w-48 text-center opacity-85">
+                                <p class="text-blue-900 font-black text-xs">مستشفى أمان</p>
+                                <p class="text-blue-900 font-bold text-[11px]">شركات</p>
+                                <p class="text-blue-900 text-[10px] mt-1 border-t border-blue-300 pt-0.5">التوقيع / ....................</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- التذييل -->
+                    <div class="border-t-2 border-red-600 pt-3 text-center text-xs font-black text-red-600 tracking-wide">
+                        ٢٩ ب شارع رياض تقاطع شارع مصطفى فهمي - مدينة نصر<br>
+                        ت : ٢٨١٦٦٦٥٦ - ٢٨١٦٦٦٥٧ ف : ٢٨١٦٦٦٥١ م : ٠١١٤٧٧٧١٦٥ - ٠١١٤٧٧٧١٦٤
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script>
+        function unlockPlatform() {
+            document.getElementById('globalLockScreen').style.display = 'none';
+            document.getElementById('protectedPlatformContent').classList.remove('hidden');
+            document.getElementById('mainHeader').classList.remove('hidden');
+            switchTab('prescription'); // فتح تبويب الروشتة مباشرة لتراها
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            if(tabId === 'tools') {
+                document.getElementById('toolsSection').classList.remove('hidden');
+            } else if(tabId === 'prescription') {
+                document.getElementById('prescriptionSection').classList.remove('hidden');
+            }
+        }
+
+        function changePrescriptionStyle() {
+            const selectedStyle = document.getElementById('styleSelector').value;
+            const container = document.getElementById('prescriptionContainer');
+            container.className = "prescription-paper p-8 flex flex-col justify-between rounded-xl border-2 border-slate-300 " + selectedStyle;
+        }
+    </script>
+</body>
+</html>
