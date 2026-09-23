@@ -53,7 +53,7 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
 
-    <!-- Header (مخفي في شاشة القفل ويظهر بعد الدخول) -->
+    <!-- Header -->
     <header id="mainHeader" class="border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-xl sticky top-0 z-50 no-print hidden">
         <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-3 space-x-reverse cursor-pointer" onclick="switchTab('tools')">
@@ -85,7 +85,7 @@
             </div>
         </div>
 
-        <!-- محتوى المنصة (يظهر بعد فك القفل) -->
+        <!-- محتوى المنصة (يظهر بعد الدخول) -->
         <div id="protectedPlatformContent" class="hidden space-y-12">
 
             <!-- 1. قسم الأدوات -->
@@ -93,9 +93,9 @@
                 <div class="glass-card rounded-2xl p-6 md:p-8">
                     <h2 class="text-2xl font-black mb-6">مرحباً بك في منصتك الذكية</h2>
                     <label class="block text-sm font-semibold text-slate-300 mb-4">اختر الأداة المطلوبة:</label>
-                    <select id="conversionType" class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-blue-500 transition shadow-inner cursor-pointer">
-                        <option value="img-to-jpg">🖼️ تحويل الصورة إلى JPG</option>
-                        <option value="text-uppercase">✍️ تحويل النص إلى أحرف كبيرة</option>
+                    <select class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-blue-500 transition shadow-inner cursor-pointer">
+                        <option>🖼️ تحويل الصورة إلى JPG</option>
+                        <option>✍️ تحويل النص إلى أحرف كبيرة</option>
                     </select>
                     <button type="button" class="w-full mt-6 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg">
                         تشغيل الأداة والمعالجة الفورية
@@ -113,7 +113,7 @@
                     <div class="flex items-center gap-3 bg-slate-900 p-2 rounded-xl border border-slate-700">
                         <label class="text-xs font-bold text-slate-400 pr-2">النمط:</label>
                         <select id="styleSelector" onchange="changePrescriptionStyle()" class="bg-slate-800 text-sm text-white px-3 py-1.5 rounded-lg border border-slate-600 cursor-pointer">
-                            <option value="style-aman">📄 مستشفى أمان (النمط المطابق)</option>
+                            <option value="style-aman">📄 مستشفى أمان (مطابق للصورة)</option>
                             <option value="style-classic">📑 كلاسيكي (رسمي)</option>
                             <option value="style-modern">📰 حديث (بسيط)</option>
                         </select>
@@ -123,7 +123,7 @@
                     </button>
                 </div>
 
-                <!-- حاوية الروشتة -->
+                <!-- حاوية الروشتة المطابقة لصورتك -->
                 <div id="prescriptionContainer" class="prescription-paper p-8 flex flex-col justify-between rounded-xl style-aman border-2 border-slate-300">
                     <div>
                         <!-- رأس الروشتة -->
@@ -160,7 +160,7 @@
                             <div class="space-y-3 text-left">
                                 <div class="flex items-center justify-end gap-2">
                                     <span class="text-slate-800 font-bold">التاريخ :</span>
-                                    <input type="text" value="2026/09/21" class="border-b border-dotted border-slate-500 bg-transparent w-36 px-2 py-1 text-center text-blue-900 font-bold focus:outline-none">
+                                    <input type="text" value="2026/09/23" class="border-b border-dotted border-slate-500 bg-transparent w-36 px-2 py-1 text-center text-blue-900 font-bold focus:outline-none">
                                 </div>
                             </div>
                         </div>
@@ -188,7 +188,7 @@
                         </div>
                     </div>
 
-                    <!-- التذييل -->
+                    <!-- التذييل بالبيانات التي أرسلتها -->
                     <div class="border-t-2 border-red-600 pt-3 text-center text-xs font-black text-red-600 tracking-wide">
                         ٢٩ ب شارع رياض تقاطع شارع مصطفى فهمي - مدينة نصر<br>
                         ت : ٢٨١٦٦٦٥٦ - ٢٨١٦٦٦٥٧ ف : ٢٨١٦٦٦٥١ م : ٠١١٤٧٧٧١٦٥ - ٠١١٤٧٧٧١٦٤
@@ -199,35 +199,21 @@
         </div>
     </main>
 
-    <!-- JavaScript البرمجي المتكامل -->
+    <!-- JavaScript لتشغيل الأزرار والتبويبات -->
     <script>
         function unlockPlatform() {
-            // إخفاء شاشة القفل تماماً
-            const lockScreen = document.getElementById('globalLockScreen');
-            if(lockScreen) lockScreen.style.display = 'none';
-
-            // إظهار محتوى المنصة والهيدر
-            const platformContent = document.getElementById('protectedPlatformContent');
-            if(platformContent) platformContent.classList.remove('hidden');
-
-            const mainHeader = document.getElementById('mainHeader');
-            if(mainHeader) mainHeader.classList.remove('hidden');
-
-            // فتح قسم الروشتة مباشرة لكي يظهر للمستخدم
+            document.getElementById('globalLockScreen').style.display = 'none';
+            document.getElementById('protectedPlatformContent').classList.remove('hidden');
+            document.getElementById('mainHeader').classList.remove('hidden');
             switchTab('prescription');
         }
 
         function switchTab(tabId) {
-            // إخفاء جميع الأقسام
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            
-            // إظهار القسم المطلوب فقط
             if(tabId === 'tools') {
-                const toolsSec = document.getElementById('toolsSection');
-                if(toolsSec) toolsSec.classList.remove('hidden');
+                document.getElementById('toolsSection').classList.remove('hidden');
             } else if(tabId === 'prescription') {
-                const presSec = document.getElementById('prescriptionSection');
-                if(presSec) presSec.classList.remove('hidden');
+                document.getElementById('prescriptionSection').classList.remove('hidden');
             }
         }
 
