@@ -1,0 +1,43 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "rooms": {
+      ".read": "auth != null",
+      ".indexOn": ["updatedAt"],
+      "$roomId": {
+        ".read": "auth != null",
+        ".write": "auth != null && !data.exists() && newData.child('hostUid').val() === auth.uid",
+        "players": {
+          "$uid": {
+            ".write": "auth != null && (auth.uid === $uid || root.child('rooms').child($roomId).child('hostUid').val() === auth.uid)"
+          }
+        },
+        "playersCount": {
+          ".write": "auth != null && root.child('rooms').child($roomId).child('players').child(auth.uid).exists()"
+        },
+        "state": {
+          ".write": "auth != null && root.child('rooms').child($roomId).child('players').child(auth.uid).exists()"
+        },
+        "chat": {
+          "$messageId": {
+            ".write": "auth != null && root.child('rooms').child($roomId).child('players').child(auth.uid).exists() && (!data.exists() || data.child('uid').val() === auth.uid)",
+            ".validate": "newData.hasChildren(['uid', 'name', 'text', 'at']) && newData.child('uid').val() === auth.uid && newData.child('text').isString() && newData.child('text').val().length <= 180"
+          }
+        }
+      }
+    },
+    "presence": {
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "invites": {
+      "$toUid": {
+        ".read": "auth != null && (auth.uid === $toUid || data.child('fromUid').val() === auth.uid || newData.child('fromUid').val() === auth.uid)",
+        ".write": "auth != null && (auth.uid === $toUid || newData.child('fromUid').val() === auth.uid)"
+      }
+    }
+  }
+}
