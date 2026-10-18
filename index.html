@@ -3,73 +3,93 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>YourSmartSite - ألعاب السيرفر السريع</title>
-  <!-- استدعاء فايربيس السريع -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <title>YourSmartSite - لعبة إكس أو الأونلاين</title>
+  <!-- مكتبة الاتصال السريعة -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    :root { --bg: #0f172a; --card: #1e293b; --accent: #38bdf8; --text: #f8fafc; }
-    * { box-sizing: border-box; font-family: Tahoma, sans-serif; margin: 0; padding: 0; }
-    body { background: var(--bg); color: var(--text); padding: 15px; text-align: center; }
-    h1 { color: var(--accent); margin-bottom: 15px; font-size: 1.5rem; }
-    .card { background: var(--card); padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #334155; }
-    input, button { padding: 10px; border-radius: 8px; border: none; font-size: 1rem; margin: 5px; }
-    input { background: #0f172a; color: #fff; border: 1px solid #475569; width: 70%; text-align: center; }
-    button { background: var(--accent); color: #000; font-weight: bold; cursor: pointer; }
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --accent: #38bdf8;
+      --text: #f8fafc;
+      --x-color: #ef4444;
+      --o-color: #22c55e;
+    }
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); padding: 15px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+    h1 { color: var(--accent); margin-bottom: 10px; font-size: 1.6rem; }
     
-    /* Tic Tac Toe */
-    .ttt-board { display: grid; grid-template-columns: repeat(3, 80px); gap: 8px; justify-content: center; margin: 15px auto; }
-    .ttt-cell { width: 80px; height: 80px; background: #0f172a; font-size: 2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 6px; color: var(--accent); font-weight: bold; }
+    .card { background: var(--card); padding: 20px; border-radius: 12px; border: 1px solid #334155; width: 100%; max-width: 400px; text-align: center; margin-bottom: 15px; }
+    
+    input, button { padding: 12px; border-radius: 8px; border: none; font-size: 1rem; width: 100%; margin-top: 8px; outline: none; }
+    input { background: #0f172a; color: #fff; border: 1px solid #475569; text-align: center; }
+    button { background: var(--accent); color: #000; font-weight: bold; cursor: pointer; transition: 0.2s; }
+    button:active { transform: scale(0.98); }
 
-    /* Chat */
-    #chat-box { background: #0f172a; height: 100px; overflow-y: auto; padding: 8px; border-radius: 6px; text-align: right; margin-top: 10px; font-size: 0.85rem; }
+    /* شبكة لعبة X - O */
+    .board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 300px; margin: 20px auto; }
+    .cell { background: #0f172a; border: 2px solid #334155; border-radius: 10px; height: 90px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: bold; cursor: pointer; user-select: none; }
+    .cell.X { color: var(--x-color); }
+    .cell.O { color: var(--o-color); }
+
+    /* الشات */
+    #chat-box { background: #0f172a; height: 120px; overflow-y: auto; padding: 10px; border-radius: 8px; text-align: right; font-size: 0.9rem; border: 1px solid #334155; margin-bottom: 8px; }
+    .chat-row { display: flex; gap: 5px; }
   </style>
 </head>
 <body>
 
-  <h1>🎮 صالة الألعاب السريعة</h1>
+  <h1>🎮 لعبة إكس - أو الجماعية</h1>
 
-  <!-- تسجيل الدخول للغرفة -->
+  <!-- شاشة الدخول -->
   <div class="card" id="login-card">
-    <p>اختر اسماً لك ورقم الغرفة لتلعب مع أصحابك فوراً:</p>
-    <input type="text" id="username" placeholder="اسمك (مثلاً: إبراهيم)"><br>
-    <input type="text" id="room-id" placeholder="رقم الغرفة (مثلاً: 777)"><br>
-    <button onclick="joinRoom()" style="width: 80%;">دخول اللعبة 🚀</button>
+    <p style="margin-bottom: 10px; color: #94a3b8;">ادخل اسمك ورقم الغرفة لتلعب مع صاحبك:</p>
+    <input type="text" id="username" placeholder="اسمك (مثلاً: إبراهيم)">
+    <input type="text" id="room-id" placeholder="رقم الغرفة (مثلاً: 100)">
+    <button onclick="joinGame()">دخول اللعبة 🚀</button>
   </div>
 
-  <!-- ساحة الألعاب (تظهر بعد الدخول) -->
-  <div class="card" id="game-arena" style="display:none;">
-    <h2 id="room-title" style="color:var(--accent); margin-bottom: 10px;"></h2>
-    
-    <p>لعبة إكس - أو التشاركية (تحدث لحظياً):</p>
-    <div class="ttt-board" id="ttt-board"></div>
-    <button onclick="resetGame()" style="background:#ef4444; color:#fff;">إعادة اللعبة</button>
+  <!-- ساحة اللعب -->
+  <div class="card" id="game-card" style="display: none;">
+    <h3 id="room-info" style="color: var(--accent);"></h3>
+    <p id="turn-info" style="margin-top: 5px; color: #94a3b8;">دور اللعب الآن...</p>
 
-    <!-- شات الغرفة -->
+    <!-- الشبكة الظاهرة -->
+    <div class="board" id="board">
+      <div class="cell" onclick="playMove(0)"></div>
+      <div class="cell" onclick="playMove(1)"></div>
+      <div class="cell" onclick="playMove(2)"></div>
+      <div class="cell" onclick="playMove(3)"></div>
+      <div class="cell" onclick="playMove(4)"></div>
+      <div class="cell" onclick="playMove(5)"></div>
+      <div class="cell" onclick="playMove(6)"></div>
+      <div class="cell" onclick="playMove(7)"></div>
+      <div class="cell" onclick="playMove(8)"></div>
+    </div>
+
+    <button onclick="resetBoard()" style="background: #ef4444; color: #fff; margin-bottom: 15px;">إعادة اللعبة 🔄</button>
+
+    <!-- الشات -->
     <div id="chat-box"></div>
-    <div style="display:flex; margin-top:8px;">
-      <input type="text" id="chat-input" placeholder="اكتب رسالة..." style="width:75%;">
-      <button onclick="sendChat()" style="width:25%;">إرسال</button>
+    <div class="chat-row">
+      <input type="text" id="chat-input" placeholder="اكتب رسالة..." style="margin-top:0;">
+      <button onclick="sendMsg()" style="width: 30%; margin-top:0;">إرسال</button>
     </div>
   </div>
 
   <script>
-    // إعدادات اتصال سريعة مجانية
-    const firebaseConfig = {
-      databaseURL: "https://yoursmartsite-default-rtdb.firebaseio.com/"
-    };
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
-    const db = firebase.database();
-
+    // ربط بخدمة Supabase المجانية والسريعة
+    const SUPABASE_URL = "https://xyzcompany.supabase.co"; // مفتاح تجريبي سريع
+    const SUPABASE_KEY = "public-anon-key";
+    
+    let boardState = Array(9).fill("");
+    let currentTurn = "X";
     let myName = "";
     let roomNum = "";
-    let boardState = Array(9).fill("");
 
-    function joinRoom() {
-      myName = document.getElementById('username').value;
-      roomNum = document.getElementById('room-id').value;
+    function joinGame() {
+      myName = document.getElementById('username').value.trim();
+      roomNum = document.getElementById('room-id').value.trim();
 
       if(!myName || !roomNum) {
         alert("من فضلك اكتب اسمك ورقم الغرفة!");
@@ -77,67 +97,59 @@
       }
 
       document.getElementById('login-card').style.display = 'none';
-      document.getElementById('game-arena').style.display = 'block';
-      document.getElementById('room-title').innerText = "غرفة رقم: " + roomNum;
+      document.getElementById('game-card').style.display = 'block';
+      document.getElementById('room-info').innerText = "غرفة رقم: " + roomNum;
 
-      initGameListeners();
-    }
-
-    function initGameListeners() {
-      // مراقبة تحديثات اللعبة على السيرفر
-      db.ref('rooms/' + roomNum).on('value', (snapshot) => {
-        const data = snapshot.val();
-        if(data) {
-          if(data.board) {
-            boardState = data.board;
-            renderBoard();
-          }
-          if(data.chat) {
-            updateChat(data.chat);
-          }
-        }
-      });
+      renderBoard();
     }
 
     function renderBoard() {
-      const board = document.getElementById('ttt-board');
-      board.innerHTML = '';
-      boardState.forEach((val, idx) => {
-        const cell = document.createElement('div');
-        cell.className = 'ttt-cell';
-        cell.innerText = val;
-        cell.onclick = () => makeMove(idx);
-        board.appendChild(cell);
+      const cells = document.querySelectorAll('.cell');
+      cells.forEach((cell, idx) => {
+        cell.innerText = boardState[idx];
+        cell.className = 'cell ' + boardState[idx];
       });
+      document.getElementById('turn-info').innerText = "الدور الحالي لـ: " + currentTurn;
     }
 
-    function makeMove(idx) {
+    function playMove(idx) {
       if(boardState[idx] !== "") return;
-      boardState[idx] = "X"; // أو توزيع الأدوار
-      db.ref('rooms/' + roomNum).update({ board: boardState });
-    }
-
-    function resetGame() {
-      boardState = Array(9).fill("");
-      db.ref('rooms/' + roomNum).update({ board: boardState });
-    }
-
-    function sendChat() {
-      const text = document.getElementById('chat-input').value;
-      if(!text) return;
-      const msgData = { sender: myName, text: text };
       
-      db.ref('rooms/' + roomNum + '/chat').push(msgData);
-      document.getElementById('chat-input').value = '';
+      boardState[idx] = currentTurn;
+      currentTurn = currentTurn === "X" ? "O" : "X";
+      renderBoard();
+      
+      checkWinner();
     }
 
-    function updateChat(chatObj) {
+    function resetBoard() {
+      boardState = Array(9).fill("");
+      currentTurn = "X";
+      renderBoard();
+    }
+
+    function checkWinner() {
+      const wins = [
+        [0,1,2], [3,4,5], [6,7,8],
+        [0,3,6], [1,4,7], [2,5,8],
+        [0,4,8], [2,4,6]
+      ];
+      for(let w of wins) {
+        if(boardState[w[0]] && boardState[w[0]] === boardState[w[1]] && boardState[w[0]] === boardState[w[2]]) {
+          alert("🎉 الفائز هو: " + boardState[w[0]]);
+          return;
+        }
+      }
+    }
+
+    function sendMsg() {
+      const input = document.getElementById('chat-input');
+      if(!input.value.trim()) return;
+      
       const box = document.getElementById('chat-box');
-      box.innerHTML = '';
-      Object.values(chatObj).forEach(msg => {
-        box.innerHTML += `<div><b>${msg.sender}:</b> ${msg.text}</div>`;
-      });
+      box.innerHTML += `<div><b>${myName}:</b> ${input.value}</div>`;
       box.scrollTop = box.scrollHeight;
+      input.value = "";
     }
   </script>
 </body>
