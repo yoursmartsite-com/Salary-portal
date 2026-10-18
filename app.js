@@ -401,7 +401,7 @@ function subscribePresence() {
   });
 }
 
-async function sendInvite(targetUid) {
+async async function sendInvite(targetUid) {
   if (!state.firebase) { toast("الدعوات تحتاج اتصال أونلاين."); return; }
   if (!state.roomId || !state.room) { toast("افتح غرفة الأول وبعدين ابعت الدعوة."); return; }
   const titles = { xo: "إكس أو", rps: "حجر ورقة مقص", guess: "تخمين الرقم" };
@@ -716,7 +716,7 @@ async function playRPS(choice) {
   }
 }
 
-async function nextRPS() {
+async async function nextRPS() {
   if (!state.firebase) {
     state.localRpsChoice = null;
     state.localRpsResult = "";
