@@ -388,7 +388,7 @@ function subscribePresence() {
     const users = [];
     snap.forEach(child => {
       const u = child.val();
-      if (child.key !== state.uid && u?.online && Date.now() - (u.at || 0) < 120000) users.push({ ...u, uid: child.key });
+      if (child.key !== state.uid && u?.online && true) users.push({ ...u, uid: child.key });
     });
     const root = $("#onlinePlayersList");
     if (!root) return;
@@ -646,109 +646,75 @@ function drawRPS() {
   const scores = state.firebase ? (gameState.scores || {}) : state.localRpsScore;
   const entries = currentPlayerEntries();
   const mine = choices[state.uid];
-  const opponent = entries.find(([uid]) => uid !== state.uid);
-  const opponentChoice = opponent && choices[opponent[0]];
+  const allChosen = entries.length >= 2 && entries.every(([uid]) => choices[uid]);
+  const labels = { rock: "حجر", paper: "ورقة", scissors: "مقص" };
+  const scoreText = entries.map(([uid, player]) => `${safeText(player.name || "لاعب")}: ${scores[uid] ?? (uid === state.uid ? scores.me : 0) ?? 0}`).join(" • ");
 
   $("#gameContent").innerHTML = `
     <p class="game-message">
       ${state.firebase
-        ? (entries.length < 2
-          ? "مستنيين لاعب تاني يدخل..."
-          : mine
-            ? (opponentChoice ? "الجولة خلصت!" : "اختيارك اتسجل، مستني صاحبك...")
-            : "اختار حجر أو ورقة أو مقص")
+        ? (entries.length < 2 ? "مستنيين لاعبين يدخلوا..." : allChosen ? "الجولة خلصت!" : mine ? "اختيارك اتسجل، مستني باقي اللاعبين..." : "اختار حجر أو ورقة أو مقص")}
         : (state.localRpsChoice ? "اضغط الجولة التالية للعب مرة أخرى." : "اختار حركتك والخصم هيلعب تلقائيًا.")}
     </p>
-
     <div class="choice-row">
       ${[["rock", "✊", "حجر"], ["paper", "✋", "ورقة"], ["scissors", "✌️", "مقص"]]
         .map(([value, emoji, label]) => `
           <button class="choice-btn" data-rps="${value}" aria-label="${label}"
-            ${(state.firebase && (entries.length < 2 || mine)) ||
-              (!state.firebase && state.localRpsChoice) ? "disabled" : ""}>
+            ${(state.firebase && (entries.length < 2 || mine)) || (!state.firebase && state.localRpsChoice) ? "disabled" : ""}>
             ${emoji}
-          </button>
-        `).join("")}
+          </button>`).join("")}
     </div>
-
-    <div class="score-row">
-      <span class="score-chip">أنت: ${scores[state.uid] ?? scores.me ?? 0}</span>
-      <span class="score-chip">الخصم: ${opponent ? (scores[opponent[0]] || 0) : (scores.opponent || 0)}</span>
-    </div>
-
-    ${state.firebase && mine && opponentChoice ? `
-      <p class="game-message">
-        اختيارك: ${({rock:"حجر",paper:"ورقة",scissors:"مقص"})[mine]}
-        — اختيار الخصم: ${({rock:"حجر",paper:"ورقة",scissors:"مقص"})[opponentChoice]}
-      </p>
-      <button class="secondary-btn" id="nextRps">الجولة التالية</button>
+    <div class="score-row"><span class="score-chip">${scoreText || "النقاط هتظهر هنا"}</span></div>
+    ${state.firebase && allChosen ? `
+      <div class="game-message">${entries.map(([uid, player]) => `${safeText(player.name || "لاعب")}: ${labels[choices[uid]] || "—"}`).join(" • ")}</div>
+      ${state.room.hostUid === state.uid ? '<button class="secondary-btn" id="nextRps">الجولة التالية</button>' : '<p class="game-message">مستني صاحب الغرفة يبدأ الجولة التالية.</p>'}
     ` : ""}
-
     ${!state.firebase && state.localRpsChoice ? `
       <p class="game-message">${safeText(state.localRpsResult || "")}</p>
-      <button class="secondary-btn" id="nextRps">الجولة التالية</button>
-    ` : ""}
+      <button class="secondary-btn" id="nextRps">الجولة التالية</button>` : ""}
   `;
-
-  $$("[data-rps]").forEach((button) => {
-    button.addEventListener("click", () => playRPS(button.dataset.rps));
-  });
-
+  $$("[data-rps]").forEach(button => button.addEventListener("click", () => playRPS(button.dataset.rps)));
   $("#nextRps")?.addEventListener("click", nextRPS);
 }
 
 async function playRPS(choice) {
+  if (!["rock", "paper", "scissors"].includes(choice)) return;
   if (!state.firebase) {
     const options = ["rock", "paper", "scissors"];
     const opponent = options[Math.floor(Math.random() * options.length)];
     state.localRpsChoice = choice;
-
-    if (choice === opponent) {
-      state.localRpsResult = `تعادل! أنت والخصم اخترتم ${choice}.`;
-    } else if (
-      ({ rock: "scissors", paper: "rock", scissors: "paper" })[choice] === opponent
-    ) {
+    if (choice === opponent) state.localRpsResult = `تعادل! أنت والخصم اخترتم ${choice}.`;
+    else if (({ rock: "scissors", paper: "rock", scissors: "paper" })[choice] === opponent) {
       state.localRpsScore.me++;
       state.localRpsResult = "كسبت الجولة! 🎉";
     } else {
       state.localRpsScore.opponent++;
       state.localRpsResult = "الخصم كسب الجولة. جرّب تاني!";
     }
-
     drawRPS();
     return;
   }
-
   try {
     const { ref, runTransaction, get, update } = state.dbApi;
-
-    await runTransaction(ref(state.db, `rooms/${state.roomId}/state/choices`), (choices) => {
+    await runTransaction(ref(state.db, `rooms/${state.roomId}/state/choices`), choices => {
       choices = choices || {};
       if (choices[state.uid]) return;
       choices[state.uid] = choice;
       return choices;
     });
-
     const snap = await get(ref(state.db, `rooms/${state.roomId}/state`));
-    const gameState = snap.val();
+    const gameState = snap.val() || {};
     const entries = currentPlayerEntries();
-
-    if (
-      entries.length >= 2 &&
-      entries.every(([uid]) => gameState.choices?.[uid])
-    ) {
-      const [a, b] = entries.map(([uid]) => gameState.choices[uid]);
-      let winner = null;
-
-      if (a !== b) {
-        winner = ({ rock: "scissors", paper: "rock", scissors: "paper" })[a] === b
-          ? entries[0][0]
-          : entries[1][0];
-      }
-
+    if (entries.length >= 2 && entries.every(([uid]) => gameState.choices?.[uid])) {
       const scores = { ...(gameState.scores || {}) };
-      if (winner) scores[winner] = (scores[winner] || 0) + 1;
-
+      const beats = { rock: "scissors", paper: "rock", scissors: "paper" };
+      for (const [uid, picked] of entries) {
+        let points = 0;
+        for (const [otherUid, otherPick] of entries) {
+          if (uid !== otherUid && beats[picked] === otherPick) points++;
+        }
+        if (points) scores[uid] = (scores[uid] || 0) + points;
+      }
       await update(ref(state.db, `rooms/${state.roomId}/state`), { scores });
     }
   } catch (err) {
@@ -768,6 +734,7 @@ async function nextRPS() {
   try {
     const { ref, update, remove, get } = state.dbApi;
 
+    if (state.room.hostUid !== state.uid) { toast("صاحب الغرفة بس يبدأ الجولة التالية."); return; }
     await remove(ref(state.db, `rooms/${state.roomId}/state/choices`));
 
     const snap = await get(ref(state.db, `rooms/${state.roomId}/state/round`));
