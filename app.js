@@ -356,9 +356,7 @@ function leaveRoom() {
 }
 
 $("#nameForm").addEventListener("submit",e=>{e.preventDefault();const name=$("#nameInput").value.trim().slice(0,18);if(!name)return;state.name=name;localStorage.setItem("arcade_name",name);renderName();closeModal("nameModal");});
-$("#editNameBtn").addEventListener("click",()=>{$("#nameInput").value=state.name;openModal("nameModal");});
-
-$("[data-close]").forEach(b=>b.addEventListener("click",()=>closeModal(b.dataset.close)));
+$("#editNameBtn").addEventListener("click",()=>{$("#nameInput").value=state.name;openModal("nameModal");});  $$("[data-close]").forEach(b=>b.addEventListener("click",()=>closeModal(b.dataset.close)));
 $$(".modal-backdrop").forEach(m=>m.addEventListener("click",e=>{if(e.target===m){if(m.id==="gameModal")leaveRoom();else closeModal(m.id);}})); $$
 ("[data-game]").forEach(b=>b.addEventListener("click",()=>createRoom(b.dataset.game)));
 $("#chatForm").addEventListener("submit",e=>{e.preventDefault();const input=$("#chatInput");sendChat(input.value);input.value="";});
