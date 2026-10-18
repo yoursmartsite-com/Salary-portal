@@ -317,7 +317,7 @@ async function joinRoom(id) {
   }
 
   try {
-    const { ref, get, update, runTransaction } = state.dbApi;
+    const { ref, get, update } = state.dbApi;
     const roomRef = ref(state.db, `rooms/${id}`);
     const snap = await get(roomRef);
 
@@ -340,13 +340,6 @@ async function joinRoom(id) {
       name: state.name,
       joinedAt: Date.now()
     });
-
-    if (!alreadyJoined) {
-      await runTransaction(
-        ref(state.db, `rooms/${id}/playersCount`),
-        (value) => (value || 0) + 1
-      );
-    }
 
     state.game = room.game;
     state.roomId = id;
