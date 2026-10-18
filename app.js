@@ -383,11 +383,13 @@ function subscribePresence() {
       const u = child.val();
       if (child.key !== state.uid && u?.online && true) users.push({ ...u, uid: child.key });
     });
-    const root = $("#onlinePlayersList");
-    if (!root) return;
-    root.innerHTML = users.length ? users.map(u => `
+    const inviteMarkup = users.length ? users.map(u => `
       <div class="room-item"><span class="room-emoji">🟢</span><div><strong>${safeText(u.name || "لاعب")}</strong><small>متصل الآن</small></div><button data-invite="${safeText(u.uid)}">دعوة</button></div>
     `).join("") : '<p class="empty-notice">مفيش أصحاب متصلين دلوقتي.</p>';
+    ["#onlinePlayersList", "#roomOnlinePlayersList"].forEach(selector => {
+      const root = $(selector);
+      if (root) root.innerHTML = inviteMarkup;
+    });
     $("[data-invite]").forEach(btn => btn.addEventListener("click", () => sendInvite(btn.dataset.invite)));
   });
   onValue(ref(state.db, `invites/${state.uid}`), snap => {
