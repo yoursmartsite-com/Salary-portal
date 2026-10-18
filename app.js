@@ -133,6 +133,7 @@ async function initFirebase() {
     }
 
     subscribeRooms();
+    subscribePresence();
   } catch (err) {
     console.error("Firebase error:", err);
     state.firebase = false;
@@ -211,7 +212,7 @@ function renderRooms(rooms) {
       <span class="room-emoji">${icons[room.game] || "🎮"}</span>
       <div>
         <strong>${safeText(room.title || titles[room.game] || "غرفة لعب")}</strong>
-        <small>${safeText(room.hostName || "لاعب")} • ${safeText(room.playersCount || 1)} لاعب</small>
+        <small>${safeText(room.hostName || "لاعب")} • ${safeText(Object.keys(room.players || {}).length || room.playersCount || 1)} / ${{xo:2,rps:4,guess:4}[room.game] || 4} لاعب</small>
       </div>
       <button data-join="${safeText(room.id)}">دخول</button>
     </div>
@@ -329,11 +330,8 @@ async function joinRoom(id) {
     const players = room.players || {};
     const alreadyJoined = Boolean(players[state.uid]);
 
-    if (
-      (room.game === "xo" || room.game === "rps") &&
-      Object.keys(players).length >= 2 &&
-      !alreadyJoined
-    ) {
+    const maxPlayers = ({ xo: 2, rps: 4, guess: 4 })[room.game] || 4;
+    if (Object.keys(players).length >= maxPlayers && !alreadyJoined) {
       toast("الغرفة دي مكتملة.");
       return;
     }
@@ -359,6 +357,69 @@ async function joinRoom(id) {
     console.error("Join room error:", err);
     toast("تعذر دخول الغرفة. راجع قواعد Firebase.");
   }
+}
+
+async function joinByCode() {
+  const input = $("#joinCodeInput");
+  const code = (input?.value || "").trim();
+  if (!code) { toast("اكتب كود الغرفة الأول."); return; }
+  if (!state.firebase) { toast("الدخول بالكود يحتاج اتصال أونلاين."); return; }
+  const { ref, get } = state.dbApi;
+  try {
+    const snap = await get(ref(state.db, "rooms"));
+    if (!snap.exists()) { toast("مفيش غرف متاحة."); return; }
+    let found = null;
+    snap.forEach(child => {
+      if (child.key === code || child.key.slice(-6).toUpperCase() === code.toUpperCase()) found = child.key;
+    });
+    if (!found) { toast("الكود مش صحيح أو الغرفة مش موجودة."); return; }
+    await joinRoom(found);
+    if (input) input.value = "";
+  } catch (err) { console.error(err); toast("تعذر البحث عن الغرفة."); }
+}
+
+function subscribePresence() {
+  if (!state.firebase || !state.dbApi) return;
+  const { ref, onValue, set, onDisconnect, remove } = state.dbApi;
+  const me = ref(state.db, `presence/${state.uid}`);
+  set(me, { uid: state.uid, name: state.name || "لاعب", online: true, at: Date.now() }).catch(console.error);
+  onDisconnect(me).remove().catch(console.error);
+  onValue(ref(state.db, "presence"), snap => {
+    const users = [];
+    snap.forEach(child => {
+      const u = child.val();
+      if (child.key !== state.uid && u?.online && Date.now() - (u.at || 0) < 120000) users.push({ ...u, uid: child.key });
+    });
+    const root = $("#onlinePlayersList");
+    if (!root) return;
+    root.innerHTML = users.length ? users.map(u => `
+      <div class="room-item"><span class="room-emoji">🟢</span><div><strong>${safeText(u.name || "لاعب")}</strong><small>متصل الآن</small></div><button data-invite="${safeText(u.uid)}">دعوة</button></div>
+    `).join("") : '<p class="empty-notice">مفيش أصحاب متصلين دلوقتي.</p>';
+    $("[data-invite]").forEach(btn => btn.addEventListener("click", () => sendInvite(btn.dataset.invite)));
+  });
+  onValue(ref(state.db, `invites/${state.uid}`), snap => {
+    const invite = snap.val();
+    if (!invite || !invite.roomId || invite.status !== "pending") return;
+    if ($("#inviteNotice")) {
+      $("#inviteNotice").innerHTML = `<div class="invite-box"><span>🎮 ${safeText(invite.fromName || "لاعب")} بيدعوك للعب ${safeText(invite.gameTitle || "لعبة")}</span><div><button id="acceptInvite">قبول</button><button id="rejectInvite">رفض</button></div></div>`;
+      $("#acceptInvite")?.addEventListener("click", async () => { await remove(ref(state.db, `invites/${state.uid}`)); joinRoom(invite.roomId); });
+      $("#rejectInvite")?.addEventListener("click", async () => { await remove(ref(state.db, `invites/${state.uid}`)); $("#inviteNotice").innerHTML = ""; });
+    }
+  });
+}
+
+async function sendInvite(targetUid) {
+  if (!state.firebase) { toast("الدعوات تحتاج اتصال أونلاين."); return; }
+  if (!state.roomId || !state.room) { toast("افتح غرفة الأول وبعدين ابعت الدعوة."); return; }
+  const titles = { xo: "إكس أو", rps: "حجر ورقة مقص", guess: "تخمين الرقم" };
+  try {
+    const { ref, set } = state.dbApi;
+    await set(ref(state.db, `invites/${targetUid}`), {
+      fromUid: state.uid, fromName: state.name, roomId: state.roomId,
+      gameTitle: titles[state.game] || "لعبة", status: "pending", at: Date.now()
+    });
+    toast("اتبعثت الدعوة!");
+  } catch (err) { console.error(err); toast("تعذر إرسال الدعوة."); }
 }
 
 function watchRoom() {
@@ -908,6 +969,7 @@ $("#nameForm")?.addEventListener("submit", (event) => {
   state.name = name;
   localStorage.setItem("arcade_name", name);
   renderName();
+  if (state.firebase && state.dbApi) state.dbApi.set(state.dbApi.ref(state.db, `presence/${state.uid}`), { uid: state.uid, name, online: true, at: Date.now() }).catch(console.error);
   closeModal("nameModal");
 });
 
@@ -956,6 +1018,9 @@ $("#copyRoomBtn")?.addEventListener("click", async () => {
     toast("كود الغرفة: " + state.roomId);
   }
 });
+
+$("#joinCodeBtn")?.addEventListener("click", joinByCode);
+$("#joinCodeInput")?.addEventListener("keydown", e => { if (e.key === "Enter") joinByCode(); });
 
 $("#refreshRooms")?.addEventListener("click", () => {
   toast(state.firebase
