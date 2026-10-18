@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>YourSmartSite - لعبة إكس أو الأونلاين</title>
-  <!-- مكتبة الاتصال السريعة -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <title>YourSmartSite - لعبة X-O الأونلاين الحقيقية</title>
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
   <style>
     :root {
       --bg: #0f172a;
@@ -26,48 +25,50 @@
     button { background: var(--accent); color: #000; font-weight: bold; cursor: pointer; transition: 0.2s; }
     button:active { transform: scale(0.98); }
 
+    .status-badge { background: #334155; padding: 8px; border-radius: 6px; font-size: 0.9rem; margin-bottom: 10px; }
+
     /* شبكة لعبة X - O */
-    .board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 300px; margin: 20px auto; }
+    .board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 300px; margin: 15px auto; }
     .cell { background: #0f172a; border: 2px solid #334155; border-radius: 10px; height: 90px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: bold; cursor: pointer; user-select: none; }
     .cell.X { color: var(--x-color); }
     .cell.O { color: var(--o-color); }
 
     /* الشات */
-    #chat-box { background: #0f172a; height: 120px; overflow-y: auto; padding: 10px; border-radius: 8px; text-align: right; font-size: 0.9rem; border: 1px solid #334155; margin-bottom: 8px; }
+    #chat-box { background: #0f172a; height: 100px; overflow-y: auto; padding: 8px; border-radius: 8px; text-align: right; font-size: 0.85rem; border: 1px solid #334155; margin-bottom: 8px; }
     .chat-row { display: flex; gap: 5px; }
   </style>
 </head>
 <body>
 
-  <h1>🎮 لعبة إكس - أو الجماعية</h1>
+  <h1>🎮 صالة التحدي - X vs O</h1>
 
-  <!-- شاشة الدخول -->
-  <div class="card" id="login-card">
-    <p style="margin-bottom: 10px; color: #94a3b8;">ادخل اسمك ورقم الغرفة لتلعب مع صاحبك:</p>
-    <input type="text" id="username" placeholder="اسمك (مثلاً: إبراهيم)">
-    <input type="text" id="room-id" placeholder="رقم الغرفة (مثلاً: 100)">
-    <button onclick="joinGame()">دخول اللعبة 🚀</button>
+  <!-- شاشة الانضمام والإنشاء -->
+  <div class="card" id="lobby-card">
+    <div class="status-badge">كودك الخاص للاستضافة: <b id="my-peer-id" style="color:var(--accent)">جاري التوليد...</b></div>
+    <p style="margin: 10px 0 5px; color: #94a3b8; font-size: 0.9rem;">أدخل كود صديقك للانضمام إليه:</p>
+    <input type="text" id="host-id-input" placeholder="ألصق كود صديقك هنا">
+    <button onclick="connectToHost()">انضمام وتحدي 🚀</button>
   </div>
 
-  <!-- ساحة اللعب -->
+  <!-- ساحة اللعب الحقيقية -->
   <div class="card" id="game-card" style="display: none;">
-    <h3 id="room-info" style="color: var(--accent);"></h3>
-    <p id="turn-info" style="margin-top: 5px; color: #94a3b8;">دور اللعب الآن...</p>
+    <div id="role-info" class="status-badge">أنت تلعب بحرف: <b id="my-symbol" style="color:var(--accent)">-</b></div>
+    <p id="turn-info" style="margin-bottom: 10px; font-weight: bold; color: var(--accent);">في انتظار الخصم...</p>
 
-    <!-- الشبكة الظاهرة -->
+    <!-- الشبكة -->
     <div class="board" id="board">
-      <div class="cell" onclick="playMove(0)"></div>
-      <div class="cell" onclick="playMove(1)"></div>
-      <div class="cell" onclick="playMove(2)"></div>
-      <div class="cell" onclick="playMove(3)"></div>
-      <div class="cell" onclick="playMove(4)"></div>
-      <div class="cell" onclick="playMove(5)"></div>
-      <div class="cell" onclick="playMove(6)"></div>
-      <div class="cell" onclick="playMove(7)"></div>
-      <div class="cell" onclick="playMove(8)"></div>
+      <div class="cell" onclick="handleCellClick(0)"></div>
+      <div class="cell" onclick="handleCellClick(1)"></div>
+      <div class="cell" onclick="handleCellClick(2)"></div>
+      <div class="cell" onclick="handleCellClick(3)"></div>
+      <div class="cell" onclick="handleCellClick(4)"></div>
+      <div class="cell" onclick="handleCellClick(5)"></div>
+      <div class="cell" onclick="handleCellClick(6)"></div>
+      <div class="cell" onclick="handleCellClick(7)"></div>
+      <div class="cell" onclick="handleCellClick(8)"></div>
     </div>
 
-    <button onclick="resetBoard()" style="background: #ef4444; color: #fff; margin-bottom: 15px;">إعادة اللعبة 🔄</button>
+    <button onclick="resetGame(true)" style="background: #ef4444; color: #fff; margin-bottom: 15px;">جولة جديدة 🔄</button>
 
     <!-- الشات -->
     <div id="chat-box"></div>
@@ -78,29 +79,86 @@
   </div>
 
   <script>
-    // ربط بخدمة Supabase المجانية والسريعة
-    const SUPABASE_URL = "https://xyzcompany.supabase.co"; // مفتاح تجريبي سريع
-    const SUPABASE_KEY = "public-anon-key";
-    
+    let peer, conn;
+    let mySymbol = ""; // هيكون X أو O
+    let currentTurn = "X"; // X بيبدأ دايماً
     let boardState = Array(9).fill("");
-    let currentTurn = "X";
-    let myName = "";
-    let roomNum = "";
+    let isConnected = false;
 
-    function joinGame() {
-      myName = document.getElementById('username').value.trim();
-      roomNum = document.getElementById('room-id').value.trim();
+    // تهيئة السيرفر المجاني السريع للـ Peer
+    peer = new Peer(null, {
+      debug: 1
+    });
 
-      if(!myName || !roomNum) {
-        alert("من فضلك اكتب اسمك ورقم الغرفة!");
-        return;
-      }
+    peer.on('open', id => {
+      document.getElementById('my-peer-id').innerText = id;
+    });
 
-      document.getElementById('login-card').style.display = 'none';
-      document.getElementById('game-card').style.display = 'block';
-      document.getElementById('room-info').innerText = "غرفة رقم: " + roomNum;
+    // استقبال اتصال من صديق (أنت المستضيف / Host)
+    peer.on('connection', c => {
+      conn = c;
+      mySymbol = "X"; // صاحب الغرفة بيلعب بـ X
+      setupConnection();
+    });
+
+    // الاتصال بمستضيف (أنت الضيف / Client)
+    function connectToHost() {
+      const hostId = document.getElementById('host-id-input').value.trim();
+      if(!hostId) return alert("من فضلك اكتب كود صديقك!");
+      
+      conn = peer.connect(hostId);
+      mySymbol = "O"; // اللي بيبعت اتصال بيلعب بـ O
+      setupConnection();
+    }
+
+    function setupConnection() {
+      conn.on('open', () => {
+        isConnected = true;
+        document.getElementById('lobby-card').style.display = 'none';
+        document.getElementById('game-card').style.display = 'block';
+        document.getElementById('my-symbol').innerText = mySymbol;
+        document.getElementById('my-symbol').style.color = mySymbol === 'X' ? 'var(--x-color)' : 'var(--o-color)';
+        
+        updateTurnDisplay();
+        appendChat("سيستم: تم الاتصال بنجاح! بالتوفيق في اللعبة 🎉");
+      });
+
+      // استقبال البيانات اللحظية من المنافس
+      conn.on('data', data => {
+        if(data.type === 'move') {
+          boardState[data.index] = data.symbol;
+          currentTurn = data.nextTurn;
+          renderBoard();
+          checkWinner();
+        } else if(data.type === 'reset') {
+          resetBoardLocal();
+        } else if(data.type === 'chat') {
+          appendChat("الخصم: " + data.msg);
+        }
+      });
+    }
+
+    function handleCellClick(index) {
+      if(!isConnected) return alert("في انتظار انضمام المنافس!");
+      if(boardState[index] !== "") return; // المربع مليان
+      if(currentTurn !== mySymbol) return alert("مش دورك! انتظر منافسك تلعب بحرف " + mySymbol);
+
+      // تطبيق الحركة
+      boardState[index] = mySymbol;
+      const nextTurn = mySymbol === "X" ? "O" : "X";
+      currentTurn = nextTurn;
 
       renderBoard();
+
+      // إرسال اللعبة للمنافس في نفس اللحظة
+      conn.send({
+        type: 'move',
+        index: index,
+        symbol: mySymbol,
+        nextTurn: nextTurn
+      });
+
+      checkWinner();
     }
 
     function renderBoard() {
@@ -109,20 +167,28 @@
         cell.innerText = boardState[idx];
         cell.className = 'cell ' + boardState[idx];
       });
-      document.getElementById('turn-info').innerText = "الدور الحالي لـ: " + currentTurn;
+      updateTurnDisplay();
     }
 
-    function playMove(idx) {
-      if(boardState[idx] !== "") return;
-      
-      boardState[idx] = currentTurn;
-      currentTurn = currentTurn === "X" ? "O" : "X";
-      renderBoard();
-      
-      checkWinner();
+    function updateTurnDisplay() {
+      const turnText = document.getElementById('turn-info');
+      if(currentTurn === mySymbol) {
+        turnText.innerText = "👉 دورك أنت الآن (" + mySymbol + ")";
+        turnText.style.color = "var(--accent)";
+      } else {
+        turnText.innerText = "⏳ دور المنافس الآن (" + currentTurn + ")...";
+        turnText.style.color = "#94a3b8";
+      }
     }
 
-    function resetBoard() {
+    function resetGame(sendToPeer) {
+      resetBoardLocal();
+      if(sendToPeer && conn) {
+        conn.send({ type: 'reset' });
+      }
+    }
+
+    function resetBoardLocal() {
       boardState = Array(9).fill("");
       currentTurn = "X";
       renderBoard();
@@ -136,7 +202,14 @@
       ];
       for(let w of wins) {
         if(boardState[w[0]] && boardState[w[0]] === boardState[w[1]] && boardState[w[0]] === boardState[w[2]]) {
-          alert("🎉 الفائز هو: " + boardState[w[0]]);
+          const winner = boardState[w[0]];
+          setTimeout(() => {
+            if(winner === mySymbol) {
+              alert("🏆 مبروك! أنت الفائز باللعبة!");
+            } else {
+              alert("❌ للأسف، الفائز هو المنافس!");
+            }
+          }, 100);
           return;
         }
       }
@@ -144,12 +217,17 @@
 
     function sendMsg() {
       const input = document.getElementById('chat-input');
-      if(!input.value.trim()) return;
+      if(!input.value.trim() || !conn) return;
       
-      const box = document.getElementById('chat-box');
-      box.innerHTML += `<div><b>${myName}:</b> ${input.value}</div>`;
-      box.scrollTop = box.scrollHeight;
+      appendChat("أنت: " + input.value);
+      conn.send({ type: 'chat', msg: input.value });
       input.value = "";
+    }
+
+    function appendChat(text) {
+      const box = document.getElementById('chat-box');
+      box.innerHTML += `<div>${text}</div>`;
+      box.scrollTop = box.scrollHeight;
     }
   </script>
 </body>
