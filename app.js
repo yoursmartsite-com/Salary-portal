@@ -42,8 +42,10 @@ async function initFirebase() {
     const app = appMod.initializeApp(firebaseConfig);
     state.db = dbMod.getDatabase(app);
     state.auth = authMod.getAuth(app);
-    await authMod.signInAnonymously(state.auth);
-    state.firebase = true;
+    const credential = await authMod.signInAnonymously(state.auth);
+state.uid = credential.user.uid;
+localStorage.setItem("arcade_uid", state.uid);
+state.firebase = true;
     state.dbApi = dbMod;
     $("#connectionLabel").textContent = "متصل أونلاين";
     $("#firebaseStatus").textContent = "متصل";
