@@ -1,369 +1,979 @@
+
 import { firebaseConfig, firebaseReady } from "./firebase-config.js";
 
-const $ = (s) => document.querySelector(s); const $$ = (s) => [...document.querySelectorAll(s)];
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => [...document.querySelectorAll(s)];
+
 const state = {
   name: localStorage.getItem("arcade_name") || "",
   uid: localStorage.getItem("arcade_uid") || crypto.randomUUID(),
-  game: null, roomId: null, room: null, unsubRoom: null, unsubChat: null,
-  db: null, auth: null, firebase: false, localTurn: "X", localBoard: Array(9).fill(""),
-  rpsScore: {me:0,opponent:0}, guessTarget: Math.floor(Math.random()*20)+1, guesses: 0
+  game: null,
+  roomId: null,
+  room: null,
+  unsubRoom: null,
+  unsubChat: null,
+  db: null,
+  auth: null,
+  dbApi: null,
+  firebase: false,
+  localTurn: "X",
+  localBoard: Array(9).fill(""),
+  guessTarget: Math.floor(Math.random() * 20) + 1,
+  guesses: 0,
+  localRpsChoice: null,
+  localRpsScore: { me: 0, opponent: 0 }
 };
+
 localStorage.setItem("arcade_uid", state.uid);
 
 function toast(message) {
-  const el = $("#toast"); el.textContent = message; el.classList.add("show");
-  clearTimeout(toast.timer); toast.timer = setTimeout(() => el.classList.remove("show"), 2600);
+  const el = $("#toast");
+  if (!el) {
+    alert(message);
+    return;
+  }
+  el.textContent = message;
+  el.classList.add("show");
+  clearTimeout(toast.timer);
+  toast.timer = setTimeout(() => el.classList.remove("show"), 2600);
 }
-function safeText(v="") {
-  return String(v).replace(/[&<>"']/g, c => ({"&":"&","<":"<",">":">",'"':""","'":"'"}[c]));
+
+function safeText(value = "") {
+  return String(value).replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[c]);
 }
+
 function renderName() {
-  $("#playerName").textContent = state.name || "Player";
-  $("#avatar").textContent = (state.name || "P").trim().charAt(0).toUpperCase();
+  if ($("#playerName")) {
+    $("#playerName").textContent = state.name || "Player";
+  }
+  if ($("#avatar")) {
+    $("#avatar").textContent =
+      (state.name || "P").trim().charAt(0).toUpperCase();
+  }
 }
-function openModal(id) { $("#"+id).classList.add("open"); }
-function closeModal(id) { $("#"+id).classList.remove("open"); }
-function newRoomCode() { return Math.random().toString(36).slice(2,7).toUpperCase(); }
+
+function openModal(id) {
+  $("#" + id)?.classList.add("open");
+}
+
+function closeModal(id) {
+  $("#" + id)?.classList.remove("open");
+}
+
+function setupGameModal(local) {
+  $("#gameModal")?.classList.add("open");
+
+  const titles = {
+    xo: "إكس أو",
+    rps: "حجر ورقة مقص",
+    guess: "تخمين الرقم"
+  };
+
+  if ($("#gameTitle")) $("#gameTitle").textContent = titles[state.game] || "لعبة";
+  if ($("#roomCode")) {
+    $("#roomCode").textContent =
+      local ? "تجريبي" : (state.roomId || "").slice(-6).toUpperCase();
+  }
+  if ($("#roomStatus")) {
+    $("#roomStatus").textContent = local
+      ? "وضع تجريبي على نفس الجهاز"
+      : "تم إنشاء الغرفة";
+  }
+  if ($("#demoNote")) {
+    $("#demoNote").textContent = local
+      ? "الوضع التجريبي: العب من نفس الجهاز."
+      : "أنت متصل بالغرفة أونلاين.";
+  }
+  if ($("#chatMessages")) {
+    $("#chatMessages").innerHTML =
+      '<p class="empty-notice">رسائل الغرفة هتظهر هنا.</p>';
+  }
+
+  drawGame();
+}
 
 async function initFirebase() {
   if (!firebaseReady) {
-    $("#connectionLabel").textContent = "وضع تجريبي";
-    $("#firebaseStatus").textContent = "الإعداد مطلوب";
-    $("#lobbyHint").textContent = "أضف بيانات Firebase في firebase-config.js لتفعيل الغرف العامة أونلاين.";
+    setDemoStatus();
     return;
   }
+
   try {
     const [appMod, dbMod, authMod] = await Promise.all([
       import("https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js"),
       import("https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js"),
       import("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js")
     ]);
+
     const app = appMod.initializeApp(firebaseConfig);
     state.db = dbMod.getDatabase(app);
     state.auth = authMod.getAuth(app);
+    state.dbApi = dbMod;
+
     const credential = await authMod.signInAnonymously(state.auth);
     state.uid = credential.user.uid;
     localStorage.setItem("arcade_uid", state.uid);
     state.firebase = true;
-    state.dbApi = dbMod;
-    $("#connectionLabel").textContent = "متصل أونلاين";
-    $("#firebaseStatus").textContent = "متصل";
-    $("#firebaseStatus").style.color = "#9bf0c9";
-    $("#firebaseStatus").style.background = "#14342b";
-    $("#lobbyHint").textContent = "اختار لعبة عشان تنشئ غرفة عامة، أو ادخل غرفة متاحة من القائمة.";
-    $("#onlineCount").textContent = "متصل أونلاين";
+
+    if ($("#connectionLabel")) {
+      $("#connectionLabel").textContent = "متصل أونلاين";
+    }
+    if ($("#firebaseStatus")) {
+      $("#firebaseStatus").textContent = "متصل";
+    }
+    if ($("#lobbyHint")) {
+      $("#lobbyHint").textContent =
+        "اختار لعبة لإنشاء غرفة، أو ادخل غرفة من القائمة.";
+    }
+
     subscribeRooms();
   } catch (err) {
-    console.error(err);
-    $("#firebaseStatus").textContent = "تعذر الاتصال";
-    $("#lobbyHint").textContent = "راجع إعدادات Firebase وفعّل Anonymous Authentication وقواعد قاعدة البيانات.";
-    toast("تعذر الاتصال بـ Firebase. راجع الإعدادات.");
+    console.error("Firebase error:", err);
+    state.firebase = false;
+    setDemoStatus();
+    toast("تعذر الاتصال أونلاين. تقدر تجرب الألعاب محليًا.");
+  }
+}
+
+function setDemoStatus() {
+  if ($("#connectionLabel")) {
+    $("#connectionLabel").textContent = "وضع تجريبي";
+  }
+  if ($("#firebaseStatus")) {
+    $("#firebaseStatus").textContent = "وضع تجريبي";
+  }
+  if ($("#lobbyHint")) {
+    $("#lobbyHint").textContent =
+      "اختار أي لعبة لتجربتها على نفس الجهاز.";
   }
 }
 
 function subscribeRooms() {
-  if (!state.firebase) return;
+  if (!state.firebase || !state.dbApi) return;
+
   const { ref, onValue, query, orderByChild, limitToLast } = state.dbApi;
-  const roomsRef = query(ref(state.db, "rooms"), orderByChild("updatedAt"), limitToLast(30));
-  onValue(roomsRef, snap => {
+  const roomsQuery = query(
+    ref(state.db, "rooms"),
+    orderByChild("updatedAt"),
+    limitToLast(30)
+  );
+
+  onValue(roomsQuery, (snap) => {
     const rooms = [];
-    snap.forEach(child => {
-      const r = child.val();
-      if (r && r.status !== "closed" && Date.now() - (r.updatedAt || 0) < 3600000*10) rooms.push({id:child.key,...r});
+
+    snap.forEach((child) => {
+      const room = child.val();
+      if (
+        room &&
+        room.status !== "closed" &&
+        Date.now() - (room.updatedAt || 0) < 36000000
+      ) {
+        rooms.push({ id: child.key, ...room });
+      }
     });
-    rooms.sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
-    $("#onlineCount").textContent = `${rooms.length} غرفة نشطة`;
+
+    rooms.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+
+    if ($("#onlineCount")) {
+      $("#onlineCount").textContent = `${rooms.length} غرفة نشطة`;
+    }
     renderRooms(rooms);
-  }, err => console.warn(err));
+  }, (err) => {
+    console.error("Room list error:", err);
+  });
 }
 
 function renderRooms(rooms) {
   const root = $("#roomsList");
-  if (!rooms.length) { 
-    root.innerHTML = '<p class="empty-notice">مفيش غرف نشطة دلوقتي. اختار لعبة وأنشئ أول غرفة!</p>'; 
-    return; 
+  if (!root) return;
+
+  if (!rooms.length) {
+    root.innerHTML =
+      '<p class="empty-notice">مفيش غرف نشطة دلوقتي. اختار لعبة وأنشئ أول غرفة!</p>';
+    return;
   }
-  const icons = {xo:"❌",rps:"✊",guess:"🔢"};
-  const titles = {xo:"إكس أو",rps:"حجر ورقة مقص",guess:"تخمين الرقم"};
-  root.innerHTML = rooms.map(r => `
+
+  const icons = { xo: "❌", rps: "✊", guess: "🔢" };
+  const titles = {
+    xo: "إكس أو",
+    rps: "حجر ورقة مقص",
+    guess: "تخمين الرقم"
+  };
+
+  root.innerHTML = rooms.map((room) => `
     <div class="room-item">
-      <span class="room-emoji">${icons[r.game]||"🎮"}</span>
+      <span class="room-emoji">${icons[room.game] || "🎮"}</span>
       <div>
-        <strong>${safeText(r.title||titles[r.game]||"غرفة لعب")}</strong>
-        <small>${safeText(r.hostName||"لاعب")} • ${safeText(r.playersCount||1)} لاعب • ${safeText(r.id)}</small>
+        <strong>${safeText(room.title || titles[room.game] || "غرفة لعب")}</strong>
+        <small>${safeText(room.hostName || "لاعب")} • ${safeText(room.playersCount || 1)} لاعب</small>
       </div>
-      <button data-join="${safeText(r.id)}">دخول</button>
+      <button data-join="${safeText(room.id)}">دخول</button>
     </div>
   `).join("");
-  $$("[data-join]").forEach(b => b.addEventListener("click", () => joinRoom(b.dataset.join)));
+
+  $$("[data-join]").forEach((button) => {
+    button.addEventListener("click", () => joinRoom(button.dataset.join));
+  });
 }
 
 async function createRoom(game) {
-  if (!state.name) { openModal("nameModal"); toast("اكتب اسمك الأول"); return; }
+  if (!state.name) {
+    openModal("nameModal");
+    toast("اكتب اسمك الأول");
+    return;
+  }
+
+  if (!["xo", "rps", "guess"].includes(game)) {
+    toast("اللعبة دي مش موجودة.");
+    return;
+  }
+
   state.game = game;
+  state.localBoard = Array(9).fill("");
+  state.localTurn = "X";
+  state.guessTarget = Math.floor(Math.random() * 20) + 1;
+  state.guesses = 0;
+  state.localRpsChoice = null;
+  state.localRpsScore = { me: 0, opponent: 0 };
+
+  // الوضع التجريبي يفتح اللعبة من غير الحاجة إلى Firebase.
   if (!state.firebase) {
     state.roomId = "LOCAL";
-    state.room = {game, hostName:state.name, players:{[state.uid]:{name:state.name,joinedAt:Date.now()}}, state:{}};
-    setupGameModal(true); return;
+    state.room = {
+      game,
+      hostUid: state.uid,
+      hostName: state.name,
+      players: {
+        [state.uid]: { name: state.name, joinedAt: Date.now() }
+      },
+      state: game === "xo"
+        ? { board: Array(9).fill(""), turn: "X", winner: "" }
+        : game === "rps"
+          ? { choices: {}, scores: {} }
+          : { guesses: [], winner: "" }
+    };
+
+    setupGameModal(true);
+    return;
   }
+
   try {
-    const {ref,push,set} = state.dbApi;
-    const roomsRef = ref(state.db,"rooms");
-    const newRef = push(roomsRef);
+    const { ref, push, set } = state.dbApi;
+    const newRef = push(ref(state.db, "rooms"));
     state.roomId = newRef.key;
-    const initialState = game === "xo" ? {board:Array(9).fill(""),turn:state.uid,winner:"",moves:0} :
-      game === "rps" ? {round:1,choices:{},scores:{}} :
-      {target:Math.floor(Math.random()*20)+1,guesses:[],winner:""};
+
+    const initialState = game === "xo"
+      ? { board: Array(9).fill(""), turn: state.uid, winner: "", moves: 0 }
+      : game === "rps"
+        ? { round: 1, choices: {}, scores: {} }
+        : {
+            target: Math.floor(Math.random() * 20) + 1,
+            guesses: [],
+            winner: ""
+          };
+
     const room = {
       game,
-      title:({xo:"إكس أو",rps:"حجر ورقة مقص",guess:"تخمين الرقم"})[game],
-      hostUid:state.uid,
-      hostName:state.name,
-      status:"open",
-      createdAt:Date.now(),
-      updatedAt:Date.now(),
-      players:{[state.uid]:{name:state.name,joinedAt:Date.now()}},
-      state:initialState,
-      playersCount:1
+      title: ({ xo: "إكس أو", rps: "حجر ورقة مقص", guess: "تخمين الرقم" })[game],
+      hostUid: state.uid,
+      hostName: state.name,
+      status: "open",
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      players: {
+        [state.uid]: { name: state.name, joinedAt: Date.now() }
+      },
+      state: initialState,
+      playersCount: 1
     };
-    await set(newRef,room);
+
+    await set(newRef, room);
     state.room = room;
     setupGameModal(false);
     watchRoom();
-  } catch(err) { console.error(err); toast("مش قادر أنشئ الغرفة. راجع قواعد Firebase."); }
+  } catch (err) {
+    console.error("Create room error:", err);
+    toast("تعذر إنشاء الغرفة. راجع قواعد Firebase.");
+  }
 }
 
 async function joinRoom(id) {
-  if (!state.name) { openModal("nameModal"); toast("اكتب اسمك الأول"); return; }
-  if (!state.firebase) { toast("فعّل Firebase الأول عشان تدخل غرف أونلاين."); return; }
+  if (!state.name) {
+    openModal("nameModal");
+    toast("اكتب اسمك الأول");
+    return;
+  }
+
+  if (!state.firebase) {
+    toast("دخول الغرف أونلاين يحتاج اتصال Firebase.");
+    return;
+  }
+
   try {
-    const {ref,get,update,runTransaction} = state.dbApi;
+    const { ref, get, update, runTransaction } = state.dbApi;
     const roomRef = ref(state.db, `rooms/${id}`);
     const snap = await get(roomRef);
-    if (!snap.exists()) return toast("الغرفة مش موجودة.");
+
+    if (!snap.exists()) {
+      toast("الغرفة مش موجودة.");
+      return;
+    }
+
     const room = snap.val();
-    if ((room.game === "xo" || room.game === "rps") && Object.keys(room.players||{}).length >= 2 && !room.players[state.uid]) 
-      return toast("الغرفة دي مكتملة.");
-    
-    await update(ref(state.db, `rooms/${id}/players/${state.uid}`), {name:state.name, joinedAt:Date.now()});
-    await runTransaction(ref(state.db, `rooms/${id}/playersCount`), v => (v||0)+1);
-    state.game = room.game; state.roomId = id; state.room = room;
-    setupGameModal(false); watchRoom();
-  } catch(err) { console.error(err); toast("تعذر دخول الغرفة."); }
+    const players = room.players || {};
+    const alreadyJoined = Boolean(players[state.uid]);
+
+    if (
+      (room.game === "xo" || room.game === "rps") &&
+      Object.keys(players).length >= 2 &&
+      !alreadyJoined
+    ) {
+      toast("الغرفة دي مكتملة.");
+      return;
+    }
+
+    await update(ref(state.db, `rooms/${id}/players/${state.uid}`), {
+      name: state.name,
+      joinedAt: Date.now()
+    });
+
+    if (!alreadyJoined) {
+      await runTransaction(
+        ref(state.db, `rooms/${id}/playersCount`),
+        (value) => (value || 0) + 1
+      );
+    }
+
+    state.game = room.game;
+    state.roomId = id;
+    state.room = room;
+    setupGameModal(false);
+    watchRoom();
+  } catch (err) {
+    console.error("Join room error:", err);
+    toast("تعذر دخول الغرفة. راجع قواعد Firebase.");
+  }
 }
 
 function watchRoom() {
-  if (!state.firebase) return;
-  const {ref,onValue,onDisconnect} = state.dbApi;
-  if (state.unsubRoom) state.unsubRoom();
-  state.unsubRoom = onValue(ref(state.db, `rooms/${state.roomId}`), snap => {
-    if (!snap.exists()) { toast("الغرفة اتقفلت."); closeModal("gameModal"); return; }
-    state.room = {id:state.roomId,...snap.val()};
-    const players = Object.values(state.room.players||{});
-    $("#roomStatus").textContent = players.map(p=>p.name).join(" • ") || "في انتظار اللاعبين";
-    $("#demoNote").textContent = "أنت متصل بالغرفة أونلاين.";
-    drawGame();
-  });
-  onDisconnect(ref(state.db, `rooms/${state.roomId}/players/${state.uid}`)).remove().catch(()=>{});
-  
-  if (state.unsubChat) state.unsubChat();
-  state.unsubChat = onValue(ref(state.db, `rooms/${state.roomId}/chat`), snap => {
-    const msgs=[]; snap.forEach(c=>msgs.push(c.val()));
-    $("#chatMessages").innerHTML = msgs.slice(-40).map(m=>`
-      <div class="chat-line"><b>${safeText(m.name||"لاعب")}:</b> ${safeText(m.text||"")}</div>
-    `).join("") || '<p class="empty-notice">مفيش رسائل لسه.</p>';
-    $("#chatMessages").scrollTop = $("#chatMessages").scrollHeight;
-  });
+  if (!state.firebase || !state.roomId) return;
+
+  const { ref, onValue, onDisconnect } = state.dbApi;
+
+  if (typeof state.unsubRoom === "function") state.unsubRoom();
+
+  state.unsubRoom = onValue(
+    ref(state.db, `rooms/${state.roomId}`),
+    (snap) => {
+      if (!snap.exists()) {
+        toast("الغرفة اتقفلت.");
+        closeModal("gameModal");
+        return;
+      }
+
+      state.room = { id: state.roomId, ...snap.val() };
+
+      const players = Object.values(state.room.players || {});
+      if ($("#roomStatus")) {
+        $("#roomStatus").textContent =
+          players.map((player) => player.name).join(" • ") ||
+          "في انتظار اللاعبين";
+      }
+      if ($("#demoNote")) {
+        $("#demoNote").textContent = "أنت متصل بالغرفة أونلاين.";
+      }
+
+      drawGame();
+    },
+    (err) => console.error("Watch room error:", err)
+  );
+
+  onDisconnect(
+    ref(state.db, `rooms/${state.roomId}/players/${state.uid}`)
+  ).remove().catch(console.error);
+
+  if (typeof state.unsubChat === "function") state.unsubChat();
+
+  state.unsubChat = onValue(
+    ref(state.db, `rooms/${state.roomId}/chat`),
+    (snap) => {
+      const messages = [];
+      snap.forEach((child) => messages.push(child.val()));
+
+      if (!$("#chatMessages")) return;
+
+      $("#chatMessages").innerHTML = messages.slice(-40).map((message) => `
+        <div class="chat-line">
+          <b>${safeText(message.name || "لاعب")}:</b>
+          ${safeText(message.text || "")}
+        </div>
+      `).join("") || '<p class="empty-notice">مفيش رسائل لسه.</p>';
+
+      $("#chatMessages").scrollTop = $("#chatMessages").scrollHeight;
+    }
+  );
 }
 
-function setupGameModal(local) {
-  $("#gameModal").classList.add("open");
-  $("#gameTitle").textContent = ({xo:"إكس أو",rps:"حجر ورقة مقص",guess:"تخمين الرقم"})[state.game];
-  $("#roomCode").textContent = local ? "تجريبي" : state.roomId.slice(-6).toUpperCase();
-  $("#roomStatus").textContent = local ? "وضع تجريبي على نفس الجهاز" : "تم إنشاء الغرفة";
-  $("#demoNote").textContent = local ? "الوضع التجريبي لا يزامن بين أجهزة مختلفة. فعّل Firebase للعب أونلاين." : "أنت متصل بالغرفة أونلاين.";
-  $("#chatMessages").innerHTML = '<p class="empty-notice">رسائل الغرفة هتظهر هنا.</p>';
-  drawGame();
+function currentPlayerEntries() {
+  return Object.entries(state.room?.players || {});
 }
 
 function drawGame() {
   if (!state.room) return;
-  if (state.game==="xo") drawXO();
-  if (state.game==="rps") drawRPS();
-  if (state.game==="guess") drawGuess();
-}
 
-function currentPlayerEntries() { return Object.entries(state.room?.players||{}); }
-
-function drawXO() {
-  const room=state.room, s=room.state||{}, board=s.board||Array(9).fill("");
-  const entries=currentPlayerEntries();
-  const myMark=entries.findIndex(([uid])=>uid===state.uid)===0?"X":"O";
-  const players=entries.map(([,p])=>p.name);
-  let status = s.winner ? (s.winner==="draw"?"تعادل!":`الفائز: ${safeText(players[s.winner==="X"?0:1]||s.winner)}`) :
-    (entries.length<2?"مستنيين لاعب تاني يدخل...":(s.turn===state.uid?"دورك!":"مستني دورك"));
-  
-  $("#gameContent").innerHTML = `
-    <p class="game-message">${status} <br><small>${safeText(players[0]||"X")} (X) ضد ${safeText(players[1]||"O")} (O)</small></p>
-    <div class="xo-grid">${board.map((v,i)=>`<button class="xo-cell ${v==="O"?"o":""}" data-cell="${i}" ${v\vert{}\vert{}s.winner\vert{}\vert{}entries.length<2\vert{}\vert{}s.turn!==state.uid?"disabled":""}>${v}</button>`).join("")}</div>
-    ${s.winner?'<button class="secondary-btn" id="restartGame">العب جولة جديدة</button>':""}
-  `;
-  $$("[data-cell]").forEach(b=>b.addEventListener("click",()=>playXO(Number(b.dataset.cell),myMark)));
-  $("#restartGame")?.addEventListener("click",restartXO);
+  if (state.game === "xo") drawXO();
+  if (state.game === "rps") drawRPS();
+  if (state.game === "guess") drawGuess();
 }
 
 function winnerFor(board) {
-  const lines=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-  for(const line of lines){const [a,b,c]=line;if(board[a]&&board[a]===board[b]&&board[a]===board[c])return board[a];}
-  return board.every(Boolean)?"draw":"";
+  const lines = [
+    [0, 1, 2], [3, 4, 5], [6, 7, 8],
+    [0, 3, 6], [1, 4, 7], [2, 5, 8],
+    [0, 4, 8], [2, 4, 6]
+  ];
+
+  for (const [a, b, c] of lines) {
+    if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+      return board[a];
+    }
+  }
+
+  return board.every(Boolean) ? "draw" : "";
 }
 
-async function playXO(i,mark) {
-  if(!state.firebase){
-    if(state.localBoard[i])return;
-    state.localBoard[i]=state.localTurn;
-    const w=winnerFor(state.localBoard);
-    state.room.state={board:[...state.localBoard],turn:state.localTurn==="X"?"O":"X",winner:w};
-    state.localTurn=state.localTurn==="X"?"O":"X";
+function drawXO() {
+  const room = state.room;
+  const gameState = room.state || {};
+  const board = gameState.board || Array(9).fill("");
+  const entries = currentPlayerEntries();
+  const local = !state.firebase;
+
+  const myMark = local
+    ? state.localTurn
+    : (entries.findIndex(([uid]) => uid === state.uid) === 0 ? "X" : "O");
+
+  const players = entries.map(([, player]) => player.name);
+  const winner = gameState.winner || "";
+
+  let status;
+
+  if (winner) {
+    status = winner === "draw"
+      ? "تعادل!"
+      : `الفائز: ${winner === "X" ? safeText(players[0] || "X") : safeText(players[1] || "O")}`;
+  } else if (!local && entries.length < 2) {
+    status = "مستنيين لاعب تاني يدخل...";
+  } else {
+    status = local
+      ? `دور اللاعب ${state.localTurn}`
+      : (gameState.turn === state.uid ? "دورك!" : "مستني دورك");
+  }
+
+  $("#gameContent").innerHTML = `
+    <p class="game-message">
+      ${status}<br>
+      <small>${safeText(players[0] || "اللاعب الأول")} (X) ضد
+      ${safeText(players[1] || (local ? "اللاعب الثاني" : "اللاعب الثاني"))} (O)</small>
+    </p>
+    <div class="xo-grid">
+      ${board.map((value, index) => `
+        <button class="xo-cell ${value === "O" ? "o" : ""}"
+          data-cell="${index}"
+          ${(value || winner || (!local && (entries.length < 2 || gameState.turn !== state.uid))) ? "disabled" : ""}>
+          ${safeText(value)}
+        </button>
+      `).join("")}
+    </div>
+    ${winner ? '<button class="secondary-btn" id="restartGame">العب جولة جديدة</button>' : ""}
+  `;
+
+  $$("[data-cell]").forEach((button) => {
+    button.addEventListener("click", () => playXO(Number(button.dataset.cell), myMark));
+  });
+
+  $("#restartGame")?.addEventListener("click", restartXO);
+}
+
+async function playXO(index) {
+  if (!state.firebase) {
+    if (state.localBoard[index] || winnerFor(state.localBoard)) return;
+
+    state.localBoard[index] = state.localTurn;
+    const winner = winnerFor(state.localBoard);
+    state.localTurn = state.localTurn === "X" ? "O" : "X";
+
+    state.room.state = {
+      board: [...state.localBoard],
+      turn: state.localTurn,
+      winner
+    };
+
     drawXO();
     return;
   }
-  const {ref,runTransaction}=state.dbApi;
-  await runTransaction(ref(state.db, `rooms/${state.roomId}/state`), s => {
-    if(!s||s.winner||s.turn!==state.uid||s.board[i])return;
-    const board=[...(s.board||Array(9).fill(""))]; 
-    const mark=currentPlayerEntries().findIndex(([uid])=>uid===state.uid)===0?"X":"O";
-    board[i]=mark;
-    const winner=winnerFor(board);
-    return {...s,board,winner,turn:s.turn,moves:(s.moves||0)+1,nextUid:currentPlayerEntries().find(([uid])=>uid!==state.uid)?.[0]||state.uid};
-  }).then(async result => {
-    if(result.committed){
-      const s=result.snapshot.val();
-      if(!s.winner){
-        const next=s.nextUid;
-        await (await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js")).update(ref(state.db, `rooms/${state.roomId}/state`),{turn:next});
+
+  try {
+    const { ref, runTransaction } = state.dbApi;
+
+    await runTransaction(ref(state.db, `rooms/${state.roomId}/state`), (s) => {
+      if (!s || s.winner || s.turn !== state.uid || s.board?.[index]) {
+        return;
       }
-    }
-  });
+
+      const entries = currentPlayerEntries();
+      const mark = entries.findIndex(([uid]) => uid === state.uid) === 0 ? "X" : "O";
+      const board = [...(s.board || Array(9).fill(""))];
+
+      board[index] = mark;
+
+      const winner = winnerFor(board);
+      const opponent = entries.find(([uid]) => uid !== state.uid)?.[0];
+
+      return {
+        ...s,
+        board,
+        winner,
+        turn: winner ? s.turn : (opponent || state.uid),
+        moves: (s.moves || 0) + 1
+      };
+    });
+  } catch (err) {
+    console.error(err);
+    toast("تعذر تسجيل الحركة.");
+  }
 }
 
 async function restartXO() {
-  if(!state.firebase){state.localBoard=Array(9).fill("");state.localTurn="X";state.room.state={board:state.localBoard,turn:"X",winner:""};drawXO();return;}
-  if(state.room.hostUid!==state.uid)return toast("صاحب الغرفة بس يقدر يبدأ جولة جديدة.");
-  const {ref,update}=state.dbApi;
-  const entries=currentPlayerEntries();
-  await update(ref(state.db, `rooms/${state.roomId}/state`),{board:Array(9).fill(""),turn:entries[0]?.[0]||state.uid,winner:"",moves:0});
+  if (!state.firebase) {
+    state.localBoard = Array(9).fill("");
+    state.localTurn = "X";
+    state.room.state = {
+      board: [...state.localBoard],
+      turn: "X",
+      winner: ""
+    };
+    drawXO();
+    return;
+  }
+
+  if (state.room.hostUid !== state.uid) {
+    toast("صاحب الغرفة بس يقدر يبدأ جولة جديدة.");
+    return;
+  }
+
+  const { ref, update } = state.dbApi;
+  const entries = currentPlayerEntries();
+
+  await update(ref(state.db, `rooms/${state.roomId}/state`), {
+    board: Array(9).fill(""),
+    turn: entries[0]?.[0] || state.uid,
+    winner: "",
+    moves: 0
+  });
 }
 
 function drawRPS() {
-  const s=state.room.state||{}, choices=s.choices||{}, scores=s.scores||{};
-  const my=choices[state.uid]; const entries=currentPlayerEntries();
-  const opponent=entries.find(([id])=>id!==state.uid);
-  const oppChoice=opponent&&choices[opponent[0]];
-  
+  const gameState = state.room.state || {};
+  const choices = gameState.choices || {};
+  const scores = state.firebase ? (gameState.scores || {}) : state.localRpsScore;
+  const entries = currentPlayerEntries();
+  const mine = choices[state.uid];
+  const opponent = entries.find(([uid]) => uid !== state.uid);
+  const opponentChoice = opponent && choices[opponent[0]];
+
   $("#gameContent").innerHTML = `
-    <p class="game-message">${entries.length<2?"مستنيين لاعب تاني يدخل...":my?(oppChoice?"الجولة خلصت!":"اختيارك اتسجل، مستني صاحبك..."):"اختار حجر أو ورقة أو مقص"}</p>
-    <div class="choice-row">${[["rock","✊","حجر"],["paper","✋","ورقة"],["scissors","✌️","مقص"]].map(([v,e,t])=>`<button class="choice-btn" data-rps="${v}" aria-label="${t}" ${entries.length<2\vert{}\vert{}my?"disabled":""}>${e}</button>`).join("")}</div>
-    <div class="score-row"><span class="score-chip">أنت: ${scores[state.uid]||0}</span><span class="score-chip">الخصم: ${opponent?(scores[opponent[0]]||0):0}</span></div>
-    ${my&&oppChoice?`<p class="game-message">اختيارك ${({rock:"حجر",paper:"ورقة",scissors:"مقص"})[my]} — اختيار الخصم ${({rock:"حجر",paper:"ورقة",scissors:"مقص"})[oppChoice]}<br><button class="secondary-btn" id="nextRps">الجولة التالية</button></p>`:""}
+    <p class="game-message">
+      ${state.firebase
+        ? (entries.length < 2
+          ? "مستنيين لاعب تاني يدخل..."
+          : mine
+            ? (opponentChoice ? "الجولة خلصت!" : "اختيارك اتسجل، مستني صاحبك...")
+            : "اختار حجر أو ورقة أو مقص")
+        : (state.localRpsChoice ? "اضغط الجولة التالية للعب مرة أخرى." : "اختار حركتك والخصم هيلعب تلقائيًا.")}
+    </p>
+
+    <div class="choice-row">
+      ${[["rock", "✊", "حجر"], ["paper", "✋", "ورقة"], ["scissors", "✌️", "مقص"]]
+        .map(([value, emoji, label]) => `
+          <button class="choice-btn" data-rps="${value}" aria-label="${label}"
+            ${(state.firebase && (entries.length < 2 || mine)) ||
+              (!state.firebase && state.localRpsChoice) ? "disabled" : ""}>
+            ${emoji}
+          </button>
+        `).join("")}
+    </div>
+
+    <div class="score-row">
+      <span class="score-chip">أنت: ${scores[state.uid] ?? scores.me ?? 0}</span>
+      <span class="score-chip">الخصم: ${opponent ? (scores[opponent[0]] || 0) : (scores.opponent || 0)}</span>
+    </div>
+
+    ${state.firebase && mine && opponentChoice ? `
+      <p class="game-message">
+        اختيارك: ${({rock:"حجر",paper:"ورقة",scissors:"مقص"})[mine]}
+        — اختيار الخصم: ${({rock:"حجر",paper:"ورقة",scissors:"مقص"})[opponentChoice]}
+      </p>
+      <button class="secondary-btn" id="nextRps">الجولة التالية</button>
+    ` : ""}
+
+    ${!state.firebase && state.localRpsChoice ? `
+      <p class="game-message">${safeText(state.localRpsResult || "")}</p>
+      <button class="secondary-btn" id="nextRps">الجولة التالية</button>
+    ` : ""}
   `;
-  $$("[data-rps]").forEach(b=>b.addEventListener("click",()=>playRPS(b.dataset.rps)));
-  $("#nextRps")?.addEventListener("click",nextRPS);
+
+  $$("[data-rps]").forEach((button) => {
+    button.addEventListener("click", () => playRPS(button.dataset.rps));
+  });
+
+  $("#nextRps")?.addEventListener("click", nextRPS);
 }
 
 async function playRPS(choice) {
-  if(!state.firebase){toast("حجر ورقة مقص في الوضع التجريبي: اختار حركة وشوف واجهة اللعبة.");return;}
-  const {ref,runTransaction}=state.dbApi;
-  await runTransaction(ref(state.db, `rooms/${state.roomId}/state/choices`), choices => {
-    choices=choices||{}; if(choices[state.uid])return; choices[state.uid]=choice; return choices;
-  });
-  const snap=await state.dbApi.get(ref(state.db, `rooms/${state.roomId}/state`));
-  const s=snap.val(), entries=currentPlayerEntries();
-  if(entries.length>=2&&entries.every(([id])=>s.choices?.[id])){
-    const [a,b]=entries.map(([id])=>s.choices[id]); let winner=null;
-    if(a!==b)winner=({rock:"scissors",paper:"rock",scissors:"paper"})[a]===b?entries[0][0]:entries[1][0];
-    const scores={...(s.scores||{})}; if(winner)scores[winner]=(scores[winner]||0)+1;
-    await state.dbApi.update(ref(state.db, `rooms/${state.roomId}/state`),{scores});
+  if (!state.firebase) {
+    const options = ["rock", "paper", "scissors"];
+    const opponent = options[Math.floor(Math.random() * options.length)];
+    state.localRpsChoice = choice;
+
+    if (choice === opponent) {
+      state.localRpsResult = `تعادل! أنت والخصم اخترتم ${choice}.`;
+    } else if (
+      ({ rock: "scissors", paper: "rock", scissors: "paper" })[choice] === opponent
+    ) {
+      state.localRpsScore.me++;
+      state.localRpsResult = "كسبت الجولة! 🎉";
+    } else {
+      state.localRpsScore.opponent++;
+      state.localRpsResult = "الخصم كسب الجولة. جرّب تاني!";
+    }
+
+    drawRPS();
+    return;
+  }
+
+  try {
+    const { ref, runTransaction, get, update } = state.dbApi;
+
+    await runTransaction(ref(state.db, `rooms/${state.roomId}/state/choices`), (choices) => {
+      choices = choices || {};
+      if (choices[state.uid]) return;
+      choices[state.uid] = choice;
+      return choices;
+    });
+
+    const snap = await get(ref(state.db, `rooms/${state.roomId}/state`));
+    const gameState = snap.val();
+    const entries = currentPlayerEntries();
+
+    if (
+      entries.length >= 2 &&
+      entries.every(([uid]) => gameState.choices?.[uid])
+    ) {
+      const [a, b] = entries.map(([uid]) => gameState.choices[uid]);
+      let winner = null;
+
+      if (a !== b) {
+        winner = ({ rock: "scissors", paper: "rock", scissors: "paper" })[a] === b
+          ? entries[0][0]
+          : entries[1][0];
+      }
+
+      const scores = { ...(gameState.scores || {}) };
+      if (winner) scores[winner] = (scores[winner] || 0) + 1;
+
+      await update(ref(state.db, `rooms/${state.roomId}/state`), { scores });
+    }
+  } catch (err) {
+    console.error(err);
+    toast("تعذر تسجيل الاختيار.");
   }
 }
 
 async function nextRPS() {
-  if(!state.firebase)return;
-  const {ref,update,remove}=state.dbApi;
-  await remove(ref(state.db, `rooms/${state.roomId}/state/choices`));
-  const snap=await state.dbApi.get(ref(state.db, `rooms/${state.roomId}/state/round`));
-  await update(ref(state.db, `rooms/${state.roomId}/state`),{round:(snap.val()||1)+1});
+  if (!state.firebase) {
+    state.localRpsChoice = null;
+    state.localRpsResult = "";
+    drawRPS();
+    return;
+  }
+
+  try {
+    const { ref, update, remove, get } = state.dbApi;
+
+    await remove(ref(state.db, `rooms/${state.roomId}/state/choices`));
+
+    const snap = await get(ref(state.db, `rooms/${state.roomId}/state/round`));
+    await update(ref(state.db, `rooms/${state.roomId}/state`), {
+      round: (snap.val() || 1) + 1
+    });
+  } catch (err) {
+    console.error(err);
+    toast("تعذر بدء الجولة التالية.");
+  }
 }
 
 function drawGuess() {
-  const s=state.room.state||{}, guesses=s.guesses||[];
-  const last=guesses.slice(-5).reverse();
-  
+  const gameState = state.room.state || {};
+  const guesses = gameState.guesses || [];
+  const last = guesses.slice(-5).reverse();
+
   $("#gameContent").innerHTML = `
     <p class="game-message">خمن رقم من 1 لـ 20. أول لاعب يوصل للرقم يكسب!</p>
     <div class="guess-number">?</div>
-    <form id="guessForm" class="guess-form"><input id="guessInput" type="number" min="1" max="20" placeholder="رقم من 1 لـ 20" required><button>خمن</button></form>
-    <div class="game-message">${s.winner?`الفائز: ${safeText(s.winnerName||"لاعب")}`:last.map(g=>`${safeText(g.name)}:${safeText(g.hint)}`).join(" • ")||"ابدأ أول محاولة!"}</div>
-    ${s.winner?'<button class="secondary-btn" id="newGuess">جولة جديدة</button>':""}
+
+    ${gameState.winner ? "" : `
+      <form id="guessForm" class="guess-form">
+        <input id="guessInput" type="number" min="1" max="20"
+          placeholder="رقم من 1 لـ 20" required>
+        <button type="submit">خمن</button>
+      </form>
+    `}
+
+    <div class="game-message" id="guessResult">
+      ${gameState.winner
+        ? `الفائز: ${safeText(gameState.winnerName || "لاعب")}`
+        : last.map((g) => `${safeText(g.name)}: ${safeText(g.hint)}`).join(" • ") || "ابدأ أول محاولة!"}
+    </div>
+
+    ${gameState.winner ? '<button class="secondary-btn" id="newGuess">جولة جديدة</button>' : ""}
   `;
-  $("#guessForm")?.addEventListener("submit",submitGuess);
-  $("#newGuess")?.addEventListener("click",resetGuess);
+
+  $("#guessForm")?.addEventListener("submit", submitGuess);
+  $("#newGuess")?.addEventListener("click", resetGuess);
 }
 
-async function submitGuess(e) {
-  e.preventDefault(); const n=Number($("#guessInput").value); if(n<1||n>20)return toast("اكتب رقم من 1 لـ 20");
-  if(!state.firebase){
-    state.guesses++;
-    let hint=n===state.guessTarget?"صح! كسبت 🎉":n<state.guessTarget?"أكبر من كده":"أصغر من كده";
-    $("#gameContent").querySelector(".game-message").textContent=hint;
+async function submitGuess(event) {
+  event.preventDefault();
+
+  const input = $("#guessInput");
+  const number = Number(input?.value);
+
+  if (!Number.isInteger(number) || number < 1 || number > 20) {
+    toast("اكتب رقم صحيح من 1 لـ 20");
     return;
   }
-  const {ref,runTransaction}=state.dbApi;
-  await runTransaction(ref(state.db, `rooms/${state.roomId}/state`), s => {
-    if(!s||s.winner)return;
-    const hint=n===s.target?"صح!":n<s.target?"أكبر من كده":"أصغر من كده";
-    const guesses=[...(s.guesses||[]),{uid:state.uid,name:state.name,n,hint,at:Date.now()}];
-    return {...s,guesses,winner:n===s.target?state.uid:"",winnerName:n===s.target?state.name:""};
-  });
+
+  if (!state.firebase) {
+    state.guesses++;
+
+    const hint = number === state.guessTarget
+      ? "صح! كسبت 🎉"
+      : number < state.guessTarget
+        ? "الرقم أكبر من كده"
+        : "الرقم أصغر من كده";
+
+    const result = $("#guessResult");
+    if (result) result.textContent = hint;
+
+    if (number === state.guessTarget) {
+      state.room.state.winner = state.name;
+      state.room.state.winnerName = state.name;
+      drawGuess();
+    }
+
+    return;
+  }
+
+  try {
+    const { ref, runTransaction } = state.dbApi;
+
+    await runTransaction(ref(state.db, `rooms/${state.roomId}/state`), (s) => {
+      if (!s || s.winner) return;
+
+      const hint = number === s.target
+        ? "صح!"
+        : number < s.target
+          ? "أكبر من كده"
+          : "أصغر من كده";
+
+      const guesses = [
+        ...(s.guesses || []),
+        {
+          uid: state.uid,
+          name: state.name,
+          n: number,
+          hint,
+          at: Date.now()
+        }
+      ];
+
+      return {
+        ...s,
+        guesses,
+        winner: number === s.target ? state.uid : "",
+        winnerName: number === s.target ? state.name : ""
+      };
+    });
+  } catch (err) {
+    console.error(err);
+    toast("تعذر تسجيل التخمين.");
+  }
 }
 
 async function resetGuess() {
-  if(!state.firebase){state.guesses=0;state.guessTarget=Math.floor(Math.random()*20)+1;state.room.state={target:state.guessTarget,guesses:[],winner:""};drawGuess();return;}
-  if(state.room.hostUid!==state.uid)return toast("صاحب الغرفة بس يقدر يبدأ جولة جديدة.");
-  const {ref,update}=state.dbApi;
-  await update(ref(state.db, `rooms/${state.roomId}/state`),{target:Math.floor(Math.random()*20)+1,guesses:[],winner:"",winnerName:""});
-}
-
-async function sendChat(text) {
-  if(!text.trim())return;
-  if(!state.firebase){
-    const root=$("#chatMessages");
-    root.innerHTML+=`<div class="chat-line"><b>${safeText(state.name)}:</b> ${safeText(text)}</div>`;
-    root.scrollTop=root.scrollHeight;
+  if (!state.firebase) {
+    state.guesses = 0;
+    state.guessTarget = Math.floor(Math.random() * 20) + 1;
+    state.room.state = { guesses: [], winner: "", winnerName: "" };
+    drawGuess();
     return;
   }
+
+  if (state.room.hostUid !== state.uid) {
+    toast("صاحب الغرفة بس يقدر يبدأ جولة جديدة.");
+    return;
+  }
+
   try {
-    const {ref,push,set}=state.dbApi;
-    const r=push(ref(state.db, `rooms/${state.roomId}/chat`));
-    await set(r,{name:state.name,uid:state.uid,text:text.trim(),at:Date.now()});
-  } catch(e){toast("تعذر إرسال الرسالة.");}
+    const { ref, update } = state.dbApi;
+    await update(ref(state.db, `rooms/${state.roomId}/state`), {
+      target: Math.floor(Math.random() * 20) + 1,
+      guesses: [],
+      winner: "",
+      winnerName: ""
+    });
+  } catch (err) {
+    console.error(err);
+    toast("تعذر بدء جولة جديدة.");
+  }
+}
+
+async function sendChat(message) {
+  const text = String(message || "").trim();
+  if (!text) return;
+
+  if (!state.firebase) {
+    const root = $("#chatMessages");
+    if (root) {
+      root.innerHTML += `
+        <div class="chat-line">
+          <b>${safeText(state.name)}:</b> ${safeText(text)}
+        </div>
+      `;
+      root.scrollTop = root.scrollHeight;
+    }
+    return;
+  }
+
+  if (!state.roomId) {
+    toast("افتح غرفة الأول.");
+    return;
+  }
+
+  try {
+    const { ref, push, set } = state.dbApi;
+    const messageRef = push(ref(state.db, `rooms/${state.roomId}/chat`));
+
+    await set(messageRef, {
+      name: state.name,
+      uid: state.uid,
+      text,
+      at: Date.now()
+    });
+  } catch (err) {
+    console.error(err);
+    toast("تعذر إرسال الرسالة.");
+  }
 }
 
 function leaveRoom() {
-  if(state.unsubRoom){state.unsubRoom();state.unsubRoom=null;}
-  if(state.unsubChat){state.unsubChat();state.unsubChat=null;}
-  state.roomId=null;state.room=null;state.game=null;closeModal("gameModal");
+  if (typeof state.unsubRoom === "function") state.unsubRoom();
+  if (typeof state.unsubChat === "function") state.unsubChat();
+
+  state.unsubRoom = null;
+  state.unsubChat = null;
+  state.roomId = null;
+  state.room = null;
+  state.game = null;
+
+  closeModal("gameModal");
 }
 
-$("#nameForm").addEventListener("submit",e=>{e.preventDefault();const name=$("#nameInput").value.trim().slice(0,18);if(!name)return;state.name=name;localStorage.setItem("arcade_name",name);renderName();closeModal("nameModal");});
-$("#editNameBtn").addEventListener("click",()=>{$("#nameInput").value=state.name;openModal("nameModal");});  $$("[data-close]").forEach(b=>b.addEventListener("click",()=>closeModal(b.dataset.close)));
-$$(".modal-backdrop").forEach(m=>m.addEventListener("click",e=>{if(e.target===m){if(m.id==="gameModal")leaveRoom();else closeModal(m.id);}})); $$
-("[data-game]").forEach(b=>b.addEventListener("click",()=>createRoom(b.dataset.game)));
-$("#chatForm").addEventListener("submit",e=>{e.preventDefault();const input=$("#chatInput");sendChat(input.value);input.value="";});
-$("#copyRoomBtn").addEventListener("click",async()=>{const code=state.roomId;if(!code)return;try{await navigator.clipboard.writeText(code);toast("تم نسخ كود الغرفة");}catch{toast("كود الغرفة: "+code);}});
-$("#refreshRooms").addEventListener("click",()=>state.firebase?toast("قائمة الغرف بتتحدث تلقائيًا."):toast("فعّل Firebase عشان تظهر الغرف العامة."));
-window.addEventListener("keydown",e=>{if(e.key==="Escape"&&$("#gameModal").classList.contains("open"))leaveRoom();});
+$("#nameForm")?.addEventListener("submit", (event) => {
+  event.preventDefault();
+
+  const name = ($("#nameInput")?.value || "").trim().slice(0, 18);
+  if (!name) {
+    toast("اكتب اسمك الأول.");
+    return;
+  }
+
+  state.name = name;
+  localStorage.setItem("arcade_name", name);
+  renderName();
+  closeModal("nameModal");
+});
+
+$("#editNameBtn")?.addEventListener("click", () => {
+  if ($("#nameInput")) $("#nameInput").value = state.name;
+  openModal("nameModal");
+});
+
+$$("[data-close]").forEach((button) => {
+  button.addEventListener("click", () => closeModal(button.dataset.close));
+});
+
+$$(".modal-backdrop").forEach((modal) => {
+  modal.addEventListener("click", (event) => {
+    if (event.target !== modal) return;
+
+    if (modal.id === "gameModal") {
+      leaveRoom();
+    } else {
+      closeModal(modal.id);
+    }
+  });
+});
+
+$$("[data-game]").forEach((button) => {
+  button.addEventListener("click", () => createRoom(button.dataset.game));
+});
+
+$("#chatForm")?.addEventListener("submit", (event) => {
+  event.preventDefault();
+
+  const input = $("#chatInput");
+  if (!input) return;
+
+  sendChat(input.value);
+  input.value = "";
+});
+
+$("#copyRoomBtn")?.addEventListener("click", async () => {
+  if (!state.roomId) return;
+
+  try {
+    await navigator.clipboard.writeText(state.roomId);
+    toast("تم نسخ كود الغرفة.");
+  } catch {
+    toast("كود الغرفة: " + state.roomId);
+  }
+});
+
+$("#refreshRooms")?.addEventListener("click", () => {
+  toast(state.firebase
+    ? "قائمة الغرف بتتحدث تلقائيًا."
+    : "الوضع التجريبي شغال. الغرف الأونلاين تحتاج Firebase.");
+});
+
+window.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && $("#gameModal")?.classList.contains("open")) {
+    leaveRoom();
+  }
+});
 
 renderName();
-if(!state.name){$("#nameInput").value="";openModal("nameModal");}
+
+if (!state.name) {
+  if ($("#nameInput")) $("#nameInput").value = "";
+  openModal("nameModal");
+}
+
 initFirebase();
