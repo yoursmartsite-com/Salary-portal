@@ -1,10 +1,13 @@
-// ضع بيانات مشروع Firebase الخاص بك هنا بعد إنشاء تطبيق Web.
-// لا تضع أبدًا مفاتيح حسابات خاصة أو كلمات مرور في هذا الملف.
+
 export const firebaseConfig = {
-  apiKey: "YOUR_FIREBASE_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  databaseURL: "https://YOUR_DATABASE_NAME-default-rtdb.firebaseio.com",
-  projectId: "YOUR_PROJECT_ID",
-  appId: "YOUR_FIREBASE_APP_ID"
+  apiKey: "AIzaSyArJNDKNNTs2oFGFWV58_1UKY3GmE06ghk",
+  authDomain: "play-with-friends-com.firebaseapp.com",
+  databaseURL: "https://play-with-friends-com-default-rtdb.firebaseio.com",
+  projectId: "play-with-friends-com",
+  storageBucket: "play-with-friends-com.firebasestorage.app",
+  messagingSenderId: "52443545219",
+  appId: "1:52443545219:web:62c9746888f7fe2bf9a5b6",
+  measurementId: "G-EWWVNGQG6H"
 };
-export const firebaseReady = !Object.values(firebaseConfig).some(v => String(v).includes("YOUR_"));
+
+export const firebaseReady = true;
