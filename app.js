@@ -214,7 +214,7 @@ function renderRooms(rooms) {
         <strong>${safeText(room.title || titles[room.game] || "غرفة لعب")}</strong>
         <small>${safeText(room.hostName || "لاعب")} • ${safeText(Object.keys(room.players || {}).length || room.playersCount || 1)} / ${{xo:2,rps:4,guess:4}[room.game] || 4} لاعب</small>
       </div>
-      <button data-join="${safeText(room.id)}">دخول</button>
+      <button data-join="${safeText(room.id)}" ${Object.keys(room.players || {}).length >= ({"xo":2,"rps":4,"guess":4}[room.game] || 4) ? "disabled title=\"الغرفة مكتملة\"" : ""}>${Object.keys(room.players || {}).length >= ({"xo":2,"rps":4,"guess":4}[room.game] || 4) ? "مكتملة" : "دخول"}</button>
     </div>
   `).join("");
 
@@ -390,7 +390,7 @@ function subscribePresence() {
       const root = $(selector);
       if (root) root.innerHTML = inviteMarkup;
     });
-    $("[data-invite]").forEach(btn => btn.addEventListener("click", () => sendInvite(btn.dataset.invite)));
+      $("[data-invite]").forEach(btn => btn.addEventListener("click", () => sendInvite(btn.dataset.invite)));
   });
   onValue(ref(state.db, `invites/${state.uid}`), snap => {
     const invite = snap.val();
