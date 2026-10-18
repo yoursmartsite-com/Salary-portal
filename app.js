@@ -408,7 +408,7 @@ function subscribePresence() {
       const root = $(selector);
       if (root) root.innerHTML = inviteMarkup;
     });
-      $("[data-invite]").forEach(btn => btn.addEventListener("click", () => sendInvite(btn.dataset.invite)));
+      $$("[data-invite]").forEach(btn => btn.addEventListener("click", () => sendInvite(btn.dataset.invite)));
   });
   onValue(ref(state.db, `invites/${state.uid}`), snap => {
     const invite = snap.val();
