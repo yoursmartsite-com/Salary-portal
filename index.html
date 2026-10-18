@@ -1,30 +1,95 @@
-صالة التحدي - ألعاب أونلاين على GitHub Pages
-=============================================
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101326">
+  <title>صالة التحدي | ألعاب أونلاين</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#"><span class="brand-icon">🎮</span><span>صالة <b>التحدي</b></span></a>
+    <div class="top-actions"><span class="live-dot"></span><span id="connectionLabel">وضع تجريبي</span><button class="ghost-btn" id="editNameBtn">تغيير الاسم</button></div>
+  </header>
 
-الملفات:
-- index.html: واجهة الموقع.
-- style.css: التصميم.
-- app.js: منطق الألعاب والاتصال بقاعدة البيانات.
-- firebase-config.js: بيانات ربط Firebase.
+  <main class="container">
+    <section class="hero">
+      <div class="hero-copy">
+        <span class="eyebrow">اللعب أحلى مع الصحاب</span>
+        <h1>تحدّى أصحابك<br><span>في أي وقت.</span></h1>
+        <p>ادخل غرفة عامة، اختار لعبتك، وابدأ التحدي من الموبايل أو الكمبيوتر.</p>
+        <a class="primary-btn" href="#games">اختار لعبة <span>←</span></a>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="orbit orbit-a"></div><div class="orbit orbit-b"></div>
+        <div class="float-card card-xo">❌ <span>⭕</span></div>
+        <div class="float-card card-rock">✊</div>
+        <div class="controller">🎮</div>
+        <div class="spark spark-one">✦</div><div class="spark spark-two">✧</div>
+      </div>
+    </section>
 
-طريقة النشر:
-1) نزّل ZIP وفك الضغط.
-2) افتح مستودع GitHub الخاص بالموقع.
-3) ارفع الملفات إلى جذر المستودع (نفس مكان index.html).
-4) افتح Settings > Pages، واختر Deploy from a branch ثم main و /(root).
-5) افتح رابط GitHub Pages بعد اكتمال النشر.
+    <section class="profile-row">
+      <div class="profile-avatar" id="avatar">P</div>
+      <div class="profile-copy"><span class="muted">أنت داخل باسم</span><strong id="playerName">Player</strong></div>
+      <div class="profile-spacer"></div>
+      <div class="online-pill"><span class="live-dot"></span> <span id="onlineCount">وضع محلي</span></div>
+    </section>
 
-تفعيل اللعب أونلاين:
-1) افتح https://console.firebase.google.com وأنشئ مشروعًا.
-2) أضف تطبيق Web واحفظ بيانات firebaseConfig.
-3) من Authentication > Sign-in method فعّل Anonymous.
-4) من Realtime Database أنشئ قاعدة بيانات.
-5) انسخ إعدادات التطبيق إلى firebase-config.js.
+    <section id="games" class="section-head">
+      <div><span class="eyebrow">اختار منافستك</span><h2>الألعاب المتاحة</h2></div>
+      <span class="section-note">3 ألعاب • مجانية</span>
+    </section>
 
-مهم جدًا:
-- ضع apiKey وauthDomain وdatabaseURL وprojectId وappId الحقيقية.
-- لا تترك قاعدة البيانات مفتوحة بلا قواعد أمان.
-- الكود الحالي واجهة بداية عملية، لكن قواعد Firebase يجب ضبطها واختبارها قبل إتاحتها للعامة.
-- في Realtime Database > Rules استخدم قواعد تمنع الوصول غير المصرح به. لا تستخدم ".read": true و".write": true كحل دائم.
-- راجع قواعد الأمان هنا: https://firebase.google.com/docs/database/security
-- لم يتم تعديل مستودع GitHub تلقائيًا؛ ارفع الملفات بنفسك.
+    <section class="game-grid">
+      <article class="game-card game-purple">
+        <div class="game-visual"><div class="xo-board"><i>×</i><i>○</i><i></i><i>○</i><i>×</i><i></i><i></i><i></i><i>○</i></div><span class="visual-emoji">⚡</span></div>
+        <div class="game-info"><div class="card-tags"><span>لاعبان</span><span>استراتيجية</span></div><h3>إكس أو</h3><p>مين هيقدر يعمل 3 علامات ورا بعض؟</p><button class="play-btn" data-game="xo">العب الآن <span>←</span></button></div>
+      </article>
+      <article class="game-card game-orange">
+        <div class="game-visual"><div class="rps-emoji">✊ <span>✋</span></div><span class="visual-emoji">🔥</span></div>
+        <div class="game-info"><div class="card-tags"><span>لاعبان</span><span>سرعة</span></div><h3>حجر ورقة مقص</h3><p>اختار حركتك وشوف مين هيكسب الجولة.</p><button class="play-btn" data-game="rps">العب الآن <span>←</span></button></div>
+      </article>
+      <article class="game-card game-blue">
+        <div class="game-visual"><div class="number-art"><span>?</span><b>7</b><span>?</span></div><span class="visual-emoji">🎯</span></div>
+        <div class="game-info"><div class="card-tags"><span>2–6 لاعبين</span><span>ذكاء</span></div><h3>تخمين الرقم</h3><p>خمن الرقم السري بأقل عدد محاولات.</p><button class="play-btn" data-game="guess">العب الآن <span>←</span></button></div>
+      </article>
+    </section>
+
+    <section class="lobby-section">
+      <div class="section-head lobby-heading"><div><span class="eyebrow">العب مع الناس</span><h2>الغرف العامة</h2></div><button class="outline-btn" id="refreshRooms">↻ تحديث</button></div>
+      <div class="lobby-card">
+        <div class="lobby-icon">🌐</div>
+        <div class="lobby-text"><strong>الغرف العامة هتظهر هنا</strong><p id="lobbyHint">فعّل Firebase عشان تشوف غرف كل اللاعبين على الإنترنت.</p></div>
+        <span class="status-badge" id="firebaseStatus">غير متصل</span>
+      </div>
+      <div id="roomsList" class="rooms-list"></div>
+    </section>
+
+    <footer><span>🎮 صالة التحدي</span><span>اللعب النظيف أحلى مع الصحاب</span></footer>
+  </main>
+
+  <div class="modal-backdrop" id="nameModal">
+    <div class="modal name-modal">
+      <button class="close-modal" data-close="nameModal" aria-label="إغلاق">×</button>
+      <span class="modal-icon">👋</span><h2>أهلًا بيك!</h2><p>اكتب الاسم اللي أصحابك هيشوفوه.</p>
+      <form id="nameForm"><input id="nameInput" maxlength="18" placeholder="مثال: MAFIA" autocomplete="nickname" required><button class="primary-btn full-btn" type="submit">دخول الصالة</button></form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="gameModal">
+    <div class="modal game-modal">
+      <button class="close-modal" data-close="gameModal" aria-label="إغلاق">×</button>
+      <div class="game-modal-header"><div><span class="eyebrow" id="gameEyebrow">غرفة عامة</span><h2 id="gameTitle">اللعبة</h2></div><span class="room-code" id="roomCode">عام</span></div>
+      <div class="room-toolbar"><span id="roomStatus">جاري تجهيز الغرفة...</span><button class="outline-btn small" id="copyRoomBtn">نسخ كود الغرفة</button></div>
+      <div id="gameContent" class="game-content"></div>
+      <div class="chat-panel"><div class="chat-title">💬 دردشة الغرفة</div><div id="chatMessages" class="chat-messages"><p class="chat-empty">رسائل الغرفة هتظهر هنا.</p></div><form id="chatForm" class="chat-form"><input id="chatInput" maxlength="180" placeholder="اكتب رسالة..." autocomplete="off"><button type="submit" aria-label="إرسال">➤</button></form></div>
+      <p class="demo-note" id="demoNote">الوضع التجريبي: اللعب على نفس المتصفح فقط. فعّل Firebase للعب أونلاين.</p>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
