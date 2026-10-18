@@ -408,7 +408,7 @@ function subscribePresence() {
       const root = $(selector);
       if (root) root.innerHTML = inviteMarkup;
     });
-      $$("[data-invite]").forEach(btn => btn.addEventListener("click", () => sendInvite(btn.dataset.invite)));
+      $("[data-invite]").forEach(btn => btn.addEventListener("click", () => sendInvite(btn.dataset.invite)));
   });
   onValue(ref(state.db, `invites/${state.uid}`), snap => {
     const invite = snap.val();
@@ -974,15 +974,8 @@ $$(".modal-backdrop").forEach((modal) => {
   });
 });
 
-$("[data-game]").forEach((button) => {
-  button.addEventListener("click", async () => {
-    try {
-      await createRoom(button.dataset.game);
-    } catch (err) {
-      console.error("Game button error:", err);
-      toast("حصل خطأ أثناء فتح اللعبة. جرّب تاني بعد تحديث الصفحة.");
-    }
-  });
+$$("[data-game]").forEach((button) => {
+  button.addEventListener("click", () => createRoom(button.dataset.game));
 });
 
 $("#chatForm")?.addEventListener("submit", (event) => {
