@@ -974,8 +974,15 @@ $$(".modal-backdrop").forEach((modal) => {
   });
 });
 
-$$("[data-game]").forEach((button) => {
-  button.addEventListener("click", () => createRoom(button.dataset.game));
+$("[data-game]").forEach((button) => {
+  button.addEventListener("click", async () => {
+    try {
+      await createRoom(button.dataset.game);
+    } catch (err) {
+      console.error("Game button error:", err);
+      toast("حصل خطأ أثناء فتح اللعبة. جرّب تاني بعد تحديث الصفحة.");
+    }
+  });
 });
 
 $("#chatForm")?.addEventListener("submit", (event) => {
