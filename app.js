@@ -300,7 +300,25 @@ async function createRoom(game) {
     watchRoom();
   } catch (err) {
     console.error("Create room error:", err);
-    toast("تعذر إنشاء الغرفة. راجع قواعد Firebase.");
+    // Keep the game playable in demo mode even if Firebase room creation fails.
+    state.firebase = false;
+    setDemoStatus();
+    state.roomId = "LOCAL";
+    state.room = {
+      game,
+      hostUid: state.uid,
+      hostName: state.name,
+      players: {
+        [state.uid]: { name: state.name, joinedAt: Date.now() }
+      },
+      state: game === "xo"
+        ? { board: Array(9).fill(""), turn: "X", winner: "" }
+        : game === "rps"
+          ? { round: 1, choices: {}, scores: {} }
+          : { guesses: [], winner: "" }
+    };
+    setupGameModal(true);
+    toast("فتحنا اللعبة تجريبيًا لأن إنشاء الغرفة أونلاين فشل.");
   }
 }
 
