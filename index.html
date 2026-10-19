@@ -26,7 +26,15 @@
 .box:has(.d-head) .domino-tile .pip-divider{height:36px;width:2px}
 .box:has(.d-head) .d-actions button{padding:12px 18px;font-size:14px}
 @media(max-width:600px){
- .box:has(.d-head){width:100%;height:96dvh;max-height:96dvh;padding:16px 12px 20px;border-radius:20px;overflow-y:auto}
+ .box:has(.d-head){width:calc(100vw - 20px);height:auto;max-height:86dvh;padding:12px;border-radius:18px;overflow-y:auto;align-self:center}
+ .modal:has(.box .d-head){padding:10px;align-items:center}
+ .box:has(.d-head) .d-head{gap:8px;padding:0 0 8px}
+ .box:has(.d-head) .d-head h2{font-size:clamp(21px,5.5vw,28px);line-height:1.35}
+ .box:has(.d-head) .d-score{gap:7px;margin:7px 0 10px}
+ .box:has(.d-head) .d-player{padding:8px;gap:6px}
+ .box:has(.d-head) .d-status{padding:10px;margin:8px 0}
+ .box:has(.d-head) .d-table{min-height:155px;padding:10px}
+ .box:has(.d-head) .d-chain{min-height:95px;gap:5px;padding:10px 2px}
  .box:has(.d-head) .d-table{min-height:190px;padding:13px}
  .box:has(.d-head) .d-chain{min-height:115px;gap:7px;padding:16px 3px}
  .box:has(.d-head) .d-chain-tile{padding:7px 5px}
