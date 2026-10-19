@@ -18,6 +18,8 @@ const state = {
   firebase: false,
   localTurn: "X",
   localBoard: Array(9).fill(""),
+  xoBot: false,
+  xoBotThinking: false,
   guessTarget: Math.floor(Math.random() * 20) + 1,
   guesses: 0,
   localRpsChoice: null,
@@ -236,6 +238,8 @@ async function createRoom(game) {
   }
 
   state.game = game;
+  state.xoBot = false;
+  state.xoBotThinking = false;
   state.localBoard = Array(9).fill("");
   state.localTurn = "X";
   state.guessTarget = Math.floor(Math.random() * 20) + 1;
@@ -527,26 +531,26 @@ function drawXO() {
   const gameState = room.state || {};
   const board = gameState.board || Array(9).fill("");
   const entries = currentPlayerEntries();
-  const local = !state.firebase;
-
-  const myMark = local
-    ? state.localTurn
-    : (entries.findIndex(([uid]) => uid === state.uid) === 0 ? "X" : "O");
-
-  const players = entries.map(([, player]) => player.name);
+  const local = !state.firebase || state.xoBot;
+  const myMark = local ? "X" :
+    (entries.findIndex(([uid]) => uid === state.uid) === 0 ? "X" : "O");
+  const players = state.xoBot
+    ? [state.name || "أنت", "بوت XO"]
+    : entries.map(([, player]) => player.name);
   const winner = gameState.winner || "";
-
   let status;
 
   if (winner) {
     status = winner === "draw"
       ? "تعادل!"
       : `الفائز: ${winner === "X" ? safeText(players[0] || "X") : safeText(players[1] || "O")}`;
+  } else if (state.xoBot && state.xoBotThinking) {
+    status = "البوت بيفكر...";
   } else if (!local && entries.length < 2) {
     status = "مستنيين لاعب تاني يدخل...";
   } else {
     status = local
-      ? `دور اللاعب ${state.localTurn}`
+      ? (state.xoBot ? "دورك (X)" : `دور اللاعب ${state.localTurn}`)
       : (gameState.turn === state.uid ? "دورك!" : "مستني دورك");
   }
 
@@ -554,28 +558,103 @@ function drawXO() {
     <p class="game-message">
       ${status}<br>
       <small>${safeText(players[0] || "اللاعب الأول")} (X) ضد
-      ${safeText(players[1] || (local ? "اللاعب الثاني" : "اللاعب الثاني"))} (O)</small>
+      ${safeText(players[1] || "اللاعب الثاني")} (O)</small>
     </p>
     <div class="xo-grid">
       ${board.map((value, index) => `
         <button class="xo-cell ${value === "O" ? "o" : ""}"
           data-cell="${index}"
-          ${(value || winner || (!local && (entries.length < 2 || gameState.turn !== state.uid))) ? "disabled" : ""}>
+          ${(value || winner || state.xoBotThinking || (!local && (entries.length < 2 || gameState.turn !== state.uid))) ? "disabled" : ""}>
           ${safeText(value)}
         </button>
       `).join("")}
     </div>
-    ${winner ? '<button class="secondary-btn" id="restartGame">العب جولة جديدة</button>' : ""}
+    <div class="row" style="justify-content:center">
+      ${winner ? '<button class="secondary-btn" id="restartGame">العب جولة جديدة</button>' : ""}
+      ${!state.xoBot ? '<button class="secondary-btn" id="playAgainstBot">العب ضد البوت 🤖</button>' : ""}
+    </div>
   `;
 
-  $$("[data-cell]").forEach((button) => {
+  $("[data-cell]").forEach((button) => {
     button.addEventListener("click", () => playXO(Number(button.dataset.cell), myMark));
   });
-
   $("#restartGame")?.addEventListener("click", restartXO);
+  $("#playAgainstBot")?.addEventListener("click", createBotGame);
+}
+
+function createBotGame() {
+  state.xoBot = true;
+  state.xoBotThinking = false;
+  state.game = "xo";
+  state.roomId = "BOT";
+  state.localBoard = Array(9).fill("");
+  state.localTurn = "X";
+  state.room = {
+    game: "xo",
+    hostUid: state.uid,
+    hostName: state.name || "أنت",
+    players: {
+      [state.uid]: { name: state.name || "أنت", joinedAt: Date.now() },
+      bot: { name: "بوت XO", joinedAt: Date.now() }
+    },
+    state: { board: [...state.localBoard], turn: "X", winner: "", moves: 0 }
+  };
+  setupGameModal(true);
+  if ($("#roomStatus")) $("#roomStatus").textContent = "تلعب ضد بوت على نفس الجهاز";
+  if ($("#demoNote")) $("#demoNote").textContent = "البوت بيرد تلقائيًا بعد كل حركة.";
+}
+
+function chooseBotMove(board) {
+  const available = board.map((v, i) => v ? -1 : i).filter(i => i >= 0);
+  if (!available.length) return -1;
+  const winningMove = (mark) => {
+    for (const i of available) {
+      const test = [...board];
+      test[i] = mark;
+      if (winnerFor(test) === mark) return i;
+    }
+    return -1;
+  };
+  // مستوى متوسط: يكسب لو متاح، يمنع فوز اللاعب، ويفضل الوسط والزوايا.
+  const win = winningMove("O");
+  if (win >= 0) return win;
+  const block = winningMove("X");
+  if (block >= 0) return block;
+  if (!board[4]) return 4;
+  const corners = [0, 2, 6, 8].filter(i => !board[i]);
+  if (corners.length && Math.random() < 0.75) {
+    return corners[Math.floor(Math.random() * corners.length)];
+  }
+  return available[Math.floor(Math.random() * available.length)];
 }
 
 async function playXO(index) {
+  if (state.xoBot) {
+    const board = state.localBoard;
+    if (state.xoBotThinking || board[index] || winnerFor(board)) return;
+    board[index] = "X";
+    let winner = winnerFor(board);
+    state.room.state = { board: [...board], turn: "O", winner, moves: board.filter(Boolean).length };
+    if (winner) { drawXO(); return; }
+    state.xoBotThinking = true;
+    drawXO();
+    setTimeout(() => {
+      if (!state.xoBot || !state.room) return;
+      const move = chooseBotMove(state.localBoard);
+      if (move >= 0) state.localBoard[move] = "O";
+      winner = winnerFor(state.localBoard);
+      state.room.state = {
+        board: [...state.localBoard],
+        turn: "X",
+        winner,
+        moves: state.localBoard.filter(Boolean).length
+      };
+      state.xoBotThinking = false;
+      drawXO();
+    }, 350);
+    return;
+  }
+
   if (!state.firebase) {
     if (state.localBoard[index] || winnerFor(state.localBoard)) return;
 
@@ -625,6 +704,14 @@ async function playXO(index) {
 }
 
 async function restartXO() {
+  if (state.xoBot) {
+    state.localBoard = Array(9).fill("");
+    state.localTurn = "X";
+    state.xoBotThinking = false;
+    state.room.state = { board: [...state.localBoard], turn: "X", winner: "", moves: 0 };
+    drawXO();
+    return;
+  }
   if (!state.firebase) {
     state.localBoard = Array(9).fill("");
     state.localTurn = "X";
