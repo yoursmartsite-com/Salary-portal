@@ -299,22 +299,42 @@ voiceBtn.onclick=async function(ev){
 
 // Compact chat: show each new message as a bubble above the sender's avatar.
 const chatRef=roomRef.child('chat').limitToLast(40);
-const showGuessBubble=(m)=>{
+const bubbleTimers={};
+const latestBubbleByUid={};
+const showGuessBubble=(m,id)=>{
  if(!m||!m.uid)return;
- // Match the sender against rendered player cards without relying on CSS.escape.
- const card=Array.from(document.querySelectorAll('.guess-player[data-guess-uid]')).find(el=>el.dataset.guessUid===String(m.uid));
+ const sender=String(m.uid);
+ const card=Array.from(document.querySelectorAll('.guess-player[data-guess-uid]')).find(el=>el.dataset.guessUid===sender);
  if(!card)return;
  const bubble=card.querySelector('.guess-bubble');
  if(!bubble)return;
+ // Ignore older messages replayed from Firebase after a newer message from this player.
+ const timestamp=Number(m.at)||0;
+ const prev=latestBubbleByUid[sender];
+ if(prev&&timestamp&&timestamp<prev.at)return;
+ if(prev&&id&&prev.id===id)return;
+ latestBubbleByUid[sender]={at:timestamp,id:id||'',text:String(m.text||'')};
  bubble.textContent=String(m.text||'').slice(0,300);
  bubble.hidden=false;
- clearTimeout(bubble._hideTimer);
- bubble._hideTimer=setTimeout(()=>{bubble.hidden=true},9000);
+ if(bubbleTimers[sender])clearTimeout(bubbleTimers[sender]);
+ bubbleTimers[sender]=setTimeout(()=>{
+   if(latestBubbleByUid[sender]&&latestBubbleByUid[sender].id===(id||''))bubble.hidden=true;
+ },6500);
 };
-chatRef.once('value').then(snap=>{snap.forEach(ch=>showGuessBubble(ch.val()))});
+// Only display the latest message per player when opening/reopening the game.
+chatRef.once('value').then(snap=>{
+ const latest={};
+ snap.forEach(ch=>{
+   const m=ch.val()||{};
+   if(!m.uid)return;
+   const t=Number(m.at)||0;
+   if(!latest[m.uid]||t>latest[m.uid].at)latest[m.uid]={m,id:ch.key,at:t};
+ });
+ Object.keys(latest).forEach(k=>showGuessBubble(latest[k].m,latest[k].id));
+});
 if(window.guessChatLiveRef)window.guessChatLiveRef.off();
 window.guessChatLiveRef=roomRef.child('chat').limitToLast(40);
-window.guessChatLiveRef.on('child_added',snap=>showGuessBubble(snap.val()||{}));
+window.guessChatLiveRef.on('child_added',snap=>showGuessBubble(snap.val()||{},snap.key));
 $('#guessChatForm').onsubmit=e=>{
  e.preventDefault();
  const input=$('#guessChatInput'),textMsg=input.value.trim();
