@@ -165,7 +165,19 @@ async function startVoice(){
   else{voiceUi('جاري الاتصال…',true);toast('جاري الاتصال بصاحب الغرفة؛ استنى لحظة.')}
  }catch(e){console.error(e);voiceCleanup();voiceUi('الصوت غير متصل',false);toast(e.name==='NotAllowedError'?'اسمح للمتصفح باستخدام الميكروفون من إعدادات الموقع.':'تعذر تشغيل المايك: '+(e.message||e.name))}
 }
-voiceBtn.onclick=startVoice;
+voiceBtn.type='button';
+voiceBtn.style.cursor='pointer';
+voiceBtn.style.pointerEvents='auto';
+voiceBtn.onclick=async function(ev){
+ ev.preventDefault();
+ ev.stopPropagation();
+ if(voiceBtn.dataset.busy==='1')return;
+ voiceBtn.dataset.busy='1';
+ const previous=voiceBtn.textContent;
+ voiceBtn.textContent='⏳';
+ try{await startVoice()}catch(err){console.error('Voice button error:',err);toast('حصل خطأ في زر المايك: '+(err.message||'حاول مرة أخرى'))}
+ finally{voiceBtn.dataset.busy='0';if(voiceBtn.isConnected&&voiceBtn.textContent==='⏳')voiceBtn.textContent=previous}
+};
 
 const chatRef=roomRef.child('chat').limitToLast(40);
 chatRef.once('value').then(snap=>{if(!document.getElementById('guessMessages'))return;const box=$('#guessMessages'),msgs=[];snap.forEach(ch=>msgs.push(ch.val()));box.innerHTML=msgs.map(m=>'<div class="guess-msg '+(m.uid===uid?'mine':'')+'"><strong>'+safe(m.name||'لاعب')+'</strong>'+safe(m.text)+'<time>'+new Date(m.at||Date.now()).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'})+'</time></div>').join('')||'<p class="guess-mini">مفيش رسائل لسه — ابدأ الكلام 👋</p>';box.scrollTop=box.scrollHeight});
