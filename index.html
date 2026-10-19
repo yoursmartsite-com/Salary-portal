@@ -144,9 +144,10 @@ async function startVoice(){
    try{
     const data=snap.val()||{};
     if(initiator){
-     if(data.answer&&!voicePc.currentRemoteDescription)await voicePc.setRemoteDescription(new RTCSessionDescription(data.answer));
+     if(data.answer&&!voicePc.currentRemoteDescription){await voicePc.setRemoteDescription(new RTCSessionDescription(data.answer));await flushRemoteCandidates();}
     }else if(data.offer&&!voicePc.currentRemoteDescription){
      await voicePc.setRemoteDescription(new RTCSessionDescription(data.offer));
+     await flushRemoteCandidates();
      const answer=await voicePc.createAnswer();await voicePc.setLocalDescription(answer);
      await voiceSignalRef.child('answer').set({type:answer.type,sdp:answer.sdp});
     }
