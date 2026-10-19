@@ -153,14 +153,26 @@ async function startVoice(){
   };
   voiceSignalRef.on('value',voiceSignalListener);
   const remoteCandidatesRef=voiceCandidateRef.child(peer);
-  const candidateHandler=remoteCandidatesRef.on('child_added',async snap=>{
-   if(!voicePc||!voicePc.remoteDescription)return;
-   try{await voicePc.addIceCandidate(new RTCIceCandidate(snap.val()))}catch(e){console.warn('ICE candidate skipped',e)}
+  const pendingRemoteCandidates=[];
+  const appliedRemoteCandidates=new Set();
+  let flushingRemoteCandidates=false;
+  const flushRemoteCandidates=async()=>{
+   if(flushingRemoteCandidates||!voicePc||!voicePc.remoteDescription)return;
+   flushingRemoteCandidates=true;
+   try{
+    while(pendingRemoteCandidates.length&&voicePc&&voicePc.remoteDescription){
+     const item=pendingRemoteCandidates.shift();
+     if(appliedRemoteCandidates.has(item.key))continue;
+     try{await voicePc.addIceCandidate(new RTCIceCandidate(item.candidate));appliedRemoteCandidates.add(item.key)}
+     catch(e){console.warn('ICE candidate will be retried',e);pendingRemoteCandidates.unshift(item);break}
+    }
+   }finally{flushingRemoteCandidates=false}
+  };
+  remoteCandidatesRef.on('child_added',snap=>{
+   if(appliedRemoteCandidates.has(snap.key)||pendingRemoteCandidates.some(x=>x.key===snap.key))return;
+   pendingRemoteCandidates.push({key:snap.key,candidate:snap.val()});
+   flushRemoteCandidates();
   });
-  const remoteCandidateListener=remoteCandidatesRef;
-  const retryCandidates=()=>{if(!voicePc||!voicePc.remoteDescription)return;remoteCandidatesRef.once('value').then(snap=>snap.forEach(ch=>{if(!voicePc)return;const key=ch.key;if(!voicePc._seenRemoteCandidates)voicePc._seenRemoteCandidates=new Set();if(voicePc._seenRemoteCandidates.has(key))return;voicePc._seenRemoteCandidates.add(key);voicePc.addIceCandidate(new RTCIceCandidate(ch.val())).catch(()=>{})}))};
-  voicePc.addEventListener('signalingstatechange',retryCandidates);
-  if(!voicePc._seenRemoteCandidates)voicePc._seenRemoteCandidates=new Set();
   if(initiator){const offer=await voicePc.createOffer();await voicePc.setLocalDescription(offer);await voiceSignalRef.child('offer').set({type:offer.type,sdp:offer.sdp});voiceUi('جاري الاتصال بصاحبك…',true);toast('طلبنا الاتصال؛ خلي صاحبك يضغط على المايك كمان.')}
   else{voiceUi('جاري الاتصال…',true);toast('جاري الاتصال بصاحب الغرفة؛ استنى لحظة.')}
  }catch(e){console.error(e);voiceCleanup();voiceUi('الصوت غير متصل',false);toast(e.name==='NotAllowedError'?'اسمح للمتصفح باستخدام الميكروفون من إعدادات الموقع.':'تعذر تشغيل المايك: '+(e.message||e.name))}
