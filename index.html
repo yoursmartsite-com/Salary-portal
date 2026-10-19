@@ -130,14 +130,10 @@ async function startVoice(){
   voiceStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},video:false});
   const iceServers=[
    {urls:'stun:stun.relay.metered.ca:80'},
-   {urls:'turn:global.relay.metered.ca:80',username:'00190cb5c67280db859308d3',credential:'7a1UzHE3IFpGQ5Db
-'},
-   {urls:'turn:global.relay.metered.ca:80?transport=tcp',username:'00190cb5c67280db859308d3',credential:'7a1UzHE3IFpGQ5Db
-'},
-   {urls:'turn:global.relay.metered.ca:443',username:'00190cb5c67280db859308d3',credential:'7a1UzHE3IFpGQ5Db
-'},
-   {urls:'turns:global.relay.metered.ca:443?transport=tcp',username:'00190cb5c67280db859308d3',credential:'7a1UzHE3IFpGQ5Db
-'}
+   {urls:'turn:global.relay.metered.ca:80',username:'00190cb5c67280db859308d3',credential:'7a1UzHE3IFpGQ5Db'},
+   {urls:'turn:global.relay.metered.ca:80?transport=tcp',username:'00190cb5c67280db859308d3',credential:'7a1UzHE3IFpGQ5Db'},
+   {urls:'turn:global.relay.metered.ca:443',username:'00190cb5c67280db859308d3',credential:'7a1UzHE3IFpGQ5Db'},
+   {urls:'turns:global.relay.metered.ca:443?transport=tcp',username:'00190cb5c67280db859308d3',credential:'7a1UzHE3IFpGQ5Db'}
   ];
   voicePc=new RTCPeerConnection({iceServers});
   voiceStream.getTracks().forEach(t=>voicePc.addTrack(t,voiceStream));
