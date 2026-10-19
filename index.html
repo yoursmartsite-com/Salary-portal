@@ -163,6 +163,43 @@
 .spy-role{font-size:21px;font-weight:900;color:#e4dbff}
 .spy-note{font-size:10px;color:#9ca9c4;line-height:1.8;text-align:center;margin:10px 0 0}
 @media(max-width:480px){.spy-shell{padding:12px}.spy-emblem{width:65px;height:65px;font-size:34px;border-radius:20px}.spy-player{padding:8px;gap:7px}.spy-player-avatar{width:32px;height:32px}.spy-players{gap:7px}}
+
+/* Spy: premium classified mission interface v2 */
+.spy-shell{position:relative;isolation:isolate;overflow:hidden;padding:clamp(14px,3vw,26px);border:1px solid #38465d;border-radius:26px;background:linear-gradient(145deg,#111b2d 0%,#0b1220 48%,#151027 100%);box-shadow:0 24px 60px #0005,inset 0 1px #ffffff12}
+.spy-shell:before{content:"";position:absolute;z-index:-1;inset:0;background:radial-gradient(ellipse at 90% 4%,#a22b4930,transparent 32%),radial-gradient(ellipse at 0% 100%,#16c7b01c,transparent 36%);pointer-events:none}
+.spy-hero{position:relative;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:18px 16px 22px;border-radius:20px;border:1px solid #ffffff12;background:linear-gradient(115deg,#151e30dd,#1a1329dd);margin-bottom:14px}
+.spy-hero:after{content:"CLASSIFIED  •  MISSION 01";position:absolute;bottom:8px;right:16px;font-size:8px;font-weight:900;letter-spacing:2px;color:#8392ac}
+.spy-emblem{width:88px;height:88px;flex:none;display:grid;place-items:center;font-size:47px;border-radius:25px;border:1px solid #ff526a66;background:linear-gradient(145deg,#3a182b,#171a2c);box-shadow:0 0 0 7px #ff526a0b,0 0 35px #ff526a22;transform:rotate(3deg)}
+.spy-kicker{font-size:10px;letter-spacing:2px;font-weight:900;color:#ff8292}
+.spy-title{font-size:clamp(27px,5vw,40px);font-weight:900;margin:7px 0;line-height:1.25;letter-spacing:-.5px}
+.spy-subtitle{font-size:12px;color:#aebbd0;line-height:1.9;margin:0;max-width:340px}
+.spy-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:12px 0 20px}
+.spy-stat{position:relative;overflow:hidden;padding:14px 8px;text-align:center;border-radius:16px;background:linear-gradient(145deg,#172438,#111827);border:1px solid #33445a}
+.spy-stat:before{content:"";position:absolute;top:0;right:18%;left:18%;height:2px;background:linear-gradient(90deg,transparent,#56e0c2,transparent)}
+.spy-stat b{display:block;font-size:21px;color:#f2f6ff}.spy-stat small{font-size:10px;color:#92a4bc}
+.spy-section-title{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:900;margin:19px 0 10px;color:#e3eaf7}
+.spy-section-title:after{content:"";height:1px;flex:1;background:linear-gradient(90deg,#35465d,transparent)}
+.spy-players{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:10px 0 17px}
+.spy-player{position:relative;display:flex;align-items:center;gap:10px;min-width:0;padding:12px;border:1px solid #27384e;background:linear-gradient(120deg,#172235,#101827);border-radius:16px;transition:border-color .2s,transform .2s}
+.spy-player:after{content:"";position:absolute;right:0;top:13px;bottom:13px;width:3px;border-radius:4px;background:#51647b}
+.spy-player.me{border-color:#41cbb2;background:linear-gradient(120deg,#14342f,#101827);box-shadow:0 0 0 1px #41cbb21a}
+.spy-player.me:after{background:#41e0bc}
+.spy-player-avatar{width:40px;height:40px;flex:none;display:grid;place-items:center;background:#202d43;border:1px solid #3c506b;border-radius:13px;font-size:21px}
+.spy-player.me .spy-player-avatar{background:#18463e;border-color:#2a8c79}
+.spy-player-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:900;font-size:12px;color:#f0f4fc}
+.spy-player-state{font-size:10px;color:#8fa3bc;margin-top:3px}
+.spy-instructions{display:grid;gap:8px}
+.spy-instruction{display:flex;gap:11px;align-items:center;padding:12px;background:#111b2a;border:1px solid #29374b;border-radius:15px}
+.spy-instruction>span{width:38px;height:38px;flex:none;display:grid;place-items:center;font-size:20px;border-radius:12px;background:#20283a;border:1px solid #34435a}
+.spy-instruction b{display:block;font-size:12px;color:#e9eff9}.spy-instruction small{display:block;color:#91a2ba;font-size:11px;line-height:1.75;margin-top:3px}
+.spy-secret{position:relative;overflow:hidden;padding:22px 15px;text-align:center;margin:17px 0 12px;border-radius:20px;background:linear-gradient(135deg,#1d2539,#17152b);border:1px solid #5b4a7c}
+.spy-secret:before{content:"";position:absolute;width:180px;height:180px;border-radius:50%;border:1px solid #b39aff14;top:-120px;left:calc(50% - 90px);box-shadow:0 0 0 18px #b39aff08,0 0 0 38px #b39aff05}
+.spy-secret .spy-secret-icon{font-size:38px;filter:drop-shadow(0 0 12px #b39aff55)}
+.spy-secret h3{position:relative;margin:7px 0;font-size:22px;color:#f4edff}.spy-secret p{position:relative;font-size:12px;margin:0;color:#a8b3ca}
+.spy-reveal{position:relative;width:100%;padding:15px;border-radius:15px;font-weight:900;color:#101525;background:linear-gradient(105deg,#8ff0d5,#64d5c0);box-shadow:0 9px 24px #35d7ba20;transition:transform .2s,filter .2s}
+.spy-reveal:active{transform:scale(.985);filter:brightness(.95)}
+.spy-note{font-size:10px;color:#8393ac;line-height:1.9;text-align:center;margin:11px 0 0}
+@media(max-width:480px){.spy-shell{padding:11px;border-radius:20px}.spy-hero{padding:14px 11px 24px;border-radius:16px}.spy-emblem{width:65px;height:65px;font-size:35px;border-radius:20px}.spy-stats{gap:6px}.spy-stat{padding:11px 5px}.spy-player{padding:9px 8px;gap:7px}.spy-player-avatar{width:34px;height:34px}.spy-instruction{padding:10px}.spy-instruction>span{width:34px;height:34px}}
 </style></head><body><header class="top"><a class="brand" href="#"><b>ل</b>لَمّة<small>اللعب يجمعنا</small></a><div><span class="pill">أونلاين</span> <button class="ghost" id="profileBtn">حسابي 👤</button> <button class="ghost" id="shopBtn">🛒 متجر لَمّة</button> <button class="ghost" id="nameBtn">تغيير الاسم</button></div></header><main><section class="hero"><div class="copy"><span class="eyebrow">مكانكم للّعب والتحدّي</span><h1>اللّمة أحلى<br><em>لما تلعبوا سوا.</em></h1><p>اختار لعبة، افتح غرفة، واجمع أصحابك في تحدّي سريع.</p><div class="actions"><a class="primary" href="#games">اختار لعبة ←</a><button class="secondary" id="quick">غرفة سريعة</button></div><div class="stats"><span>🎮 ٣ ألعاب</span><span>👥 لحد ٤ لاعبين</span><span>🔐 كود للغرفة</span></div></div><div class="art"><div class="orb"></div><div class="tile t1">✊</div><div class="tile t2">⭕</div><div class="tile t3">🔢</div></div></section><section class="section player-directory" id="playerDirectory"><div class="head"><div><span class="eyebrow">مجتمع لَمّة</span><h2>👥 اللاعبين</h2></div><p id="playerCount">جاري تحميل اللاعبين...</p></div><div class="player-list" id="playerList"><div class="empty">جاري تحميل قائمة اللاعبين...</div></div></section><section class="section shop-page" id="shopPage" hidden>
 <div class="shop-top"><button class="secondary" id="backFromShop">← العودة للرئيسية</button><div class="shop-brand"><span>🛒</span><div><h1>متجر لَمّة</h1><p>كل ما تحتاجه لتخصيص تجربتك في لَمّة</p></div></div><div class="shop-wallet"><span class="shop-user">🎮</span><div><b id="shopPlayerName">لاعب</b><small>رصيدك</small></div><strong>🪙 <span id="shopCoins">قريبًا</span></strong></div></div>
 <div class="shop-hero"><div class="shop-hero-copy"><span class="shop-tag">✨ خلي حسابك أسطوري</span><h2>خصّص حسابك<br><em>بأسلوبك الخاص</em></h2><p>إطارات نادرة، ألقاب مميزة، ثيمات وأكتر.</p><span class="shop-hero-note">🎁 مميزات جديدة في انتظارك</span></div><div class="shop-hero-art"><div class="shop-crown">👑</div><div class="shop-frame blue-frame">🎮</div><div class="shop-frame pink-frame">⚡</div><div class="shop-vip">VIP</div></div></div>
