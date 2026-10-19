@@ -104,6 +104,22 @@
 .top{height:62px;padding:0 14px}.brand{font-size:20px}.brand b{width:34px;height:34px}.brand small{display:none}.hero{min-height:0;margin:0 auto 12px;padding:8px 16px;gap:8px}.hero h1{font-size:clamp(30px,4vw,44px);line-height:1.18;margin:8px 0}.hero p{font-size:13px;line-height:1.55;margin:6px 0}.hero .eyebrow{font-size:11px}.hero .actions{gap:8px;margin-top:12px}.hero .actions button{padding:9px 12px}.hero .stats{display:none}.art{height:170px}.orb{width:145px;height:145px}.tile{width:70px;height:70px;font-size:30px;border-radius:18px}.section{padding:0 16px 18px}.head{align-items:center;margin-bottom:10px}.head h2,.invite h2{font-size:22px;margin:0}.head p,.card p,.invite p{display:none}.grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.card{padding:12px;border-radius:15px}.ico{font-size:27px;min-height:32px}.card h3{font-size:15px}.meta{font-size:10px;margin:3px 0 7px}.play{padding:8px 9px;font-size:12px}.rooms{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.room{padding:10px;border-radius:12px;font-size:12px}.room small{font-size:10px}.join{margin-top:10px;padding:11px}.join label{font-size:13px;margin-bottom:6px}.join input{padding:9px}.invite{margin:0 16px 16px;padding:12px;border-radius:14px}.invite h2{font-size:17px}.invite p{display:none}footer{padding:12px 16px}.section .head .eyebrow{font-size:10px}
 @media(max-width:760px){.top{height:58px;padding:0 12px}.hero{grid-template-columns:minmax(0,1fr) 115px;margin:0 auto 8px;padding:5px 12px;gap:4px}.art{height:120px;grid-row:auto}.copy{grid-row:auto}.hero h1{font-size:27px;margin:5px 0}.hero p{font-size:11px;line-height:1.5}.hero .eyebrow{font-size:10px}.hero .actions{margin-top:8px;gap:6px}.hero .actions button{font-size:11px;padding:8px}.orb{width:105px;height:105px}.tile{width:48px;height:48px;font-size:23px;border-radius:13px}.t1{right:3%;top:10%}.t2{left:0;top:20%}.t3{bottom:0;left:32%}.section{padding:0 12px 14px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.card{padding:11px}.card h3{font-size:14px}.ico{font-size:24px;min-height:28px}.meta{font-size:10px}.play{font-size:11px;padding:8px}.head h2{font-size:20px}.rooms{grid-template-columns:1fr}.room{padding:9px}.join div{flex-direction:row}.join button{padding:9px 12px;white-space:nowrap}.invite{margin:0 12px 12px}footer{display:none}}
 @media(min-width:761px){.hero{grid-template-columns:1.3fr .7fr}.grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+/* Mobile-first number guessing room: integrated chat and emoji strip */
+#modal.guess-wide-modal .box{display:flex!important;flex-direction:column!important;overflow:hidden!important;height:min(94dvh,900px)!important;max-height:94dvh!important;padding:10px!important}
+#modal.guess-wide-modal #body{min-height:0!important;flex:1!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
+#modal.guess-wide-modal .guess-room,#modal.guess-wide-modal .guess-main{min-height:0!important;height:100%!important}
+#modal.guess-wide-modal .guess-main{display:flex!important;flex-direction:column!important;overflow:hidden!important}
+#modal.guess-wide-modal .guess-table{flex:1 1 auto!important;min-height:170px!important;overflow:hidden!important}
+#modal.guess-wide-modal .guess-chat-dock{flex:0 0 auto!important;position:relative!important;z-index:5!important;background:#0b1224!important;border:1px solid #34446b!important;border-radius:14px!important;padding:6px!important;margin:7px 0!important}
+.guess-emoji-bar{display:flex;gap:5px;overflow-x:auto;overscroll-behavior-x:contain;padding:2px 1px 7px;scrollbar-width:thin}
+.guess-emoji{flex:0 0 auto;min-width:34px;padding:5px 6px;border:1px solid #33466e;border-radius:9px;background:#151f39;font-size:19px;line-height:1.2}
+.guess-emoji:active{transform:scale(.92);background:#34265c}
+.guess-chat-mini{margin:0!important;padding:0!important;border:0!important;background:transparent!important}
+.guess-chat-mini input{font-size:14px!important;padding:11px!important}
+.guess-chat-mini button{white-space:nowrap;padding:10px 12px!important}
+#modal.guess-wide-modal .guess-status,#modal.guess-wide-modal .guess-entry,#modal.guess-wide-modal .guess-controls{flex:0 0 auto!important}
+@media(max-width:700px){#modal.guess-wide-modal{padding:5px!important;align-items:stretch!important}#modal.guess-wide-modal .box{width:100%!important;height:96dvh!important;max-height:96dvh!important;padding:6px!important;border-radius:14px!important}#modal.guess-wide-modal .guess-main{padding:7px!important}#modal.guess-wide-modal .guess-table{min-height:145px!important;padding:4px!important;margin:5px 0!important}#modal.guess-wide-modal .guess-player{max-width:35%!important;width:112px!important;gap:3px!important;padding:4px!important}#modal.guess-wide-modal .guess-player strong{font-size:10px!important}#modal.guess-wide-modal .guess-player small{font-size:8px!important}#modal.guess-wide-modal .guess-player .guess-avatar{width:25px!important;height:25px!important;font-size:14px!important}#modal.guess-wide-modal .guess-number{min-width:0!important;width:45%!important;padding:8px 3px!important}#modal.guess-wide-modal .guess-number b{font-size:clamp(28px,8vw,40px)!important}#modal.guess-wide-modal .guess-chat-dock{margin:4px 0!important;padding:4px!important}#modal.guess-wide-modal .guess-emoji{min-width:32px;font-size:18px;padding:4px}#modal.guess-wide-modal .guess-chat-mini input{font-size:13px!important;padding:9px!important}#modal.guess-wide-modal .guess-chat-mini button{font-size:12px!important;padding:8px!important}#modal.guess-wide-modal .guess-controls button{font-size:11px!important}}
 </style></head><body><header class="top"><a class="brand" href="#"><b>ل</b>لَمّة<small>اللعب يجمعنا</small></a><div><span class="pill">أونلاين</span> <button class="ghost" id="profileBtn">حسابي 👤</button> <button class="ghost" id="shopBtn">🛒 متجر لَمّة</button> <button class="ghost" id="nameBtn">تغيير الاسم</button></div></header><main><section class="hero"><div class="copy"><span class="eyebrow">مكانكم للّعب والتحدّي</span><h1>اللّمة أحلى<br><em>لما تلعبوا سوا.</em></h1><p>اختار لعبة، افتح غرفة، واجمع أصحابك في تحدّي سريع.</p><div class="actions"><a class="primary" href="#games">اختار لعبة ←</a><button class="secondary" id="quick">غرفة سريعة</button></div><div class="stats"><span>🎮 ٣ ألعاب</span><span>👥 لحد ٤ لاعبين</span><span>🔐 كود للغرفة</span></div></div><div class="art"><div class="orb"></div><div class="tile t1">✊</div><div class="tile t2">⭕</div><div class="tile t3">🔢</div></div></section><section class="section shop-page" id="shopPage" hidden>
 <div class="shop-top"><button class="secondary" id="backFromShop">← العودة للرئيسية</button><div class="shop-brand"><span>🛒</span><div><h1>متجر لَمّة</h1><p>كل ما تحتاجه لتخصيص تجربتك في لَمّة</p></div></div><div class="shop-wallet"><span class="shop-user">🎮</span><div><b id="shopPlayerName">لاعب</b><small>رصيدك</small></div><strong>🪙 <span id="shopCoins">قريبًا</span></strong></div></div>
 <div class="shop-hero"><div class="shop-hero-copy"><span class="shop-tag">✨ خلي حسابك أسطوري</span><h2>خصّص حسابك<br><em>بأسلوبك الخاص</em></h2><p>إطارات نادرة، ألقاب مميزة، ثيمات وأكتر.</p><span class="shop-hero-note">🎁 مميزات جديدة في انتظارك</span></div><div class="shop-hero-art"><div class="shop-crown">👑</div><div class="shop-frame blue-frame">🎮</div><div class="shop-frame pink-frame">⚡</div><div class="shop-vip">VIP</div></div></div>
@@ -232,92 +248,11 @@ $('#modal').classList.add('guess-wide-modal');
 const st=r.state||{},triesMap=st.tries||{},players=r.players||{},keys=Object.keys(players),mine=triesMap[uid]||0,active=st.turn===uid&&!st.winner;
 const me=players[uid]||{name:name,mark:'X'},otherKey=keys.find(k=>k!==uid),other=otherKey?players[otherKey]:null;
 const safe=v=>String(v??'').replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
-$('#body').innerHTML='<div class="guess-room"><section class="guess-main"><div class="guess-top"><div><span class="d-kicker">لَمّة أونلاين · تحدّي الأصدقاء</span><h2>🔢 تخمين الأرقام</h2><div class="guess-mini">الغرفة <b>'+safe(r.code)+'</b> · من 1 إلى 100</div></div><span class="guess-tag">● '+(keys.length>1?'متصلين':'مستني صاحبك')+'</span></div><div class="guess-table"><div class="guess-players">'+Array.from({length:4},(_,idx)=>{const k=idx===0?uid:keys.filter(x=>x!==uid)[idx-1],p=k?players[k]:null;return '<div class="guess-player seat-'+idx+'" '+(k?'data-guess-uid="'+safe(k)+'"':'')+'><div class="guess-avatar-wrap"><div class="guess-bubble" hidden></div><span class="guess-avatar" style="border-color:'+(idx===0?'#ffd166':idx===1?'#26a9ff':idx===2?'#c084fc':'#71e2b4')+';background:#0c2a52">'+(p&&p.avatar?p.avatar:(idx===0?'👑':idx===1?'🎮':idx===2?'🕹️':'🎯'))+'</span></div><div><strong>'+safe(p?(p.name+(k===uid?' (أنت)':'')):'في انتظار لاعب')+'</strong><small>'+ (p?'● متصل · '+(triesMap[k]||0)+' محاولات':'مكان اللاعب '+(idx+1))+'</small></div></div>'}).join('')+'</div><div class="guess-number"><small>الرقم اللي بندور عليه بين 1 و100</small><b>'+(st.winner?(st.secret||'🎉'):'? ?')+'</b><p>'+(st.winner?'🎉 الفائز: '+safe(players[st.winner]?.name||'لاعب'):(keys.length<2?'شارك كود الغرفة مع صاحبك عشان تبدأوا':'دورك: '+(active?'خمّن رقمك دلوقتي':'استنى دور صاحبك')))+'</p></div></div><form class="guess-chat-mini" id="guessChatForm"><input id="guessChatInput" maxlength="300" autocomplete="off" placeholder="رسالة سريعة..."><button type="submit" aria-label="إرسال">➤</button></form><div class="guess-status">'+safe(st.lastHint||'ابدأ التخمين، وهتظهر لك تلميحة إذا الرقم أكبر أو أصغر.')+'</div><form class="guess-entry" id="gf"><input id="n" type="number" min="1" max="100" required placeholder="اكتب تخمينك من 1 لـ100" '+(!active||keys.length<2?'disabled':'')+'><button '+(!active||keys.length<2?'disabled':'')+'>خمّن ↗</button></form><div class="guess-shortcuts">'+[1,25,50,75,100].map(n=>'<button type="button" data-guess="'+n+'" '+(!active||keys.length<2?'disabled':'')+'>'+n+'</button>').join('')+'</div><div class="guess-controls"><button class="secondary" id="reset">🔄 رقم جديد</button><button class="ghost" id="share">نسخ كود الغرفة</button><button class="guess-mic" id="guessMic" type="button" title="تشغيل/كتم المايك">🎙️ تشغيل المايك</button><button class="guess-mic" id="guessSpeaker" type="button" title="كتم/تشغيل صوت الطرف الآخر" style="width:auto;border-radius:12px;padding:10px;font-size:14px">🔊 كتم السماعة</button><span class="guess-mini" id="micState">الصوت: غير متصل</span></div><p class="guess-mini">الصوت التجريبي: لازم اللاعبان يضغطان 🎤. لو ظهر فشل اتصال فقد نحتاج خادم TURN.</p></section></div>';
+$('#body').innerHTML='<div class="guess-room"><section class="guess-main"><div class="guess-top"><div><span class="d-kicker">لَمّة أونلاين · تحدّي الأصدقاء</span><h2>🔢 تخمين الأرقام</h2><div class="guess-mini">الغرفة <b>'+safe(r.code)+'</b> · من 1 إلى 100</div></div><span class="guess-tag">● '+(keys.length>1?'متصلين':'مستني صاحبك')+'</span></div><div class="guess-table"><div class="guess-players">'+Array.from({length:4},(_,idx)=>{const k=idx===0?uid:keys.filter(x=>x!==uid)[idx-1],p=k?players[k]:null;return '<div class="guess-player seat-'+idx+'" '+(k?'data-guess-uid="'+safe(k)+'"':'')+'><div class="guess-avatar-wrap"><div class="guess-bubble" hidden></div><span class="guess-avatar" style="border-color:'+(idx===0?'#ffd166':idx===1?'#26a9ff':idx===2?'#c084fc':'#71e2b4')+';background:#0c2a52">'+(p&&p.avatar?p.avatar:(idx===0?'👑':idx===1?'🎮':idx===2?'🕹️':'🎯'))+'</span></div><div><strong>'+safe(p?(p.name+(k===uid?' (أنت)':'')):'في انتظار لاعب')+'</strong><small>'+ (p?'● متصل · '+(triesMap[k]||0)+' محاولات':'مكان اللاعب '+(idx+1))+'</small></div></div>'}).join('')+'</div><div class="guess-number"><small>الرقم اللي بندور عليه بين 1 و100</small><b>'+(st.winner?(st.secret||'🎉'):'? ?')+'</b><p>'+(st.winner?'🎉 الفائز: '+safe(players[st.winner]?.name||'لاعب'):(keys.length<2?'شارك كود الغرفة مع صاحبك عشان تبدأوا':'دورك: '+(active?'خمّن رقمك دلوقتي':'استنى دور صاحبك')))+'</p></div></div><div class="guess-chat-dock"><div class="guess-emoji-bar" aria-label="إيموشن سريعة"><button type="button" class="guess-emoji" data-chat-emoji="😂" aria-label="إيموشن 😂">😂</button><button type="button" class="guess-emoji" data-chat-emoji="🤣" aria-label="إيموشن 🤣">🤣</button><button type="button" class="guess-emoji" data-chat-emoji="😍" aria-label="إيموشن 😍">😍</button><button type="button" class="guess-emoji" data-chat-emoji="❤️" aria-label="إيموشن ❤️">❤️</button><button type="button" class="guess-emoji" data-chat-emoji="🔥" aria-label="إيموشن 🔥">🔥</button><button type="button" class="guess-emoji" data-chat-emoji="👍" aria-label="إيموشن 👍">👍</button><button type="button" class="guess-emoji" data-chat-emoji="😭" aria-label="إيموشن 😭">😭</button><button type="button" class="guess-emoji" data-chat-emoji="😎" aria-label="إيموشن 😎">😎</button><button type="button" class="guess-emoji" data-chat-emoji="🤔" aria-label="إيموشن 🤔">🤔</button><button type="button" class="guess-emoji" data-chat-emoji="🎉" aria-label="إيموشن 🎉">🎉</button><button type="button" class="guess-emoji" data-chat-emoji="👏" aria-label="إيموشن 👏">👏</button><button type="button" class="guess-emoji" data-chat-emoji="💀" aria-label="إيموشن 💀">💀</button></div><form class="guess-chat-mini" id="guessChatForm"><input id="guessChatInput" maxlength="300" autocomplete="off" placeholder="اكتب رسالة أو اضغط إيموشن..."><button type="submit" aria-label="إرسال الرسالة">إرسال ➤</button></form></div><div class="guess-status">'+safe(st.lastHint||'ابدأ التخمين، وهتظهر لك تلميحة إذا الرقم أكبر أو أصغر.')+'</div><form class="guess-entry" id="gf"><input id="n" type="number" min="1" max="100" required placeholder="اكتب تخمينك من 1 لـ100" '+(!active||keys.length<2?'disabled':'')+'><button '+(!active||keys.length<2?'disabled':'')+'>خمّن ↗</button></form><div class="guess-shortcuts">'+[1,25,50,75,100].map(n=>'<button type="button" data-guess="'+n+'" '+(!active||keys.length<2?'disabled':'')+'>'+n+'</button>').join('')+'</div><div class="guess-controls"><button class="secondary" id="reset">🔄 رقم جديد</button><button class="ghost" id="share">نسخ كود الغرفة</button></div></section></div>';
 $('#gf').onsubmit=e=>{e.preventDefault();const n=+$('#n').value;if(n<1||n>100)return;const sec=st.secret||50,hint=n===sec?'صح! 🎉':n<sec?'الرقم أكبر ↑':'الرقم أصغر ↓';roomRef.child('state').update({lastHint:me.name+': '+hint,tries:{...triesMap,[uid]:mine+1},winner:n===sec?uid:null,turn:otherKey||uid,status:n===sec?'finished':'playing'})};
 $$('[data-guess]').forEach(b=>b.onclick=()=>{$('#n').value=b.dataset.guess;$('#n').focus()});
 $('#reset').onclick=()=>{if(uid===r.hostUid)roomRef.child('state').set({status:'playing',turn:r.hostUid,secret:Math.floor(Math.random()*100)+1,tries:{},lastHint:'',round:(st.round||1)+1});else toast('صاحب الغرفة يبدأ رقم جديد')};
 $('#share').onclick=()=>copy(r.code);
-
-if(window.lammaVoiceCleanup){try{window.lammaVoiceCleanup()}catch(e){}}
-let voicePc=null,voiceStream=null,voiceRemote=null,voiceMuted=false,voiceSpeakerMuted=false,voiceSignalRef=null,voiceSignalListener=null,voiceCandidateRef=null;
-const voiceBtn=$('#guessMic'),voiceState=$('#micState'),speakerBtn=$('#guessSpeaker');
-function voiceUi(label,active){if(voiceState)voiceState.textContent=label;if(voiceBtn){voiceBtn.textContent=voiceStream?(voiceMuted?'🎙️ تشغيل المايك':'🎙️ كتم المايك'):'🎙️ تشغيل المايك';voiceBtn.setAttribute('aria-label',label)}if(speakerBtn){speakerBtn.textContent=voiceSpeakerMuted?'🔇 تشغيل السماعة':'🔊 كتم السماعة';speakerBtn.disabled=!voiceRemote||!voiceRemote.srcObject}}
-function voiceCleanup(){try{if(voiceSignalRef&&voiceSignalListener)voiceSignalRef.off('value',voiceSignalListener);if(voicePc)voicePc.close();if(voiceStream)voiceStream.getTracks().forEach(t=>t.stop());if(voiceRemote){voiceRemote.srcObject=null;voiceRemote.remove()}}catch(e){}voicePc=null;voiceStream=null;voiceRemote=null;voiceSignalRef=null;voiceSignalListener=null;voiceCandidateRef=null}
-window.lammaVoiceCleanup=voiceCleanup;
-async function startVoice(){
- if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!window.RTCPeerConnection){toast('المتصفح لا يدعم المايك أو الاتصال الصوتي. جرّب Chrome على HTTPS.');return}
- if(keys.length!==2){toast('لازم يكون في الغرفة لاعبان فقط ومتصلان لتجربة الصوت.');return}
- if(voicePc){voiceMuted=!voiceMuted;voiceStream?.getAudioTracks().forEach(t=>t.enabled=!voiceMuted);voiceUi(voiceMuted?'المايك مكتوم':'الصوت شغال',true);return}
- try{
-  voiceStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},video:false});
-  const iceServers=[
-   {urls:'stun:stun.relay.metered.ca:80'},
-   {urls:'turn:global.relay.metered.ca:80',username:'00190cb5c67280db859308d3',credential:'7a1UzHE3IFpGQ5Db'},
-   {urls:'turn:global.relay.metered.ca:80?transport=tcp',username:'00190cb5c67280db859308d3',credential:'7a1UzHE3IFpGQ5Db'},
-   {urls:'turn:global.relay.metered.ca:443',username:'00190cb5c67280db859308d3',credential:'7a1UzHE3IFpGQ5Db'},
-   {urls:'turns:global.relay.metered.ca:443?transport=tcp',username:'00190cb5c67280db859308d3',credential:'7a1UzHE3IFpGQ5Db'}
-  ];
-  voicePc=new RTCPeerConnection({iceServers});
-  voiceStream.getTracks().forEach(t=>voicePc.addTrack(t,voiceStream));
-  voiceRemote=document.createElement('audio');voiceRemote.autoplay=true;voiceRemote.playsInline=true;voiceRemote.muted=voiceSpeakerMuted;voiceRemote.style.display='none';document.body.appendChild(voiceRemote);
-  voicePc.ontrack=e=>{voiceRemote.srcObject=e.streams[0];voiceRemote.muted=voiceSpeakerMuted;if(speakerBtn)speakerBtn.disabled=false;voiceRemote.play().catch(()=>toast('اضغط على الصفحة للسماح بتشغيل صوت صاحبك.'))};
-  voicePc.onconnectionstatechange=()=>{if(!voicePc)return;const st=voicePc.connectionState;if(st==='connected'){voiceUi(voiceMuted?'المايك مكتوم':'الصوت متصل',true);toast('اتصل الصوت! اتكلم مع صاحبك 🎙️')}else if(st==='failed'){voiceUi('فشل الاتصال — جرّب شبكة أخرى',false);toast('الاتصال المباشر فشل؛ قد نحتاج خدمة TURN.')}else if(st==='disconnected'){voiceUi('الصوت انقطع مؤقتًا',false)}};
-  const peer=otherKey,initiator=uid===r.hostUid;
-  const pair=[uid,peer].sort().join('_');
-  voiceSignalRef=roomRef.child('voice').child(pair);
-  voiceCandidateRef=voiceSignalRef.child('candidates');
-  if(initiator){await voiceSignalRef.remove()}
-  voicePc.onicecandidate=e=>{if(e.candidate)voiceCandidateRef.child(uid).push(e.candidate.toJSON()).catch(()=>toast('تعذر إرسال بيانات الاتصال.'))};
-  let processing=false;
-  voiceSignalListener=async snap=>{
-   if(processing||!voicePc)return;processing=true;
-   try{
-    const data=snap.val()||{};
-    if(initiator){
-     if(data.answer&&!voicePc.currentRemoteDescription){await voicePc.setRemoteDescription(new RTCSessionDescription(data.answer));await flushRemoteCandidates();}
-    }else if(data.offer&&!voicePc.currentRemoteDescription){
-     await voicePc.setRemoteDescription(new RTCSessionDescription(data.offer));
-     await flushRemoteCandidates();
-     const answer=await voicePc.createAnswer();await voicePc.setLocalDescription(answer);
-     await voiceSignalRef.child('answer').set({type:answer.type,sdp:answer.sdp});
-    }
-   }catch(e){console.error(e);toast('تعذر إكمال الاتصال الصوتي')}finally{processing=false}
-  };
-  voiceSignalRef.on('value',voiceSignalListener);
-  const remoteCandidatesRef=voiceCandidateRef.child(peer);
-  const pendingRemoteCandidates=[];
-  const appliedRemoteCandidates=new Set();
-  let flushingRemoteCandidates=false;
-  const flushRemoteCandidates=async()=>{
-   if(flushingRemoteCandidates||!voicePc||!voicePc.remoteDescription)return;
-   flushingRemoteCandidates=true;
-   try{
-    while(pendingRemoteCandidates.length&&voicePc&&voicePc.remoteDescription){
-     const item=pendingRemoteCandidates.shift();
-     if(appliedRemoteCandidates.has(item.key))continue;
-     try{await voicePc.addIceCandidate(new RTCIceCandidate(item.candidate));appliedRemoteCandidates.add(item.key)}
-     catch(e){pendingRemoteCandidates.unshift(item);break}
-    }
-   }finally{flushingRemoteCandidates=false}
-  };
-  remoteCandidatesRef.on('child_added',snap=>{
-   if(appliedRemoteCandidates.has(snap.key)||pendingRemoteCandidates.some(x=>x.key===snap.key))return;
-   pendingRemoteCandidates.push({key:snap.key,candidate:snap.val()});
-   flushRemoteCandidates();
-  });
-  if(initiator){const offer=await voicePc.createOffer();await voicePc.setLocalDescription(offer);await voiceSignalRef.child('offer').set({type:offer.type,sdp:offer.sdp});voiceUi('جاري الاتصال بصاحبك…',true);toast('طلبنا الاتصال.')}
-  else{voiceUi('جاري الاتصال…',true);toast('طلبنا الاتصال بصاحب الغرفة.')}
- }catch(e){console.error(e);voiceCleanup();voiceUi('الصوت غير متصل',false);toast('تعذر تشغيل المايك: '+(e.message||e.name))}
-}
-voiceBtn.type='button';voiceBtn.style.cursor='pointer';voiceBtn.style.pointerEvents='auto';
-speakerBtn.onclick=function(ev){ev.preventDefault();ev.stopPropagation();voiceSpeakerMuted=!voiceSpeakerMuted;if(voiceRemote)voiceRemote.muted=voiceSpeakerMuted;voiceUi(voiceSpeakerMuted?'السماعة مكتومة':'السماعة شغالة',!!voicePc)};
-voiceBtn.onclick=async function(ev){
- ev.preventDefault();ev.stopPropagation();
- if(voiceBtn.dataset.busy==='1')return;voiceBtn.dataset.busy='1';
- const previous=voiceBtn.textContent;voiceBtn.textContent='⏳';
- try{await startVoice()}catch(err){console.error(err);toast('حصل خطأ في زر المايك')}
- finally{voiceBtn.dataset.busy='0';if(voiceBtn.isConnected&&voiceBtn.textContent==='⏳')voiceBtn.textContent=previous}
-};
 
 const chatRef=roomRef.child('chat').limitToLast(40);
 const bubbleTimers={};
@@ -354,6 +289,7 @@ chatRef.once('value').then(snap=>{
 if(window.guessChatLiveRef)window.guessChatLiveRef.off();
 window.guessChatLiveRef=roomRef.child('chat').limitToLast(40);
 window.guessChatLiveRef.on('child_added',snap=>showGuessBubble(snap.val()||{},snap.key));
+$('[data-chat-emoji]').forEach(b=>b.onclick=()=>{const input=$('#guessChatInput');if(!input)return;input.value=(input.value||'')+b.dataset.chatEmoji;input.focus()});
 $('#guessChatForm').onsubmit=e=>{
  e.preventDefault();
  const input=$('#guessChatInput'),textMsg=input.value.trim();
