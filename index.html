@@ -289,12 +289,20 @@ chatRef.once('value').then(snap=>{
 if(window.guessChatLiveRef)window.guessChatLiveRef.off();
 window.guessChatLiveRef=roomRef.child('chat').limitToLast(40);
 window.guessChatLiveRef.on('child_added',snap=>showGuessBubble(snap.val()||{},snap.key));
-$('[data-chat-emoji]').forEach(b=>b.onclick=()=>{const input=$('#guessChatInput');if(!input)return;input.value=(input.value||'')+b.dataset.chatEmoji;input.focus()});
-$('#guessChatForm').onsubmit=e=>{
+$('[data-chat-emoji]').forEach(b=>b.onclick=e=>{e.preventDefault();e.stopPropagation();const input=$('#guessChatInput');if(!input)return;input.value=(input.value||'')+b.dataset.chatEmoji;input.focus()});
+const guessChatForm=$('#guessChatForm');
+if(guessChatForm)guessChatForm.onsubmit=async e=>{
  e.preventDefault();
- const input=$('#guessChatInput'),textMsg=input.value.trim();
+ e.stopPropagation();
+ const input=$('#guessChatInput'),textMsg=(input?.value||'').trim();
  if(!textMsg||!roomRef)return;
- roomRef.child('chat').push({uid,name,text:textMsg.slice(0,300),at:Date.now()}).then(()=>{input.value=''}).catch(err=>toast('تعذر إرسال الرسالة'))
+ const sendButton=guessChatForm.querySelector('button[type="submit"]');
+ if(sendButton)sendButton.disabled=true;
+ try{
+  await roomRef.child('chat').push({uid,name,text:textMsg.slice(0,300),at:Date.now()});
+  input.value='';
+ }catch(err){toast('تعذر إرسال الرسالة، جرّب تاني')}
+ finally{if(sendButton)sendButton.disabled=false}
 };
 }
 function dominoPlayable(tile,left,right,empty){return empty||tile[0]===left||tile[1]===left||tile[0]===right||tile[1]===right}
