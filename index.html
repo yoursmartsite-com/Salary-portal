@@ -113,7 +113,51 @@ $('#gf').onsubmit=e=>{e.preventDefault();const n=+$('#n').value;if(n<1||n>100)re
 $$('[data-guess]').forEach(b=>b.onclick=()=>{$('#n').value=b.dataset.guess;$('#n').focus()});
 $('#reset').onclick=()=>{if(uid===r.hostUid)roomRef.child('state').set({status:'playing',turn:r.hostUid,secret:Math.floor(Math.random()*100)+1,tries:{},lastHint:'',round:(st.round||1)+1});else toast('صاحب الغرفة يبدأ رقم جديد')};
 $('#share').onclick=()=>copy(r.code);
-$('#guessMic').onclick=()=>toast('المايك الصوتي بين اللاعبين لسه محتاج تفعيل WebRTC؛ مش هفعّله بشكل وهمي.');
+
+// WebRTC voice prototype: free STUN first; TURN may be needed on restrictive networks.
+if(window.lammaVoiceCleanup){try{window.lammaVoiceCleanup()}catch(e){}}
+let voicePc=null,voiceStream=null,voiceRemote=null,voiceMuted=false,voiceSignalRef=null,voiceSignalListener=null,voiceCandidateRef=null;
+const voiceBtn=$('#guessMic'),voiceState=$('#micState');
+function voiceUi(label,active){if(voiceState)voiceState.textContent=label;if(voiceBtn){voiceBtn.textContent=active?'🎙️':'🎤';voiceBtn.style.filter=active?'none':'grayscale(.25)';voiceBtn.setAttribute('aria-label',label)}}
+function voiceCleanup(){try{if(voiceSignalRef&&voiceSignalListener)voiceSignalRef.off('value',voiceSignalListener);if(voicePc)voicePc.close();if(voiceStream)voiceStream.getTracks().forEach(t=>t.stop());if(voiceRemote){voiceRemote.srcObject=null;voiceRemote.remove()}}catch(e){}voicePc=null;voiceStream=null;voiceRemote=null;voiceSignalRef=null;voiceSignalListener=null;voiceCandidateRef=null}
+window.lammaVoiceCleanup=voiceCleanup;
+async function startVoice(){
+ if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!window.RTCPeerConnection){toast('المتصفح لا يدعم المايك أو الاتصال الصوتي. جرّب Chrome على HTTPS.');return}
+ if(keys.length!==2){toast('لازم يكون في الغرفة لاعبان فقط ومتصلان لتجربة الصوت.');return}
+ if(voicePc){voiceMuted=!voiceMuted;voiceStream?.getAudioTracks().forEach(t=>t.enabled=!voiceMuted);voiceUi(voiceMuted?'المايك مكتوم':'الصوت شغال',true);return}
+ try{
+  voiceStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},video:false});
+  voicePc=new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]});
+  voiceStream.getTracks().forEach(t=>voicePc.addTrack(t,voiceStream));
+  voiceRemote=document.createElement('audio');voiceRemote.autoplay=true;voiceRemote.playsInline=true;voiceRemote.style.display='none';document.body.appendChild(voiceRemote);
+  voicePc.ontrack=e=>{voiceRemote.srcObject=e.streams[0];voiceRemote.play().catch(()=>toast('اضغط على الصفحة للسماح بتشغيل صوت صاحبك.'))};
+  voicePc.onconnectionstatechange=()=>{if(!voicePc)return;const st=voicePc.connectionState;if(st==='connected'){voiceUi(voiceMuted?'المايك مكتوم':'الصوت متصل',true);toast('اتصل الصوت! اتكلم مع صاحبك 🎙️')}else if(st==='failed'){voiceUi('فشل الاتصال — جرّب شبكة أخرى',false);toast('الاتصال المباشر فشل؛ قد نحتاج خدمة TURN.')}else if(st==='disconnected'){voiceUi('الصوت انقطع مؤقتًا',false)}};
+  const peer=otherKey,initiator=uid===r.hostUid;
+  const pair=[uid,peer].sort().join('_');
+  voiceSignalRef=roomRef.child('voice').child(pair);
+  voiceCandidateRef=voiceSignalRef.child('candidates');
+  voicePc.onicecandidate=e=>{if(e.candidate)voiceCandidateRef.child(uid).push(e.candidate.toJSON()).catch(()=>toast('تعذر إرسال بيانات الاتصال؛ راجع صلاحيات Firebase.'))};
+  let processing=false;
+  voiceSignalListener=async snap=>{
+   if(processing||!voicePc)return;processing=true;
+   try{
+    const data=snap.val()||{};
+    if(initiator){
+     if(data.answer&&!voicePc.currentRemoteDescription)await voicePc.setRemoteDescription(new RTCSessionDescription(data.answer));
+    }else{
+     if(data.offer&&!voicePc.currentRemoteDescription){await voicePc.setRemoteDescription(new RTCSessionDescription(data.offer));const answer=await voicePc.createAnswer();await voicePc.setLocalDescription(answer);await voiceSignalRef.child('answer').set({type:answer.type,sdp:answer.sdp})}
+    }
+    const remoteCandidates=data.candidates&&data.candidates[peer]?data.candidates[peer]:null;
+    if(remoteCandidates){for(const [id,cand] of Object.entries(remoteCandidates)){if(!voicePc._seenCandidates)voicePc._seenCandidates=new Set();if(!voicePc._seenCandidates.has(id)&&voicePc.remoteDescription){voicePc._seenCandidates.add(id);try{await voicePc.addIceCandidate(new RTCIceCandidate(cand))}catch(e){}}}}
+   }catch(e){console.error(e);toast('تعذر إكمال الاتصال الصوتي: '+(e.message||'خطأ'))}finally{processing=false}
+  };
+  voiceSignalRef.on('value',voiceSignalListener);
+  if(initiator){const offer=await voicePc.createOffer();await voicePc.setLocalDescription(offer);await voiceSignalRef.child('offer').set({type:offer.type,sdp:offer.sdp});voiceUi('جاري الاتصال بصاحبك…',true);toast('طلبنا الاتصال؛ خلي صاحبك يضغط على المايك كمان.')}
+  else{voiceUi('جاري الاتصال…',true);toast('جاري الاتصال بصاحب الغرفة؛ استنى لحظة.')}
+ }catch(e){console.error(e);voiceCleanup();voiceUi('الصوت غير متصل',false);toast(e.name==='NotAllowedError'?'اسمح للمتصفح باستخدام الميكروفون من إعدادات الموقع.':'تعذر تشغيل المايك: '+(e.message||e.name))}
+}
+voiceBtn.onclick=startVoice;
+
 const chatRef=roomRef.child('chat').limitToLast(40);
 chatRef.once('value').then(snap=>{if(!document.getElementById('guessMessages'))return;const box=$('#guessMessages'),msgs=[];snap.forEach(ch=>msgs.push(ch.val()));box.innerHTML=msgs.map(m=>'<div class="guess-msg '+(m.uid===uid?'mine':'')+'"><strong>'+safe(m.name||'لاعب')+'</strong>'+safe(m.text)+'<time>'+new Date(m.at||Date.now()).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'})+'</time></div>').join('')||'<p class="guess-mini">مفيش رسائل لسه — ابدأ الكلام 👋</p>';box.scrollTop=box.scrollHeight});
 if(window.guessChatLiveRef)window.guessChatLiveRef.off();
