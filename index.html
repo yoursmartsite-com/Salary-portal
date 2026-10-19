@@ -128,7 +128,14 @@ async function startVoice(){
  if(voicePc){voiceMuted=!voiceMuted;voiceStream?.getAudioTracks().forEach(t=>t.enabled=!voiceMuted);voiceUi(voiceMuted?'المايك مكتوم':'الصوت شغال',true);return}
  try{
   voiceStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},video:false});
-  voicePc=new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]});
+  const iceServers=[
+   {urls:'stun:stun.relay.metered.ca:80'},
+   {urls:'turn:global.relay.metered.ca:80',username:'METERED_USERNAME',credential:'METERED_PASSWORD'},
+   {urls:'turn:global.relay.metered.ca:80?transport=tcp',username:'METERED_USERNAME',credential:'METERED_PASSWORD'},
+   {urls:'turn:global.relay.metered.ca:443',username:'METERED_USERNAME',credential:'METERED_PASSWORD'},
+   {urls:'turns:global.relay.metered.ca:443?transport=tcp',username:'METERED_USERNAME',credential:'METERED_PASSWORD'}
+  ];
+  voicePc=new RTCPeerConnection({iceServers});
   voiceStream.getTracks().forEach(t=>voicePc.addTrack(t,voiceStream));
   voiceRemote=document.createElement('audio');voiceRemote.autoplay=true;voiceRemote.playsInline=true;voiceRemote.style.display='none';document.body.appendChild(voiceRemote);
   voicePc.ontrack=e=>{voiceRemote.srcObject=e.streams[0];voiceRemote.play().catch(()=>toast('اضغط على الصفحة للسماح بتشغيل صوت صاحبك.'))};
