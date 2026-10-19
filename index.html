@@ -72,6 +72,28 @@
 .box:has(.guess-room) .guess-mic{width:48px;height:48px}
 @media(max-width:700px){.box:has(.guess-room){width:calc(100vw - 16px);max-height:86dvh;padding:8px;border-radius:16px}.box:has(.guess-room) .guess-room{grid-template-columns:minmax(0,1.35fr) minmax(120px,.8fr);gap:7px}.box:has(.guess-room) .guess-main,.box:has(.guess-room) .guess-chat{padding:8px}.box:has(.guess-room) .guess-chat{height:58dvh}.box:has(.guess-room) .guess-top h2{font-size:17px}.box:has(.guess-room) .guess-players{grid-template-columns:1fr;gap:5px}.box:has(.guess-room) .guess-player{padding:6px;font-size:11px}.box:has(.guess-room) .guess-avatar{width:28px;height:28px}.box:has(.guess-room) .guess-number{padding:8px;border-radius:12px}.box:has(.guess-room) .guess-number b{font-size:32px}.box:has(.guess-room) .guess-number small,.box:has(.guess-room) .guess-number p{font-size:10px}.box:has(.guess-room) .guess-entry{gap:4px}.box:has(.guess-room) .guess-entry input,.box:has(.guess-room) .guess-chat-form input{padding:8px;font-size:11px}.box:has(.guess-room) .guess-entry button,.box:has(.guess-room) .guess-chat-form button{padding:8px;font-size:11px}.box:has(.guess-room) .guess-shortcuts{gap:3px;margin-top:6px}.box:has(.guess-room) .guess-shortcuts button{min-width:0;padding:6px 2px;font-size:11px}.box:has(.guess-room) .guess-controls{gap:4px}.box:has(.guess-room) .guess-controls button{font-size:10px;padding:7px}.box:has(.guess-room) .guess-mic{width:36px;height:36px}.box:has(.guess-room) .guess-chat-head h3{font-size:14px}.box:has(.guess-room) .guess-msg{font-size:11px;padding:6px}.box:has(.guess-room) .guess-chat-note{font-size:9px}}
 @media(max-width:380px){.box:has(.guess-room) .guess-room{grid-template-columns:minmax(0,1.1fr) minmax(108px,.8fr)}.box:has(.guess-room) .guess-players{display:none}.box:has(.guess-room) .guess-chat{height:54dvh}}
+
+/* Force horizontal Guess layout on mobile; scoped only to Guess the Number */
+#modal.guess-wide-modal{display:grid!important;place-items:center!important;padding:6px!important}
+#modal.guess-wide-modal .box{width:min(1180px,calc(100vw - 12px))!important;max-width:none!important;height:auto!important;max-height:88dvh!important;overflow:auto!important;padding:10px!important}
+#modal.guess-wide-modal .guess-room{display:grid!important;grid-template-columns:minmax(0,1.25fr) minmax(125px,.8fr)!important;align-items:stretch!important;gap:8px!important}
+#modal.guess-wide-modal .guess-main,#modal.guess-wide-modal .guess-chat{min-width:0!important;padding:8px!important}
+#modal.guess-wide-modal .guess-chat{height:66dvh!important;min-height:0!important;max-height:none!important}
+#modal.guess-wide-modal .guess-number{padding:8px!important;margin:6px 0!important}
+#modal.guess-wide-modal .guess-number b{font-size:clamp(28px,5vh,42px)!important}
+#modal.guess-wide-modal .guess-players{gap:4px!important;margin:6px 0!important}
+#modal.guess-wide-modal .guess-player{padding:5px!important}
+#modal.guess-wide-modal .guess-controls{gap:4px!important}
+#modal.guess-wide-modal .guess-controls button{padding:6px!important;font-size:10px!important}
+#modal.guess-wide-modal .guess-entry input,#modal.guess-wide-modal .guess-chat-form input{min-width:0!important;padding:7px!important;font-size:11px!important}
+#modal.guess-wide-modal .guess-entry button,#modal.guess-wide-modal .guess-chat-form button{padding:7px!important;font-size:11px!important}
+@media(max-width:380px){
+#modal.guess-wide-modal .box{width:calc(100vw - 8px)!important;padding:6px!important}
+#modal.guess-wide-modal .guess-room{grid-template-columns:minmax(0,1.05fr) minmax(105px,.8fr)!important;gap:5px!important}
+#modal.guess-wide-modal .guess-players{display:none!important}
+#modal.guess-wide-modal .guess-chat{height:58dvh!important}
+}
+
 </style></head><body><header class="top"><a class="brand" href="#"><b>ل</b>لَمّة<small>اللعب يجمعنا</small></a><div><span class="pill">أونلاين</span> <button class="ghost" id="profileBtn">حسابي 👤</button> <button class="ghost" id="shopBtn">🛒 متجر لَمّة</button> <button class="ghost" id="nameBtn">تغيير الاسم</button></div></header><main><section class="hero"><div class="copy"><span class="eyebrow">مكانكم للّعب والتحدّي</span><h1>اللّمة أحلى<br><em>لما تلعبوا سوا.</em></h1><p>اختار لعبة، افتح غرفة، واجمع أصحابك في تحدّي سريع.</p><div class="actions"><a class="primary" href="#games">اختار لعبة ←</a><button class="secondary" id="quick">غرفة سريعة</button></div><div class="stats"><span>🎮 ٣ ألعاب</span><span>👥 لحد ٤ لاعبين</span><span>🔐 كود للغرفة</span></div></div><div class="art"><div class="orb"></div><div class="tile t1">✊</div><div class="tile t2">⭕</div><div class="tile t3">🔢</div></div></section><section class="section shop-page" id="shopPage" hidden>
 <div class="shop-top"><button class="secondary" id="backFromShop">← العودة للرئيسية</button><div class="shop-brand"><span>🛒</span><div><h1>متجر لَمّة</h1><p>كل ما تحتاجه لتخصيص تجربتك في لَمّة</p></div></div><div class="shop-wallet"><span class="shop-user">🎮</span><div><b id="shopPlayerName">لاعب</b><small>رصيدك</small></div><strong>🪙 <span id="shopCoins">قريبًا</span></strong></div></div>
 <div class="shop-hero"><div class="shop-hero-copy"><span class="shop-tag">✨ خلي حسابك أسطوري</span><h2>خصّص حسابك<br><em>بأسلوبك الخاص</em></h2><p>إطارات نادرة، ألقاب مميزة، ثيمات وأكتر.</p><span class="shop-hero-note">🎁 مميزات جديدة في انتظارك</span></div><div class="shop-hero-art"><div class="shop-crown">👑</div><div class="shop-frame blue-frame">🎮</div><div class="shop-frame pink-frame">⚡</div><div class="shop-vip">VIP</div></div></div>
@@ -96,7 +118,7 @@ const firebaseConfig={apiKey:"AIzaSyArJNDKNNTs2oFGFWV58_1UKY3GmE06ghk",authDomai
 let name=localStorage.getItem('lammaName')||'لاعب', uid=null, db=null, room=null, roomRef=null, roomListener=null, board=Array(9).fill(''), turn='X', secret=0, tries=0, botMode=false, botThinking=false, botWinner='';
 function toast(t){$('#toast').textContent=t;$('#toast').classList.add('show');clearTimeout(window.tt);window.tt=setTimeout(()=>$('#toast').classList.remove('show'),2600)}
 function show(html){$('#body').innerHTML=html;$('#modal').classList.remove('hide')}
-function close(){$('#modal').classList.add('hide')}
+function close(){$('#modal').classList.add('hide');$('#modal').classList.remove('guess-wide-modal')}
 $('#close').onclick=close;$('#profileBtn').onclick=openProfile;$('#modal').onclick=e=>{if(e.target.id==='modal')close()};
 $('#shopBtn').onclick=()=>{document.body.classList.add('shop-open');$('#shopPage').hidden=false;$('#shopPlayerName').textContent=name;window.scrollTo({top:0,behavior:'smooth'});};$('#backFromShop').onclick=()=>{document.body.classList.remove('shop-open');$('#shopPage').hidden=true;window.scrollTo({top:0,behavior:'smooth'});};$('#shopTabs').onclick=e=>{const b=e.target.closest('[data-category]');if(!b)return;$$('.shop-tab').forEach(x=>x.classList.toggle('active',x===b));$$('.shop-item').forEach(x=>x.hidden=b.dataset.category!=='all'&&x.dataset.category!=='all'&&x.dataset.category!==b.dataset.category)};$$('.shop-buy').forEach(b=>b.onclick=()=>toast('الشراء لسه مش مفعّل — نظام العملات الآمن تحت التجهيز'));$$('.shopSoon').forEach(b=>b.onclick=()=>toast('المتجر تحت التجهيز — الشراء هيتفعّل بعد ربط العملات بشكل آمن'));
 $('#nameBtn').onclick=()=>{let n=prompt('اكتب اسمك:',name);if(n&&n.trim()){name=n.trim().slice(0,22);localStorage.setItem('lammaName',name);if(uid)db.ref('presence/'+uid).update({name,at:Date.now()});toast('أهلاً يا '+name)}};
@@ -127,6 +149,7 @@ function renderRPS(r){const st=r.state||{},choices=st.choices||{},mine=choices[u
 $$('[data-c]').forEach(b=>b.onclick=()=>{if(count<2){toast('محتاج لاعب تاني');return}roomRef.child('state/choices/'+uid).set(b.dataset.c).then(()=>roomRef.once('value')).then(s=>{const rr=s.val(),ch=rr.state.choices||{},pp=rr.players||{};if(Object.keys(ch).length>=Object.keys(pp).length){const vals=Object.entries(ch),score={};vals.forEach(([k,v])=>score[k]=0);for(let i=0;i<vals.length;i++)for(let j=i+1;j<vals.length;j++){const [a,x]=vals[i],[d,y]=vals[j];if(x!==y){const winx=(x==='حجر'&&y==='مقص')||(x==='ورقة'&&y==='حجر')||(x==='مقص'&&y==='ورقة');score[winx?a:d]++}}const result=vals.map(([k,v])=>pp[k].name+': '+v).join(' — ');roomRef.child('state').update({result,choices:ch,scores:score,status:'finished'})}})});
 $('#nextR').onclick=()=>{if(uid!==r.hostUid){toast('صاحب الغرفة يبدأ الجولة الجديدة');return}roomRef.child('state').set({...st,choices:{},result:'',round:(st.round||1)+1,status:'playing'})};$('#share').onclick=()=>copy(r.code)}
 function renderGuess(r){
+$('#modal').classList.add('guess-wide-modal');
 const st=r.state||{},triesMap=st.tries||{},players=r.players||{},keys=Object.keys(players),mine=triesMap[uid]||0,active=st.turn===uid&&!st.winner;
 const me=players[uid]||{name:name,mark:'X'},otherKey=keys.find(k=>k!==uid),other=otherKey?players[otherKey]:null;
 const safe=v=>String(v??'').replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
