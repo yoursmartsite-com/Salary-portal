@@ -137,6 +137,11 @@ async function startVoice(){
   const pair=[uid,peer].sort().join('_');
   voiceSignalRef=roomRef.child('voice').child(pair);
   voiceCandidateRef=voiceSignalRef.child('candidates');
+  // The room host starts a fresh negotiation so stale offers/answers from an earlier
+  // attempt cannot make the second device connect to an old call.
+  if(initiator){
+   await voiceSignalRef.remove();
+  }
   voicePc.onicecandidate=e=>{if(e.candidate)voiceCandidateRef.child(uid).push(e.candidate.toJSON()).catch(()=>toast('تعذر إرسال بيانات الاتصال؛ راجع صلاحيات Firebase.'))};
   let processing=false;
   voiceSignalListener=async snap=>{
@@ -175,8 +180,8 @@ async function startVoice(){
    pendingRemoteCandidates.push({key:snap.key,candidate:snap.val()});
    flushRemoteCandidates();
   });
-  if(initiator){const offer=await voicePc.createOffer();await voicePc.setLocalDescription(offer);await voiceSignalRef.child('offer').set({type:offer.type,sdp:offer.sdp});voiceUi('جاري الاتصال بصاحبك…',true);toast('طلبنا الاتصال؛ خلي صاحبك يضغط على المايك كمان.')}
-  else{voiceUi('جاري الاتصال…',true);toast('جاري الاتصال بصاحب الغرفة؛ استنى لحظة.')}
+  if(initiator){const offer=await voicePc.createOffer();await voicePc.setLocalDescription(offer);await voiceSignalRef.child('offer').set({type:offer.type,sdp:offer.sdp});voiceUi('جاري الاتصال بصاحبك…',true);toast('طلبنا الاتصال. صاحبك يقدر يضغط على المايك في أي وقت.')}
+  else{voiceUi('جاري الاتصال…',true);toast('طلبنا الاتصال بصاحب الغرفة؛ مش لازم تضغطوا في نفس اللحظة.')}
  }catch(e){console.error(e);voiceCleanup();voiceUi('الصوت غير متصل',false);toast(e.name==='NotAllowedError'?'اسمح للمتصفح باستخدام الميكروفون من إعدادات الموقع.':'تعذر تشغيل المايك: '+(e.message||e.name))}
 }
 voiceBtn.type='button';
