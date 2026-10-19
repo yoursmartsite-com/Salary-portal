@@ -56,6 +56,27 @@
 
 .guess-avatar-wrap{position:relative;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .guess-bubble{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);z-index:20;width:max-content;max-width:min(220px,65vw);padding:7px 10px;border:1px solid #8e7cff;border-radius:12px;background:#f7f5ff;color:#19152c;font-size:12px;font-weight:800;line-height:1.35;box-shadow:0 5px 18px #0006;overflow-wrap:anywhere;white-space:normal}
+/* Fix chat bubbles clipping and make number entry easy to see */
+#modal.guess-wide-modal .guess-table,
+#modal.guess-wide-modal .guess-players,
+#modal.guess-wide-modal .guess-player,
+#modal.guess-wide-modal .guess-avatar-wrap{overflow:visible!important}
+#modal.guess-wide-modal .guess-player{z-index:30!important}
+#modal.guess-wide-modal .guess-avatar-wrap{z-index:31!important}
+#modal.guess-wide-modal .guess-bubble{z-index:9999!important;bottom:calc(100% + 12px)!important;max-width:min(240px,72vw)!important;min-width:90px!important;padding:10px 12px!important;font-size:14px!important;line-height:1.45!important;box-shadow:0 8px 24px #000b!important}
+#modal.guess-wide-modal .guess-entry{display:flex!important;gap:10px!important;align-items:stretch!important;width:100%!important;margin:12px auto!important;padding:10px!important;border:2px solid #39aaff!important;border-radius:16px!important;background:#101c32!important;box-shadow:0 0 0 3px #39aaff22,0 8px 22px #0005!important}
+#modal.guess-wide-modal .guess-entry input#n{display:block!important;flex:1 1 auto!important;min-width:0!important;width:100%!important;height:58px!important;padding:12px 14px!important;border:2px solid #5bbcff!important;border-radius:11px!important;background:#fff!important;color:#101828!important;font-size:22px!important;font-weight:800!important;outline:none!important}
+#modal.guess-wide-modal .guess-entry input#n::placeholder{color:#667085!important;font-size:15px!important;font-weight:600!important;opacity:1!important}
+#modal.guess-wide-modal .guess-entry input#n:focus{border-color:#ffcf5a!important;box-shadow:0 0 0 4px #ffcf5a55!important}
+#modal.guess-wide-modal .guess-entry button{flex:0 0 auto!important;min-width:92px!important;min-height:58px!important;padding:10px 15px!important;border:0!important;border-radius:11px!important;background:linear-gradient(135deg,#168cff,#1260d8)!important;color:white!important;font-size:17px!important;font-weight:900!important}
+@media(max-width:700px){
+#modal.guess-wide-modal .guess-entry{gap:7px!important;padding:7px!important;margin:8px auto!important}
+#modal.guess-wide-modal .guess-entry input#n{height:56px!important;font-size:21px!important;padding:10px!important}
+#modal.guess-wide-modal .guess-entry input#n::placeholder{font-size:13px!important}
+#modal.guess-wide-modal .guess-entry button{min-width:78px!important;min-height:56px!important;padding:8px!important;font-size:15px!important}
+#modal.guess-wide-modal .guess-bubble{max-width:min(200px,70vw)!important;font-size:13px!important}
+}
+
 .guess-bubble:after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#8e7cff}
 .guess-player{position:relative}
 
