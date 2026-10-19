@@ -301,14 +301,15 @@ voiceBtn.onclick=async function(ev){
 const chatRef=roomRef.child('chat').limitToLast(40);
 const showGuessBubble=(m)=>{
  if(!m||!m.uid)return;
- const card=document.querySelector('[data-guess-uid="'+CSS.escape(m.uid)+'"]');
+ // Match the sender against rendered player cards without relying on CSS.escape.
+ const card=Array.from(document.querySelectorAll('.guess-player[data-guess-uid]')).find(el=>el.dataset.guessUid===String(m.uid));
  if(!card)return;
  const bubble=card.querySelector('.guess-bubble');
  if(!bubble)return;
  bubble.textContent=String(m.text||'').slice(0,300);
  bubble.hidden=false;
  clearTimeout(bubble._hideTimer);
- bubble._hideTimer=setTimeout(()=>{bubble.hidden=true},6500);
+ bubble._hideTimer=setTimeout(()=>{bubble.hidden=true},9000);
 };
 chatRef.once('value').then(snap=>{snap.forEach(ch=>showGuessBubble(ch.val()))});
 if(window.guessChatLiveRef)window.guessChatLiveRef.off();
