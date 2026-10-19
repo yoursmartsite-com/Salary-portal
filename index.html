@@ -414,7 +414,7 @@ function renderPartyGame(r){
   if(g==='taboo'){const cards=[['طائرة','جناح، سفر، مطار'],['بيتزا','جبنة، فرن، إيطاليا'],['كرة القدم','ملعب، هدف، لاعب'],['مدرسة','طلاب، مدرس، فصل'],['موبايل','شاشة، اتصال، تطبيق'],['بحر','موج، سمك، شاطئ'],['قهوة','فنجان، بن، مشروب']];const i=((st.cardIndex||0)+1)%cards.length;roomRef.child('state').update({cardIndex:i,word:cards[i][0],forbidden:cards[i][1],points:st.points||0});return}
   if(!host){toast('صاحب الغرفة هو اللي يبدأ الجولة');return}
   if(g==='fast'){const qs=['ما عاصمة مصر؟','كم يومًا في الأسبوع؟','ما الكوكب المعروف بالكوكب الأحمر؟','ما ناتج ٦ × ٧؟','ما الحيوان المعروف بسفينة الصحراء؟'];roomRef.child('state').set({round:(st.round||0)+1,question:qs[(st.round||0)%qs.length],winner:'',scores:st.scores||{}});return}
-  const roles={};keys.forEach((k,i)=>roles[k]=g==='mafia'?(i===Math.floor(Math.random()*keys.length)?'مافيا':(i===0?'محقق':'مواطن')):(i===Math.floor(Math.random()*keys.length)?'الجاسوس':'الكلمة السرية: شمس');
+  const roles={};keys.forEach((k,i)=>roles[k]=g==='mafia'?(i===Math.floor(Math.random()*keys.length)?'مافيا':(i===0?'محقق':'مواطن')):(i===Math.floor(Math.random()*keys.length)?'الجاسوس':'الكلمة السرية: شمس'));
   roomRef.child('state').update({started:true,roles,round:(st.round||0)+1});
  };
  $('[data-truth]').forEach(b=>b.onclick=()=>{const truth=['إيه أكتر موقف محرج حصلك؟','إيه حاجة نفسك تتعلمها؟','مين أكتر شخص بتثق فيه؟'];const dare=['قلّد شخصية مشهورة لمدة ١٠ ثواني','قول نكتة بسرعة','اتكلم كأنك مذيع أخبار'];const arr=b.dataset.truth==='truth'?truth:dare;roomRef.child('state').update({prompt:(b.dataset.truth==='truth'?'💬 صراحة: ':'🔥 تحدي: ')+arr[Math.floor(Math.random()*arr.length)]})});
