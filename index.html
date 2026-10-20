@@ -234,6 +234,16 @@ button:active{transform:scale(.985)}
 .player-profile-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px}.player-profile-actions button{min-height:44px}
 .player-profile-note{display:block;margin-top:16px;color:#7585a4;font-size:10px;direction:ltr}
 
+
+/* Lamma hero repair: cinematic gamer artwork */
+.lamma-hero-fixed{position:relative;isolation:isolate;overflow:hidden;}
+.lamma-hero-fixed .gamer-hero{position:relative;min-height:300px;height:100%;align-self:stretch;overflow:hidden;border:1px solid #3c4c8c;border-radius:24px;background-color:#0b122b;background-image:linear-gradient(90deg,rgba(7,11,30,.03) 0%,rgba(7,11,30,.12) 42%,rgba(7,11,30,.78) 100%),url('https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=85');background-size:cover;background-position:center;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.lamma-hero-fixed .gamer-shade{position:absolute;inset:0;background:linear-gradient(0deg,rgba(4,8,25,.78),transparent 70%);pointer-events:none;}
+.lamma-hero-fixed .gamer-caption{position:absolute;right:18px;bottom:20px;z-index:2;display:flex;flex-direction:column;gap:9px;color:#fff;text-align:right;text-shadow:0 2px 12px #000;}
+.lamma-hero-fixed .gamer-live{font-size:12px;color:#62f7dc;background:#07152bd9;border:1px solid #36537c;border-radius:30px;padding:7px 11px;width:max-content;}
+.lamma-hero-fixed .gamer-caption strong{font-size:clamp(22px,3vw,34px);font-weight:900;}
+.lamma-hero-fixed .gamer-caption small{font-size:13px;color:#e0e8ff;}
+@media(max-width:700px){.lamma-hero-fixed{grid-template-columns:1fr!important;}.lamma-hero-fixed .gamer-hero{grid-row:1;order:-1;min-height:220px;height:220px!important;width:100%;}.lamma-hero-fixed .copy{grid-row:2;}.lamma-hero-fixed .gamer-caption{right:14px;bottom:14px;}}
 </style></head><body>
 <header class="top site-header">
   <a class="brand" href="#"><b>ل</b><span>لَمّة</span><small>اللعب يجمعنا</small></a>
@@ -241,19 +251,18 @@ button:active{transform:scale(.985)}
   <div class="account-actions"><span class="pill"><i class="live-dot"></i> متصل</span><button class="ghost" id="profileBtn">حسابي 👤</button><button class="ghost" id="shopBtn">🛒 المتجر</button><button class="ghost" id="nameBtn">تغيير الاسم</button></div>
 </header>
 <main class="site-main">
-<section class="hero hero-rebuilt" aria-labelledby="heroTitle">
- <div class="copy"><span class="eyebrow hero-kicker"><i class="live-dot"></i> اللعب الجماعي يبدأ هنا</span><h1 id="heroTitle">اللّمة أحلى<br><em>لما تلعبوا سوا.</em></h1><p>ادخل غرفة مفتوحة أو أنشئ واحدة خاصة، شارك الكود مع أصحابك، وابدأوا المنافسة من أي موبايل.</p><div class="actions"><a class="primary" href="#games">اكتشف الألعاب <span>←</span></a><button class="secondary" id="quick">أنشئ غرفة سريعة <span>↗</span></button></div><div class="stats"><span>🎮 ألعاب جماعية وفردية</span><span>📱 العبوا من أجهزة مختلفة</span><span>🔑 دخول بكود الغرفة</span></div></div>
- 
-<div class="art hero-art-rebuilt gamer-hero" aria-hidden="true">
+<section class="hero hero-rebuilt lamma-hero-fixed" aria-labelledby="heroTitle">
+ <div class="copy">
+  <span class="eyebrow hero-kicker"><i class="live-dot"></i> اللعب الجماعي يبدأ هنا</span>
+  <h1 id="heroTitle">اللّمة أحلى<br><em>لما تلعبوا سوا.</em></h1>
+  <p>ادخل غرفة مفتوحة أو أنشئ واحدة خاصة، شارك الكود مع أصحابك، وابدأوا المنافسة من أي موبايل.</p>
+  <div class="actions"><a class="primary" href="#games">اكتشف الألعاب <span>←</span></a><button class="secondary" id="quick">أنشئ غرفة سريعة <span>↗</span></button></div>
+  <div class="stats"><span>🎮 ألعاب جماعية وفردية</span><span>📱 العبوا من أجهزة مختلفة</span><span>🔑 دخول بكود الغرفة</span></div>
+ </div>
+ <div class="art hero-art-rebuilt gamer-hero" aria-hidden="true">
   <div class="gamer-shade"></div>
-
-  <div class="gamer-caption">
-    <span class="gamer-live">● أجواء اللعب</span>
-    <strong>ادخل اللَّمّة 🎮</strong>
-    <small>كوّن فريقك وابدأ التحدي</small>
-  </div>
-</div>
-<div class="orb"></div><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="tile t1">🎮</div><div class="tile t2">⚔️</div><div class="tile t3">🏆</div><div class="hero-float float-top">● غرف مباشرة</div><div class="hero-float float-bottom">لَمّة · العبوا سوا</div></div>
+  <div class="gamer-caption"><span class="gamer-live">● أجواء اللعب</span><strong>جاهز للتحدّي؟</strong><small>كوّن فريقك وابدأ اللعب</small></div>
+ </div>
  <div class="hero-glow"></div>
 </section>
 <div class="home-content">
