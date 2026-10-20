@@ -363,6 +363,60 @@ body{background:radial-gradient(ellipse at 85% 0%,#24145b 0,transparent 34%),rad
 
 /* Tap-to-place domino interaction */
 .d-drop-target{display:flex;align-items:center;justify-content:center;flex:0 0 auto;min-width:86px;min-height:70px;padding:10px;border:2px dashed #40e8ff;border-radius:13px;background:linear-gradient(145deg,#073b55,#17104a);color:#a8f7ff;font-size:12px;font-weight:900;box-shadow:0 0 20px #21d9ff24;cursor:pointer;touch-action:manipulation;animation:dominoDropPulse 1.4s ease-in-out infinite}.d-drop-target:active{transform:scale(.96);background:#164e7b}.d-drop-first{min-width:min(100%,260px);min-height:85px;margin:auto}.d-chain{display:flex;align-items:center;gap:8px;overflow-x:auto;overscroll-behavior-x:contain;padding:18px 12px;scrollbar-width:thin}@keyframes dominoDropPulse{0%,100%{border-color:#40e8ff;box-shadow:0 0 12px #21d9ff18}50%{border-color:#b65cff;box-shadow:0 0 22px #9c38ff44}}.domino-tile{touch-action:manipulation}
+
+/* Immersive full-screen game canvas for every playable game */
+#modal:has(.board),#modal:has(.choices),#modal:has(.guess-room),#modal:has(.party-panel),#modal:has(.d-table){
+  position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;
+  padding:0!important;align-items:stretch!important;justify-content:stretch!important;
+  background:#050917!important;backdrop-filter:none!important;z-index:9999!important;
+  overscroll-behavior:contain!important
+}
+#modal:has(.board)>.box,#modal:has(.choices)>.box,#modal:has(.guess-room)>.box,#modal:has(.party-panel)>.box,#modal:has(.d-table)>.box{
+  box-sizing:border-box!important;width:100%!important;max-width:none!important;
+  height:100dvh!important;max-height:100dvh!important;min-height:100dvh!important;
+  margin:0!important;padding:clamp(12px,2.5vw,28px)!important;overflow:auto!important;
+  border:0!important;border-radius:0!important;box-shadow:none!important;
+  overscroll-behavior:contain!important
+}
+#modal:has(.guess-room)>.box{padding:0!important;background:#050917!important}
+#modal.guess-wide-modal{padding:0!important;align-items:stretch!important;justify-content:stretch!important;background:#050917!important;backdrop-filter:none!important}
+#modal.guess-wide-modal>.box{width:100%!important;max-width:none!important;height:100dvh!important;max-height:100dvh!important;min-height:100dvh!important;border:0!important;border-radius:0!important;box-shadow:none!important;overflow:auto!important}
+#modal.guess-wide-modal .guess-main{max-width:1100px;margin:0 auto;min-height:100%;box-sizing:border-box}
+#modal:has(.board)>.box>.close,#modal:has(.choices)>.box>.close,#modal:has(.party-panel)>.box>.close,#modal:has(.d-table)>.box>.close{position:fixed!important;top:10px!important;left:10px!important;z-index:20!important}
+#modal:has(.d-table) #body{min-height:100%;display:flex;flex-direction:column;gap:12px}
+#modal:has(.d-table) .d-head{flex-shrink:0;align-items:center}
+#modal:has(.d-table) .d-score{flex-shrink:0;flex-wrap:wrap}
+#modal:has(.d-table) .d-table{flex:1 0 auto;min-height:clamp(300px,44dvh,560px);padding:clamp(14px,2vw,28px);display:flex;flex-direction:column;box-sizing:border-box;border:2px solid #337c68;background:radial-gradient(ellipse at center,#1b6857 0%,#104538 55%,#082b2c 100%);box-shadow:inset 0 0 50px #031a16a8,0 12px 35px #0005}
+#modal:has(.d-table) .d-table-top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:#c8f5e8;font-weight:800;font-size:13px}
+#modal:has(.d-table) .d-chain{flex:1;min-height:clamp(230px,34dvh,430px);width:100%;box-sizing:border-box;display:flex;flex-wrap:nowrap;align-items:center;justify-content:flex-start;gap:12px;overflow-x:auto;overflow-y:hidden;padding:25px 18px;scrollbar-width:thin;scroll-snap-type:x proximity}
+#modal:has(.d-table) .d-chain-tile{flex:0 0 auto;gap:5px;padding:9px 8px;border-radius:9px;box-shadow:0 5px 0 #827c65,0 7px 12px #0003;scroll-snap-align:center}
+#modal:has(.d-table) .d-chain-tile .pip-half{min-width:clamp(29px,4vw,42px);min-height:clamp(31px,4vw,44px)}
+#modal:has(.d-table) .d-chain-tile .pip-face{width:clamp(27px,3.5vw,38px);height:clamp(27px,3.5vw,38px);gap:2px}
+#modal:has(.d-table) .d-chain-tile .pip-face i{width:clamp(4px,.55vw,6px);height:clamp(4px,.55vw,6px)}
+#modal:has(.d-table) .d-chain-link{flex:0 0 auto;color:#a8e5ce;font-size:12px}
+#modal:has(.d-table) .d-drop-target{flex:0 0 auto;min-width:100px;min-height:92px;font-size:13px;scroll-snap-align:center}
+#modal:has(.d-table) .d-drop-first{min-width:min(100%,320px);min-height:110px}
+#modal:has(.d-table) .domino-hand{flex-shrink:0;gap:10px;margin:10px 0 16px}
+#modal:has(.d-table) .domino-tile{min-width:clamp(68px,8vw,88px);min-height:clamp(62px,7vw,78px);padding:10px 9px;border-radius:10px}
+#modal:has(.d-table) .domino-tile .pip-face{width:clamp(24px,3vw,32px);height:clamp(24px,3vw,32px)}
+#modal:has(.d-table) .domino-tile .pip-face i{width:clamp(4px,.5vw,6px);height:clamp(4px,.5vw,6px)}
+#modal:has(.d-table) .d-stock{margin-top:auto;padding-top:14px;text-align:center;color:#d2f7eb}
+#modal:has(.d-table) .d-status,#modal:has(.d-table) .d-action-area{flex-shrink:0}
+@media(max-width:600px){
+ #modal:has(.board)>.box,#modal:has(.choices)>.box,#modal:has(.party-panel)>.box,#modal:has(.d-table)>.box{padding:12px!important}
+ #modal:has(.d-table) .d-table{min-height:42dvh;padding:12px}
+ #modal:has(.d-table) .d-chain{min-height:30dvh;padding:18px 10px;gap:9px}
+ #modal:has(.d-table) .d-chain-tile{padding:7px 5px;gap:3px}
+ #modal:has(.d-table) .d-chain-tile .pip-half{min-width:27px;min-height:28px}
+ #modal:has(.d-table) .d-chain-tile .pip-face{width:25px;height:25px}
+ #modal:has(.d-table) .d-chain-tile .pip-face i{width:4px;height:4px}
+ #modal:has(.d-table) .d-drop-target{min-width:86px;min-height:80px;padding:7px;font-size:11px}
+ #modal:has(.d-table) .domino-hand{gap:7px}
+ #modal:has(.d-table) .domino-tile{min-width:58px;min-height:55px;padding:7px 5px}
+ #modal:has(.d-table) .domino-tile .pip-face{width:22px;height:22px}
+ #modal.guess-wide-modal>.box{padding:0!important}
+}
+
 </style></head><body>
 <header class="top site-header">
   <a class="brand" href="#"><b>ل</b><span>لَمّة</span><small>اللعب يجمعنا</small></a>
