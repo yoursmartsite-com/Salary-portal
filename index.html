@@ -224,6 +224,38 @@ footer{max-width:1240px;border-color:#202e4d}
 .main-nav a:focus-visible,.play:focus-visible,button:focus-visible{outline:2px solid #9d8bff;outline-offset:3px}
 @media(max-width:900px){.top{flex-wrap:wrap;justify-content:space-between}.main-nav{order:3;flex-basis:100%;justify-content:flex-start;overflow:auto;padding:8px 0 2px}.account-actions{margin-right:auto}.hero{margin:14px 16px 38px;padding:26px 22px}.section{padding-left:16px;padding-right:16px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.top{padding:12px 15px;gap:10px}.brand{font-size:22px}.brand b{width:36px;height:36px}.brand small{display:none}.account-actions .pill{display:none}.account-actions button{padding:8px 9px;font-size:11px}.main-nav{gap:20px}.main-nav a{font-size:12px}.hero{border-radius:23px;min-height:0;padding:19px 18px 22px}.hero h1{font-size:43px;margin:10px 0}.hero p{font-size:13px}.art{height:190px;grid-row:1}.copy{grid-row:2}.orb{width:160px;height:160px}.tile{width:72px;height:72px;border-radius:19px;font-size:31px}.hero .actions{gap:8px}.hero .primary,.hero .secondary{padding:11px 13px;font-size:12px}.stats{gap:6px}.stats span{font-size:10px;padding:6px 8px}.section{padding-bottom:44px}.head{gap:6px}.head h2{font-size:24px}.grid{grid-template-columns:1fr;gap:12px}.card{padding:18px;border-radius:19px}.card p{min-height:0}.ico{width:55px;height:55px;min-height:55px}.invite{padding:21px}.rooms{grid-template-columns:1fr}footer{gap:8px}}
+
+/* Final mobile fidelity pass: match the selected Lamma concept on phone screens */
+@media(max-width:760px){
+ .top{padding:12px 14px;gap:10px}
+ .main-nav{order:3;flex-basis:100%;justify-content:space-between;gap:10px;overflow:visible}
+ .main-nav a{font-size:12px}
+ .account-actions{display:flex;flex-wrap:wrap;gap:6px}
+ .account-actions .ghost{font-size:11px;padding:7px 8px}
+ .hero{grid-template-columns:1fr;margin:12px 12px 30px;padding:18px 18px 22px;min-height:0}
+ .art{grid-row:1;height:190px}
+ .copy{grid-row:2}
+ .hero h1{font-size:clamp(38px,7vw,48px)}
+ .section{padding-left:12px;padding-right:12px;padding-bottom:42px}
+ .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+ .card{padding:15px;border-radius:18px}
+ .ico{width:52px;height:52px;min-height:52px;font-size:27px;margin-bottom:10px;border-radius:15px}
+ .card h3{font-size:17px}
+ .card p{font-size:12px;min-height:0;line-height:1.7}
+ .play{padding:10px;font-size:12px}
+ .head h2{font-size:24px}
+ .head>p{font-size:12px}
+ .rooms{grid-template-columns:1fr}
+}
+@media(max-width:430px){
+ .main-nav a{font-size:11px}
+ .account-actions .ghost{font-size:10px;padding:6px}
+ .grid{grid-template-columns:1fr}
+ .card{padding:17px}
+ .card p{font-size:13px}
+ .play{font-size:13px}
+ .hero h1{font-size:40px}
+}
 </style></head><body><header class="top"><a class="brand" href="#"><b>ل</b>لَمّة<small>اللعب يجمعنا</small></a><nav class="main-nav" aria-label="القائمة الرئيسية"><a href="#">الرئيسية</a><a href="#games">ألعاب أونلاين</a><a href="#solo-games">ألعاب فردية</a><a href="#roomsSection">الغرف</a></nav><div class="account-actions"><span class="pill">● متصل</span> <button class="ghost" id="profileBtn">حسابي 👤</button> <button class="ghost" id="shopBtn">🛒 المتجر</button> <button class="ghost" id="nameBtn">تغيير الاسم</button></div></header><main><section class="hero"><div class="copy"><span class="eyebrow">مكانكم للّعب والتحدّي</span><h1>اللّمة أحلى<br><em>لما تلعبوا سوا.</em></h1><p>اختار لعبة، افتح غرفة، واجمع أصحابك في تحدّي سريع.</p><div class="actions"><a class="primary" href="#games">اختار لعبة ←</a><button class="secondary" id="quick">غرفة سريعة</button></div><div class="stats"><span>🎮 ٣ ألعاب</span><span>👥 لحد ٤ لاعبين</span><span>🔐 كود للغرفة</span></div></div><div class="art"><div class="orb"></div><div class="tile t1">✊</div><div class="tile t2">⭕</div><div class="tile t3">🔢</div></div></section><section class="section player-directory" id="playerDirectory"><div class="head"><div><span class="eyebrow">مجتمع لَمّة</span><h2>👥 اللاعبين</h2></div><p id="playerCount">جاري تحميل اللاعبين...</p></div><div class="player-list" id="playerList"><div class="empty">جاري تحميل قائمة اللاعبين...</div></div></section><section class="section shop-page" id="shopPage" hidden>
 <div class="shop-top"><button class="secondary" id="backFromShop">← العودة للرئيسية</button><div class="shop-brand"><span>🛒</span><div><h1>متجر لَمّة</h1><p>كل ما تحتاجه لتخصيص تجربتك في لَمّة</p></div></div><div class="shop-wallet"><span class="shop-user">🎮</span><div><b id="shopPlayerName">لاعب</b><small>رصيدك</small></div><strong>🪙 <span id="shopCoins">قريبًا</span></strong></div></div>
 <div class="shop-hero"><div class="shop-hero-copy"><span class="shop-tag">✨ خلي حسابك أسطوري</span><h2>خصّص حسابك<br><em>بأسلوبك الخاص</em></h2><p>إطارات نادرة، ألقاب مميزة، ثيمات وأكتر.</p><span class="shop-hero-note">🎁 مميزات جديدة في انتظارك</span></div><div class="shop-hero-art"><div class="shop-crown">👑</div><div class="shop-frame blue-frame">🎮</div><div class="shop-frame pink-frame">⚡</div><div class="shop-vip">VIP</div></div></div>
