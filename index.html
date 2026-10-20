@@ -336,6 +336,9 @@ $('#botRestart').onclick=startDominoBot;$('#botAgain').onclick=startDominoBot;$(
 }
 function doBotMove(){
 const g=botDomino;if(!g||g.winner||g.turn!=='bot')return;
+// Guard against missing/corrupt bot hand data instead of crashing on .forEach.
+if(!Array.isArray(g.bot))g.bot=[];
+if(!Array.isArray(g.board))g.board=[];
 let playable=[];g.bot.forEach((t,i)=>{if(!g.board.length)playable.push({i,side:'right',score:t[0]+t[1]});else{if(botCan(t,'left'))playable.push({i,side:'left',score:t[0]+t[1]});if(botCan(t,'right'))playable.push({i,side:'right',score:t[0]+t[1]})}});
 if(!playable.length&&g.stock.length){g.bot.push(g.stock.pop());g.notice='الكمبيوتر سحب حجر...';renderDominoBot();botMoveTimer=setTimeout(doBotMove,650);return}
 if(!playable.length){g.turn='player';g.notice='الكمبيوتر عدّى دوره. دورك!';renderDominoBot();return}
