@@ -484,10 +484,10 @@ function renderPartyGame(r){
   if(g==='spy'&&keys.length<3){toast('لعبة الجاسوس محتاجة ٣ لاعبين على الأقل');return}
   const roles={};
   if(g==='spy'){
-   const spyIndex=Math.floor(Math.random()*keys.length),words=['قمر','بيتزا','مدرسة','شاطئ','مطار','مستشفى','قهوة','ملعب','قطار','مكتبة','حديقة','سينما','سفينة','متحف','سوبر ماركت','مصيف'];
+   const spyIndex=Math.floor(Math.random()*keys.length),words=['قمر','بيتزا','مدرسة','شاطئ','مطار','مستشفى','قهوة','ملعب','قطار','مكتبة','حديقة','سينما','سفينة','متحف','سوبر ماركت','مصيف','مخبز','حديقة الحيوان','صيدلية','محطة بنزين'];
    const secretWord=words[Math.floor(Math.random()*words.length)];
    keys.forEach((k,i)=>roles[k]=i===spyIndex?'الجاسوس':'الكلمة السرية: '+secretWord);
-   roomRef.child('state').update({started:true,roles,secretWord,round:(st.round||0)+1,votes:{},revealed:false});return;
+   roomRef.child('state').update({started:true,phase:'discussion',roles,secretWord,round:(st.round||0)+1,votes:{},resultText:'',caughtUid:null});return;
   }
   keys.forEach((k,i)=>roles[k]=i===Math.floor(Math.random()*keys.length)?'مافيا':(i===0?'محقق':'مواطن'));
   roomRef.child('state').update({started:true,roles,round:(st.round||0)+1});
@@ -496,6 +496,12 @@ function renderPartyGame(r){
  if($('#tabooNext'))$('#tabooNext').onclick=()=>{const cards=[['طائرة','جناح، سفر، مطار'],['بيتزا','جبنة، فرن، إيطاليا'],['كرة القدم','ملعب، هدف، لاعب'],['مدرسة','طلاب، مدرس، فصل'],['موبايل','شاشة، اتصال، تطبيق'],['بحر','موج، سمك، شاطئ'],['قهوة','فنجان، بن، مشروب']];const i=((st.cardIndex||0)+1)%cards.length;roomRef.child('state').update({cardIndex:i,word:cards[i][0],forbidden:cards[i][1],points:(st.points||0)+1})};
  if($('#fastBuzz'))$('#fastBuzz').onclick=()=>{if(st.winner){toast('سبقك لاعب بالفعل');return}roomRef.child('state/winner').transaction(v=>v||uid)};
  if($('#showRole'))$('#showRole').onclick=()=>{const el=$('#privateRole');el.hidden=false;el.textContent=(st.roles||{})[uid]||'مستني صاحب الغرفة يوزع الأدوار'};
+ if(g==='spy'){
+  if($('#spyToVote'))$('#spyToVote').onclick=()=>{if(!host)return;roomRef.child('state').update({phase:'voting',votes:{}})};
+  $('.spy-vote').forEach(b=>b.onclick=()=>{if((st.votes||{})[uid]){toast('صوّت بالفعل');return}roomRef.child('state/votes/'+uid).set(b.dataset.vote)});
+  if($('#spyFinishVote'))$('#spyFinishVote').onclick=()=>{if(!host)return;const votes=st.votes||{},counts={};Object.values(votes).forEach(k=>counts[k]=(counts[k]||0)+1);const high=Math.max(0,...Object.values(counts)),leaders=Object.keys(counts).filter(k=>counts[k]===high),caught=leaders.length===1?leaders[0]:null;const caughtSpy=!!(caught&&(st.roles||{})[caught]&&String(st.roles[caught]).includes('الجاسوس'));const resultText=!caught?'تعادل في التصويت!':(ps[caught]?.name||'لاعب')+(caughtSpy?' هو الجاسوس! اللاعبون كسبوا الجولة 🎉':' مش الجاسوس. الجاسوس كسب الجولة 🥷');roomRef.child('state').update({phase:'result',resultText,caughtUid:caught,spyCaught:caughtSpy})};
+  if($('#spyAgain'))$('#spyAgain').onclick=()=>{if(!host)return;roomRef.child('state').update({started:false,phase:'waiting',roles:{},secretWord:'',votes:{},resultText:'',caughtUid:null,spyCaught:null})};
+ }
 }
 function copy(t){if(navigator.clipboard)navigator.clipboard.writeText(t).then(()=>toast('اتنسخ: '+t)).catch(()=>prompt('انسخ النص:',t));else prompt('انسخ النص:',t)}
 function drawPlayerDirectory(){
