@@ -449,6 +449,12 @@ playable.sort((a,b)=>b.score-a.score);const choice=playable[Math.floor(Math.rand
 function launch(g){if(!room){toast('اعمل غرفة أو ادخل بكود الأول');return}$('#modal').classList.remove('hide');if(['mafia','taboo','truth','spy','fast'].includes(g)){renderPartyGame(room);return}if(g==='xo')renderXO(room);else if(g==='rps')renderRPS(room);else if(g==='domino')renderDomino(room);else renderGuess(room)}
 function renderPartyGame(r){
  const g=r.game,st=r.state||{},ps=r.players||{},keys=Object.keys(ps),mine=ps[uid],host=uid===r.hostUid;
+ // Normalize nullable Firebase collections so rendering never calls forEach on null.
+ if(!Array.isArray(st.items))st.items=[];
+ if(!Array.isArray(st.words))st.words=[];
+ if(!Array.isArray(st.options))st.options=[];
+ if(!st.roles||typeof st.roles!=='object')st.roles={};
+ if(!st.votes||typeof st.votes!=='object')st.votes={};
  const configs={
   mafia:{title:'🕵️ المافيا',desc:'كل لاعب يستلم دورًا سريًا. ابدأوا النقاش ثم صوّتوا على اللاعب المشتبه به.',start:'بدء توزيع الأدوار',items:['مافيا','مواطن','محقق'],kind:'roles'},
   taboo:{title:'🤐 ممنوع تقول الكلمة',desc:'اشرح الكلمة لفريقك من غير ما تستخدم الكلمات الممنوعة.',start:'كلمة جديدة',kind:'taboo'},
