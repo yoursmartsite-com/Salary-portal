@@ -108,6 +108,12 @@ body{background:radial-gradient(ellipse at 78% 0%,#32215f 0,transparent 32%),rad
 @media(max-width:390px){.hero.hero-rebuilt{grid-template-columns:1fr!important}.art.hero-art-rebuilt{grid-row:1;height:145px;order:initial}.hero-rebuilt .copy{text-align:right}.hero-rebuilt h1{font-size:36px}#rooms.rooms{grid-template-columns:1fr}.room.room-card{padding:14px}.room-card-meta{font-size:11px}#games .card p,#solo-games .card p{min-height:55px}}
 
 
+/* Mobile keyboard zoom fix: keep chat inputs at 16px or larger */
+@media (max-width: 700px){
+ #modal input,#modal textarea,#modal select{font-size:16px!important}
+ #modal .guess-chat-premium input{font-size:16px!important;line-height:1.4}
+ #modal .guess-entry-premium input{font-size:16px!important;line-height:1.4}
+}
 /* Immersive game rooms: tapping the dark backdrop must never close a live room */
 #modal:has(.board),#modal:has(.choices),#modal:has(.guess-room),#modal:has(.party-panel){padding:0!important;align-items:stretch!important;justify-content:stretch!important;background:#050917!important;backdrop-filter:none!important}
 #modal:has(.board)>.box,#modal:has(.choices)>.box,#modal:has(.guess-room)>.box,#modal:has(.party-panel)>.box{width:100%!important;max-width:none!important;height:100dvh!important;max-height:100dvh!important;min-height:100dvh!important;margin:0!important;padding:clamp(16px,3vw,30px)!important;overflow:auto!important;border:0!important;border-radius:0!important;box-shadow:none!important;overscroll-behavior:contain}
