@@ -221,6 +221,19 @@ button:active{transform:scale(.985)}
  .card h3{font-size:17px}.card p{font-size:12px}
 }
 
+/* Player profile and friend actions */
+.player-row-click{display:flex;align-items:center;gap:12px;padding:13px 14px;border:1px solid #ffffff12!important;border-radius:16px!important;background:linear-gradient(135deg,#141f36,#0d1527)!important;transition:transform .18s,border-color .18s,background .18s}
+.player-row-click:hover{transform:translateY(-2px);border-color:#9b82ff70!important;background:#192440!important}
+.player-row-click .player-info{flex:1;min-width:0}.player-row-click .player-open-arrow{font-size:28px;color:#a995ff}
+.player-profile-card{overflow:hidden;border:1px solid #a995ff40;border-radius:22px;background:#0d1425}
+.player-profile-cover{height:100px;padding:18px;display:flex;align-items:flex-start;background:radial-gradient(ellipse at 80% 20%,#8c73ff55,transparent 48%),linear-gradient(120deg,#102d3b,#24184b);color:#c9c0ff;font-size:11px;font-weight:900;letter-spacing:1px}
+.player-profile-main{position:relative;padding:0 18px 22px;text-align:center}
+.player-profile-avatar{width:82px;height:82px;margin:-41px auto 10px;display:grid;place-items:center;border:4px solid #0d1425;border-radius:24px;background:linear-gradient(135deg,#2b3858,#191f38);font-size:42px;box-shadow:0 8px 24px #0005}
+.player-profile-status{display:inline-block;padding:5px 10px;border:1px solid #ffffff15;border-radius:999px;background:#ffffff08;color:#c7d2e8;font-size:11px}
+.player-profile-main h2{margin:12px 0 5px;font-size:24px}.player-profile-bio{color:#aab7d0;font-size:13px;line-height:1.8;overflow-wrap:anywhere}
+.player-profile-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px}.player-profile-actions button{min-height:44px}
+.player-profile-note{display:block;margin-top:16px;color:#7585a4;font-size:10px;direction:ltr}
+
 </style></head><body>
 <header class="top site-header">
   <a class="brand" href="#"><b>ل</b><span>لَمّة</span><small>اللعب يجمعنا</small></a>
@@ -574,6 +587,40 @@ function renderPartyGame(r){
  }
 }
 function copy(t){if(navigator.clipboard)navigator.clipboard.writeText(t).then(()=>toast('اتنسخ: '+t)).catch(()=>prompt('انسخ النص:',t));else prompt('انسخ النص:',t)}
+function openPlayerCard(playerId,profiles,presence){
+ if(!db||!playerId)return;
+ const p=profiles[playerId]||{},isSelf=playerId===uid;
+ const safe=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const status=presence[playerId]?'🟢 متصل الآن':'⚪ غير متصل';
+ show('<div class="player-profile-card"><div class="player-profile-cover"><span>لَمّة · PLAY TOGETHER</span></div><div class="player-profile-main"><div class="player-profile-avatar">'+safe(p.avatar||'🎮')+'</div><span class="player-profile-status">'+status+'</span><h2>'+safe(p.name||'لاعب')+'</h2><p class="player-profile-bio">'+safe(p.bio||'لسه مضافش نبذة عن نفسه.')+'</p><div class="player-profile-actions">'+(isSelf?'<button class="primary" id="playerOwnProfile">تعديل ملفي الشخصي</button>':'<button class="primary" id="sendFriendRequest">➕ إضافة صديق</button><button class="secondary" id="invitePlayer">✉️ دعوة للعب</button>')+'</div><small class="player-profile-note">معرّف اللاعب: '+safe(playerId.slice(0,8))+'</small></div></div>');
+ if(isSelf){$('#playerOwnProfile').onclick=()=>openProfile();return}
+ $('#sendFriendRequest').onclick=async()=>{
+  if(!uid){toast('استنى لحد ما تسجيل الدخول يكتمل');return}
+  try{
+   const targetRef=db.ref('friendRequests/'+playerId+'/'+uid);
+   const existing=await targetRef.once('value');
+   if(existing.exists()){toast(existing.val().status==='accepted'?'أنتم أصدقاء بالفعل':'طلب الصداقة اتبعت قبل كده');return}
+   const reverseRef=db.ref('friendRequests/'+uid+'/'+playerId);
+   const reverse=await reverseRef.once('value');
+   if(reverse.exists()&&reverse.val().status==='pending'){
+    const updates={};
+    updates['friendRequests/'+uid+'/'+playerId+'/status']='accepted';
+    updates['friendRequests/'+uid+'/'+playerId+'/updatedAt']=Date.now();
+    updates['friends/'+uid+'/'+playerId]={name:p.name||'لاعب',avatar:p.avatar||'🎮',since:Date.now()};
+    updates['friends/'+playerId+'/'+uid]={name:name||'لاعب',avatar:avatar||'🎮',since:Date.now()};
+    await db.ref().update(updates);toast('قبلت طلب الصداقة وبقيتم أصدقاء');return;
+   }
+   await targetRef.set({from:uid,to:playerId,fromName:name||'لاعب',fromAvatar:avatar||'🎮',status:'pending',createdAt:Date.now()});
+   toast('اتبعت طلب الصداقة ✅');
+  }catch(e){console.error('Friend request failed',e);toast('تعذر إرسال الطلب؛ راجع صلاحيات Firebase ('+(e.code||'خطأ')+')')}
+ };
+ $('#invitePlayer').onclick=()=>{
+  close();
+  const quick=$('#quick');
+  if(quick)quick.click();
+  toast('أنشئ غرفة وشارك كودها مع '+(p.name||'اللاعب'));
+ };
+}
 function drawPlayerDirectory(){
  if(!db)return;
  const list=$('#playerList'),count=$('#playerCount');
@@ -585,7 +632,8 @@ function drawPlayerDirectory(){
   rows.sort((a,b)=>Number(!!presence[b[0]])-Number(!!presence[a[0]])||String(a[1].name||'Игрок').localeCompare(String(b[1].name||'Игрок'),'ar'));
   count.textContent=rows.length+' لاعب';
   if(!rows.length){list.innerHTML='<div class="empty">لسه مفيش لاعبين مسجلين ظاهرين هنا. اللاعب هيظهر بعد ما يحفظ ملفه الشخصي.</div>';return}
-  list.innerHTML=rows.map(([id,p])=>'<div class="player-row"><div class="player-avatar">'+String(p.avatar||'🎮').replace(/[<>&"]/g,'')+'</div><div class="player-info"><b>'+String(p.name||'لاعب').replace(/[<>&"]/g,'')+'</b><small>'+(presence[id]?'🟢 أونلاين':'⚪ أوفلاين')+'</small></div><span class="'+(presence[id]?'online-dot':'offline-dot')+'" aria-label="'+(presence[id]?'أونلاين':'أوفلاين')+'"></span></div>').join('');
+  list.innerHTML=rows.map(([id,p])=>'<button type="button" class="player-row player-row-click" data-player-id="'+String(id).replace(/[<>&"]/g,'')+'" style="width:100%;text-align:right;color:inherit;cursor:pointer"><div class="player-avatar">'+String(p.avatar||'🎮').replace(/[<>&"]/g,'')+'</div><div class="player-info"><b>'+String(p.name||'لاعب').replace(/[<>&"]/g,'')+'</b><small>'+(presence[id]?'🟢 أونلاين':'⚪ أوفلاين')+' · اضغط لعرض الملف</small></div><span class="'+(presence[id]?'online-dot':'offline-dot')+'" aria-label="'+(presence[id]?'أونلاين':'أوفلاين')+'"></span><span class="player-open-arrow">‹</span></button>').join('');
+  list.querySelectorAll('[data-player-id]').forEach(el=>el.onclick=()=>openPlayerCard(el.dataset.playerId,all,presence));
  };
  db.ref('profiles').on('value',s=>{profiles=s.val()||{};render()},()=>{list.innerHTML='<div class="empty">تعذر تحميل قائمة اللاعبين.</div>'});
  db.ref('presence').on('value',s=>{presence=s.val()||{};render()},()=>{list.innerHTML='<div class="empty">تعذر تحميل حالة الاتصال.</div>'});
