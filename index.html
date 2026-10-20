@@ -322,6 +322,20 @@ if(guessChatForm)guessChatForm.onsubmit=async e=>{
 };
 
 const chatRef=roomRef.child('chat').limitToLast(40);
+const renderedChatIds={};
+const chatList=$('#guessChatMessages');
+const renderGuessChatMessage=(m,id)=>{
+ if(!chatList||!m||!id||renderedChatIds[id])return;
+ renderedChatIds[id]=true;
+ const empty=chatList.querySelector('.guess-chat-empty');if(empty)empty.remove();
+ const item=document.createElement('div');item.className='guess-chat-message'+(m.uid===uid?' mine':'');
+ const who=document.createElement('b');who.textContent=(m.uid===uid?'أنت':String(m.name||'لاعب')).slice(0,22);
+ const message=document.createElement('span');message.textContent=String(m.text||'').slice(0,300);
+ item.append(who,message);chatList.appendChild(item);
+ while(chatList.children.length>40)chatList.firstElementChild.remove();
+ chatList.scrollTop=chatList.scrollHeight;
+};
+chatRef.once('value').then(snap=>snap.forEach(ch=>renderGuessChatMessage(ch.val()||{},ch.key)));
 const bubbleTimers={};
 const latestBubbleByUid={};
 const showGuessBubble=(m,id)=>{
@@ -355,7 +369,7 @@ chatRef.once('value').then(snap=>{
 });
 if(window.guessChatLiveRef)window.guessChatLiveRef.off();
 window.guessChatLiveRef=roomRef.child('chat').limitToLast(40);
-window.guessChatLiveRef.on('child_added',snap=>showGuessBubble(snap.val()||{},snap.key));
+window.guessChatLiveRef.on('child_added',snap=>{const m=snap.val()||{};renderGuessChatMessage(m,snap.key);showGuessBubble(m,snap.key)});
 
 }
 function dominoPlayable(tile,left,right,empty){return empty||tile[0]===left||tile[1]===left||tile[0]===right||tile[1]===right}
