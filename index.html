@@ -324,6 +324,29 @@ body{background:radial-gradient(ellipse at 85% 0%,#24145b 0,transparent 34%),rad
 #games .card:nth-child(4) h3{color:#8ceaff}
 @media(max-width:899px){#games .card:nth-child(4) .ico{max-height:125px}}
 
+
+/* Neon redesign for open rooms */
+#roomsSection>.head{padding:18px 20px;margin-bottom:12px;border:1px solid #3159b9;border-radius:18px;background:radial-gradient(ellipse at 95% 0%,#1269b744,transparent 45%),linear-gradient(110deg,#071e3a,#101033)}
+#roomsSection>.head h2{color:#f4f7ff}
+#roomsSection>.head .eyebrow{color:#59e8ff}
+#roomsSection>#rooms.rooms{grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+#roomsSection .room.room-card{position:relative;isolation:isolate;overflow:hidden;padding:15px;border-radius:17px;border:1px solid #3158a5;background:linear-gradient(145deg,#0b2445 0%,#11143a 65%,#160e35 100%);box-shadow:0 10px 28px #02071888;gap:12px}
+#roomsSection .room.room-card:before{content:"";position:absolute;inset:0 0 auto;height:3px;z-index:-1;background:linear-gradient(90deg,#24dfff,#654dff,#d44dff)}
+#roomsSection .room-game-icon{width:52px;height:52px;border-radius:15px;background:linear-gradient(145deg,#133f70,#32175c);border:1px solid #4288db;color:#75eaff;font-size:25px;box-shadow:inset 0 0 18px #328cff22,0 0 20px #3b4dff18}
+#roomsSection .room-card-info b{font-size:16px;color:#f5f7ff}
+#roomsSection .room-card-info small{color:#a9bce4}
+#roomsSection .room-card-meta{padding:10px 0;border-color:#344b7a;color:#c2d6ff}
+#roomsSection .room-state.available{color:#7cf7dc;background:#073a43;border-color:#147d8d}
+#roomsSection .room-state.full{color:#ffc2d8;background:#3c183d;border-color:#8745a3}
+#roomsSection .room-enter{background:linear-gradient(100deg,#1746a1,#4c20a1);border:1px solid #497dff;color:white;box-shadow:0 5px 18px #253bff22}
+#roomsSection .room-enter:hover:not(:disabled){background:linear-gradient(100deg,#087bba,#7029c5);border-color:#55e6ff}
+#roomsSection .room-enter:disabled{background:#17203c;border-color:#343e60}
+#roomsSection .room-empty{background:linear-gradient(145deg,#0b1c37,#11102e);border-color:#3c4d8a}
+#roomsSection .join{border-color:#3158a5;background:linear-gradient(110deg,#091a34,#11102e)}
+#roomsSection .join input{border-color:#3158a5;background:#050d20}
+@media(max-width:899px){#roomsSection>#rooms.rooms{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}#roomsSection .room.room-card{padding:11px;gap:10px}}
+@media(max-width:420px){#roomsSection>#rooms.rooms{grid-template-columns:1fr}}
+
 </style></head><body>
 <header class="top site-header">
   <a class="brand" href="#"><b>ل</b><span>لَمّة</span><small>اللعب يجمعنا</small></a>
