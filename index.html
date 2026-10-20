@@ -347,6 +347,19 @@ body{background:radial-gradient(ellipse at 85% 0%,#24145b 0,transparent 34%),rad
 @media(max-width:899px){#roomsSection>#rooms.rooms{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}#roomsSection .room.room-card{padding:11px;gap:10px}}
 @media(max-width:420px){#roomsSection>#rooms.rooms{grid-template-columns:1fr}}
 
+
+/* Replace open-room emoji with illustrated game thumbnails */
+#roomsSection .room-game-icon{width:100%;height:112px;min-height:112px;display:block;overflow:hidden;border-radius:12px;background-color:#0a1530;background-position:center;background-size:cover;background-repeat:no-repeat;font-size:0;color:transparent;border:1px solid #2f66bb;box-shadow:inset 0 0 25px #05102c66,0 0 18px #174fff22}
+#roomsSection .room-card-top{align-items:flex-start}
+#roomsSection .room-game-icon[data-game="guess"]{background-image:linear-gradient(180deg,#07102a12,#07102a40),url('https://images.unsplash.com/photo-1614064641938-3bbee52942c7?auto=format&fit=crop&w=600&q=82')}
+#roomsSection .room-game-icon[data-game="xo"]{background-image:linear-gradient(180deg,#07102a12,#07102a40),url('https://images.unsplash.com/photo-1611996575749-79a3a250f948?auto=format&fit=crop&w=600&q=82')}
+#roomsSection .room-game-icon[data-game="rps"]{background-image:linear-gradient(180deg,#07102a12,#07102a40),url('https://images.unsplash.com/photo-1606167668584-78701c57f13d?auto=format&fit=crop&w=600&q=82')}
+#roomsSection .room-game-icon[data-game="domino"]{background-image:linear-gradient(180deg,#07102a12,#07102a40),url('https://images.unsplash.com/photo-1606503153255-59d8b8b8216e?auto=format&fit=crop&w=600&q=82')}
+#roomsSection .room-game-icon[data-game="spy"],#roomsSection .room-game-icon[data-game="mafia"]{background-image:linear-gradient(180deg,#07102a12,#07102a40),url('https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=600&q=82')}
+#roomsSection .room-game-icon[data-game="taboo"],#roomsSection .room-game-icon[data-game="truth"]{background-image:linear-gradient(180deg,#07102a12,#07102a40),url('https://images.unsplash.com/photo-1606092195730-5d7b9af1efc5?auto=format&fit=crop&w=600&q=82')}
+#roomsSection .room-game-icon[data-game="fast"]{background-image:linear-gradient(180deg,#07102a12,#07102a40),url('https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=600&q=82')}
+@media(max-width:899px){#roomsSection .room-game-icon{height:88px;min-height:88px}}
+
 </style></head><body>
 <header class="top site-header">
   <a class="brand" href="#"><b>ل</b><span>لَمّة</span><small>اللعب يجمعنا</small></a>
@@ -773,7 +786,7 @@ function drawRooms(){
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   root.innerHTML=arr.map(r=>{
    const players=r.players||{},count=Object.keys(players).length||Number(r.playersCount)||0,max=Number(r.max)||2,full=count>=max,game=labels[r.game]||r.title||'لعبة أونلاين';
-   return '<article class="room room-card"><div class="room-card-top"><span class="room-game-icon">'+({domino:'🁣',xo:'⭕',rps:'✊',guess:'🔢',mafia:'🕵️',taboo:'🤐',truth:'🔥',spy:'🥷',fast:'⚡'}[r.game]||'🎮')+'</span><span class="room-state '+(full?'full':'available')+'">'+(full?'مكتملة':'متاحة')+'</span></div><div class="room-card-info"><b>'+esc(game)+'</b><small>بواسطة '+esc(r.host||'لاعب')+'</small></div><div class="room-card-meta"><span>👥 '+count+' / '+max+'</span><span>🔑 '+esc(r.code)+'</span></div><button class="secondary room-enter" data-enter="'+esc(r.code)+'" '+(full?'disabled':'')+'>'+(full?'الغرفة مكتملة':'دخول الغرفة')+' <span>←</span></button></article>';
+   return '<article class="room room-card"><div class="room-card-top"><span class="room-game-icon" data-game="'+esc(r.game)+'">'+({domino:'🁣',xo:'⭕',rps:'✊',guess:'🔢',mafia:'🕵️',taboo:'🤐',truth:'🔥',spy:'🥷',fast:'⚡'}[r.game]||'🎮')+'</span><span class="room-state '+(full?'full':'available')+'">'+(full?'مكتملة':'متاحة')+'</span></div><div class="room-card-info"><b>'+esc(game)+'</b><small>بواسطة '+esc(r.host||'لاعب')+'</small></div><div class="room-card-meta"><span>👥 '+count+' / '+max+'</span><span>🔑 '+esc(r.code)+'</span></div><button class="secondary room-enter" data-enter="'+esc(r.code)+'" '+(full?'disabled':'')+'>'+(full?'الغرفة مكتملة':'دخول الغرفة')+' <span>←</span></button></article>';
   }).join('');
   $$('[data-enter]').forEach(btn=>btn.onclick=()=>enter(btn.dataset.enter));
  },err=>{console.error('Room list read failed',err);root.innerHTML='<div class="empty">تعذر تحميل الغرف. تأكد من اتصال Firebase وصلاحيات القراءة.</div>'});
