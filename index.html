@@ -512,7 +512,7 @@ function openProfile(){
  const email=user&&user.email?user.email:'';
  const saved=localStorage.getItem('lammaProfileBio')||''; 
  const avatarOptions=['🎮','🦊','🐼','🐯','🐸','🐵','🐲','🦁','🐺','🐱','🐻','🤖','👽','🥷','🧙','🦸','👻','⚽'];
- show('<div class="d-head"><div><span class="d-kicker">ملف اللاعب</span><h2>حسابي 👤</h2><p>احفظ اسمك وبياناتك عشان تستخدم حسابك من أي جهاز.</p></div></div><div class="profile-card"><div class="profile-avatar">'+avatarHTML(avatar)+'</div><h3>'+name.replace(/</g,'&lt;')+'</h3><p>'+(email?email:'ضيف — تقدر تعمل حساب بإيميل وكلمة مرور')+'</p><label>صورتك الشخصية</label><p class="profile-help">ارفع صورة من موبايلك (يتم تصغيرها قبل الحفظ)، أو اختار أفاتار جاهز.</p><input id="avatarFile" type="file" accept="image/*" style="display:block;width:100%;margin:8px 0"><div class="avatar-picker">'+avatarOptions.map(a=>'<button type="button" class="avatar-choice '+(a===avatar?'selected':'')+'" data-avatar="'+a+'">'+a+'</button>').join('')+'</div><label>اسم اللاعب</label><input id="profileName" maxlength="22" value="'+name.replace(/"/g,'&quot;')+'"><label>نبذة عنك</label><input id="profileBio" maxlength="90" placeholder="مثلاً: عاشق الدومينو" value="'+saved.replace(/"/g,'&quot;')+'"><button class="primary profile-wide" id="saveProfile">حفظ الملف الشخصي</button>'+(email?'<div class="profile-sep"></div><h3>الحساب مربوط بإيميل</h3><p class="profile-help">حسابك محفوظ. استخدم نفس الإيميل وكلمة المرور للدخول من أي جهاز.</p><div class="profile-actions"><button class="ghost" id="logoutBtn">تسجيل خروج</button></div>':'<div class="profile-sep"></div><h3>إنشاء حساب / تسجيل دخول</h3><p class="profile-help">استخدم إيميل وكلمة مرور من 6 أحرف على الأقل.</p><label>الإيميل</label><input id="authEmail" type="email" autocomplete="email" placeholder="name@example.com"><label>كلمة المرور</label><input id="authPassword" type="password" autocomplete="current-password" placeholder="6 أحرف أو أكثر"><div class="profile-actions"><button class="primary" id="registerBtn">إنشاء حساب</button><button class="secondary" id="loginBtn">تسجيل دخول</button></div>')+'</div></div>');
+ show('<div class="d-head"><div><span class="d-kicker">ملف اللاعب</span><h2>حسابي 👤</h2><p>احفظ اسمك وبياناتك عشان تستخدم حسابك من أي جهاز.</p></div></div><div class="profile-card"><div class="profile-avatar">'+avatarHTML(avatar)+'</div><h3>'+name.replace(/</g,'&lt;')+'</h3><p>'+(email?email:'ضيف — تقدر تعمل حساب بإيميل وكلمة مرور')+'</p><label>صورتك الشخصية</label><p class="profile-help">ارفع صورة من موبايلك (يتم تصغيرها قبل الحفظ)، أو اختار أفاتار جاهز.</p><input id="avatarFile" type="file" accept="image/*" style="display:block;width:100%;margin:8px 0"><div class="avatar-picker">'+avatarOptions.map(a=>'<button type="button" class="avatar-choice '+(a===avatar?'selected':'')+'" data-avatar="'+a+'">'+a+'</button>').join('')+'</div><label>اسم اللاعب</label><input id="profileName" maxlength="22" value="'+name.replace(/"/g,'&quot;')+'"><label>نبذة عنك</label><input id="profileBio" maxlength="90" placeholder="مثلاً: عاشق الدومينو" value="'+saved.replace(/"/g,'&quot;')+'"><button class="primary profile-wide" id="saveProfile">حفظ الملف الشخصي</button>'+(email?'<div class="profile-sep"></div><h3>الحساب مربوط بإيميل</h3><p class="profile-help">حسابك محفوظ. استخدم نفس الإيميل وكلمة المرور للدخول من أي جهاز.</p><div class="profile-actions"><button class="ghost" id="logoutBtn">تسجيل خروج</button></div>':'<div class="profile-sep"></div><h3>حسابك على لَمّة</h3><p class="profile-help">اختار العملية المطلوبة. حسابك هيفضل مسجل دخول على نفس المتصفح حتى لو قفلت الصفحة ورجعت.</p><div class="profile-actions"><button class="primary" id="registerBtn">إنشاء حساب جديد</button><button class="secondary" id="loginBtn">تسجيل دخول</button></div>')+'</div></div>');
  
  $('#avatarFile').onchange=async e=>{const file=e.target.files&&e.target.files[0];if(!file)return;if(!file.type.startsWith('image/')){toast('اختار ملف صورة');return}if(file.size>8*1024*1024){toast('الصورة كبيرة؛ اختار صورة أقل من 8 ميجابايت');return}try{avatar=await new Promise((resolve,reject)=>{const img=new Image(),url=URL.createObjectURL(file);img.onload=()=>{const c=document.createElement('canvas'),scale=Math.min(1,320/Math.max(img.width,img.height));c.width=Math.round(img.width*scale);c.height=Math.round(img.height*scale);c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);resolve(c.toDataURL('image/jpeg',.75))};img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('تعذر قراءة الصورة'))};img.src=url});localStorage.setItem('lammaAvatar',avatar);$('.profile-avatar').innerHTML=avatarHTML(avatar);$$('.avatar-choice').forEach(x=>x.classList.remove('selected'));toast('الصورة جاهزة؛ اضغط حفظ الملف الشخصي')}catch(err){toast('تعذر تجهيز الصورة')}};
  $$('.avatar-choice').forEach(b=>{
@@ -547,31 +547,37 @@ function openProfile(){
    openProfile();
  };
 
+ const openAuthForm=(mode)=>{
+   const title=mode==='register'?'إنشاء حساب جديد':'تسجيل الدخول';
+   const desc=mode==='register'?'اكتب بياناتك لإنشاء حساب محفوظ على لَمّة.':'اكتب نفس الإيميل وكلمة المرور اللي سجلت بيهم قبل كده.';
+   show('<div class="d-head"><div><span class="d-kicker">حساب لَمّة</span><h2>'+title+'</h2><p>'+desc+'</p></div></div><label for="authEmail">الإيميل</label><input id="authEmail" type="email" autocomplete="email" placeholder="name@example.com"><label for="authPassword">كلمة المرور</label><input id="authPassword" type="password" autocomplete="'+(mode==='register'?'new-password':'current-password')+'" placeholder="6 أحرف أو أكثر"><div class="profile-actions"><button class="primary" id="authSubmit">'+title+'</button><button class="ghost" id="authBack">رجوع</button></div>');
+   $('#authSubmit').onclick=()=>authAction(mode);
+   $('#authBack').onclick=openProfile;
+   $('#authPassword').addEventListener('keydown',e=>{if(e.key==='Enter')authAction(mode)});
+ };
  const authAction=async(mode)=>{
-   const email=$('#authEmail').value.trim(),password=$('#authPassword').value;
+   const email=$('#authEmail')?.value.trim(),password=$('#authPassword')?.value||'';
    if(!email||password.length<6){toast('اكتب إيميل صحيح وكلمة مرور 6 أحرف على الأقل');return}
    try{
-     let cred;const auth=firebase.auth();
+     const auth=firebase.auth();let cred;
      if(mode==='register'){
        const current=auth.currentUser;
-       if(current&&current.isAnonymous){
-         try{cred=await current.linkWithCredential(firebase.auth.EmailAuthProvider.credential(email,password))}
-         catch(e){if(e.code==='auth/email-already-in-use')cred=await auth.signInWithEmailAndPassword(email,password);else throw e}
-       }else cred=await auth.createUserWithEmailAndPassword(email,password);
+       if(current&&current.isAnonymous)cred=await current.linkWithCredential(firebase.auth.EmailAuthProvider.credential(email,password));
+       else cred=await auth.createUserWithEmailAndPassword(email,password);
      }else cred=await auth.signInWithEmailAndPassword(email,password);
      uid=cred.user.uid;
      await db.ref('profiles/'+uid).update({name,email:cred.user.email||email,bio:localStorage.getItem('lammaProfileBio')||'',updatedAt:Date.now()});
-     await db.ref('presence/'+uid).set({name,at:Date.now()});
+     await db.ref('presence/'+uid).set({name,avatar,at:Date.now()});
      db.ref('presence/'+uid).onDisconnect().remove();
-     toast(mode==='register'?'اتعمل حسابك بنجاح':'تم تسجيل الدخول');
-     openProfile();
+     toast(mode==='register'?'اتعمل حسابك بنجاح':'تم تسجيل الدخول');openProfile();
    }catch(e){
-     toast('تعذر إكمال العملية: '+(e.code==='auth/operation-not-allowed'?'فعّل Email/Password من Firebase Authentication':e.message));
+     const messages={'auth/operation-not-allowed':'فعّل Email/Password من Firebase Authentication','auth/email-already-in-use':'الإيميل ده مسجل قبل كده؛ اختار تسجيل دخول','auth/invalid-email':'الإيميل مش صحيح','auth/weak-password':'اختار كلمة مرور أقوى من 6 أحرف','auth/user-not-found':'مفيش حساب بالإيميل ده؛ اختار إنشاء حساب','auth/wrong-password':'كلمة المرور مش صحيحة','auth/invalid-credential':'الإيميل أو كلمة المرور مش صح'};
+     toast('تعذر إكمال العملية: '+(messages[e.code]||e.message));
    }
  };
+ if($('#registerBtn')) $('#registerBtn').onclick=()=>openAuthForm('register');
+ if($('#loginBtn')) $('#loginBtn').onclick=()=>openAuthForm('login');
 
- if($('#registerBtn')) $('#registerBtn').onclick=()=>authAction('register');
- if($('#loginBtn')) $('#loginBtn').onclick=()=>authAction('login');
  if($('#logoutBtn')) $('#logoutBtn').onclick=async()=>{
    try{
      await firebase.auth().signOut();
@@ -875,5 +881,5 @@ function drawRooms(){
  },err=>{console.error('Room list read failed',err);root.innerHTML='<div class="empty">تعذر تحميل الغرف. تأكد من اتصال Firebase وصلاحيات القراءة.</div>'});
 }
 $('#copy').onclick=()=>copy(location.href);$('#quick').onclick=()=>create(['xo','rps','guess'][Math.floor(Math.random()*3)]);$$('[data-game]').forEach(b=>b.onclick=()=>create(b.dataset.game));$('#join').onclick=()=>enter($('#code').value);$('#refresh').onclick=()=>toast('الغرف بتتحدث تلقائيًا أونلاين');
-try{firebase.initializeApp(firebaseConfig);db=firebase.database();firebase.auth().signInAnonymously().then(cred=>{uid=cred.user.uid;db.ref('presence/'+uid).set({name,at:Date.now()});db.ref('presence/'+uid).onDisconnect().remove();db.ref('presence/'+uid).update({name,avatar,at:Date.now()});toast('اتصلنا أونلاين بنجاح');drawRooms();drawPlayerDirectory();watchFriendNotifications()}).catch(e=>{toast('فعّل Anonymous Authentication في Firebase');$('#rooms').innerHTML='<div class="empty">تعذر تسجيل الدخول.</div>'})}catch(e){toast('خطأ في إعداد Firebase')}
+try{firebase.initializeApp(firebaseConfig);db=firebase.database();const auth=firebase.auth();auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(e=>console.warn('تعذر حفظ جلسة الدخول',e)).finally(()=>{let lastStartedUid='';const startSession=async(user)=>{try{if(!user){const cred=await auth.signInAnonymously();user=cred.user}if(lastStartedUid===user.uid)return;lastStartedUid=user.uid;uid=user.uid;const profileSnap=await db.ref('profiles/'+uid).once('value');const profile=profileSnap.val()||{};if(profile.name){name=profile.name;localStorage.setItem('lammaName',name)}if(profile.avatar){avatar=profile.avatar;localStorage.setItem('lammaAvatar',avatar)}await db.ref('presence/'+uid).set({name,avatar,at:Date.now(),email:user.email||''});db.ref('presence/'+uid).onDisconnect().remove();toast(user.email?'أهلاً بعودتك، تم استعادة تسجيل الدخول':'اتصلنا أونلاين بنجاح');drawRooms();drawPlayerDirectory();watchFriendNotifications()}catch(e){toast('تعذر الاتصال: '+e.message);$('#rooms').innerHTML='<div class="empty">تعذر الاتصال. حدّث الصفحة وحاول تاني.</div>'}};auth.onAuthStateChanged(user=>{if(user){startSession(user)}else{uid=null;lastStartedUid='';startSession(null)}})})}catch(e){toast('خطأ في إعداد Firebase: '+e.message)}
 </script></body></html>
