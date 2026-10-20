@@ -108,6 +108,10 @@ body{background:radial-gradient(ellipse at 78% 0%,#32215f 0,transparent 32%),rad
 @media(max-width:390px){.hero.hero-rebuilt{grid-template-columns:1fr!important}.art.hero-art-rebuilt{grid-row:1;height:145px;order:initial}.hero-rebuilt .copy{text-align:right}.hero-rebuilt h1{font-size:36px}#rooms.rooms{grid-template-columns:1fr}.room.room-card{padding:14px}.room-card-meta{font-size:11px}#games .card p,#solo-games .card p{min-height:55px}}
 
 
+/* Immersive game rooms: tapping the dark backdrop must never close a live room */
+#modal:has(.board),#modal:has(.choices),#modal:has(.guess-room),#modal:has(.party-panel){padding:0!important;align-items:stretch!important;justify-content:stretch!important;background:#050917!important;backdrop-filter:none!important}
+#modal:has(.board)>.box,#modal:has(.choices)>.box,#modal:has(.guess-room)>.box,#modal:has(.party-panel)>.box{width:100%!important;max-width:none!important;height:100dvh!important;max-height:100dvh!important;min-height:100dvh!important;margin:0!important;padding:clamp(16px,3vw,30px)!important;overflow:auto!important;border:0!important;border-radius:0!important;box-shadow:none!important;overscroll-behavior:contain}
+#modal:has(.board)>.box>.close,#modal:has(.choices)>.box>.close,#modal:has(.party-panel)>.box>.close{position:fixed;top:12px;left:12px}
 /* Premium redesign for number guessing room */
 #modal.guess-wide-modal{padding:clamp(8px,2.5vw,28px);align-items:center;justify-content:center;backdrop-filter:blur(12px);background:rgba(2,5,17,.82)}
 #modal.guess-wide-modal>.box{width:min(100%,960px);max-width:960px;max-height:92dvh;overflow:auto;padding:0;border:1px solid #465cff;background:linear-gradient(150deg,#08132e 0%,#07102a 58%,#0b1234 100%);border-radius:24px;box-shadow:0 0 0 1px #715dff30,0 30px 100px #000a,0 0 55px #352bff20}
@@ -197,7 +201,7 @@ let name=localStorage.getItem('lammaName')||'لاعب', avatar=localStorage.getI
 function toast(t){$('#toast').textContent=t;$('#toast').classList.add('show');clearTimeout(window.tt);window.tt=setTimeout(()=>$('#toast').classList.remove('show'),2600)}
 function show(html){$('#body').innerHTML=html;$('#modal').classList.remove('hide')}
 function close(){$('#modal').classList.add('hide');$('#modal').classList.remove('guess-wide-modal')}
-$('#close').onclick=close;$('#profileBtn').onclick=openProfile;$('#modal').onclick=e=>{if(e.target.id==='modal')close()};
+$('#close').onclick=close;$('#profileBtn').onclick=openProfile;$('#modal').onclick=e=>{if(e.target.id==='modal'){e.preventDefault();e.stopPropagation();}};
 $('#shopBtn').onclick=()=>{document.body.classList.add('shop-open');$('#shopPage').hidden=false;$('#shopPlayerName').textContent=name;window.scrollTo({top:0,behavior:'smooth'});};$('#backFromShop').onclick=()=>{document.body.classList.remove('shop-open');$('#shopPage').hidden=true;window.scrollTo({top:0,behavior:'smooth'});};$('#shopTabs').onclick=e=>{const b=e.target.closest('[data-category]');if(!b)return;$$('.shop-tab').forEach(x=>x.classList.toggle('active',x===b));$$('.shop-item').forEach(x=>x.hidden=b.dataset.category!=='all'&&x.dataset.category!=='all'&&x.dataset.category!==b.dataset.category)};$$('.shop-buy').forEach(b=>b.onclick=()=>toast('الشراء لسه مش مفعّل — نظام العملات الآمن تحت التجهيز'));$$('.shopSoon').forEach(b=>b.onclick=()=>toast('المتجر تحت التجهيز — الشراء هيتفعّل بعد ربط العملات بشكل آمن'));
 $('#nameBtn').onclick=()=>{let n=prompt('اكتب اسمك:',name);if(n&&n.trim()){name=n.trim().slice(0,22);localStorage.setItem('lammaName',name);if(uid)db.ref('presence/'+uid).update({name,at:Date.now()});toast('أهلاً يا '+name)}};
 
