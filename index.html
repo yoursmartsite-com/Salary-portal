@@ -267,6 +267,49 @@ body{background:radial-gradient(ellipse at 85% 0%,#24145b 0,transparent 34%),rad
 .section{scroll-margin-top:100px}
 @media(max-width:700px){.lamma-hero-fixed .gamer-hero{background-position:center,35% center}.hero.hero-rebuilt.lamma-hero-fixed{border-radius:20px}}
 
+
+/* Lamma screenshot-inspired dual game library */
+@media(min-width:900px){
+ .home-content{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:20px;align-items:start}
+ .home-content>.section-intro,.home-content>#roomsSection,.home-content>.invite{grid-column:1/-1}
+ .home-content>#games{grid-column:2;grid-row:3}
+ .home-content>#solo-games{grid-column:1;grid-row:3}
+ .home-content>#games .grid,.home-content>#solo-games .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+}
+#games,#solo-games{padding:0 0 22px}
+#games{padding:0 16px 18px;border:1px solid #a52dff;border-radius:22px;background:radial-gradient(ellipse at 80% 0%,#5420a744,transparent 40%),linear-gradient(145deg,#120c32,#080e24 75%);overflow:hidden}
+#solo-games{padding:0 16px 18px;border:1px solid #09cfff;border-radius:22px;background:radial-gradient(ellipse at 80% 0%,#007db544,transparent 40%),linear-gradient(145deg,#061b32,#080e24 75%);overflow:hidden}
+#games>.head,#solo-games>.head{margin:0 -16px 16px;padding:18px 18px 16px;min-height:106px;align-items:center;background:linear-gradient(105deg,#10103be8,#24104ce8);border-bottom:1px solid #a52dff88}
+#solo-games>.head{background:linear-gradient(105deg,#063d61e8,#071e3be8);border-bottom-color:#08cfff88}
+#games>.head h2,#solo-games>.head h2{font-size:clamp(22px,2.4vw,31px);margin:3px 0}
+#games>.head p,#solo-games>.head p{font-size:11px;max-width:180px}
+#games .card,#solo-games .card{padding:10px;border-radius:15px;background:linear-gradient(145deg,#101c40,#070f24 85%);border-color:#5637a5;gap:4px}
+#solo-games .card{border-color:#087eae}
+#games .card .ico,#solo-games .card .ico{width:100%;height:94px;min-height:94px;margin:0 0 5px;border-radius:10px;border:0;font-size:35px;background-color:#111b3e;background-size:cover;background-position:center;box-shadow:inset 0 -24px 35px #03081655}
+#games .card .meta,#solo-games .card .meta{font-size:9px;margin:0}
+#games .card h3,#solo-games .card h3{font-size:15px;margin:0 0 3px}
+#games .card p,#solo-games .card p{font-size:10px;line-height:1.6;min-height:42px;margin:0 0 6px}
+#games .card .play,#solo-games .card .play{min-height:34px;padding:7px 9px;border-radius:10px;font-size:10px;background:linear-gradient(100deg,#28136b,#162d68);border-color:#5637b2}
+#solo-games .card .play{background:linear-gradient(100deg,#063e65,#092c4e);border-color:#087eae}
+#games .card:hover,#solo-games .card:hover{transform:translateY(-3px);box-shadow:0 12px 30px #0005}
+#games .card:nth-child(1) .ico{background-image:url('https://images.unsplash.com/photo-1611996575749-79a3a250f948?auto=format&fit=crop&w=600&q=80')}
+#games .card:nth-child(2) .ico{background-image:url('https://images.unsplash.com/photo-1611371805429-8b5c1b2c34ba?auto=format&fit=crop&w=600&q=80')}
+#games .card:nth-child(3) .ico{background-image:url('https://images.unsplash.com/photo-1606167668584-78701c57f13d?auto=format&fit=crop&w=600&q=80')}
+#games .card:nth-child(4) .ico{background-image:url('https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&w=600&q=80')}
+#games .card .ico{color:transparent}
+#solo-games .card:nth-child(1) .ico{background-image:url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=600&q=80')}
+#solo-games .card:nth-child(2) .ico{background-image:url('https://images.unsplash.com/photo-1603481546238-487240415921?auto=format&fit=crop&w=600&q=80')}
+#solo-games .card:nth-child(3) .ico{background-image:url('https://images.unsplash.com/photo-1614294149010-950b698f72c0?auto=format&fit=crop&w=600&q=80')}
+#solo-games .card:nth-child(4) .ico{background-image:url('https://images.unsplash.com/photo-1593305841991-05c297ba4575?auto=format&fit=crop&w=600&q=80')}
+@media(max-width:899px){
+ .home-content>#games,.home-content>#solo-games{margin-bottom:22px}
+ #games>.head,#solo-games>.head{align-items:flex-start;flex-direction:column;gap:5px}
+ #games>.head p,#solo-games>.head p{max-width:none}
+ #games .grid,#solo-games .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ #games .card,#solo-games .card{padding:9px}
+ #games .card .ico,#solo-games .card .ico{height:84px;min-height:84px}
+}
+
 </style></head><body>
 <header class="top site-header">
   <a class="brand" href="#"><b>ل</b><span>لَمّة</span><small>اللعب يجمعنا</small></a>
