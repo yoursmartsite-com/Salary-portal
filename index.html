@@ -628,7 +628,45 @@ function openProfile(){
    const title=mode==='register'?'إنشاء حساب جديد':'تسجيل الدخول';
    const desc=mode==='register'?'اكتب بياناتك لإنشاء حساب محفوظ على لَمّة.':'اكتب نفس الإيميل وكلمة المرور اللي سجلت بيهم قبل كده.';
    show('<div class="d-head"><div><span class="d-kicker">حساب لَمّة</span><h2>'+title+'</h2><p>'+desc+'</p></div></div><button type="button" class="secondary" id="googleLoginBtn" style="width:100%;margin-bottom:12px">الدخول بحساب Google</button><label for="authEmail">الإيميل</label><input id="authEmail" type="email" autocomplete="email" placeholder="name@example.com"><label for="authPassword">كلمة المرور</label><input id="authPassword" type="password" autocomplete="'+(mode==='register'?'new-password':'current-password')+'" placeholder="6 أحرف أو أكثر"><div class="profile-actions"><button class="primary" id="authSubmit">'+title+'</button><button class="ghost" id="authBack">رجوع</button></div>');
-   $('#googleLoginBtn').onclick=async()=>{try{const provider=new firebase.auth.GoogleAuthProvider();provider.setCustomParameters({prompt:'select_account'});const auth=firebase.auth();const current=auth.currentUser;let cred;if(current&&current.isAnonymous)cred=await current.linkWithPopup(provider);else cred=await auth.signInWithPopup(provider);const u=cred.user;uid=u.uid;await db.ref('profiles/'+uid).update({name:localStorage.getItem('lammaName')||name,avatar:localStorage.getItem('lammaAvatar')||avatar,email:u.email||'',updatedAt:Date.now()});toast('تم تسجيل الدخول بحساب Google');close();syncAdminUI();drawRooms();drawPlayerDirectory();watchFriendNotifications();watchAdminGiftInbox()}catch(e){console.error('Google sign-in failed:',e);toast('تعذر دخول Google: '+(e.code||e.message||'خطأ'))}};
+   $('#googleLoginBtn').onclick=async function(){
+   const btn=$('#googleLoginBtn');
+   btn.disabled=true;
+   const auth=firebase.auth();
+   const provider=new firebase.auth.GoogleAuthProvider();
+   provider.setCustomParameters({prompt:'select_account'});
+   try{
+     let cred;
+     const current=auth.currentUser;
+     if(current&&current.isAnonymous){
+       try{
+         cred=await current.linkWithPopup(provider);
+       }catch(linkError){
+         if(linkError.code!=='auth/email-already-in-use'&&linkError.code!=='auth/credential-already-in-use')throw linkError;
+         // البريد مربوط بحساب موجود: سجّل الدخول للحساب الموجود بدل ربطه بالحساب المجهول.
+         cred=await auth.signInWithPopup(provider);
+       }
+     }else{
+       cred=await auth.signInWithPopup(provider);
+     }
+     const u=cred.user;
+     uid=u.uid;
+     const profileRef=db.ref('profiles/'+uid);
+     const snap=await profileRef.once('value');
+     const oldProfile=snap.val()||{};
+     const savedName=oldProfile.name||localStorage.getItem('lammaName')||name||'لاعب';
+     const savedAvatar=oldProfile.avatar||localStorage.getItem('lammaAvatar')||avatar||'🎮';
+     await profileRef.update({name:savedName,avatar:savedAvatar,email:u.email||'',updatedAt:Date.now()});
+     await db.ref('presence/'+uid).update({name:savedName,avatar:savedAvatar,at:Date.now()});
+     db.ref('presence/'+uid).onDisconnect().remove();
+     toast(u.email&&u.email.toLowerCase()==='fibrahem865@gmail.com'?'تم تسجيل الدخول بحساب الإدارة':'تم تسجيل الدخول بحساب Google');
+     close();syncAdminUI();drawRooms();drawPlayerDirectory();watchFriendNotifications();watchAdminGiftInbox();
+   }catch(e){
+     console.error('Google sign-in failed:',e);
+     toast('تعذر دخول Google: '+(e.code||e.message||'خطأ'));
+   }finally{
+     btn.disabled=false;
+   }
+ };
    $('#authSubmit').onclick=()=>authAction(mode);
    $('#authBack').onclick=openProfile;
    $('#authPassword').addEventListener('keydown',e=>{if(e.key==='Enter')authAction(mode)});
