@@ -40,6 +40,7 @@
       }
     },
     "adminGifts": {
+      ".read": "auth != null && auth.token.email === 'fibrahem865@gmail.com'",
       "$uid": {
         ".read": "auth != null && (auth.uid === $uid || auth.token.email === 'fibrahem865@gmail.com')",
         ".write": "auth != null && auth.token.email === 'fibrahem865@gmail.com'"
@@ -53,6 +54,7 @@
       ]
     },
     "adminModeration": {
+      ".read": "auth != null && auth.token.email === 'fibrahem865@gmail.com'",
       "$uid": {
         ".read": "auth != null && (auth.uid === $uid || auth.token.email === 'fibrahem865@gmail.com')",
         ".write": "auth != null && auth.token.email === 'fibrahem865@gmail.com'"
