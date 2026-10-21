@@ -13,7 +13,24 @@
 .maps button{padding:9px 5px;background:#13213b;border:1px solid #ffffff20;font-size:12px}
 .maps button.active{border-color:#55eaff;box-shadow:0 0 0 1px #55eaff inset}
 .roomline{display:flex;justify-content:center;gap:8px;align-items:center;flex-wrap:wrap;color:#a9c1e5;font-size:12px;margin:8px 0}
-@media(max-width:560px){.maps{grid-template-columns:repeat(2,minmax(0,1fr))}.room-tools{grid-template-columns:1fr}.modal{padding:14px}}
+@media(max-width:560px){
+  body{min-height:100dvh}.top{padding:8px 10px;gap:6px}.top .back{padding:8px 10px;font-size:12px}
+  .wrap{padding:6px}.hud{grid-template-columns:minmax(0,1fr) 48px minmax(0,1fr);gap:4px;margin-bottom:6px}
+  .player{padding:6px}.pname{font-size:10px;gap:2px}.health{height:7px;margin-top:5px}.round{min-width:0;font-size:11px}.round small{font-size:9px}
+  .game{border-radius:12px;display:flex;flex-direction:column}.game canvas{order:2;width:100%;height:36dvh;min-height:210px;max-height:330px;touch-action:pan-y}
+  #startOverlay{position:relative;inset:auto;order:1;padding:8px;background:#061026;border:0;backdrop-filter:none;display:flex}
+  #startOverlay.hidden{display:none!important}.modal{width:100%;max-width:none;padding:10px;border-radius:14px}
+  #startOverlay .modal>div:first-child{display:none!important}#startOverlay h1{font-size:21px;margin:0 0 4px}
+  #startOverlay p{font-size:12px;line-height:1.5;margin:0 0 7px}
+  .maps{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;margin-top:6px}.maps button{padding:7px 4px;font-size:11px;border-radius:9px}
+  .room-tools{grid-template-columns:1fr 1fr;gap:6px;margin-top:7px}.room-tools button{font-size:12px;padding:8px 5px}.room-tools input{font-size:13px;padding:8px}
+  .roomline{font-size:10px;margin:5px 0;min-height:14px}
+  #startBtn{padding:8px;font-size:12px}.controls{grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}.panel{padding:8px;border-radius:12px}.panel h3{font-size:12px;margin-bottom:5px}
+  .range{gap:5px;margin:5px 0}.range label{font-size:11px}.weapons{gap:4px}.weapons button{min-width:0;padding:7px 4px;font-size:10px}.fire{font-size:13px;padding:9px}
+  .status{font-size:10px;min-height:14px}.bottom{padding:7px 2px;font-size:10px}
+  #endOverlay{position:absolute;inset:0;order:0;padding:8px}
+}
+@media(max-width:380px){.controls{grid-template-columns:1fr}.room-tools{grid-template-columns:1fr 1fr}.pname{font-size:9px}.round{font-size:10px}}
 </style></head><body>
 <header class="top"><div><div class="brand">⛰️ <span>لَمّة</span> | معركة القمم</div><small>صوّب صح… واكسب الجولة!</small></div><button class="back" id="backBtn">↩ رجوع للموقع</button></header>
 <main class="wrap">
