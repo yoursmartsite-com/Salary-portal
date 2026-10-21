@@ -503,10 +503,25 @@ body{background:radial-gradient(ellipse at 85% 0%,#24145b 0,transparent 34%),rad
 <script>
 const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s)||[]);
 document.addEventListener('click',function(e){
- var openButton=e.target.closest&&e.target.closest('#shopBtn');
- var backButton=e.target.closest&&e.target.closest('#backFromShop');
- if(openButton){var page=document.getElementById('shopPage');if(page){page.hidden=false;page.style.display='block';document.body.classList.add('shop-open');var player=document.getElementById('shopPlayerName');if(player)player.textContent='لاعب';page.scrollIntoView({block:'start'});}}
- if(backButton){var pageBack=document.getElementById('shopPage');if(pageBack){pageBack.hidden=true;pageBack.style.display='none';document.body.classList.remove('shop-open');window.scrollTo(0,0);}}
+ var openButton=e.target&&e.target.closest?e.target.closest('#shopBtn'):null;
+ var backButton=e.target&&e.target.closest?e.target.closest('#backFromShop'):null;
+ if(openButton){
+  var page=document.getElementById('shopPage');
+  if(!page){console.error('Lamma shop page missing');return;}
+  page.hidden=false;
+  page.style.cssText='display:block!important;position:fixed!important;inset:0!important;z-index:99999!important;overflow-y:auto!important;background:#080e1c!important;padding:18px!important;box-sizing:border-box!important;width:100%!important;height:100dvh!important';
+  document.body.style.overflow='hidden';
+  document.body.classList.add('shop-open');
+  var player=document.getElementById('shopPlayerName');
+  if(player)player.textContent=localStorage.getItem('lammaName')||'لاعب';
+ }
+ if(backButton){
+  var pageBack=document.getElementById('shopPage');
+  if(pageBack){pageBack.hidden=true;pageBack.style.cssText='';}
+  document.body.style.overflow='';
+  document.body.classList.remove('shop-open');
+  window.scrollTo(0,0);
+ }
 },true);
  window.addEventListener('error',e=>{console.error('Lamma runtime error:',e.message,e.filename,e.lineno);const box=document.querySelector('#toast');if(box&&/forEach|null/i.test(String(e.message||''))){box.textContent='حصل خطأ في تشغيل الصفحة. حدّث الصفحة؛ لو استمر، ابعتلي صورة رسالة الخطأ كاملة.';box.classList.add('show')}});
 const firebaseConfig={apiKey:"AIzaSyArJNDKNNTs2oFGFWV58_1UKY3GmE06ghk",authDomain:"play-with-friends-com.firebaseapp.com",databaseURL:"https://play-with-friends-com-default-rtdb.firebaseio.com",projectId:"play-with-friends-com",storageBucket:"play-with-friends-com.firebasestorage.app",messagingSenderId:"52443545219",appId:"1:52443545219:web:62c9746888f7fe2bf9a5b6"};
