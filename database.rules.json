@@ -98,9 +98,16 @@
       }
     },
     "purchaseRequests": {
+      ".read": "auth != null && auth.token.email === 'fibrahem865@gmail.com'",
       "$uid": {
         ".read": "auth != null && (auth.uid === $uid || auth.token.email === 'fibrahem865@gmail.com')",
-        ".write": "auth != null && (auth.uid === $uid || auth.token.email === 'fibrahem865@gmail.com')"
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "inventory": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || auth.token.email === 'fibrahem865@gmail.com')",
+        ".write": "auth != null && auth.token.email === 'fibrahem865@gmail.com'"
       }
     }
   }
