@@ -577,7 +577,7 @@ try{function openShopPage(){const p=document.getElementById('shopPage');if(!p){t
  'عضوية VIP (28 يوم)':{price:2500,desc:'عضوية VIP لمدة 28 يومًا حسب وصف المتجر.',benefit:'مزايا العضوية غير مفعّلة تلقائيًا حتى الآن.'},
  'ثيم النيون':{price:1200,desc:'ثيم بطابع نيون وألوان مستقبلية.',benefit:'تطبيق الثيم يحتاج ربط نظام الثيمات.'}
 };
-$('.shop-buy').forEach(b=>b.onclick=()=>{
+$$('.shop-buy').forEach(b=>b.onclick=()=>{
  const card=b.closest('.shop-item');if(b.dataset.item==='عملات لَمّة'){openCoinPackages();return}if(!card)return;
  const item=b.dataset.item,product=shopCatalog[item];if(!product){toast('تفاصيل العنصر غير متاحة');return}
  if(!db||!uid||!firebase.auth().currentUser){toast('سجّل دخولك واتأكد إنك متصل بالإنترنت الأول');return}
