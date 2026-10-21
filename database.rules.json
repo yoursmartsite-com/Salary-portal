@@ -111,6 +111,16 @@
         ".read": "auth != null && (auth.uid === $uid || auth.token.email === 'fibrahem865@gmail.com')",
         ".write": "auth != null && auth.token.email === 'fibrahem865@gmail.com'"
       }
+    },
+    "globalChat": {
+      ".read": "auth != null",
+      ".indexOn": [
+        "at"
+      ],
+      "$messageId": {
+        ".write": "auth != null && !data.exists() && newData.child('uid').val() === auth.uid && newData.child('text').isString() && newData.child('text').val().length > 0 && newData.child('text').val().length <= 300",
+        ".validate": "newData.hasChildren(['uid','name','text','at']) && newData.child('uid').val() === auth.uid && newData.child('name').isString() && newData.child('name').val().length <= 32 && newData.child('text').isString() && newData.child('text').val().length <= 300 && newData.child('at').isNumber()"
+      }
     }
   }
 }
