@@ -16,14 +16,14 @@
           }
         },
         "playersCount": {
-          ".write": "auth != null && root.child('rooms').child($roomId).child('players').child(auth.uid).exists()"
+          ".write": "auth != null && root.child('adminModeration').child(auth.uid).child('banned').val() != true && root.child('rooms').child($roomId).child('players').child(auth.uid).exists()"
         },
         "state": {
-          ".write": "auth != null && root.child('rooms').child($roomId).child('players').child(auth.uid).exists()"
+          ".write": "auth != null && root.child('adminModeration').child(auth.uid).child('banned').val() != true && root.child('rooms').child($roomId).child('players').child(auth.uid).exists()"
         },
         "chat": {
           "$messageId": {
-            ".write": "auth != null && root.child('rooms').child($roomId).child('players').child(auth.uid).exists() && (!data.exists() || data.child('uid').val() === auth.uid)",
+            ".write": "auth != null && root.child('adminModeration').child(auth.uid).child('banned').val() != true && root.child('rooms').child($roomId).child('players').child(auth.uid).exists() && (!data.exists() || data.child('uid').val() === auth.uid)",
             ".validate": "newData.hasChildren(['uid', 'name', 'text', 'at']) && newData.child('uid').val() === auth.uid && newData.child('text').isString() && newData.child('text').val().length <= 180"
           }
         }
