@@ -9,10 +9,10 @@
       ],
       "$roomId": {
         ".read": "auth != null",
-        ".write": "auth != null && !data.exists() && newData.child('hostUid').val() === auth.uid",
+        ".write": "auth != null && root.child('adminModeration').child(auth.uid).child('banned').val() != true && !data.exists() && newData.child('hostUid').val() === auth.uid",
         "players": {
           "$uid": {
-            ".write": "auth != null && (auth.uid === $uid || root.child('rooms').child($roomId).child('hostUid').val() === auth.uid)"
+            ".write": "auth != null && root.child('adminModeration').child(auth.uid).child('banned').val() != true && (auth.uid === $uid || root.child('rooms').child($roomId).child('hostUid').val() === auth.uid)"
           }
         },
         "playersCount": {
@@ -53,6 +53,12 @@
       ".indexOn": [
         "at"
       ]
+    },
+    "adminModeration": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || auth.token.email === 'fibrahem865@gmail.com')",
+        ".write": "auth != null && auth.token.email === 'fibrahem865@gmail.com'"
+      }
     }
   }
 }
