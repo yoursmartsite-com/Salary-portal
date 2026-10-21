@@ -1,7 +1,5 @@
 {
   "rules": {
-    ".read": "auth != null && auth.token.email === 'fibrahem865@gmail.com'",
-    ".write": "auth != null && auth.token.email === 'fibrahem865@gmail.com'",
     "rooms": {
       ".read": "auth != null",
       ".indexOn": [
@@ -78,6 +76,22 @@
         "$fromUid": {
           ".write": "auth != null && (auth.uid === $fromUid || auth.uid === $toUid || auth.token.email === 'fibrahem865@gmail.com')"
         }
+      }
+    },
+    "wallets": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || auth.token.email === 'fibrahem865@gmail.com')",
+        ".write": "auth != null && auth.token.email === 'fibrahem865@gmail.com'",
+        ".validate": "newData.hasChildren(['balance'])",
+        "balance": {
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 9007199254740991"
+        }
+      }
+    },
+    "coinTransfers": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || auth.token.email === 'fibrahem865@gmail.com')",
+        ".write": "auth != null && auth.token.email === 'fibrahem865@gmail.com'"
       }
     },
     "purchaseRequests": {
