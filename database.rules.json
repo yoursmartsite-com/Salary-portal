@@ -28,8 +28,8 @@
       }
     },
     "presence": {
+      ".read": "auth != null",
       "$uid": {
-        ".read": "auth != null",
         ".write": "auth != null && auth.uid === $uid"
       }
     },
@@ -67,13 +67,14 @@
     "friends": {
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
-        ".write": "auth != null && auth.uid === $uid"
+        ".write": "auth != null && (auth.uid === $uid || root.child('friendRequests').child(auth.uid).child($uid).child('status').val() === 'pending' || root.child('friends').child(auth.uid).child($uid).exists())"
       }
     },
     "friendRequests": {
       "$toUid": {
         ".read": "auth != null && (auth.uid === $toUid || auth.token.email === 'fibrahem865@gmail.com')",
         "$fromUid": {
+          ".read": "auth != null && (auth.uid === $toUid || auth.uid === $fromUid || auth.token.email === 'fibrahem865@gmail.com')",
           ".write": "auth != null && (auth.uid === $fromUid || auth.uid === $toUid || auth.token.email === 'fibrahem865@gmail.com')"
         }
       }
