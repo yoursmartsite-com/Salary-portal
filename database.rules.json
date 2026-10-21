@@ -59,6 +59,32 @@
         ".read": "auth != null && (auth.uid === $uid || auth.token.email === 'fibrahem865@gmail.com')",
         ".write": "auth != null && auth.token.email === 'fibrahem865@gmail.com'"
       }
+    },
+    "profiles": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && (auth.uid === $uid || auth.token.email === 'fibrahem865@gmail.com')"
+      }
+    },
+    "friends": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "friendRequests": {
+      "$toUid": {
+        ".read": "auth != null && (auth.uid === $toUid || auth.token.email === 'fibrahem865@gmail.com')",
+        "$fromUid": {
+          ".write": "auth != null && (auth.uid === $fromUid || auth.uid === $toUid || auth.token.email === 'fibrahem865@gmail.com')"
+        }
+      }
+    },
+    "purchaseRequests": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || auth.token.email === 'fibrahem865@gmail.com')",
+        ".write": "auth != null && (auth.uid === $uid || auth.token.email === 'fibrahem865@gmail.com')"
+      }
     }
   }
 }
