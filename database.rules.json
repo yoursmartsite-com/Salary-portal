@@ -1,10 +1,12 @@
 {
   "rules": {
-    ".read": false,
-    ".write": false,
+    ".read": "auth != null && auth.token.email === 'fibrahem865@gmail.com'",
+    ".write": "auth != null && auth.token.email === 'fibrahem865@gmail.com'",
     "rooms": {
       ".read": "auth != null",
-      ".indexOn": ["updatedAt"],
+      ".indexOn": [
+        "updatedAt"
+      ],
       "$roomId": {
         ".read": "auth != null",
         ".write": "auth != null && !data.exists() && newData.child('hostUid').val() === auth.uid",
@@ -38,6 +40,19 @@
         ".read": "auth != null && (auth.uid === $toUid || data.child('fromUid').val() === auth.uid || newData.child('fromUid').val() === auth.uid)",
         ".write": "auth != null && (auth.uid === $toUid || newData.child('fromUid').val() === auth.uid)"
       }
+    },
+    "adminGifts": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || auth.token.email === 'fibrahem865@gmail.com')",
+        ".write": "auth != null && auth.token.email === 'fibrahem865@gmail.com'"
+      }
+    },
+    "siteAnnouncements": {
+      ".read": "auth != null",
+      ".write": "auth != null && auth.token.email === 'fibrahem865@gmail.com'",
+      ".indexOn": [
+        "at"
+      ]
     }
   }
 }
