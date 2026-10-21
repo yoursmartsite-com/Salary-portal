@@ -37,7 +37,7 @@
     },
     "invites": {
       "$toUid": {
-        ".read": "auth != null && (auth.uid === $toUid || data.child('fromUid').val() === auth.uid || newData.child('fromUid').val() === auth.uid)",
+        ".read": "auth != null && (auth.uid === $toUid || data.child('fromUid').val() === auth.uid)",
         ".write": "auth != null && (auth.uid === $toUid || newData.child('fromUid').val() === auth.uid)"
       }
     },
