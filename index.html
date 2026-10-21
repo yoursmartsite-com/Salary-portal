@@ -992,14 +992,13 @@ function drawPlayerDirectory(){
  const list=$('#playerList'),count=$('#playerCount');
  let profiles={},presence={};
  const render=()=>{
-  const all={...profiles};
-  Object.keys(presence).forEach(id=>{all[id]={...(all[id]||{}),...presence[id]}});
-  const rows=Object.entries(all).filter(([id,p])=>p&&(p.name||p.avatar));
-  rows.sort((a,b)=>Number(!!presence[b[0]])-Number(!!presence[a[0]])||String(a[1].name||'Игрок').localeCompare(String(b[1].name||'Игрок'),'ar'));
-  count.textContent=rows.length+' لاعب';
-  if(!rows.length){list.innerHTML='<div class="empty">لسه مفيش لاعبين مسجلين ظاهرين هنا. اللاعب هيظهر بعد ما يحفظ ملفه الشخصي.</div>';return}
-  list.innerHTML=rows.map(([id,p])=>'<button type="button" class="player-row player-row-click" data-player-id="'+String(id).replace(/[<>&"]/g,'')+'" style="width:100%;text-align:right;color:inherit;cursor:pointer"><div class="player-avatar">'+avatarHTML(p.avatar||'🎮')+'</div><div class="player-info"><b>'+String(p.name||'لاعب').replace(/[<>&"]/g,'')+'</b><small>'+(presence[id]?'🟢 أونلاين':'⚪ أوفلاين')+' · اضغط لعرض الملف</small></div><span class="'+(presence[id]?'online-dot':'offline-dot')+'" aria-label="'+(presence[id]?'أونلاين':'أوفلاين')+'"></span><span class="player-open-arrow">‹</span></button>').join('');
-  list.querySelectorAll('[data-player-id]').forEach(el=>el.onclick=()=>openPlayerCard(el.dataset.playerId,all,presence));
+  // اعرض الموجودين في presence فقط؛ الحسابات الأوفلاين لا تظهر في دليل اللاعبين.
+  const rows=Object.entries(presence).filter(([id,p])=>id&&p&&(p.name||p.avatar));
+  rows.sort((a,b)=>String(a[1].name||'لاعب').localeCompare(String(b[1].name||'لاعب'),'ar'));
+  count.textContent=rows.length+' متصل الآن';
+  if(!rows.length){list.innerHTML='<div class="empty">مفيش لاعبين أونلاين دلوقتي. أول ما لاعب يفتح لَمّة هيظهر هنا.</div>';return}
+  list.innerHTML=rows.map(([id,p])=>'<button type="button" class="player-row player-row-click" data-player-id="'+String(id).replace(/[<>&"]/g,'')+'" style="width:100%;text-align:right;color:inherit;cursor:pointer"><div class="player-avatar">'+avatarHTML(p.avatar||'🎮')+'</div><div class="player-info"><b>'+String(p.name||'لاعب').replace(/[<>&"]/g,'')+'</b><small>🟢 أونلاين الآن · اضغط لعرض الملف</small></div><span class="online-dot" aria-label="أونلاين"></span><span class="player-open-arrow">‹</span></button>').join('');
+  list.querySelectorAll('[data-player-id]').forEach(el=>el.onclick=()=>openPlayerCard(el.dataset.playerId,profiles,presence));
  };
  db.ref('profiles').on('value',s=>{profiles=s.val()||{};render()},()=>{list.innerHTML='<div class="empty">تعذر تحميل قائمة اللاعبين.</div>'});
  db.ref('presence').on('value',s=>{presence=s.val()||{};render()},()=>{list.innerHTML='<div class="empty">تعذر تحميل حالة الاتصال.</div>'});
