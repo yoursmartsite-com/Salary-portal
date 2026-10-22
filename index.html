@@ -1131,4 +1131,79 @@ try{firebase.initializeApp(firebaseConfig);db=firebase.database();const auth=fir
  });
  window.addEventListener('appinstalled',()=>{btn.style.display='none';installPrompt=null;});
 })();
-</script><script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(err=>console.warn('PWA service worker registration failed',err)));}</script><style>#lammaBattleLaunch{position:fixed;left:14px;bottom:76px;z-index:99980;border:1px solid #64e7ff;border-radius:16px;padding:11px 15px;background:linear-gradient(120deg,#1268a0,#4735a4);color:#fff;font:800 14px Cairo,system-ui,sans-serif;box-shadow:0 10px 32px #0008;cursor:pointer}#lammaBattleLaunch:hover{filter:brightness(1.15);transform:translateY(-2px)}@media(max-width:600px){#lammaBattleLaunch{left:10px;bottom:70px;font-size:12px;padding:10px 12px}}</style><style>#lammaConnectFourLaunch{position:fixed;left:14px;bottom:132px;z-index:99979;border:1px solid #70c9ff;border-radius:16px;padding:11px 15px;background:linear-gradient(120deg,#092c62,#126de0);color:#fff;font:800 14px Cairo,system-ui,sans-serif;box-shadow:0 10px 32px #0008;cursor:pointer}#lammaConnectFourLaunch:hover{filter:brightness(1.15);transform:translateY(-2px)}@media(max-width:600px){#lammaConnectFourLaunch{left:10px;bottom:126px;font-size:12px;padding:10px 12px}}</style><button id="lammaConnectFourLaunch" type="button" onclick="location.href='./games/connect-four.html'">🔵 أربعة على التوالي</button><button id="lammaBattleLaunch" type="button" onclick="location.href='./games/m3rakat-alqimam.html'">🚀 جرّب معركة القمم</button><style>#lammaLudoLaunch{position:fixed;left:14px;bottom:132px;z-index:99980;border:1px solid #7df4cb;border-radius:16px;padding:11px 15px;background:linear-gradient(120deg,#138c67,#1768ad);color:#fff;font:800 14px Cairo,system-ui,sans-serif;box-shadow:0 10px 32px #0008;cursor:pointer}#lammaLudoLaunch:hover{filter:brightness(1.15);transform:translateY(-2px)}@media(max-width:600px){#lammaLudoLaunch{left:10px;bottom:126px;font-size:12px;padding:10px 12px}}</style><button id="lammaLudoLaunch" type="button" onclick="location.href='./games/ludo-online.html'">🎲 العب ليدو أونلاين</button></body></html>
+</script><script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(err=>console.warn('PWA service worker registration failed',err)));}</script><style>#lammaBattleLaunch{position:fixed;left:14px;bottom:76px;z-index:99980;border:1px solid #64e7ff;border-radius:16px;padding:11px 15px;background:linear-gradient(120deg,#1268a0,#4735a4);color:#fff;font:800 14px Cairo,system-ui,sans-serif;box-shadow:0 10px 32px #0008;cursor:pointer}#lammaBattleLaunch:hover{filter:brightness(1.15);transform:translateY(-2px)}@media(max-width:600px){#lammaBattleLaunch{left:10px;bottom:70px;font-size:12px;padding:10px 12px}}</style><style>#lammaConnectFourLaunch{position:fixed;left:14px;bottom:132px;z-index:99979;border:1px solid #70c9ff;border-radius:16px;padding:11px 15px;background:linear-gradient(120deg,#092c62,#126de0);color:#fff;font:800 14px Cairo,system-ui,sans-serif;box-shadow:0 10px 32px #0008;cursor:pointer}#lammaConnectFourLaunch:hover{filter:brightness(1.15);transform:translateY(-2px)}@media(max-width:600px){#lammaConnectFourLaunch{left:10px;bottom:126px;font-size:12px;padding:10px 12px}}</style><button id="lammaConnectFourLaunch" type="button" onclick="location.href='./games/connect-four.html'">🔵 أربعة على التوالي</button><button id="lammaBattleLaunch" type="button" onclick="location.href='./games/m3rakat-alqimam.html'">🚀 جرّب معركة القمم</button><style>#lammaLudoLaunch{position:fixed;left:14px;bottom:132px;z-index:99980;border:1px solid #7df4cb;border-radius:16px;padding:11px 15px;background:linear-gradient(120deg,#138c67,#1768ad);color:#fff;font:800 14px Cairo,system-ui,sans-serif;box-shadow:0 10px 32px #0008;cursor:pointer}#lammaLudoLaunch:hover{filter:brightness(1.15);transform:translateY(-2px)}@media(max-width:600px){#lammaLudoLaunch{left:10px;bottom:126px;font-size:12px;padding:10px 12px}}</style><button id="lammaLudoLaunch" type="button" onclick="location.href='./games/ludo-online.html'">🎲 العب ليدو أونلاين</button>
+<style id="lamma-premium-shell">
+/* Lamma premium shell: replaces the old page layout while preserving original app sections and IDs */
+:root{--lp-bg:#080b14;--lp-panel:#101522;--lp-line:#222b40;--lp-text:#eef2ff;--lp-muted:#8f9ab3;--lp-purple:#8b5cf6;--lp-cyan:#3dd9eb}
+body{background:radial-gradient(ellipse at 55% -15%,#25204a 0,transparent 42%),var(--lp-bg)!important;color:var(--lp-text)}
+.lamma-premium-shell{display:grid;grid-template-columns:220px minmax(0,1fr) 260px;gap:18px;max-width:1800px;margin:0 auto;padding:18px;align-items:start}
+.lamma-premium-sidebar,.lamma-premium-right{background:rgba(14,19,32,.94);border:1px solid var(--lp-line);border-radius:22px;padding:18px;position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:auto}
+.lamma-premium-sidebar .lp-brand{display:flex;align-items:center;gap:12px;padding:4px 2px 22px;border-bottom:1px solid var(--lp-line);margin-bottom:18px}
+.lp-mark{width:43px;height:43px;display:grid;place-items:center;border-radius:14px;background:linear-gradient(135deg,#8b5cf6,#20c8dc);font-size:25px;font-weight:900;color:white;box-shadow:0 8px 24px #6d4fe655}
+.lp-brand b{display:block;font-size:22px}.lp-brand small{color:var(--lp-muted);font-size:10px;letter-spacing:1.5px}
+.lp-nav{display:grid;gap:7px}.lp-nav a{display:flex;gap:11px;align-items:center;padding:12px;border-radius:12px;color:#aab4cb;text-decoration:none;font-weight:700;font-size:13px;border:1px solid transparent}
+.lp-nav a:hover,.lp-nav a.active{background:linear-gradient(100deg,#7653e626,#31d2e516);border-color:#6253a344;color:white}
+.lp-sidebar-note{margin-top:24px;border:1px solid #2c3550;border-radius:16px;padding:14px;background:linear-gradient(145deg,#1c2040,#101927)}
+.lp-sidebar-note b{display:block;margin-bottom:5px}.lp-sidebar-note p{font-size:12px;color:var(--lp-muted);margin:0}
+.lamma-premium-main{min-width:0}
+.lamma-premium-main>.top.site-header{position:relative;top:auto;z-index:20;border:1px solid var(--lp-line);border-radius:18px;background:#101522ed;backdrop-filter:blur(18px);padding:10px 14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:18px}
+.lamma-premium-main .brand{display:none}.lamma-premium-main .main-nav{display:none}
+.lamma-premium-main .account-actions{display:flex;gap:7px;flex-wrap:wrap;align-items:center;width:100%;justify-content:flex-end}
+.lamma-premium-main .account-actions button{font-size:12px;padding:9px 11px;border-radius:11px}
+.lamma-premium-main .site-main{width:100%;max-width:none;margin:0;padding:0}
+.lamma-premium-main .hero{min-height:330px;border-radius:24px;border:1px solid #39315d;overflow:hidden;background:linear-gradient(100deg,#111629f5 5%,#111629d9 48%,#11162935),url('https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1500&q=85') center/cover!important;box-shadow:0 18px 55px #0005}
+.lamma-premium-main .hero .copy{max-width:620px;padding:34px}
+.lamma-premium-main .hero h1{font-size:clamp(30px,3.3vw,48px);line-height:1.3}
+.lamma-premium-main .hero .eyebrow,.lamma-premium-main .eyebrow{color:#70e5ef}
+.lamma-premium-main .home-content{display:flex;flex-direction:column;gap:18px;margin-top:18px}
+.lamma-premium-main .section,.lamma-premium-main .section-intro{background:rgba(15,20,34,.8);border:1px solid var(--lp-line);border-radius:20px;padding:20px;margin:0}
+.lamma-premium-main .section-intro{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.lamma-premium-main .section-intro h2,.lamma-premium-main .head h2{font-size:21px}
+.lamma-premium-main .head{align-items:center;gap:12px}
+.lamma-premium-main .grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.lamma-premium-main .card{border:1px solid #29334a;border-radius:17px;background:linear-gradient(155deg,#171e30,#0e1421);overflow:hidden;transition:transform .2s,border-color .2s;min-width:0}
+.lamma-premium-main .card:hover{transform:translateY(-3px);border-color:#7763d6}
+.lamma-premium-main .card .ico{height:115px;display:flex;align-items:center;justify-content:center;font-size:42px;background:linear-gradient(135deg,#29204a,#102c40);border-bottom:1px solid #29334a}
+.lamma-premium-main .card h3,.lamma-premium-main .card p,.lamma-premium-main .card .meta,.lamma-premium-main .card .play{margin-left:13px;margin-right:13px}
+.lamma-premium-main .card h3{font-size:16px}.lamma-premium-main .card p{font-size:12px;line-height:1.8;color:#9ca8c0}
+.lamma-premium-main .card .play{width:calc(100% - 26px);margin-bottom:13px;border-radius:11px}
+.lamma-premium-main .rooms{gap:10px}.lamma-premium-main .room{border-radius:14px}
+.lamma-premium-main .invite{background:linear-gradient(110deg,#231b46,#102638)!important}
+.lamma-premium-right .section{padding:0;border:0;background:transparent;margin:0}
+.lamma-premium-right #playerDirectory .head{display:block}.lamma-premium-right #playerDirectory .head h2{font-size:17px}.lamma-premium-right #playerCount{font-size:11px;color:var(--lp-muted)}
+.lamma-premium-right .player-list{display:grid;gap:9px}.lamma-premium-right .player-row{background:#151c2b;border:1px solid #273148;border-radius:13px;padding:10px;min-width:0}
+.lamma-premium-right .player-row button{max-width:100%}
+.lamma-premium-right .lp-right-title{font-size:14px;font-weight:900;margin:0 0 14px}
+.lamma-premium-right .lp-live{display:flex;align-items:center;gap:6px;color:#5de4b2;font-size:11px;margin-bottom:15px}
+.lamma-premium-right .lp-live i{width:7px;height:7px;background:#5de4b2;border-radius:50%;box-shadow:0 0 12px #5de4b2}
+.lamma-premium-main .site-footer{margin:20px 0 0;border:1px solid var(--lp-line);border-radius:16px}
+.lamma-premium-shell .lp-mobile-title{display:none}
+@media(max-width:1250px){.lamma-premium-shell{grid-template-columns:190px minmax(0,1fr);}.lamma-premium-right{grid-column:2;position:static;max-height:none;display:block}.lamma-premium-right #playerDirectory .player-list{grid-template-columns:repeat(2,minmax(0,1fr))}.lamma-premium-main .grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.lamma-premium-shell{display:flex;flex-direction:column;padding:9px;gap:10px}.lamma-premium-sidebar{position:static;width:100%;max-height:none;padding:10px;border-radius:16px;order:0}.lamma-premium-sidebar .lp-brand{padding:2px 3px 9px;margin-bottom:9px}.lp-mark{width:34px;height:34px;font-size:20px}.lp-brand b{font-size:18px}.lp-brand small{font-size:9px}.lp-nav{display:flex;overflow-x:auto;gap:5px;padding-bottom:2px}.lp-nav a{white-space:nowrap;padding:9px 11px;font-size:11px;flex:0 0 auto}.lp-sidebar-note{display:none}.lamma-premium-main{width:100%;order:1}.lamma-premium-main>.top.site-header{padding:8px;margin-bottom:10px;border-radius:14px}.lamma-premium-main .account-actions{justify-content:flex-start;gap:5px}.lamma-premium-main .account-actions button{padding:8px;font-size:11px}.lamma-premium-main .account-actions .pill{display:none}.lamma-premium-main .hero{min-height:300px;background-position:60% center!important}.lamma-premium-main .hero .copy{padding:23px 18px}.lamma-premium-main .hero h1{font-size:30px}.lamma-premium-main .hero p{font-size:13px;max-width:300px}.lamma-premium-main .hero .stats{flex-wrap:wrap;gap:7px;font-size:10px}.lamma-premium-main .home-content{gap:10px;margin-top:10px}.lamma-premium-main .section,.lamma-premium-main .section-intro{padding:13px;border-radius:16px}.lamma-premium-main .section-intro{display:block}.lamma-premium-main .section-intro>p{font-size:12px}.lamma-premium-main .head{align-items:flex-start}.lamma-premium-main .head h2{font-size:17px}.lamma-premium-main .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.lamma-premium-main .card{padding:0 0 1px}.lamma-premium-main .card .ico{height:83px;font-size:30px}.lamma-premium-main .card h3{font-size:13px}.lamma-premium-main .card p{font-size:11px;line-height:1.6}.lamma-premium-main .card .play{font-size:11px;padding:9px 5px}.lamma-premium-right{order:2;width:100%;padding:14px;border-radius:16px}.lamma-premium-right #playerDirectory .player-list{grid-template-columns:repeat(2,minmax(0,1fr))}.lamma-premium-main .join>div{display:flex;gap:6px}.lamma-premium-main .join input{min-width:0;width:100%}.lamma-premium-main .site-footer{margin-top:10px}.lamma-premium-main .invite{display:flex;flex-direction:column;gap:12px}.lamma-premium-main .shop-page{max-width:100%}}
+</style>
+<script id="lamma-premium-shell-script">
+(function(){
+ if(document.querySelector('.lamma-premium-shell'))return;
+ const header=document.querySelector('header.top.site-header');
+ const siteMain=document.querySelector('main.site-main');
+ const footer=document.querySelector('footer.site-footer');
+ const directory=document.getElementById('playerDirectory');
+ if(!header||!siteMain||!directory)return;
+ const shell=document.createElement('div');shell.className='lamma-premium-shell';
+ const side=document.createElement('aside');side.className='lamma-premium-sidebar';
+ side.innerHTML='<div class="lp-brand"><div class="lp-mark">ل</div><div><b>لَمّة</b><small>LAMMA GAMING</small></div></div><nav class="lp-nav" aria-label="تنقل لَمّة"><a class="active" href="#heroTitle">⌂ الرئيسية</a><a href="#solo-games">🎮 ألعاب فردية</a><a href="#games">♟ ألعاب أون لاين</a><a href="#roomsSection">▣ الغرف المفتوحة</a><a href="#playerDirectory">♧ اللاعبين</a><a href="#shopBtn" id="lpShopLink">🛒 المتجر</a><a href="./chat.html">💬 شات اللاعبين</a><a href="./battle-demo.html">⚔️ معركة لَمّة</a></nav><div class="lp-sidebar-note"><b>اللعب أحلى مع أصحابك ✦</b><p>اختار لعبتك، افتح غرفة وشارك الكود مع أصحابك.</p></div>';
+ const main=document.createElement('div');main.className='lamma-premium-main';
+ const right=document.createElement('aside');right.className='lamma-premium-right';
+ const live=document.createElement('div');live.className='lp-live';live.innerHTML='<i></i> مجتمع لَمّة';
+ const title=document.createElement('h3');title.className='lp-right-title';title.textContent='اللاعبون والمجتمع';
+ right.append(live,title);
+ header.parentNode.insertBefore(shell,header);
+ shell.append(side,main,right);
+ main.append(header,siteMain);
+ right.append(directory);
+ if(footer)main.append(footer);
+ const shopLink=document.getElementById('lpShopLink');if(shopLink)shopLink.addEventListener('click',function(e){e.preventDefault();const btn=document.getElementById('shopBtn');if(btn)btn.click()});
+ side.querySelectorAll('.lp-nav a[href^="#"]').forEach(a=>a.addEventListener('click',function(){side.querySelectorAll('.lp-nav a').forEach(x=>x.classList.remove('active'));a.classList.add('active')}));
+})();
+</script>
+</body></html>
