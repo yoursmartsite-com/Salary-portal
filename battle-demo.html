@@ -25,13 +25,14 @@
  <div id="startScreen"><div class="panel"><div class="eyebrow">3D THIRD-PERSON SHOOTER</div><h2>جاهز تدخل المعركة؟</h2><p>ساحة ثلاثية الأبعاد، جندي بموديل متحرك، خصوم، إطلاق نار، صحة وذخيرة. اهزم كل الخصوم وابقَ آخر لاعب.</p><button id="startBtn" class="primary">ابدأ المعركة</button><div class="notice">نسخة لعب فردي قابلة للتجربة — اللعب الجماعي الحقيقي يحتاج خادم أونلاين منفصل.</div></div></div>
  <div id="endScreen" class="hidden"><div class="panel"><div class="eyebrow">BATTLE REPORT</div><h2 id="endTitle">انتهت المعركة</h2><p id="endText"></p><button id="againBtn" class="primary">العب من جديد</button><div class="notice">معركة لَمّة</div></div></div>
 </div>
-<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <script type="module">
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {SkeletonUtils} from 'three/addons/utils/SkeletonUtils.js';
 
 const root=document.getElementById('game'),loading=document.getElementById('loading'),hud=document.getElementById('hud');
+function showLoadError(message){loading.classList.remove('hidden');loading.innerHTML='<div><div class="eyebrow">LAMMA GAME</div><h1>تعذر تشغيل <span>المعركة</span></h1><p style="margin:18px auto">'+message+'</p><button class="primary" onclick="location.reload()">حاول مرة تانية</button><div class="small" style="margin-top:14px">لو الرسالة اتكررت، ابعت صورة للشاشة</div></div>';}
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x8db3bd);scene.fog=new THREE.Fog(0x8db3bd,35,115);
 const camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.1,180);
 const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;root.appendChild(renderer.domElement);
@@ -48,7 +49,7 @@ const ring=new THREE.Mesh(new THREE.TorusGeometry(28,.11,8,100),new THREE.MeshBa
 const fallbackMat=mat(0x344f61),skinMat=mat(0xd3a17e),pantsMat=mat(0x273642),bootMat=mat(0x141e25),gunMat=mat(0x161c21,.35,.55);
 function makeFallback(color=0x344f61){const g=new THREE.Group();const body=new THREE.Mesh(new THREE.CapsuleGeometry(.31,.62,5,9),mat(color));body.position.y=1.15;body.castShadow=true;g.add(body);const head=new THREE.Mesh(new THREE.SphereGeometry(.23,12,10),skinMat);head.position.y=1.85;head.castShadow=true;g.add(head);for(const side of [-1,1]){const leg=new THREE.Mesh(new THREE.CapsuleGeometry(.115,.52,4,7),pantsMat);leg.position.set(side*.17,.48,0);leg.castShadow=true;g.add(leg);const arm=new THREE.Mesh(new THREE.CapsuleGeometry(.095,.48,4,7),mat(color));arm.position.set(side*.39,1.25,.02);arm.rotation.z=side*.12;arm.castShadow=true;g.add(arm)}const gun=new THREE.Mesh(new THREE.BoxGeometry(.12,.13,.72),gunMat);gun.position.set(.29,1.27,-.48);g.add(gun);return g}
 let soldier=null,soldierAnimations=[];const loader=new GLTFLoader();
-let modelPromise=new Promise(resolve=>loader.load('https://threejs.org/examples/models/gltf/Soldier.glb',g=>{soldier=g.scene;soldierAnimations=g.animations||[];soldier.scale.setScalar(1);soldier.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});resolve(true)},undefined,()=>resolve(false)));
+let modelPromise=new Promise(resolve=>{let settled=false;const done=v=>{if(!settled){settled=true;resolve(v)}};const timeout=setTimeout(()=>done(false),5000);loader.load('https://cdn.jsdelivr.net/gh/mrdoob/three.js@r160/examples/models/gltf/Soldier.glb',g=>{clearTimeout(timeout);soldier=g.scene;soldierAnimations=g.animations||[];soldier.scale.setScalar(1);soldier.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});done(true)},undefined,()=>{clearTimeout(timeout);done(false)})});
 const player={group:null,mixer:null,actions:{},hp:100,ammo:30,reserve:120,kills:0,reloading:false,speed:6.1};let enemies=[];let running=false,gameOver=false,last=performance.now(),shootCooldown=0,hitFlash=0;
 function buildCharacter(isPlayer,pos){let model;if(soldier){model=SkeletonUtils.clone(soldier);model.scale.setScalar(.95);model.rotation.y=Math.PI} else model=makeFallback(isPlayer?0x345a70:0x7d3735);model.position.copy(pos);scene.add(model);let mixer=null,actions={};if(soldier&&soldierAnimations.length){mixer=new THREE.AnimationMixer(model);for(const clip of soldierAnimations){actions[clip.name]=mixer.clipAction(clip)}const idle=actions['Idle']||actions['TPose']||Object.values(actions)[0];if(idle)idle.play()}const gun=new THREE.Mesh(new THREE.BoxGeometry(.13,.14,.78),gunMat);gun.position.set(.31,1.26,-.5);gun.castShadow=true;model.add(gun);return {group:model,mixer,actions,gun}}
 function setAnim(c,name){if(!c.actions)return;const next=c.actions[name]||c.actions[name.toLowerCase()]||c.actions['Walk']||c.actions['Idle'];if(!next||c.current===next)return;const old=c.current;c.current=next;next.reset().fadeIn(.18).play();if(old)old.fadeOut(.18)}
@@ -75,6 +76,8 @@ function animate(now){requestAnimationFrame(animate);const dt=Math.min((now-last
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));renderer.setSize(innerWidth,innerHeight)});
 document.getElementById('startBtn').addEventListener('click',()=>{resetGame();document.getElementById('startScreen').classList.add('hidden');running=true;toast('ابدأ! الخصوم في الساحة');if(innerWidth>700)renderer.domElement.requestPointerLock?.()});
 document.getElementById('againBtn').addEventListener('click',()=>{resetGame();document.getElementById('startScreen').classList.add('hidden');running=true});
-(async()=>{await Promise.race([modelPromise,new Promise(r=>setTimeout(r,7000))]);loading.classList.add('hidden');hud.style.display='block';resetGame();animate(performance.now())})();
+window.addEventListener('error',e=>{showLoadError('حصل خطأ أثناء تشغيل اللعبة: '+(e.message||'خطأ غير معروف'));});
+window.addEventListener('unhandledrejection',e=>{showLoadError('تعذر تحميل أحد مكونات اللعبة. اتأكد إن الإنترنت شغال وجرب تاني.');});
+(async()=>{try{await Promise.race([modelPromise,new Promise(r=>setTimeout(r,5500))]);loading.classList.add('hidden');hud.style.display='block';resetGame();animate(performance.now())}catch(err){console.error(err);showLoadError('اللعبة وقفت أثناء التجهيز. جرّب إعادة التحميل، ولو استمرت المشكلة ابعت صورة للرسالة.')}})();
 </script>
 </body></html>
