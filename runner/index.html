@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#080d1d"><title>لامّة رانر | لَمّة</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#070b17;color:#fff;font-family:system-ui,Tahoma,Arial,sans-serif;touch-action:none}#game{display:block;width:100%;height:100%;touch-action:none}.hud{position:fixed;inset:0;pointer-events:none;display:flex;flex-direction:column;justify-content:space-between;padding:calc(12px + env(safe-area-inset-top)) 14px calc(12px + env(safe-area-inset-bottom))}.top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}.chip{background:#071120c9;border:1px solid #ffffff24;border-radius:14px;padding:8px 12px;backdrop-filter:blur(8px);font-weight:800;text-shadow:0 2px 8px #000}.chip small{display:block;font-size:10px;color:#9eb5d3}.score{font-size:20px;color:#fff}.bottom{display:flex;justify-content:space-between;align-items:end;gap:8px}.hint{font-size:11px;color:#d7e7f7;background:#071120b8;padding:8px 10px;border-radius:12px}.controls{display:flex;gap:8px;pointer-events:auto}.ctrl{width:54px;height:54px;border:1px solid #ffffff45;border-radius:17px;background:#132641c9;color:white;font-size:24px;font-weight:900;box-shadow:0 6px 18px #0004;touch-action:manipulation}.overlay{position:fixed;inset:0;display:grid;place-items:center;background:linear-gradient(#060b17a8,#060b17e8);padding:22px}.panel{width:min(430px,100%);border:1px solid #ffffff24;border-radius:26px;padding:26px 22px;text-align:center;background:linear-gradient(145deg,#152c49f5,#0b1326f5);box-shadow:0 25px 90px #0008}.logo{width:62px;height:62px;display:grid;place-items:center;margin:0 auto 12px;border-radius:20px;background:linear-gradient(135deg,#54ead0,#7165ff);font-size:30px;color:#071120}.panel h1{margin:4px 0 8px;font-size:27px}.panel p{color:#b8cbe1;line-height:1.8;font-size:14px}.start{border:0;border-radius:15px;padding:14px 25px;width:100%;font-weight:900;font-size:16px;color:#061322;background:linear-gradient(100deg,#58e8ce,#b5ffbb);margin-top:8px;touch-action:manipulation}.hidden{display:none}.tag{font-size:11px;color:#70efd6;font-weight:800;letter-spacing:.5px}
+</style></head>
+<body>
+<canvas id="game" aria-label="لعبة لامة رانر"></canvas>
+<div class="hud"><div class="top"><div class="chip"><small>النقاط</small><span class="score" id="score">0</span></div><div class="chip"><small>أفضل نتيجة</small><span id="best">0</span></div><div class="chip"><small>العملات</small><span id="coins">0 🟡</span></div></div><div class="bottom"><div class="hint">اسحب يمين/شمال • لفوق للقفز • لتحت للتزحلق</div><div class="controls"><button class="ctrl" id="left" aria-label="يسار">‹</button><button class="ctrl" id="jump" aria-label="قفز">↑</button><button class="ctrl" id="right" aria-label="يمين">›</button></div></div></div>
+<div class="overlay" id="overlay"><div class="panel"><div class="logo">⚡</div><div class="tag">LAMMA ORIGINAL • RUNNER</div><h1 id="title">لامّة رانر</h1><p id="desc">اجري لأطول مسافة، غيّر الحارة، اقفز فوق الحواجز واجمع العملات. اللعبة معمولة للموبايل والكمبيوتر.</p><button class="start" id="start">ابدأ الجري 🚀</button></div></div>
+<script>
+(()=>{'use strict';
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d'),overlay=document.getElementById('overlay'),startBtn=document.getElementById('start');
+let W=0,H=0,dpr=1,active=false,dead=false,last=0,elapsed=0,dist=0,score=0,coins=0,speed=0.42,spawn=0,lane=1,playerY=0,vy=0,slide=0,items=[],particles=[];
+let best=0;try{best=+(localStorage.getItem('lammaRunnerBest')||0)}catch(e){}document.getElementById('best').textContent=best;
+function resize(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;canvas.width=Math.round(W*dpr);canvas.height=Math.round(H*dpr);ctx.setTransform(dpr,0,0,dpr,0,0)}addEventListener('resize',resize);resize();
+const horizon=()=>H*.27, bottom=()=>H*.91;
+function roadX(l,z){const t=Math.max(0,Math.min(1,z));const half=(W*.13)+(W*.39)*t;return W/2+(l-1)*half*.67}
+function roadWidth(z){return W*(.25+.68*z)}
+function draw(){ctx.clearRect(0,0,W,H);let sky=ctx.createLinearGradient(0,0,0,H);sky.addColorStop(0,'#102449');sky.addColorStop(.55,'#267e9a');sky.addColorStop(1,'#f4b36f');ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
+ // distant city and sun
+ ctx.fillStyle='#ffe2a2';ctx.beginPath();ctx.arc(W*.78,H*.19,Math.min(W,H)*.055,0,Math.PI*2);ctx.fill();
+ for(let i=0;i<20;i++){let x=i*W/18-W*.03,hh=H*(.07+((i*37)%10)/100);ctx.fillStyle=i%2?'#193d59':'#204764';ctx.fillRect(x,horizon()-hh,W/22,hh)}
+ let hg=horizon();ctx.fillStyle='#267e6a';ctx.fillRect(0,hg,W,H-hg);
+ // road perspective
+ ctx.beginPath();ctx.moveTo(W/2-W*.12,hg);ctx.lineTo(W/2+W*.12,hg);ctx.lineTo(W/2+W*.56,bottom());ctx.lineTo(W/2-W*.56,bottom());ctx.closePath();let rg=ctx.createLinearGradient(0,hg,0,H);rg.addColorStop(0,'#31445a');rg.addColorStop(1,'#182435');ctx.fillStyle=rg;ctx.fill();
+ // edge strips
+ ctx.strokeStyle='#73f5dd';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(W/2-W*.12,hg);ctx.lineTo(W/2-W*.56,bottom());ctx.moveTo(W/2+W*.12,hg);ctx.lineTo(W/2+W*.56,bottom());ctx.stroke();
+ for(let l=0;l<2;l++){for(let k=0;k<9;k++){let z=((k/9+elapsed*speed*.22)%1);let y=hg+(bottom()-hg)*z*z;let half=roadWidth(z)*.5;let x=W/2+(l-.5)*half*.67;ctx.strokeStyle='#c8f6f0';ctx.globalAlpha=.15+.55*z;ctx.lineWidth=1+z*3;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x,y+4+z*25);ctx.stroke()} }ctx.globalAlpha=1;
+ // scenery posts
+ for(let side of [-1,1])for(let i=0;i<7;i++){let z=((i/7+elapsed*speed*.13)%1),y=hg+(bottom()-hg)*z*z,x=W/2+side*(roadWidth(z)*.52);ctx.fillStyle='#123b48';ctx.fillRect(x-4*z,y-24*z,8*z,24*z);ctx.fillStyle='#ffcf77';ctx.beginPath();ctx.arc(x,y-26*z,4*z+1,0,Math.PI*2);ctx.fill()}
+ const sorted=items.slice().sort((a,b)=>a.z-b.z);for(const it of sorted)drawItem(it);
+ drawPlayer();for(const p of particles){ctx.globalAlpha=Math.max(0,p.life);ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill()}ctx.globalAlpha=1;
+}
+function drawItem(it){let z=Math.max(.02,it.z),y=horizon()+(bottom()-horizon())*z*z,x=roadX(it.lane,z),scale=.18+z*1.25;
+ if(it.type==='coin'){ctx.save();ctx.translate(x,y-24*scale);ctx.scale(scale,scale);ctx.fillStyle='#ffce42';ctx.strokeStyle='#fff1a1';ctx.lineWidth=4;ctx.beginPath();ctx.ellipse(0,0,12,16,Math.sin(elapsed*8)*.2,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle='#d88716';ctx.font='bold 16px sans-serif';ctx.textAlign='center';ctx.fillText('L',0,5);ctx.restore();return}
+ ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);
+ if(it.type==='block'){ctx.fillStyle='#ff735f';ctx.beginPath();ctx.roundRect(-25,-45,50,45,7);ctx.fill();ctx.fillStyle='#ffb1a4';ctx.fillRect(-18,-37,36,7);ctx.fillStyle='#7d3543';ctx.fillRect(-20,-20,40,9)}
+ else if(it.type==='bar'){ctx.fillStyle='#f5d16b';ctx.fillRect(-34,-64,68,10);ctx.fillStyle='#b66a44';ctx.fillRect(-29,-54,7,54);ctx.fillRect(22,-54,7,54)}
+ else{ctx.fillStyle='#70c5f2';ctx.beginPath();ctx.moveTo(-28,0);ctx.lineTo(-20,-43);ctx.lineTo(20,-43);ctx.lineTo(28,0);ctx.closePath();ctx.fill();ctx.fillStyle='#d7f5ff';ctx.fillRect(-14,-35,28,9)}
+ ctx.restore()}
+function drawPlayer(){let x=roadX(lane,1),ground=H*.83-playerY;let size=Math.min(W*.105,43);ctx.save();ctx.translate(x,ground);if(slide>0)ctx.scale(1,.5);
+ // shadow
+ ctx.fillStyle='#06132188';ctx.beginPath();ctx.ellipse(0,7,size*.8,9,0,0,Math.PI*2);ctx.fill();
+ // legs
+ ctx.strokeStyle='#162e57';ctx.lineWidth=size*.25;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(-size*.22,-size*.35);ctx.lineTo(-size*.29,0);ctx.moveTo(size*.22,-size*.35);ctx.lineTo(size*.31,-size*.02);ctx.stroke();
+ // torso
+ let body=ctx.createLinearGradient(-size/2,-size, size/2,0);body.addColorStop(0,'#65f4dc');body.addColorStop(1,'#6f79ff');ctx.fillStyle=body;ctx.beginPath();ctx.roundRect(-size*.42,-size*1.22,size*.84,size*.82, size*.2);ctx.fill();
+ // arms
+ ctx.strokeStyle='#ffcc9e';ctx.lineWidth=size*.17;ctx.beginPath();ctx.moveTo(-size*.35,-size*.98);ctx.lineTo(-size*.63,-size*.55+Math.sin(elapsed*15)*4);ctx.moveTo(size*.35,-size*.98);ctx.lineTo(size*.61,-size*.62-Math.sin(elapsed*15)*4);ctx.stroke();
+ // head
+ ctx.fillStyle='#ffcc9e';ctx.beginPath();ctx.arc(0,-size*1.47,size*.31,0,Math.PI*2);ctx.fill();ctx.fillStyle='#302b49';ctx.beginPath();ctx.arc(0,-size*1.56,size*.31,Math.PI,Math.PI*2);ctx.fill();ctx.fillStyle='#17233c';ctx.beginPath();ctx.arc(-size*.1,-size*1.47,size*.035,0,Math.PI*2);ctx.arc(size*.1,-size*1.47,size*.035,0,Math.PI*2);ctx.fill();
+ ctx.restore()}
+function burst(x,y,color){for(let i=0;i<10;i++)particles.push({x,y,vx:(Math.random()-.5)*150,vy:(Math.random()-.8)*150,life:.6,r:2+Math.random()*3,color})}
+function update(dt){if(!active)return;elapsed+=dt;dist+=dt*speed*90;score=Math.floor(dist)+coins*25;speed=Math.min(.8,.42+dist*.00018);spawn-=dt;
+ if(spawn<=0){spawn=Math.max(.36,1.05-speed*.65);let laneN=Math.floor(Math.random()*3),r=Math.random();items.push({lane:laneN,z:.02,type:r<.55?'block':r<.78?'bar':'gate'});if(Math.random()<.72)items.push({lane:Math.floor(Math.random()*3),z:.02,type:'coin'})}
+ for(const it of items){it.z+=dt*speed*.62;if(it.z>.91&&it.z<1.03&&it.lane===lane){if(it.type==='coin'){it.z=1.1;coins++;burst(roadX(lane,1),H*.76,'#ffd34d')}else if(playerY<25&&it.type!=='bar' || it.type==='bar'&&slide<=0){endGame();break}}}
+ items=items.filter(i=>i.z<1.12);if(vy||playerY){playerY+=vy*dt;vy-=1250*dt;if(playerY<=0){playerY=0;vy=0}}if(slide>0)slide=Math.max(0,slide-dt);
+ for(const p of particles){p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt}particles=particles.filter(p=>p.life>0);
+ document.getElementById('score').textContent=score;document.getElementById('coins').textContent=coins+' 🟡'}
+function loop(t){let dt=Math.min(.035,(t-last)/1000||0);last=t;update(dt);draw();requestAnimationFrame(loop)}
+function begin(){active=true;dead=false;elapsed=dist=score=coins=spawn=0;speed=.42;lane=1;playerY=vy=slide=0;items=[];particles=[];overlay.classList.add('hidden');last=performance.now()}
+function endGame(){if(!active)return;active=false;dead=true;best=Math.max(best,score);try{localStorage.setItem('lammaRunnerBest',best)}catch(e){}document.getElementById('best').textContent=best;document.getElementById('title').textContent='خلصت الجولة!';document.getElementById('desc').textContent='نتيجتك '+score+' نقطة وجمعت '+coins+' عملة. جرّب تاني وحاول تكسر رقمك القياسي.';startBtn.textContent='العب تاني 🔁';overlay.classList.remove('hidden')}
+function jump(){if(active&&playerY===0&&slide<=0){vy=540}}
+function move(d){if(active)lane=Math.max(0,Math.min(2,lane+d))}
+function down(){if(active&&playerY===0)slide=.7}
+startBtn.addEventListener('click',begin);document.getElementById('left').addEventListener('pointerdown',e=>{e.preventDefault();move(-1)});document.getElementById('right').addEventListener('pointerdown',e=>{e.preventDefault();move(1)});document.getElementById('jump').addEventListener('pointerdown',e=>{e.preventDefault();jump()});
+let sx=0,sy=0;canvas.addEventListener('pointerdown',e=>{sx=e.clientX;sy=e.clientY});canvas.addEventListener('pointerup',e=>{if(!active)return;let dx=e.clientX-sx,dy=e.clientY-sy;if(Math.max(Math.abs(dx),Math.abs(dy))<22){jump();return}if(Math.abs(dx)>Math.abs(dy))move(dx>0?1:-1);else if(dy<0)jump();else down()});
+addEventListener('keydown',e=>{if(['ArrowLeft','a','A'].includes(e.key))move(-1);if(['ArrowRight','d','D'].includes(e.key))move(1);if(['ArrowUp','w','W',' '].includes(e.key)){e.preventDefault();jump()}if(['ArrowDown','s','S'].includes(e.key))down();if(e.key==='Enter'&&!active)begin()});
+requestAnimationFrame(loop);
+})();
+</script></body></html>
