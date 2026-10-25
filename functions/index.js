@@ -73,11 +73,20 @@ function crashPointFor(roundId) {
   const n = (h >>> 0) / 4294967296;
   return Math.max(1.05, Math.floor((1.05 + n * 4.95) * 100) / 100);
 }
+function aviatorCrashTime(round) {
+  const crashAt = Number(round.crashAt) || 1.05;
+  const secondsToCrash = Math.pow(Math.max(0, (crashAt - 1) / GROWTH), 1 / 1.22);
+  return Math.min(Number(round.endsAt), Number(round.startsAt) + secondsToCrash * 1000);
+}
 async function ensureAviatorRound() {
   const ref = getDatabase().ref("aviator/currentRound");
   const now = Date.now();
   await ref.transaction(r => {
-    if (r && Number(r.endsAt) > now) return;
+    if (r) {
+      const crashTime = aviatorCrashTime(r);
+      // Keep the same shared round briefly after the crash, then rotate it.
+      if (now < crashTime + 2500) return;
+    }
     const id = String(now);
     return { id, startsAt: now, endsAt: now + ROUND_MS, crashAt: crashPointFor(id), status: "running" };
   });
@@ -87,8 +96,14 @@ async function ensureAviatorRound() {
 exports.aviatorGetState = onCall({ region: AVIATOR_REGION }, async request => {
   if (!request.auth) throw new HttpsError("unauthenticated", "سجّل دخولك الأول.");
   const round = await ensureAviatorRound();
-  const betSnap = await getDatabase().ref(`aviator/bets/${round.id}/${request.auth.uid}`).get();
+  const db = getDatabase();
+  const [betSnap, walletSnap] = await Promise.all([
+    db.ref(`aviator/bets/${round.id}/${request.auth.uid}`).get(),
+    db.ref(`wallets/${request.auth.uid}`).get()
+  ]);
   const bet = betSnap.val();
+  const wallet = walletSnap.val();
+  const balance = Number(wallet && wallet.balance);
   const now = Date.now();
   const elapsed = Math.max(0, now - Number(round.startsAt || now)) / 1000;
   const liveMultiplier = Math.max(1, Math.floor((1 + Math.pow(elapsed, 1.22) * GROWTH) * 100) / 100);
@@ -96,6 +111,7 @@ exports.aviatorGetState = onCall({ region: AVIATOR_REGION }, async request => {
   return { roundId: round.id, startsAt: round.startsAt, endsAt: round.endsAt,
     status: crashed ? "crashed" : "running",
     multiplier: crashed ? Number(round.crashAt) : liveMultiplier,
+    balance: Number.isSafeInteger(balance) && balance >= 0 ? balance : 0,
     bet: bet || null };
 });
 exports.aviatorPlaceBet = onCall({ region: AVIATOR_REGION }, async request => {
