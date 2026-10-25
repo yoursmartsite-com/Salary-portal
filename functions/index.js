@@ -59,3 +59,101 @@ exports.claimDailyReward = onCall({ region: "europe-west1", enforceAppCheck: fal
   }
   return { ...outcome, date: today };
 });
+
+
+// Aviator virtual-coin game: shared server round and per-user single bet.
+// Wallet mutations happen only in these callable functions, never in the browser.
+const AVIATOR_REGION = "europe-west1";
+const ROUND_MS = 12000;
+const GROWTH = 0.12;
+function crashPointFor(roundId) {
+  // Deterministic per round; server-owned and stable for every player.
+  let h = 2166136261;
+  for (const c of String(roundId)) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); }
+  const n = (h >>> 0) / 4294967296;
+  return Math.max(1.05, Math.floor((1.05 + n * 4.95) * 100) / 100);
+}
+async function ensureAviatorRound() {
+  const ref = getDatabase().ref("aviator/currentRound");
+  const now = Date.now();
+  await ref.transaction(r => {
+    if (r && Number(r.endsAt) > now) return;
+    const id = String(now);
+    return { id, startsAt: now, endsAt: now + ROUND_MS, crashAt: crashPointFor(id), status: "running" };
+  });
+  const snap = await ref.get();
+  return snap.val();
+}
+exports.aviatorGetState = onCall({ region: AVIATOR_REGION }, async request => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "سجّل دخولك الأول.");
+  const round = await ensureAviatorRound();
+  const betSnap = await getDatabase().ref(`aviator/bets/${round.id}/${request.auth.uid}`).get();
+  const bet = betSnap.val();
+  const now = Date.now();
+  const elapsed = Math.max(0, now - Number(round.startsAt || now)) / 1000;
+  const multiplier = Math.max(1, Math.floor((1 + Math.pow(elapsed, 1.22) * GROWTH) * 100) / 100);
+  return { roundId: round.id, startsAt: round.startsAt, endsAt: round.endsAt,
+    status: now >= round.endsAt ? "crashed" : "running",
+    multiplier: now >= round.endsAt ? round.crashAt : Math.min(multiplier, round.crashAt),
+    bet: bet || null };
+});
+exports.aviatorPlaceBet = onCall({ region: AVIATOR_REGION }, async request => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "سجّل دخولك الأول.");
+  const stake = Number(request.data && request.data.stake);
+  if (!Number.isSafeInteger(stake) || stake < 1 || stake > 10000) throw new HttpsError("invalid-argument", "قيمة الرهان من 1 إلى 10000.");
+  const round = await ensureAviatorRound();
+  const now = Date.now();
+  if (now >= round.endsAt) throw new HttpsError("failed-precondition", "الجولة انتهت؛ استنى الجولة الجديدة.");
+  const uid = request.auth.uid;
+  const betRef = getDatabase().ref(`aviator/bets/${round.id}/${uid}`);
+  const walletRef = getDatabase().ref(`wallets/${uid}`);
+  let result = null;
+  // Transaction on bet record prevents duplicate bets on refresh/retries.
+  await betRef.transaction(current => {
+    if (current) { result = { error: "already" }; return; }
+    return { stake, status: "active", placedAt: now, roundId: round.id };
+  });
+  if (result && result.error) throw new HttpsError("already-exists", "إنت داخل الجولة دي بالفعل.");
+  let deducted = false;
+  await walletRef.transaction(w => {
+    if (!w || !Number.isSafeInteger(Number(w.balance)) || Number(w.balance) < stake) return;
+    deducted = true;
+    return { ...w, balance: Number(w.balance) - stake };
+  });
+  if (!deducted) {
+    await betRef.remove();
+    throw new HttpsError("failed-precondition", "رصيد عملات لَمّة مش كفاية.");
+  }
+  return { ok: true, balance: (await walletRef.get()).child("balance").val(), roundId: round.id };
+});
+exports.aviatorCashout = onCall({ region: AVIATOR_REGION }, async request => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "سجّل دخولك الأول.");
+  const roundId = String(request.data && request.data.roundId || "");
+  if (!/^\\d{10,}$/.test(roundId)) throw new HttpsError("invalid-argument", "رقم الجولة غير صحيح.");
+  const db = getDatabase();
+  const roundSnap = await db.ref("aviator/currentRound").get();
+  const round = roundSnap.val();
+  if (!round || round.id !== roundId) throw new HttpsError("failed-precondition", "الجولة دي خلصت.");
+  const now = Date.now();
+  const elapsed = Math.max(0, now - Number(round.startsAt)) / 1000;
+  const currentMultiplier = Math.max(1, Math.floor((1 + Math.pow(elapsed, 1.22) * GROWTH) * 100) / 100);
+  if (now >= round.endsAt || currentMultiplier >= Number(round.crashAt)) throw new HttpsError("failed-precondition", "الطيارة وقعت قبل السحب.");
+  const uid = request.auth.uid;
+  const betRef = db.ref(`aviator/bets/${roundId}/${uid}`);
+  let betData = null;
+  let cashed = false;
+  await betRef.transaction(b => {
+    if (!b || b.status !== "active") return;
+    const payout = Math.floor(Number(b.stake) * currentMultiplier);
+    betData = { payout, stake: Number(b.stake), multiplier: currentMultiplier };
+    cashed = true;
+    return { ...b, status: "cashed", payout, multiplier: currentMultiplier, cashedAt: now };
+  });
+  if (!cashed) throw new HttpsError("already-exists", "مفيش رهان نشط للسحب أو تم السحب بالفعل.");
+  const walletRef = db.ref(`wallets/${uid}`);
+  await walletRef.transaction(w => {
+    if (!w) return;
+    return { ...w, balance: (Number(w.balance) || 0) + betData.payout };
+  });
+  return { ok: true, ...betData, balance: (await walletRef.get()).child("balance").val() };
+});
