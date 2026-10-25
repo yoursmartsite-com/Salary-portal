@@ -1143,6 +1143,7 @@ body{background:radial-gradient(ellipse at 55% -15%,#25204a 0,transparent 42%),v
 .lp-brand b{display:block;font-size:22px}.lp-brand small{color:var(--lp-muted);font-size:10px;letter-spacing:1.5px}
 .lp-nav{display:grid;gap:7px}.lp-nav a{display:flex;gap:11px;align-items:center;padding:12px;border-radius:12px;color:#aab4cb;text-decoration:none;font-weight:700;font-size:13px;border:1px solid transparent}
 .lp-nav a:hover,.lp-nav a.active{background:linear-gradient(100deg,#7653e626,#31d2e516);border-color:#6253a344;color:white}
+.lp-nav a.lp-betting-link{background:linear-gradient(110deg,#125b3e,#0d3d32);border:1px solid #2cbd7c;color:#eafff2;box-shadow:0 7px 20px #12a56820}.lp-nav a.lp-betting-link:hover{background:linear-gradient(110deg,#17784f,#105242);border-color:#58e6a0;color:#fff}
 .lp-sidebar-note{margin-top:24px;border:1px solid #2c3550;border-radius:16px;padding:14px;background:linear-gradient(145deg,#1c2040,#101927)}
 .lp-sidebar-note b{display:block;margin-bottom:5px}.lp-sidebar-note p{font-size:12px;color:var(--lp-muted);margin:0}
 .lamma-premium-main{min-width:0}
@@ -1191,7 +1192,7 @@ body{background:radial-gradient(ellipse at 55% -15%,#25204a 0,transparent 42%),v
  if(!header||!siteMain||!directory)return;
  const shell=document.createElement('div');shell.className='lamma-premium-shell';
  const side=document.createElement('aside');side.className='lamma-premium-sidebar';
- side.innerHTML='<div class="lp-brand"><div class="lp-mark">ل</div><div><b>لَمّة</b><small>LAMMA GAMING</small></div></div><nav class="lp-nav" aria-label="تنقل لَمّة"><a class="active" href="./index.html">⌂ الرئيسية</a><a href="./online-room.html">🎮 Online Room</a></nav><div class="lp-sidebar-note"><b>اللعب أحلى مع أصحابك ✦</b><p>اختار لعبتك، افتح غرفة وشارك الكود مع أصحابك.</p></div>';
+ side.innerHTML='<div class="lp-brand"><div class="lp-mark">ل</div><div><b>لَمّة</b><small>LAMMA GAMING</small></div></div><nav class="lp-nav" aria-label="تنقل لَمّة"><a class="active" href="./index.html">⌂ الرئيسية</a><a href="./online-room.html">🎮 Online Room</a><a class="lp-betting-link" href="./betting.html">🎯 غرفة الرهانات</a></nav><div class="lp-sidebar-note"><b>اللعب أحلى مع أصحابك ✦</b><p>اختار لعبتك، افتح غرفة وشارك الكود مع أصحابك.</p></div>';
  const main=document.createElement('div');main.className='lamma-premium-main';
  const right=document.createElement('aside');right.className='lamma-premium-right';
  const live=document.createElement('div');live.className='lp-live';live.innerHTML='<i></i> مجتمع لَمّة';
