@@ -32,6 +32,8 @@ async function refresh(){
  if(!user||polling)return;polling=true;
  try{
   const s=await call('aviatorGetState');lastRound=s;roundId=s.roundId;bet=s.bet||null;
+  // Load the authoritative wallet balance on initial entry and every state refresh.
+  if(s.balance!==undefined&&s.balance!==null)setBalance(s.balance);
   const elapsed=Math.max(0,Date.now()-s.startsAt)/1000;
   const calculated=Math.max(1,Math.floor((1+Math.pow(elapsed,1.22)*.12)*100)/100);
   roundCrashed=s.status==='crashed';
@@ -68,6 +70,6 @@ try{
   else {try{await signInAnonymously(auth)}catch(e){message('تعذر تسجيل الدخول: '+errorText(e))}}
  });
  if(!auth.currentUser) await signInAnonymously(auth);
- setInterval(refresh,350);
+ setInterval(refresh,1000);
 }catch(e){message('تعذر تهيئة اللعبة: '+errorText(e))}
 </script></body></html>
