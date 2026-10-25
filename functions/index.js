@@ -120,7 +120,7 @@ exports.aviatorPlaceBet = onCall({ region: AVIATOR_REGION }, async request => {
   if (!Number.isSafeInteger(stake) || stake < 1 || stake > 10000) throw new HttpsError("invalid-argument", "قيمة الرهان من 1 إلى 10000.");
   const round = await ensureAviatorRound();
   const now = Date.now();
-  if (now >= round.endsAt) throw new HttpsError("failed-precondition", "الجولة انتهت؛ استنى الجولة الجديدة.");
+  if (now >= aviatorCrashTime(round)) throw new HttpsError("failed-precondition", "الجولة انتهت؛ استنى الجولة الجديدة.");
   const uid = request.auth.uid;
   const betRef = getDatabase().ref(`aviator/bets/${round.id}/${uid}`);
   const walletRef = getDatabase().ref(`wallets/${uid}`);
