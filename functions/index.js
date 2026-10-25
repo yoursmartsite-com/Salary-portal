@@ -146,7 +146,7 @@ exports.aviatorPlaceBet = onCall({ region: AVIATOR_REGION }, async request => {
 exports.aviatorCashout = onCall({ region: AVIATOR_REGION }, async request => {
   if (!request.auth) throw new HttpsError("unauthenticated", "سجّل دخولك الأول.");
   const roundId = String(request.data && request.data.roundId || "");
-  if (!/^\\d{10,}$/.test(roundId)) throw new HttpsError("invalid-argument", "رقم الجولة غير صحيح.");
+  if (!/^\d{10,}$/.test(roundId)) throw new HttpsError("invalid-argument", "رقم الجولة غير صحيح.");
   const db = getDatabase();
   const roundSnap = await db.ref("aviator/currentRound").get();
   const round = roundSnap.val();
