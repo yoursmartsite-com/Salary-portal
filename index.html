@@ -1236,7 +1236,7 @@ body{background:radial-gradient(ellipse at 55% -15%,#25204a 0,transparent 42%),v
     document.querySelectorAll('article.card').forEach(card=>{
       const title=card.querySelector('h3');
       const tile=card.querySelector('.ico');
-      if(!title||!tile||tile.dataset.coverReady)return;
+      if(!title||!tile||tile.dataset.coverReady||tile.querySelector('img'))return;
       const label=title.textContent.trim();
       const icon=tile.textContent.trim()||"✦";
       tile.dataset.coverReady="1";
