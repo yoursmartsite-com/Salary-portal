@@ -1265,4 +1265,76 @@ body{background:radial-gradient(ellipse at 55% -15%,#25204a 0,transparent 42%),v
 @media(max-width:760px){.lamma-premium-main .card .ico{height:83px!important;min-height:83px!important;margin-bottom:8px!important}}
 </style>
 
-<style id="lamma-online-room-launch-style">#lammaOnlineRoomLaunch{position:fixed;left:14px;bottom:196px;z-index:100000;border:1px solid #8b7cff;border-radius:15px;padding:12px 15px;background:linear-gradient(120deg,#6c35d7,#087fa8);color:#fff;text-decoration:none;font:800 14px Cairo,system-ui,sans-serif;box-shadow:0 10px 32px #0009;display:flex;align-items:center;gap:8px}#lammaOnlineRoomLaunch:hover{filter:brightness(1.15);transform:translateY(-2px)}@media(max-width:600px){#lammaOnlineRoomLaunch{left:10px;bottom:190px;font-size:12px;padding:11px 12px;max-width:calc(100vw - 20px)}}</style><a id="lammaOnlineRoomLaunch" href="./online-room.html?v=20261025" aria-label="افتح غرف لَمّة أونلاين">🎮 غرف أونلاين</a></body></html>
+<style id="lamma-online-room-launch-style">#lammaOnlineRoomLaunch{position:fixed;left:14px;bottom:196px;z-index:100000;border:1px solid #8b7cff;border-radius:15px;padding:12px 15px;background:linear-gradient(120deg,#6c35d7,#087fa8);color:#fff;text-decoration:none;font:800 14px Cairo,system-ui,sans-serif;box-shadow:0 10px 32px #0009;display:flex;align-items:center;gap:8px}#lammaOnlineRoomLaunch:hover{filter:brightness(1.15);transform:translateY(-2px)}@media(max-width:600px){#lammaOnlineRoomLaunch{left:10px;bottom:190px;font-size:12px;padding:11px 12px;max-width:calc(100vw - 20px)}}</style><a id="lammaOnlineRoomLaunch" href="./online-room.html?v=20261025" aria-label="افتح غرف لَمّة أونلاين">🎮 غرف أونلاين</a>
+<style id="lamma-ai-chat-style">
+#lammaBotFab{position:fixed;left:14px;bottom:112px;z-index:100100;width:62px;height:62px;border-radius:50%;border:2px solid #b6a6ff;background:radial-gradient(circle at 32% 24%,#4c5b8d,#171b38 68%);box-shadow:0 8px 28px #0009,0 0 0 4px #9275ff22;color:white;display:grid;place-items:center;cursor:pointer;padding:0}
+#lammaBotFab .lamma-bot-face{font-size:31px;line-height:1;filter:drop-shadow(0 2px 3px #0008)}
+#lammaBotFab .lamma-bot-dot{position:absolute;right:0;top:0;width:13px;height:13px;border-radius:50%;background:#52e0ad;border:2px solid #101528}
+#lammaBotPanel{position:fixed;left:14px;bottom:184px;z-index:100101;width:min(365px,calc(100vw - 28px));height:min(510px,calc(100dvh - 215px));min-height:300px;display:none;flex-direction:column;overflow:hidden;border:1px solid #62559c;border-radius:20px;background:#0b1120;color:#f4f6ff;box-shadow:0 20px 65px #000b;font-family:Cairo,system-ui,sans-serif}
+#lammaBotPanel.lamma-open{display:flex}
+#lammaBotPanel *{box-sizing:border-box}
+#lammaBotPanel .lb-head{display:flex;align-items:center;gap:10px;padding:12px;background:linear-gradient(120deg,#33235f,#0c3548);border-bottom:1px solid #39405d}
+#lammaBotPanel .lb-avatar{width:42px;height:42px;flex:none;border-radius:50%;display:grid;place-items:center;background:#10172c;border:1px solid #8e7cff;font-size:24px}
+#lammaBotPanel .lb-headtxt{flex:1;min-width:0}
+#lammaBotPanel .lb-title{font-size:14px;font-weight:900}
+#lammaBotPanel .lb-sub{font-size:10px;color:#b9c7e0}
+#lammaBotPanel .lb-head button{border:1px solid #ffffff25;border-radius:10px;background:#ffffff12;color:#fff;padding:7px 10px;cursor:pointer}
+#lammaBotPanel .lb-messages{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;overscroll-behavior:contain}
+#lammaBotPanel .lb-msg{max-width:90%;padding:9px 11px;border-radius:13px;font-size:12px;line-height:1.8;overflow-wrap:anywhere;white-space:pre-wrap}
+#lammaBotPanel .lb-msg.bot{align-self:flex-start;background:#18233b;border:1px solid #2e3b5c}
+#lammaBotPanel .lb-msg.user{align-self:flex-end;background:linear-gradient(120deg,#6042b2,#155b76);border:1px solid #7560c2}
+#lammaBotPanel .lb-quick{display:flex;gap:6px;flex-wrap:wrap;padding:0 10px 9px}
+#lammaBotPanel .lb-quick button{border:1px solid #3a4765;border-radius:999px;background:#111d31;color:#dce7ff;padding:6px 9px;font-size:10px;cursor:pointer}
+#lammaBotPanel .lb-form{display:flex;gap:7px;padding:10px;border-top:1px solid #293650;background:#0e1729}
+#lammaBotPanel .lb-form input{min-width:0;flex:1;background:#080e1b;border:1px solid #35425e;border-radius:12px;padding:10px;color:#fff;font:12px Cairo,system-ui,sans-serif;outline:none}
+#lammaBotPanel .lb-form button{border:0;border-radius:11px;background:linear-gradient(120deg,#7652d6,#087e9d);color:white;font-weight:900;padding:8px 11px;cursor:pointer}
+#lammaBotPanel .lb-form button:disabled{opacity:.5}
+#lammaBotPanel .lb-note{padding:0 10px 8px;color:#7889a9;font-size:9px}
+@media(max-width:600px){#lammaBotFab{left:12px;bottom:110px;width:56px;height:56px}#lammaBotPanel{left:8px;bottom:174px;width:calc(100vw - 16px);height:min(470px,calc(100dvh - 200px));}}
+</style>
+<button id="lammaBotFab" type="button" aria-label="افتح مساعد لَمّة" aria-expanded="false" title="اسأل مساعد لَمّة"><span class="lamma-bot-face">🤖</span><span class="lamma-bot-dot"></span></button>
+<section id="lammaBotPanel" role="dialog" aria-label="محادثة مع مساعد لَمّة" aria-modal="false">
+  <header class="lb-head"><div class="lb-avatar">🤖</div><div class="lb-headtxt"><div class="lb-title">مساعد لَمّة</div><div class="lb-sub">مساعد الألعاب · جرّب تسألني</div></div><button id="lammaBotSpeak" type="button" title="تشغيل أو إيقاف الصوت">🔊</button><button id="lammaBotClose" type="button" aria-label="إغلاق المحادثة">✕</button></header>
+  <div id="lammaBotMessages" class="lb-messages" aria-live="polite"><div class="lb-msg bot">أهلاً بيك في لَمّة! 👋 أنا مساعدك التجريبي. اسألني عن الألعاب أو الغرف، أو اضغط على الميكروفون واتكلم.</div></div>
+  <div class="lb-quick"><button type="button" data-lb-ask="رشحلي لعبة">🎮 رشحلي لعبة</button><button type="button" data-lb-ask="ازاي اعمل غرفة اونلاين؟">🌐 الغرف</button><button type="button" data-lb-ask="عايز ألعب ضد بوت">🤖 بوتات</button></div>
+  <form id="lammaBotForm" class="lb-form"><button id="lammaBotMic" type="button" aria-label="اتكلم مع المساعد">🎙️</button><input id="lammaBotInput" maxlength="500" autocomplete="off" placeholder="اكتب سؤالك هنا..." aria-label="اكتب سؤالك"><button type="submit">إرسال</button></form>
+  <div class="lb-note">نسخة مجانية تجريبية · الإجابات محلية وليست نموذج ذكاء اصطناعي متصل بالإنترنت</div>
+</section>
+<script id="lamma-ai-chat-script">
+(function(){
+const $=id=>document.getElementById(id);
+const fab=$('lammaBotFab'), panel=$('lammaBotPanel'), messages=$('lammaBotMessages'), input=$('lammaBotInput');
+if(!fab||!panel||!messages||!input)return;
+let voiceOn=true;
+function openChat(){panel.classList.add('lamma-open');fab.setAttribute('aria-expanded','true');setTimeout(()=>input.focus({preventScroll:true}),80);}
+function closeChat(){panel.classList.remove('lamma-open');fab.setAttribute('aria-expanded','false');fab.focus({preventScroll:true});}
+function addMessage(text,who){const el=document.createElement('div');el.className='lb-msg '+who;el.textContent=text;messages.appendChild(el);messages.scrollTop=messages.scrollHeight;return el;}
+function speak(text){if(!voiceOn||!('speechSynthesis' in window))return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='ar-EG';u.rate=1;speechSynthesis.speak(u);}catch(e){}}
+function answer(q){
+const s=q.toLowerCase().replace(/[؟?!.,،]/g,' ').replace(/s+/g,' ').trim();
+if(/^(سلام|السلام عليكم|اهلا|أهلا|هاي|hi|hello|ازيك|إزيك|عامل ايه)/.test(s))return 'أهلاً بيك يا نجم ❤️ تحب أرشحلك لعبة، أشرحلك الغرف الأونلاين، ولا أساعدك تختار لعبة لأصحابك؟';
+if(/بوت|العب ضد|العب لوحد|كمبيوتر|ذكاء اصطناعي/.test(s))return 'حاليًا المساعد ده تجريبي، ولسه بوتات اللعب الفعلية مش متوصلة بكل الألعاب. نقدر نبدأ ببوت إكس أو، وبعد ما نختبره نضيف ألعاب تانية واحدة واحدة.';
+if(/غرف|اونلاين|أونلاين|online|كود|صاحبك|اصحابك|أصحابك/.test(s))return 'للغرفة الأونلاين: افتح صفحة غرف لَمّة من الزر البنفسجي/السماوي، اكتب اسمك واضغط إنشاء غرفة، وبعدها ابعت كود الـ6 أرقام لصاحبك عشان يدخل. لو الاتصال فشل، غالبًا محتاجين نراجع إعدادات Firebase.';
+if(/رشح|اقتراح|العب ايه|العب إيه|اختار لعبة|لعبة مناسبة/.test(s))return 'لو عايز جولة سريعة جرّب إكس أو أو حجر ورقة مقص. لو بتحب التفكير جرّب أربعة على التوالي أو تخمين الرقم. للعب الجماعي، افتح الغرف واختار لعبة مع أصحابك.';
+if(/مشكلة|مش شغال|عطل|خطأ|error/.test(s))return 'خلينا نحلها سوا. ابعتلي اسم اللعبة أو صورة الخطأ، وقولي المشكلة بتحصل على الموبايل ولا الكمبيوتر. مش هفترض إن حاجة اتصلحت من غير اختبار.';
+if(/عملة|رصيد|شراء|متجر|فلوس|دفع/.test(s))return 'بالنسبة للعملات والشراء، ما تدخلش بيانات دفع هنا. أي عملية شراء لازم تتم من نظام آمن ومؤكد داخل الموقع؛ المساعد مش بيقدر يضيف رصيد أو يوافق على طلب شراء.';
+if(/مدير|ادمن|إدارة|اداره|بلاغ|حظر/.test(s))return 'أقدر أشرح خطوات الإدارة بشكل عام، لكن النسخة الحالية مش متصلة بلوحة المدير ولا عندها صلاحية تشوف البلاغات أو تنفذ حظر. ده محتاج ربط آمن بصلاحيات المدير.';
+if(/مين انت|اسمك|انت مين/.test(s))return 'أنا مساعد لَمّة التجريبي 🤖. أقدر أجاوب على أسئلة شائعة عن الموقع وأساعدك تختار لعبة. لسه مش متصل بنموذج محادثة خارجي.';
+if(/صوت|اتكلم|الميكروفون|ميكروفون/.test(s))return 'اضغط 🎙️ واسمح للمتصفح باستخدام الميكروفون لو ظهرت رسالة إذن. الكلام بالصوت بيعتمد على دعم المتصفح واللغة العربية.';
+return 'فاهم سؤالك، بس أنا لسه في النسخة التجريبية وبجاوب من معلومات محددة عن لَمّة. جرّب تسألني عن الغرف الأونلاين، اقتراح لعبة، البوتات، أو مشكلة في لعبة.';
+}
+function send(text){const q=(text||input.value).trim();if(!q)return;addMessage(q,'user');input.value='';const a=answer(q);addMessage(a,'bot');speak(a);}
+fab.addEventListener('click',()=>panel.classList.contains('lamma-open')?closeChat():openChat());
+$('lammaBotClose').addEventListener('click',closeChat);
+$('lammaBotSpeak').addEventListener('click',()=>{voiceOn=!voiceOn;$('lammaBotSpeak').textContent=voiceOn?'🔊':'🔇';if(!voiceOn&&'speechSynthesis'in window)speechSynthesis.cancel();});
+$('lammaBotForm').addEventListener('submit',e=>{e.preventDefault();send();});
+panel.querySelectorAll('[data-lb-ask]').forEach(b=>b.addEventListener('click',()=>send(b.dataset.lbAsk)));
+let recognition=null;
+const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+const mic=$('lammaBotMic');
+if(SpeechRecognition){recognition=new SpeechRecognition();recognition.lang='ar-EG';recognition.interimResults=false;recognition.maxAlternatives=1;recognition.onresult=e=>{input.value=e.results[0][0].transcript||'';send();};recognition.onerror=()=>{mic.textContent='🎙️';};recognition.onend=()=>{mic.textContent='🎙️';};mic.addEventListener('click',()=>{try{mic.textContent='⏺️';recognition.start();}catch(e){mic.textContent='🎙️';}});}
+else{mic.addEventListener('click',()=>{addMessage('المتصفح ده مش بيدعم تحويل الصوت لنص من داخل الصفحة. جرّب Chrome المحدث، أو اكتب سؤالك في الخانة.','bot');});}
+})();
+</script>
+
+</body></html>
