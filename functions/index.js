@@ -91,10 +91,11 @@ exports.aviatorGetState = onCall({ region: AVIATOR_REGION }, async request => {
   const bet = betSnap.val();
   const now = Date.now();
   const elapsed = Math.max(0, now - Number(round.startsAt || now)) / 1000;
-  const multiplier = Math.max(1, Math.floor((1 + Math.pow(elapsed, 1.22) * GROWTH) * 100) / 100);
+  const liveMultiplier = Math.max(1, Math.floor((1 + Math.pow(elapsed, 1.22) * GROWTH) * 100) / 100);
+  const crashed = now >= round.endsAt || liveMultiplier >= Number(round.crashAt);
   return { roundId: round.id, startsAt: round.startsAt, endsAt: round.endsAt,
-    status: now >= round.endsAt ? "crashed" : "running",
-    multiplier: now >= round.endsAt ? round.crashAt : Math.min(multiplier, round.crashAt),
+    status: crashed ? "crashed" : "running",
+    multiplier: crashed ? Number(round.crashAt) : liveMultiplier,
     bet: bet || null };
 });
 exports.aviatorPlaceBet = onCall({ region: AVIATOR_REGION }, async request => {
@@ -137,7 +138,14 @@ exports.aviatorCashout = onCall({ region: AVIATOR_REGION }, async request => {
   const now = Date.now();
   const elapsed = Math.max(0, now - Number(round.startsAt)) / 1000;
   const currentMultiplier = Math.max(1, Math.floor((1 + Math.pow(elapsed, 1.22) * GROWTH) * 100) / 100);
-  if (now >= round.endsAt || currentMultiplier >= Number(round.crashAt)) throw new HttpsError("failed-precondition", "الطيارة وقعت قبل السحب.");
+  if (now >= round.endsAt || currentMultiplier >= Number(round.crashAt)) {
+    // Mark the bet lost once; no wallet refund after the crash.
+    await db.ref(`aviator/bets/${roundId}/${request.auth.uid}`).transaction(b => {
+      if (!b || b.status !== "active") return;
+      return { ...b, status: "lost", lostAt: now };
+    });
+    throw new HttpsError("failed-precondition", "الطيارة وقعت قبل السحب.");
+  }
   const uid = request.auth.uid;
   const betRef = db.ref(`aviator/bets/${roundId}/${uid}`);
   let betData = null;
