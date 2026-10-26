@@ -7,3 +7,32 @@
 @media(max-width:480px){.join-code-panel>div{flex-direction:column}.join-code-panel .primary-btn{width:100%}}
 
 .room-item button:disabled{opacity:.55;cursor:not-allowed;background:#383b50;color:#a8abc0}.room-item button:focus-visible,.primary-btn:focus-visible,.play-btn:focus-visible{outline:2px solid #b8a5ff;outline-offset:3px}
+
+/* Lamma site-wide game media and controls consistency */
+.game-visual,.ico,.game-cover,.game-art,.game-thumbnail,.game-image{
+  min-width:0;overflow:hidden;position:relative;
+}
+.game-visual img,.ico img,.game-cover img,.game-art img,.game-thumbnail img,.game-image img,
+.game-card img,.card .ico img{
+  display:block;max-width:100%;object-fit:contain;object-position:center;
+}
+.game-card img{max-height:100%}
+button,a[role="button"],.play,.play-btn,.primary-btn,.secondary-btn,.ghost-btn,.outline-btn{
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+}
+button:disabled{cursor:not-allowed;opacity:.55}
+@media(max-width:760px){
+ .game-grid{grid-template-columns:minmax(0,1fr)!important}
+ .game-card{min-width:0;grid-template-columns:minmax(92px,32%) minmax(0,1fr)!important}
+ .game-visual{min-width:0;min-height:145px;height:auto!important}
+ .game-visual img{width:100%;height:100%;max-height:180px;object-fit:contain}
+ .game-info{min-width:0;overflow-wrap:break-word}
+ .game-info h3,.game-info p,.game-info button{max-width:100%;overflow-wrap:break-word;word-break:normal}
+ .play-btn,.primary-btn,.secondary-btn,.ghost-btn,.outline-btn{min-height:42px}
+}
+@media(max-width:380px){
+ .game-card{grid-template-columns:minmax(78px,29%) minmax(0,1fr)!important}
+ .game-info{padding:11px 9px}
+ .game-info h3{font-size:15px}
+ .game-info p{font-size:10px}
+}
