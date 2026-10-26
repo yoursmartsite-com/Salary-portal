@@ -614,6 +614,34 @@ async function openAdminPanel(){
 }
 $('#adminBtn')?.addEventListener('click',openAdminPanel);
 
+// إشعار فوري بطلبات المتجر الجديدة لحساب المدير، مع تجاهل الطلبات القديمة عند بدء الاستماع.
+let shopNotifyStarted=false,shopNotifyKnown={};
+function startShopRequestNotifications(){
+ if(shopNotifyStarted||!isLammaAdmin()||!db)return;
+ shopNotifyStarted=true;
+ const requestsRef=db.ref('purchaseRequests');
+ requestsRef.once('value').then(snap=>{
+  const all=snap.val()||{};
+  Object.entries(all).forEach(([playerUid,requests])=>Object.entries(requests||{}).forEach(([requestId,req])=>{
+   if(req&&req.status==='pending'&&(req.type==='item'||req.coins))shopNotifyKnown[playerUid+'/'+requestId]=true;
+  }));
+  requestsRef.on('value',next=>{
+   if(!isLammaAdmin())return;
+   const data=next.val()||{};
+   Object.entries(data).forEach(([playerUid,requests])=>Object.entries(requests||{}).forEach(([requestId,req])=>{
+    const key=playerUid+'/'+requestId;
+    if(req&&req.status==='pending'&&(req.type==='item'||req.coins)&&!shopNotifyKnown[key]){
+     shopNotifyKnown[key]=true;
+     toast('🛍️ طلب شراء جديد من '+(req.playerName||'لاعب')+' — '+(req.itemName||('شحن '+req.coins+' عملة'))+'؛ افتح لوحة الإدارة للمراجعة');
+    }
+    if(!req||req.status!=='pending')delete shopNotifyKnown[key];
+   }));
+  },err=>{console.error('Shop request notifications failed:',err);shopNotifyStarted=false;});
+ }).catch(e=>{console.error('Cannot initialize shop notifications:',e);shopNotifyStarted=false;});
+}
+if(window.firebase&&firebase.auth)firebase.auth().onAuthStateChanged(()=>{if(isLammaAdmin())startShopRequestNotifications()});
+
+
 $('#close').onclick=close;$('#profileBtn').onclick=openProfile;$('#modal').onclick=e=>{if(e.target.id==='modal'){e.preventDefault();e.stopPropagation();}};
 try{function openShopPage(){const p=document.getElementById('shopPage');if(!p){toast('صفحة المتجر مش موجودة');return}const walletLabel=document.getElementById('shopCoins');if(walletLabel)walletLabel.textContent='…';if(db&&uid)db.ref('wallets/'+uid+'/balance').once('value').then(s=>{if(walletLabel)walletLabel.textContent=String(Number(s.val())||0)}).catch(e=>{console.warn('Wallet read failed:',e);if(walletLabel)walletLabel.textContent='—'});p.hidden=false;p.style.cssText='display:block!important;position:fixed!important;inset:0!important;z-index:99999!important;overflow-y:auto!important;background:#080e1c!important;padding:18px!important;box-sizing:border-box!important;width:100%!important;height:100dvh!important';document.body.style.overflow='hidden';const n=document.getElementById('shopPlayerName');if(n)n.textContent=name||'لاعب';}function closeShopPage(){const p=document.getElementById('shopPage');if(p){p.hidden=true;p.style.cssText=''}document.body.style.overflow='';document.body.classList.remove('shop-open')}const shopBtn=$('#shopBtn'),backShopBtn=$('#backFromShop'),shopTabs=$('#shopTabs');if(shopBtn)shopBtn.onclick=openShopPage;if(backShopBtn)backShopBtn.onclick=closeShopPage;if(shopTabs)shopTabs.onclick=e=>{const b=e.target.closest('[data-category]');if(!b)return;$$('.shop-tab').forEach(x=>x.classList.toggle('active',x===b));$$('.shop-item').forEach(x=>x.hidden=b.dataset.category!=='all'&&x.dataset.category!=='all'&&x.dataset.category!==b.dataset.category)};const shopCatalog={
  'إطار أزرق ملكي':{price:500,desc:'إطار أزرق ملكي يميّز صورتك في الملف الشخصي.',benefit:'مظهر للملف الشخصي فقط؛ لن يتفعّل على الحساب قبل ربط نظام العناصر.'},
