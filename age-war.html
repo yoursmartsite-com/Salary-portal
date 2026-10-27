@@ -70,20 +70,94 @@ units=units.filter(u=>u.hp>0&&u.x<W+30&&u.x>-30);enemyUnits=enemyUnits.filter(u=
 if(base<=0||enemyBase<=0){ended=true;$('banner').classList.remove('hidden');$('bannerTitle').textContent=enemyBase<=0?'🏆 انتصار ساحق!':'💥 سقط حصنك';$('bannerText').textContent=enemyBase<=0?'قواتك حطمت حصن الخصم. القائد الحقيقي يعرف إمتى يهاجم وإمتى يطوّر جيشه.':'العدو اخترق دفاعاتك. جرّب توزيع القوات وترقية العصر وبناء الأبراج بشكل أفضل.';$('startBtn').textContent='العب من جديد';}
 refresh()}
 function polygon(points,fill,stroke){ctx.beginPath();ctx.moveTo(points[0][0],points[0][1]);for(let i=1;i<points.length;i++)ctx.lineTo(points[i][0],points[i][1]);ctx.closePath();ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.stroke()}}
-function drawCastle(x,y,enemy){ctx.save();ctx.translate(x,y);const wall=enemy?'#844b48':'#687b72',shadow='#172329';ctx.fillStyle=shadow;ctx.fillRect(-25,5,50,12);ctx.fillStyle=wall;ctx.fillRect(-21,-48,42,54);ctx.fillRect(-32,-37,15,43);ctx.fillRect(17,-37,15,43);ctx.fillStyle=enemy?'#c87b68':'#b4b59b';ctx.fillRect(-26,-42,9,48);ctx.fillRect(19,-42,9,48);ctx.fillRect(-15,-56,30,64);polygon([[-19,-56],[0,-74],[19,-56]],enemy?'#b95f52':'#9f7950');ctx.fillStyle='#1c2a2d';for(let i=-13;i<=13;i+=13){ctx.fillRect(i-3,-42,6,12)}ctx.fillStyle=enemy?'#e96e61':'#f1cc6b';ctx.fillRect(-4,-28,8,16);ctx.fillStyle='#d7ded1';ctx.fillRect(enemy?-35:20,-30,15,3);ctx.restore()}
-function drawUnit(u){ctx.save();ctx.translate(u.x,u.y);const player=u.side==='p',coat=player?['#d9bd72','#6f9978','#8c9f9a','#547b84','#52d4c5'][era]:['#b18b73','#a95e55','#bc6a57','#a94340','#9e5dce'][era];ctx.fillStyle='#0005';ctx.beginPath();ctx.ellipse(0,3,14,4,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#263338';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-4,-8);ctx.lineTo(-6,0);ctx.moveTo(4,-8);ctx.lineTo(7,0);ctx.stroke();ctx.fillStyle=coat;ctx.beginPath();ctx.moveTo(-8,-24);ctx.lineTo(8,-24);ctx.lineTo(10,-8);ctx.lineTo(-10,-8);ctx.fill();ctx.fillStyle=player?'#dfc39a':'#b98571';ctx.beginPath();ctx.arc(0,-29,6.5,0,Math.PI*2);ctx.fill();ctx.fillStyle=player?'#3b5147':'#563a35';ctx.beginPath();ctx.arc(0,-32,7,Math.PI,Math.PI*2);ctx.fill();ctx.strokeStyle=player?'#ddd3a8':'#e5b2a2';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(player?4:-4,-18);ctx.lineTo(player?15:-15,-24);ctx.stroke();ctx.fillStyle='#071014aa';ctx.fillRect(-12,-41,24,3);ctx.fillStyle=player?'#8fe29d':'#ff897d';ctx.fillRect(-12,-41,24*Math.max(0,u.hp/u.maxhp),3);ctx.restore()}
-function draw(){if(!ctx)return;ctx.clearRect(0,0,W,H);const sky=ctx.createLinearGradient(0,0,0,H);sky.addColorStop(0,'#7ca5a6');sky.addColorStop(.53,'#c7c3a1');sky.addColorStop(1,'#5c7658');ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);ctx.fillStyle='#f8dca0';ctx.beginPath();ctx.arc(W*.76,H*.16,Math.min(W,H)*.07,0,Math.PI*2);ctx.fill();
-polygon([[0,H*.48],[W*.12,H*.29],[W*.25,H*.46],[W*.38,H*.27],[W*.53,H*.45],[W*.69,H*.32],[W*.82,H*.46],[W,H*.3],[W,H*.68],[0,H*.68]],'#78918a');polygon([[0,H*.57],[W*.15,H*.43],[W*.31,H*.56],[W*.5,H*.4],[W*.69,H*.57],[W*.87,H*.42],[W,H*.52],[W,H*.72],[0,H*.72]],'#5d786a');ctx.fillStyle='#7d8c62';ctx.fillRect(0,H*.62,W,H*.38);
-for(let i=0;i<45;i++){const x=(i*83+17)%W,y=H*.63+((i*37)%(Math.max(1,H*.34)));ctx.fillStyle=i%3?'#9ca06a':'#4e6c53';ctx.beginPath();ctx.ellipse(x,y,rand(2,5),1.4,0,0,Math.PI*2);ctx.fill()}
-ctx.fillStyle='#9e9a74';ctx.fillRect(0,H*.69,W,H*.105);ctx.fillStyle='#c5b58a';ctx.fillRect(0,H*.69,W,H*.012);ctx.fillStyle='#776f53';for(let x=0;x<W;x+=50)ctx.fillRect(x,H*.74,24,2);
-drawCastle(W*.055,H*.7,false);drawCastle(W*.945,H*.7,true);
-ctx.fillStyle='#17252a';ctx.fillRect(W*.03,H*.48,W*.19,8);ctx.fillStyle='#61ce91';ctx.fillRect(W*.03,H*.48,W*.19*Math.max(0,base/100),8);ctx.fillStyle='#17252a';ctx.fillRect(W*.78,H*.48,W*.19,8);ctx.fillStyle='#f0786d';ctx.fillRect(W*.78,H*.48,W*.19*Math.max(0,enemyBase/100),8);
-towers.forEach((t,i)=>{const x=W*.08+i*17,y=H*.66;ctx.fillStyle='#3c4b4a';ctx.fillRect(x-7,y-27,14,27);ctx.fillStyle='#b6b8a2';ctx.fillRect(x-10,y-32,20,7);ctx.fillStyle='#28383b';ctx.fillRect(x-3,y-23,6,10)});
-units.forEach(drawUnit);enemyUnits.forEach(drawUnit);
-shots.forEach(s=>{const q=Math.min(1,s.t/s.dur),x=s.x+(s.tx-s.x)*q,y=s.y+(s.ty-s.y)*q-(s.meteor?Math.sin(q*Math.PI)*35:Math.sin(q*Math.PI)*12);ctx.strokeStyle=s.meteor?'#ff6b36':s.side==='p'?'#fff0a2':'#ffb5a3';ctx.lineWidth=s.meteor?5:2.5;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-(s.tx-s.x)*.04,y+10);ctx.stroke();ctx.fillStyle=s.meteor?'#ff6a2c':'#ffe5a0';ctx.beginPath();ctx.arc(x,y,s.meteor?7:3,0,Math.PI*2);ctx.fill()});
-particles.forEach(p=>{ctx.globalAlpha=Math.max(0,p.life/p.max);ctx.fillStyle=p.color;ctx.fillRect(p.x,p.y,p.size,p.size)});ctx.globalAlpha=1;
-ctx.fillStyle='#132024b8';ctx.fillRect(W*.34,8,W*.32,25);ctx.strokeStyle='#f4d47c';ctx.strokeRect(W*.34,8,W*.32,25);ctx.fillStyle='#fff0c1';ctx.textAlign='center';ctx.font='bold 12px Tahoma';ctx.fillText(eras[era].name,W*.5,25);
-if(started&&!ended&&units.length===0&&enemyUnits.length===0){ctx.fillStyle='#243638';ctx.font='12px Tahoma';ctx.fillText('جنّد أول جندي لبدء التقدم نحو حصن العدو',W*.5,H*.58)}
+function drawCastle(x,y,enemy){
+ ctx.save();ctx.translate(x,y);
+ const stone=enemy?'#824a46':'#65776d',lit=enemy?'#b87363':'#b8b69a',dark=enemy?'#4a3435':'#394a43',flag=enemy?'#d95c51':'#e4bd58';
+ // cast shadow and rocky foundation
+ ctx.fillStyle='#1b292a88';ctx.beginPath();ctx.ellipse(0,8,43,10,0,0,Math.PI*2);ctx.fill();
+ for(let i=0;i<5;i++){ctx.fillStyle=i%2?dark:stone;ctx.fillRect(-37+i*14,0,14,7)}
+ // central keep, side towers
+ ctx.fillStyle=dark;ctx.fillRect(-24,-48,48,52);ctx.fillStyle=stone;ctx.fillRect(-27,-52,46,52);ctx.fillStyle=lit;ctx.fillRect(-27,-52,7,52);
+ ctx.fillStyle=dark;ctx.fillRect(-39,-35,16,39);ctx.fillRect(23,-35,16,39);
+ ctx.fillStyle=stone;ctx.fillRect(-42,-40,16,43);ctx.fillRect(25,-40,16,43);
+ ctx.fillStyle=lit;ctx.fillRect(-42,-40,5,43);ctx.fillRect(25,-40,5,43);
+ // crenellations
+ ctx.fillStyle=lit;for(let xx=-39;xx<=35;xx+=12){ctx.fillRect(xx,-47,7,9)}
+ ctx.fillRect(-28,-62,48,10);ctx.fillStyle=stone;ctx.fillRect(-25,-65,42,10);ctx.fillStyle=lit;ctx.fillRect(-25,-65,42,3);
+ // roof tiles
+ polygon([[-31,-62],[-4,-83],[23,-62]],enemy?'#8e4b42':'#796044');
+ polygon([[-22,-64],[-4,-78],[14,-64]],enemy?'#b05d50':'#aa8752');
+ // slit windows and wooden gate
+ ctx.fillStyle='#182326';ctx.fillRect(-4,-43,9,15);ctx.fillRect(-33,-30,5,9);ctx.fillRect(30,-30,5,9);
+ ctx.fillStyle=enemy?'#54332e':'#4d3b2a';ctx.fillRect(-9,-24,18,25);ctx.fillStyle=enemy?'#b16a57':'#a58b5a';ctx.fillRect(-7,-22,2,22);ctx.fillRect(2,-22,2,22);
+ ctx.strokeStyle='#d1bb8b';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(-8,-17);ctx.lineTo(8,-17);ctx.moveTo(-8,-10);ctx.lineTo(8,-10);ctx.stroke();
+ // banner
+ ctx.strokeStyle='#d6d4bd';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(enemy?33:-34,-66);ctx.lineTo(enemy?33:-34,-91);ctx.stroke();
+ polygon(enemy?[[33,-91],[52,-86],[33,-79]]:[[-34,-91],[-53,-86],[-34,-79]],flag);
+ ctx.fillStyle='#f9e5a0';ctx.beginPath();ctx.arc(enemy?41:-41,-86,2,0,Math.PI*2);ctx.fill();
+ ctx.restore()
+}
+function drawUnit(u){
+ ctx.save();ctx.translate(u.x,u.y);
+ const player=u.side==='p',coat=player?['#c6a65b','#5d8267','#677f82','#3e6b77','#36bcb1'][era]:['#a67a64','#9c514a','#b15d4f','#873f3a','#8450b9'][era];
+ // ground shadow
+ ctx.fillStyle='#101b1b55';ctx.beginPath();ctx.ellipse(0,3,15,4,0,0,Math.PI*2);ctx.fill();
+ // legs, boots and belt
+ ctx.strokeStyle='#202a2b';ctx.lineWidth=4;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(-4,-10);ctx.lineTo(-7,-1);ctx.moveTo(4,-10);ctx.lineTo(7,-1);ctx.stroke();
+ ctx.fillStyle='#d0c8a9';ctx.fillRect(-9,-3,5,2);ctx.fillRect(5,-3,5,2);
+ // arms behind torso
+ ctx.strokeStyle=player?'#c9ad87':'#b88b79';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(-7,-23);ctx.lineTo(-12,-14);ctx.moveTo(7,-23);ctx.lineTo(11,-17);ctx.stroke();
+ // torso with lit edge
+ polygon([[-8,-26],[6,-26],[10,-11],[6,-8],[-8,-9],[-11,-13]],coat,'#253233');
+ ctx.fillStyle='#e0d1a3';ctx.fillRect(-7,-19,13,2);ctx.fillStyle='#273235';ctx.fillRect(-2,-21,4,10);
+ // head, hair/helmet and face
+ ctx.fillStyle=player?'#d6b38c':'#b98977';ctx.beginPath();ctx.arc(0,-31,6.4,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle=era===0?(player?'#513b2b':'#442e28'):(player?'#b7b9a7':'#8d8881');ctx.beginPath();ctx.arc(0,-33,7,Math.PI,Math.PI*2);ctx.lineTo(7,-30);ctx.lineTo(-7,-30);ctx.closePath();ctx.fill();
+ ctx.fillStyle='#182020';ctx.fillRect(player?2:-4,-31,2,2);
+ // weapon changes by age
+ ctx.lineCap='round';
+ if(era===0){ctx.strokeStyle='#62472e';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(player?5:-5,-18);ctx.lineTo(player?16:-16,-29);ctx.stroke();ctx.strokeStyle='#b7a17b';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(player?13:-13,-27);ctx.lineTo(player?18:-18,-32);ctx.stroke()}
+ else if(era===1){ctx.strokeStyle='#74512e';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(player?6:-6,-15);ctx.lineTo(player?13:-13,-35);ctx.stroke();ctx.strokeStyle='#d8d7bf';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(player?13:-13,-35);ctx.lineTo(player?15:-15,-40);ctx.stroke()}
+ else if(era===2){ctx.strokeStyle='#4c3a2d';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(player?5:-5,-19);ctx.lineTo(player?17:-17,-24);ctx.stroke();ctx.fillStyle='#c6b995';ctx.fillRect(player?13:-17,-26,6,3)}
+ else if(era===3){ctx.fillStyle='#303c3d';ctx.fillRect(player?5:-13,-23,14,4);ctx.fillStyle='#c4c8b4';ctx.fillRect(player?16:-15,-22,3,2)}
+ else {ctx.strokeStyle='#65f4e4';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(player?5:-5,-20);ctx.lineTo(player?18:-18,-25);ctx.stroke();ctx.shadowColor='#57fff0';ctx.shadowBlur=7;ctx.fillStyle='#a6fff6';ctx.fillRect(player?15:-18,-28,4,5);ctx.shadowBlur=0}
+ // polished health strip
+ ctx.fillStyle='#111a1d';ctx.fillRect(-12,-43,24,4);ctx.fillStyle=player?'#73e39c':'#ff776c';ctx.fillRect(-11,-42,22*Math.max(0,u.hp/u.maxhp),2);
+ ctx.restore()
+}
+function draw(){
+ if(!ctx)return;ctx.clearRect(0,0,W,H);
+ // painted sky and atmospheric sun
+ const sky=ctx.createLinearGradient(0,0,0,H);sky.addColorStop(0,'#4f8294');sky.addColorStop(.38,'#b7c7b0');sky.addColorStop(.67,'#d8c69a');sky.addColorStop(1,'#667d59');ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
+ const sunX=W*.77,sunY=H*.16,rad=Math.min(W,H)*.065;const glow=ctx.createRadialGradient(sunX,sunY,rad*.2,sunX,sunY,rad*2.4);glow.addColorStop(0,'#fff1bc88');glow.addColorStop(1,'#fff0b900');ctx.fillStyle=glow;ctx.fillRect(sunX-rad*2.5,sunY-rad*2.5,rad*5,rad*5);ctx.fillStyle='#ffe6ad';ctx.beginPath();ctx.arc(sunX,sunY,rad,0,Math.PI*2);ctx.fill();
+ // distant clouds
+ for(let i=0;i<5;i++){const x=(W*(i*.24+.03))%W,y=H*(.12+(i%3)*.07);ctx.fillStyle='#f3eee0'+(i%2?'55':'77');ctx.beginPath();ctx.ellipse(x,y,22,5,0,0,Math.PI*2);ctx.ellipse(x+13,y-3,15,7,0,0,Math.PI*2);ctx.ellipse(x+26,y,20,5,0,0,Math.PI*2);ctx.fill()}
+ // layered mountain silhouettes
+ polygon([[0,H*.49],[W*.10,H*.29],[W*.19,H*.43],[W*.34,H*.23],[W*.48,H*.47],[W*.61,H*.3],[W*.75,H*.45],[W*.89,H*.25],[W,H*.4],[W,H*.72],[0,H*.72]],'#718c89');
+ polygon([[0,H*.55],[W*.13,H*.42],[W*.26,H*.54],[W*.42,H*.37],[W*.57,H*.55],[W*.74,H*.4],[W*.88,H*.53],[W,H*.45],[W,H*.73],[0,H*.73]],'#58786c');
+ // little trees along the ridge
+ for(let i=0;i<22;i++){const x=i*W/21,y=H*(.57+(i%4)*.018),h=H*(.045+(i%3)*.012);ctx.fillStyle=i%2?'#3f6252':'#4c6d56';polygon([[x-7,y],[x,y-h],[x+7,y]],ctx.fillStyle);ctx.fillStyle='#584d3b';ctx.fillRect(x-1,y,2,7)}
+ // sunlit grassland with rolling terrain
+ const land=ctx.createLinearGradient(0,H*.58,0,H);land.addColorStop(0,'#8b9867');land.addColorStop(.55,'#667b50');land.addColorStop(1,'#344d3b');ctx.fillStyle=land;ctx.fillRect(0,H*.59,W,H*.41);
+ polygon([[0,H*.66],[W*.17,H*.61],[W*.32,H*.65],[W*.48,H*.6],[W*.66,H*.65],[W*.83,H*.6],[W,H*.64],[W,H],[0,H]],'#7d8d5d');
+ // distant scrub and stones
+ for(let i=0;i<55;i++){const x=(i*83+17)%W,y=H*.61+((i*37)%(Math.max(1,H*.34)));ctx.fillStyle=i%4===0?'#b3a36e':i%3?'#8e9a62':'#4c694d';ctx.beginPath();ctx.ellipse(x,y,(i%4)+1.5,1.5,0,0,Math.PI*2);ctx.fill()}
+ // dusty central road
+ ctx.fillStyle='#a99a70';ctx.beginPath();ctx.moveTo(0,H*.7);ctx.lineTo(W*.17,H*.69);ctx.lineTo(W*.38,H*.72);ctx.lineTo(W*.64,H*.69);ctx.lineTo(W,H*.7);ctx.lineTo(W,H*.81);ctx.lineTo(W*.62,H*.78);ctx.lineTo(W*.32,H*.81);ctx.lineTo(0,H*.79);ctx.closePath();ctx.fill();
+ ctx.fillStyle='#c5b68b';ctx.fillRect(0,H*.7,W,H*.012);ctx.fillStyle='#8a805f';for(let x=0;x<W;x+=44){ctx.fillRect(x,H*.755,20,2)}
+ // castle and fortress health
+ drawCastle(W*.055,H*.7,false);drawCastle(W*.945,H*.7,true);
+ ctx.fillStyle='#17252a';ctx.fillRect(W*.025,H*.455,W*.2,7);ctx.fillStyle='#5be09a';ctx.fillRect(W*.025,H*.455,W*.2*Math.max(0,base/100),7);
+ ctx.fillStyle='#17252a';ctx.fillRect(W*.775,H*.455,W*.2,7);ctx.fillStyle='#ff7569';ctx.fillRect(W*.775,H*.455,W*.2*Math.max(0,enemyBase/100),7);
+ // defensive towers
+ towers.forEach((t,i)=>{const x=W*.08+i*17,y=H*.66;ctx.fillStyle='#33433e';ctx.fillRect(x-8,y-28,16,29);ctx.fillStyle='#a8b49b';ctx.fillRect(x-11,y-34,22,7);ctx.fillStyle='#263431';ctx.fillRect(x-3,y-25,6,12);ctx.fillStyle='#e2c67b';ctx.fillRect(x-1,y-31,2,3);ctx.fillStyle='#202c2a';ctx.fillRect(x-10,y-2,20,3)});
+ // troops, projectiles and impact sparks
+ units.forEach(drawUnit);enemyUnits.forEach(drawUnit);
+ shots.forEach(s=>{const q=Math.min(1,s.t/s.dur),x=s.x+(s.tx-s.x)*q,y=s.y+(s.ty-s.y)*q-(s.meteor?Math.sin(q*Math.PI)*35:Math.sin(q*Math.PI)*12);ctx.strokeStyle=s.meteor?'#ff6b36':s.side==='p'?'#fff0a2':'#ffb5a3';ctx.lineWidth=s.meteor?6:2.5;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-(s.tx-s.x)*.055,y+12);ctx.stroke();ctx.fillStyle=s.meteor?'#ff6a2c':'#ffe5a0';ctx.shadowColor=ctx.fillStyle;ctx.shadowBlur=s.meteor?15:5;ctx.beginPath();ctx.arc(x,y,s.meteor?7:3,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0});
+ particles.forEach(p=>{ctx.globalAlpha=Math.max(0,p.life/p.max);ctx.fillStyle=p.color;ctx.shadowColor=p.color;ctx.shadowBlur=4;ctx.fillRect(p.x,p.y,p.size,p.size)});ctx.globalAlpha=1;ctx.shadowBlur=0;
+ // compact era ribbon
+ ctx.fillStyle='#142329dd';ctx.fillRect(W*.29,8,W*.42,26);ctx.strokeStyle='#d9b45b';ctx.lineWidth=1;ctx.strokeRect(W*.29,8,W*.42,26);ctx.fillStyle='#fff0c1';ctx.textAlign='center';ctx.font='bold 12px Tahoma';ctx.fillText(eras[era].name,W*.5,25);
+ if(started&&!ended&&units.length===0&&enemyUnits.length===0){ctx.fillStyle='#243638';ctx.font='bold 12px Tahoma';ctx.fillText('جنّد أول جندي وابدأ التقدم نحو حصن العدو',W*.5,H*.57)}
 }
 function loop(t){const dt=Math.min(.04,(t-last)/1000||0);last=t;if(!paused)update(dt);draw();requestAnimationFrame(loop)}
 function reset(){started=true;paused=false;ended=false;elapsed=0;gold=150;xp=0;base=100;enemyBase=100;era=0;units=[];enemyUnits=[];towers=[];shots=[];particles=[];nextAI=3;spawnId=0;streak=0;rallyUntil=0;retreatUntil=0;$('banner').classList.add('hidden');$('pauseBtn').textContent='Ⅱ إيقاف';buildUnits();log('بدأت المعركة! اجمع الذهب وادفع بقواتك إلى الأمام.');beep(440,.12);refresh()}
