@@ -32,7 +32,38 @@ for(let i=-5;i<=5;i++){box(i*8,.0,-24,5,.2,.5,darkMat,false);box(i*8,.0,24,5,.2,
 box(0,0,-28,58,3,1.2,wallMat);box(0,0,28,58,3,1.2,wallMat);box(-29,0,0,1.2,3,56,wallMat);box(29,0,0,1.2,3,56,wallMat);
 box(-10,0,-8,5,1.8,3,crateMat);box(-3,0,-12,3,1.1,3,wallMat);box(10,0,-10,6,2,2,darkMat);box(15,0,3,3,1.4,5,crateMat);box(-12,0,10,6,1.4,3,wallMat);box(0,0,13,4,1.7,4,crateMat);box(7,0,6,2,2.6,2,wallMat);box(-18,0,0,2,2,7,darkMat);
 function house(cx,cz,w=8,d=7){const t=.45,h=3.2,door=1.8;box(cx,0,cz-d/2,w,h,t,wallMat);box(cx-w/2,0,cz,t,h,d,wallMat);box(cx+w/2,0,cz,t,h,d,wallMat);const side=(w-door)/2;box(cx-w/2+side/2,0,cz+d/2,side,h,t,wallMat);box(cx+w/2-side/2,0,cz+d/2,side,h,t,wallMat);box(cx-w*.2,0,cz-d*.1,1.5,.8,1,crateMat);box(cx+w*.2,0,cz-d*.2,1.2,1.1,1.2,darkMat)}house(-14,-11,8,7);house(13,-14,9,8);house(13,13,8,7);house(-14,13,9,8);for(const [x,z,s] of [[-23,-18,1.1],[-20,15,1],[-18,-16,.8],[22,-16,1],[22,17,1.2],[18,11,.9],[2,-20,.8],[5,20,1],[-5,4,.75],[24,1,.7]])tree(x,z,s);
-const avatars=new Map();let jumpOffset=0;function makeAvatar(id,isMe=false,isSeeker=false){const g=new THREE.Group();const body=new THREE.Mesh(new THREE.CapsuleGeometry(.38,.65,4,8),isSeeker?seekMat:(isMe?playerMat:mat(0x6f9dff)));body.position.y=.9;body.castShadow=true;g.add(body);const head=new THREE.Mesh(new THREE.SphereGeometry(.28,12,10),mat(0xd9b18c));head.position.y=1.65;head.castShadow=true;g.add(head);const marker=new THREE.Mesh(new THREE.ConeGeometry(.17,.36,8),mat(isSeeker?0xff5c48:0xd7fff7));marker.position.set(0,2.05,0);marker.rotation.x=Math.PI;g.add(marker);const rifle=new THREE.Group();const barrel=new THREE.Mesh(new THREE.BoxGeometry(.13,.13,.95),mat(0x202a30,.45));barrel.position.set(.38,1.12,-.42);rifle.add(barrel);const stock=new THREE.Mesh(new THREE.BoxGeometry(.17,.2,.35),mat(0x493b2c));stock.position.set(.38,1.08,.18);rifle.add(stock);const grip=new THREE.Mesh(new THREE.BoxGeometry(.1,.25,.12),mat(0x252b2d));grip.position.set(.38,.91,-.05);rifle.add(grip);const sight=new THREE.Mesh(new THREE.BoxGeometry(.06,.1,.12),mat(0x111719));sight.position.set(.38,1.23,-.35);rifle.add(sight);g.add(rifle);g.userData.rifle=rifle;scene.add(g);avatars.set(id,g);return g}
+const avatars=new Map();let jumpOffset=0;function makeAvatar(id,isMe=false,isSeeker=false){
+ const g=new THREE.Group();
+ const uniform=mat(isSeeker?0x9b4b36:(isMe?0x344f48:0x344d70));
+ const armor=mat(isSeeker?0x63352d:(isMe?0x263d39:0x253954));
+ const skin=mat(0xc99a76),boots=mat(0x20272a),metal=mat(0x20282d,.42),wood=mat(0x5c432d);
+ function part(geo,m,x,y,z){const o=new THREE.Mesh(geo,m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;g.add(o);return o}
+ // Boots, articulated legs, tactical torso and shoulder pads
+ part(new THREE.BoxGeometry(.22,.18,.32),boots,-.19,.12,0);part(new THREE.BoxGeometry(.22,.18,.32),boots,.19,.12,0);
+ part(new THREE.CapsuleGeometry(.115,.42,3,7),uniform,-.19,.43,0);part(new THREE.CapsuleGeometry(.115,.42,3,7),uniform,.19,.43,0);
+ part(new THREE.BoxGeometry(.53,.62,.29),armor,0,1.03,0);
+ part(new THREE.BoxGeometry(.19,.24,.32),uniform,-.31,1.24,0);part(new THREE.BoxGeometry(.19,.24,.32),uniform,.31,1.24,0);
+ part(new THREE.BoxGeometry(.16,.46,.18),uniform,-.35,.94,-.02);part(new THREE.BoxGeometry(.16,.46,.18),uniform,.35,.94,-.13);
+ part(new THREE.SphereGeometry(.105,10,8),skin,-.35,.68,-.02);part(new THREE.SphereGeometry(.105,10,8),skin,.35,.68,-.13);
+ part(new THREE.BoxGeometry(.16,.16,.17),skin,0,1.43,0);
+ part(new THREE.SphereGeometry(.22,12,10),skin,0,1.63,0);
+ const helmet=part(new THREE.SphereGeometry(.245,12,8,0,Math.PI*2,0,Math.PI*.58),mat(isSeeker?0x6d342b:0x263a32),0,1.77,0);
+ part(new THREE.BoxGeometry(.43,.055,.25),mat(0x17211f),0,1.67,-.02);
+ // Backpack, straps, pouches
+ part(new THREE.BoxGeometry(.32,.43,.16),armor,0,1.06,.21);
+ part(new THREE.BoxGeometry(.14,.18,.08),wood,-.17,.88,-.17);part(new THREE.BoxGeometry(.14,.18,.08),wood,.17,.88,-.17);
+ // Rifle held across the front, barrel pointing forward (-Z)
+ const rifle=new THREE.Group();
+ const barrel=new THREE.Mesh(new THREE.BoxGeometry(.095,.095,.82),metal);barrel.position.set(.22,1.03,-.49);rifle.add(barrel);
+ const receiver=new THREE.Mesh(new THREE.BoxGeometry(.15,.16,.34),metal);receiver.position.set(.22,1.02,-.12);rifle.add(receiver);
+ const stock=new THREE.Mesh(new THREE.BoxGeometry(.12,.13,.25),wood);stock.position.set(.22,1.02,.17);rifle.add(stock);
+ const grip=new THREE.Mesh(new THREE.BoxGeometry(.08,.2,.09),wood);grip.position.set(.22,.89,-.04);rifle.add(grip);
+ const sight=new THREE.Mesh(new THREE.BoxGeometry(.045,.065,.1),metal);sight.position.set(.22,1.12,-.43);rifle.add(sight);
+ rifle.traverse(o=>{if(o.isMesh)o.castShadow=true});g.add(rifle);g.userData.rifle=rifle;
+ // Team marker floats above the helmet
+ const marker=new THREE.Mesh(new THREE.ConeGeometry(.12,.25,8),mat(isSeeker?0xff5c48:(isMe?0x62f3d6:0xd7eaff)));marker.position.y=2.12;marker.rotation.x=Math.PI;g.add(marker);
+ scene.add(g);avatars.set(id,g);return g
+}
 const me={x:0,z:2,rot:0};let myAvatar=makeAvatar('me',true,false);let health=100,jumpUntil=0,cameraReady=false;const cameraOffset=new THREE.Vector3();function clamp(v,a,b){return Math.max(a,Math.min(b,v))}function collides(x,z){return colliders.some(c=>Math.abs(x-c.x)<c.w/2+.42&&Math.abs(z-c.z)<c.d/2+.42)}function move(dx,dz){let x=clamp(me.x+dx,-26,26),z=clamp(me.z+dz,-25,25);if(!collides(x,me.z))me.x=x;if(!collides(me.x,z))me.z=z;}
 function queuePosition(){if(!roomId||!uid)return;clearTimeout(writeTimer);writeTimer=setTimeout(()=>{update(ref(db,'hideSeekRooms/'+roomId+'/players/'+uid),{x:me.x,z:me.z,rot:me.rot,hidden,updatedAt:Date.now()}).catch(e=>say('تعذر إرسال الحركة: '+e.message));},100)}
 window.addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault()},{passive:false});window.addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
