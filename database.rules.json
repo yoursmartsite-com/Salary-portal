@@ -63,6 +63,15 @@
         ".write": "auth != null && (auth.uid === $toUid || newData.child('fromUid').val() === auth.uid)"
       }
     },
+    "gameInvites": {
+      "$toUid": {
+        ".read": "auth != null && auth.uid === $toUid",
+        "$inviteId": {
+          ".read": "auth != null && (auth.uid === $toUid || data.child('fromUid').val() === auth.uid)",
+          ".write": "auth != null && ((auth.uid === $toUid && !newData.exists()) || (auth.uid !== $toUid && !data.exists() && newData.child('fromUid').val() === auth.uid && newData.child('roomCode').isString() && newData.child('status').val() === 'pending'))"
+        }
+      }
+    },
     "adminGifts": {
       ".read": "auth != null && auth.token.email === 'fibrahem865@gmail.com'",
       "$uid": {
