@@ -937,9 +937,9 @@ const hasPlayable=tile=>!board.length||tile[0]===left||tile[1]===left||tile[0]==
 $('#passD').onclick=()=>{if(!myTurn||finished||stock.length)return;if(mine.some(hasPlayable)){toast('معاك حجر ينفع تلعبه؛ مش مسموح تعدّي');return}selectedDominoIndex=null;roomRef.child('state').update({...st,turn:keys.find(k=>k!==uid)||uid,status:'playing'}).catch(e=>toast('تعذر تمرير الدور: '+e.message))};
 $('#share').onclick=()=>copy(r.code);
 }
-var botDomino=null,botMoveTimer=null;
+var botDomino=null;window.botMoveTimer=null;
 function startDominoBot(){
-if(botMoveTimer)clearTimeout(botMoveTimer);
+if(window.botMoveTimer)clearTimeout(window.botMoveTimer);
 let tiles=[];for(let a=0;a<=6;a++)for(let b=a;b<=6;b++)tiles.push([a,b]);
 for(let i=tiles.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[tiles[i],tiles[j]]=[tiles[j],tiles[i]]}
 botDomino={board:[],player:tiles.splice(0,7),bot:tiles.splice(0,7),stock:tiles,turn:'player',winner:null,notice:'بدأت اللعبة! دورك الأول.',difficulty:'medium'};
@@ -967,11 +967,11 @@ const canL=t=>!g.board.length||t[0]===ends.left||t[1]===ends.left,canR=t=>!g.boa
 const chain=dominoSnakeMarkup(g.board,tileHtml,selected,canL,canR,'data-bot-place');
 $('#body').innerHTML='<div class="d-head"><div><span class="d-kicker">لَمّة · لاعب ضد الكمبيوتر</span><h2>دومينو 🤖</h2><p>أنت ضد الإنسان الآلي</p></div><button class="ghost" id="botRestart">جولة جديدة ↻</button></div><div class="d-score"><div class="d-player '+(g.turn==='player'&&!g.winner?'active':'')+'"><span class="d-avatar">😎</span><span class="d-player-name">أنت</span><b>'+g.player.length+' <small>حجر</small></b></div><div class="d-player '+(g.turn==='bot'&&!g.winner?'active':'')+'"><span class="d-avatar">🤖</span><span class="d-player-name">الكمبيوتر</span><b>'+g.bot.length+' <small>حجر</small></b></div></div><div class="d-status '+(g.turn==='player'&&!g.winner?'your-turn':'')+'"><span class="d-pulse"></span><div><b>'+(g.winner?g.notice:g.turn==='player'?'دورك — اختار حجر':'الكمبيوتر بيفكر...')+'</b><small>'+g.notice+'</small></div></div><div class="d-table"><div class="d-table-top"><span>سلسلة الأحجار</span><span>السحب: '+g.stock.length+'</span></div><div class="d-chain">'+chain+'</div><div class="d-stock">🂠 <b>'+g.stock.length+'</b> حجر في السحب</div></div><div class="d-hand-head"><div><h3>أحجارك</h3><small>حدد الحجر ثم اختار الطرف</small></div><span class="d-count">'+hand.length+' أحجار</span></div><div class="domino-hand">'+hand.map((t,i)=>'<button class="domino-tile '+(selectedDominoIndex===i?'chosen':'')+'" data-bottile="'+i+'" '+(g.turn!=='player'||g.winner?'disabled':'')+'>'+tileHtml(t)+'</button>').join('')+'</div><div class="d-action-area">'+(selected?'<div class="d-selected">الحجر المحدد: '+tileHtml(selected)+'</div>':'<div class="d-hint">اضغط على حجر عشان تظهر أماكن وضعه على الترابيزة</div>')+'<div class="d-actions">'+'<button class="secondary" id="botDraw" '+(g.turn!=='player'||g.winner||!g.stock.length||playerHasPlayable?'disabled':'')+'>＋ اسحب حجر</button><button class="ghost" id="botPass" '+(g.turn!=='player'||g.winner||g.stock.length||playerHasPlayable?'disabled':'')+'>عدّي الدور</button></div></div><div class="row"><button class="secondary" id="botAgain">العب مرة تانية</button><button class="ghost" id="botExit">رجوع للموقع</button></div>';
 $$('[data-bottile]').forEach(b=>b.onclick=()=>{selectedDominoIndex=+b.dataset.bottile;renderDominoBot()});
-const doPlay=side=>{if(g.turn!=='player'||selectedDominoIndex===null)return;if(botPlayTile('player',selectedDominoIndex,side)){selectedDominoIndex=null;renderDominoBot();if(!g.winner)botMoveTimer=setTimeout(doBotMove,850)}};
+const doPlay=side=>{if(g.turn!=='player'||selectedDominoIndex===null)return;if(botPlayTile('player',selectedDominoIndex,side)){selectedDominoIndex=null;renderDominoBot();if(!g.winner)window.botMoveTimer=setTimeout(doBotMove,850)}};
 $$('[data-bot-place]').forEach(b=>b.onclick=()=>doPlay(b.dataset.botPlace));
 $('#botDraw').onclick=()=>{if(g.turn!=='player'||g.winner||!g.stock.length)return;if(hand.some(t=>canL(t)||canR(t))){g.notice='معاك حجر ينفع تلعبه؛ مش محتاج تسحب.';renderDominoBot();return}hand.push(g.stock.pop());g.notice='سحبت حجر. لو لسه مفيش حجر مناسب، اسحب تاني.';selectedDominoIndex=null;renderDominoBot()};
-$('#botPass').onclick=()=>{if(g.turn!=='player'||g.winner||g.stock.length)return;if(hand.some(t=>canL(t)||canR(t))){g.notice='معاك حجر ينفع تلعبه؛ مش مسموح تعدّي.';renderDominoBot();return}g.turn='bot';selectedDominoIndex=null;g.notice='عدّيت دورك. الكمبيوتر هيلعب.';renderDominoBot();botMoveTimer=setTimeout(doBotMove,700)};
-$('#botRestart').onclick=startDominoBot;$('#botAgain').onclick=startDominoBot;$('#botExit').onclick=()=>{if(botMoveTimer)clearTimeout(botMoveTimer);botDomino=null;selectedDominoIndex=null;close()};
+$('#botPass').onclick=()=>{if(g.turn!=='player'||g.winner||g.stock.length)return;if(hand.some(t=>canL(t)||canR(t))){g.notice='معاك حجر ينفع تلعبه؛ مش مسموح تعدّي.';renderDominoBot();return}g.turn='bot';selectedDominoIndex=null;g.notice='عدّيت دورك. الكمبيوتر هيلعب.';renderDominoBot();window.botMoveTimer=setTimeout(doBotMove,700)};
+$('#botRestart').onclick=startDominoBot;$('#botAgain').onclick=startDominoBot;$('#botExit').onclick=()=>{if(window.botMoveTimer)clearTimeout(window.botMoveTimer);botDomino=null;selectedDominoIndex=null;close()};
 }
 function doBotMove(){
 const g=botDomino;if(!g||g.winner||g.turn!=='bot')return;
@@ -979,7 +979,7 @@ const g=botDomino;if(!g||g.winner||g.turn!=='bot')return;
 if(!Array.isArray(g.bot))g.bot=[];
 if(!Array.isArray(g.board))g.board=[];
 let playable=[];g.bot.forEach((t,i)=>{if(!g.board.length)playable.push({i,side:'right',score:t[0]+t[1]});else{if(botCan(t,'left'))playable.push({i,side:'left',score:t[0]+t[1]});if(botCan(t,'right'))playable.push({i,side:'right',score:t[0]+t[1]})}});
-if(!playable.length&&g.stock.length){g.bot.push(g.stock.pop());g.notice='الكمبيوتر سحب حجر...';renderDominoBot();botMoveTimer=setTimeout(doBotMove,650);return}
+if(!playable.length&&g.stock.length){g.bot.push(g.stock.pop());g.notice='الكمبيوتر سحب حجر...';renderDominoBot();window.botMoveTimer=setTimeout(doBotMove,650);return}
 if(!playable.length){g.turn='player';g.notice='الكمبيوتر عدّى دوره. دورك!';renderDominoBot();return}
 playable.sort((a,b)=>b.score-a.score);const choice=playable[Math.floor(Math.random()*Math.min(3,playable.length))];botPlayTile('bot',choice.i,choice.side);renderDominoBot();
 }
