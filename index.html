@@ -1382,39 +1382,7 @@ else{mic.addEventListener('click',()=>{addMessage('المتصفح ده مش بي
 </script>
 
 
-<script id="lamma-game-button-fix">
-(function(){
-  // Expose the existing game launchers so one delegated handler can reach them.
-  if(typeof create === 'function') window.createLammaGame = create;
-  if(typeof createBotGame === 'function') window.createBotGame = createBotGame;
-  document.addEventListener('click', function(event){
-    var target = event.target;
-    if(!target || !target.closest) return;
-    var botDomino = target.closest('#dominoBotButton');
-    var botXO = target.closest('.card .bot-play[onclick*="createBotGame"]');
-    var onlineGame = target.closest('.card button.play[data-game]');
-    if(!botDomino && !botXO && !onlineGame) return;
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    try {
-      if(botDomino){
-        if(typeof window.startDominoBot === 'function') window.startDominoBot();
-        else throw new Error('مشغل دومينو الكمبيوتر غير متاح');
-      } else if(botXO){
-        if(typeof window.createBotGame === 'function') window.createBotGame();
-        else throw new Error('مشغل إكس أو ضد الكمبيوتر غير متاح');
-      } else {
-        if(typeof window.createLammaGame === 'function') window.createLammaGame(onlineGame.dataset.game);
-        else throw new Error('مشغل الغرف غير متاح');
-      }
-    } catch(error) {
-      console.error('Lamma game launch error:', error);
-      var toast = document.getElementById('toast');
-      if(toast){toast.textContent='تعذر فتح اللعبة: '+(error && error.message ? error.message : 'حصل خطأ');toast.classList.add('show');}
-    }
-  }, true);
-})();
-</script>
+
 </body></html>
 
 /* Mobile game cards: prevent narrow columns and broken Arabic wrapping */
