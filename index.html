@@ -1383,6 +1383,55 @@ else{mic.addEventListener('click',()=>{addMessage('المتصفح ده مش بي
 
 
 
+
+<style id="lamma-mobile-cards-buttons-fix">
+/* Mobile layout: give the game cards their own full-width space */
+@media (max-width: 900px){
+ .lamma-premium-shell{display:flex!important;flex-direction:column!important;gap:12px!important;padding:10px!important}
+ .lamma-premium-sidebar{position:static!important;width:100%!important;max-height:none!important;order:0!important}
+ .lamma-premium-sidebar .lp-nav{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;gap:7px!important}
+ .lamma-premium-main{width:100%!important;min-width:0!important;order:1!important}
+ .lamma-premium-right{width:100%!important;order:2!important;position:static!important;max-height:none!important}
+ .lamma-premium-main .site-main{width:100%!important;max-width:none!important}
+}
+.lamma-premium-main #games .card,
+.lamma-premium-main #solo-games .card{
+ display:flex!important;flex-direction:column!important;align-items:stretch!important;
+ min-width:0!important;height:auto!important;min-height:0!important;overflow:hidden!important;
+ padding:0 0 12px!important;gap:0!important;
+}
+.lamma-premium-main #games .card .ico,
+.lamma-premium-main #solo-games .card .ico{
+ display:block!important;flex:0 0 115px!important;width:100%!important;
+ height:115px!important;min-height:115px!important;max-height:115px!important;
+ margin:0 0 10px!important;background-size:cover!important;background-position:center!important;
+}
+.lamma-premium-main #games .card .meta,
+.lamma-premium-main #solo-games .card .meta,
+.lamma-premium-main #games .card h3,
+.lamma-premium-main #solo-games .card h3,
+.lamma-premium-main #games .card p,
+.lamma-premium-main #solo-games .card p{flex:0 0 auto!important;margin-left:13px!important;margin-right:13px!important}
+.lamma-premium-main #games .card p,
+.lamma-premium-main #solo-games .card p{min-height:0!important;margin-bottom:12px!important;line-height:1.75!important}
+.lamma-premium-main #games .card .play,
+.lamma-premium-main #solo-games .card .play{
+ position:relative!important;z-index:3!important;display:flex!important;visibility:visible!important;
+ opacity:1!important;flex:0 0 auto!important;align-items:center!important;justify-content:center!important;
+ width:calc(100% - 26px)!important;min-height:44px!important;height:auto!important;
+ margin:8px 13px 0!important;padding:10px 9px!important;white-space:normal!important;
+ overflow:visible!important;line-height:1.5!important;text-align:center!important;
+}
+.lamma-premium-main #games .card .bot-play,
+.lamma-premium-main #solo-games .card .bot-play{margin-top:8px!important}
+#roomsSection .room.room-card{min-width:0!important;overflow:hidden!important}
+#roomsSection .room-game-icon{display:block!important;flex:0 0 105px!important;width:100%!important;height:105px!important;min-height:105px!important;background-size:cover!important;background-position:center!important}
+#roomsSection .room-enter{position:relative!important;z-index:2!important;display:flex!important;visibility:visible!important;opacity:1!important;min-height:42px!important}
+@media(max-width:520px){
+ .lamma-premium-main #games .grid,.lamma-premium-main #solo-games .grid{grid-template-columns:minmax(0,1fr)!important}
+ .lamma-premium-main #games .card .ico,.lamma-premium-main #solo-games .card .ico{flex-basis:145px!important;height:145px!important;min-height:145px!important;max-height:145px!important}
+}
+</style>
 </body></html>
 
 /* Mobile game cards: prevent narrow columns and broken Arabic wrapping */
