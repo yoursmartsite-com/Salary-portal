@@ -414,25 +414,56 @@ function subscribePresence() {
     });
       $("[data-invite]").forEach(btn => btn.addEventListener("click", () => sendInvite(btn.dataset.invite)));
   });
-  onValue(ref(state.db, `invites/${state.uid}`), snap => {
-    const invite = snap.val();
-    if (!invite || !invite.roomId || invite.status !== "pending") return;
-    if ($("#inviteNotice")) {
-      $("#inviteNotice").innerHTML = `<div class="invite-box"><span>🎮 ${safeText(invite.fromName || "لاعب")} بيدعوك للعب ${safeText(invite.gameTitle || "لعبة")}</span><div><button id="acceptInvite">قبول</button><button id="rejectInvite">رفض</button></div></div>`;
-      $("#acceptInvite")?.addEventListener("click", async () => { await remove(ref(state.db, `invites/${state.uid}`)); joinRoom(invite.roomId); });
-      $("#rejectInvite")?.addEventListener("click", async () => { await remove(ref(state.db, `invites/${state.uid}`)); $("#inviteNotice").innerHTML = ""; });
-    }
+  onValue(ref(state.db, `gameInvites/${state.uid}`), snap => {
+    const root = $("#inviteNotice");
+    if (!root) return;
+    const invitations = [];
+    snap.forEach(child => {
+      const invite = child.val();
+      if (invite && invite.roomCode && invite.status === "pending") {
+        invitations.push({ id: child.key, ...invite });
+      }
+    });
+    root.innerHTML = invitations.length ? invitations.map(invite => `
+      <div class="invite-box" data-invite-row="${safeText(invite.id)}">
+        <span>🎮 ${safeText(invite.fromName || "لاعب")} بيدعوك للعب ${safeText(invite.gameTitle || "لعبة")}</span>
+        <div><button data-accept-invite="${safeText(invite.id)}">قبول</button><button data-reject-invite="${safeText(invite.id)}">رفض</button></div>
+      </div>`).join("") : "";
+    root.querySelectorAll("[data-accept-invite]").forEach(button => {
+      button.addEventListener("click", async () => {
+        const invite = invitations.find(item => item.id === button.dataset.acceptInvite);
+        if (!invite) return;
+        button.disabled = true;
+        try {
+          await remove(ref(state.db, `gameInvites/${state.uid}/${invite.id}`));
+          await joinRoom(invite.roomCode);
+        } catch (err) {
+          console.error(err);
+          button.disabled = false;
+          toast("تعذر قبول الدعوة. راجع اتصال الغرفة.");
+        }
+      });
+    });
+    root.querySelectorAll("[data-reject-invite]").forEach(button => {
+      button.addEventListener("click", async () => {
+        button.disabled = true;
+        try { await remove(ref(state.db, `gameInvites/${state.uid}/${button.dataset.rejectInvite}`)); }
+        catch (err) { console.error(err); button.disabled = false; toast("تعذر رفض الدعوة."); }
+      });
+    });
   });
 }
 
 async function sendInvite(targetUid) {
   if (!state.firebase) { toast("الدعوات تحتاج اتصال أونلاين."); return; }
   if (!state.roomId || !state.room) { toast("افتح غرفة الأول وبعدين ابعت الدعوة."); return; }
+  if (targetUid === state.uid) { toast("مينفعش تبعت دعوة لنفسك."); return; }
   const titles = { xo: "إكس أو", rps: "حجر ورقة مقص", guess: "تخمين الرقم" };
   try {
-    const { ref, set } = state.dbApi;
-    await set(ref(state.db, `invites/${targetUid}`), {
-      fromUid: state.uid, fromName: state.name, roomId: state.roomId,
+    const { ref, push, set } = state.dbApi;
+    const inviteRef = push(ref(state.db, `gameInvites/${targetUid}`));
+    await set(inviteRef, {
+      fromUid: state.uid, fromName: state.name, roomCode: state.roomId,
       gameTitle: titles[state.game] || "لعبة", status: "pending", at: Date.now()
     });
     toast("اتبعثت الدعوة!");
