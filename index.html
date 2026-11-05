@@ -937,7 +937,7 @@ const hasPlayable=tile=>!board.length||tile[0]===left||tile[1]===left||tile[0]==
 $('#passD').onclick=()=>{if(!myTurn||finished||stock.length)return;if(mine.some(hasPlayable)){toast('معاك حجر ينفع تلعبه؛ مش مسموح تعدّي');return}selectedDominoIndex=null;roomRef.child('state').update({...st,turn:keys.find(k=>k!==uid)||uid,status:'playing'}).catch(e=>toast('تعذر تمرير الدور: '+e.message))};
 $('#share').onclick=()=>copy(r.code);
 }
-let botDomino=null,botMoveTimer=null;
+var botDomino=null,botMoveTimer=null;
 function startDominoBot(){
 if(botMoveTimer)clearTimeout(botMoveTimer);
 let tiles=[];for(let a=0;a<=6;a++)for(let b=a;b<=6;b++)tiles.push([a,b]);
