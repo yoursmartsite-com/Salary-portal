@@ -38,7 +38,7 @@
           }
         },
         "playersCount": {
-          ".write": "auth != null && root.child('rooms').child($roomId).child('players').child(auth.uid).exists() && newData.isNumber() && newData.val() >= 1 && newData.val() <= 2"
+          ".write": "auth != null && newData.isNumber() && ((root.child('rooms').child($roomId).child('players').child(auth.uid).exists() && newData.val() >= 1 && newData.val() <= 2) || (root.child('rooms').child($roomId).child('game').val() === 'chess' && data.val() === 1 && newData.val() === 2 && newData.parent().child('blackUid').val() === auth.uid))"
         },
         "state": {
           ".write": "auth != null && root.child('adminModeration').child(auth.uid).child('banned').val() != true && root.child('rooms').child($roomId).child('players').child(auth.uid).exists()"
@@ -53,7 +53,7 @@
           ".write": "auth != null && auth.uid === newData.val() && data.val() === '' && root.child('rooms').child($roomId).child('game').val() === 'chess'"
         },
         "updatedAt": {
-          ".write": "auth != null && root.child('rooms').child($roomId).child('players').child(auth.uid).exists() && newData.isNumber()"
+          ".write": "auth != null && newData.isNumber() && (root.child('rooms').child($roomId).child('players').child(auth.uid).exists() || (root.child('rooms').child($roomId).child('game').val() === 'chess' && root.child('rooms').child($roomId).child('blackUid').val() === auth.uid))"
         },
         "map": {
           ".write": "auth != null && root.child('rooms').child($roomId).child('hostUid').val() === auth.uid"
