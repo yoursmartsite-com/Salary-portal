@@ -186,7 +186,7 @@
       ".read": "auth != null",
       "$roomId": {
         ".read": "auth != null",
-        ".write": "auth != null && ((!data.exists() && newData.child('order').child('0').val() === auth.uid && newData.child('players').child(auth.uid).exists()) || data.child('players').child(auth.uid).exists() || (!data.child('players').child(auth.uid).exists() && data.child('players').numChildren() < 2 && newData.child('players').child(auth.uid).exists() && newData.child('order').child('0').val() === data.child('order').child('0').val() && newData.child('order').child('1').val() === auth.uid))"
+        ".write": "auth != null && ((!data.exists() && newData.child('order').child('0').val() === auth.uid && newData.child('players').child(auth.uid).exists()) || (data.exists() && data.child('players').child(auth.uid).exists()) || (data.exists() && !data.child('players').child(auth.uid).exists() && !data.child('order').child('1').exists() && newData.child('players').child(auth.uid).exists() && newData.child('order').child('0').val() === data.child('order').child('0').val() && newData.child('order').child('1').val() === auth.uid))"
       }
     },
     "ludoRooms": {
