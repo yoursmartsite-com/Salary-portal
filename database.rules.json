@@ -53,7 +53,7 @@
           ".write": "auth != null && auth.uid === newData.val() && data.val() === '' && root.child('rooms').child($roomId).child('game').val() === 'chess'"
         },
         "updatedAt": {
-          ".write": "auth != null && newData.isNumber() && (root.child('rooms').child($roomId).child('players').child(auth.uid).exists() || (root.child('rooms').child($roomId).child('game').val() === 'chess' && root.child('rooms').child($roomId).child('blackUid').val() === auth.uid))"
+          ".write": "auth != null && newData.isNumber() && (root.child('rooms').child($roomId).child('players').child(auth.uid).exists() || (root.child('rooms').child($roomId).child('game').val() === 'chess' && newData.parent().child('blackUid').val() === auth.uid))"
         },
         "map": {
           ".write": "auth != null && root.child('rooms').child($roomId).child('hostUid').val() === auth.uid"
