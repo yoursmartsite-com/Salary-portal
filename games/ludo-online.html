@@ -522,3 +522,116 @@ body{background:radial-gradient(ellipse at 50% 0%,#243d70 0,#111b35 48%,#070d1b 
   100%{opacity:0;transform:translateY(-45px)}
 }
 </style>
+
+<style>
+/* Lamma premium dice collection: distinct 3D materials for every owned skin */
+.dice-cube.skin-dice_gold,.player-die.skin-dice_gold{
+ position:relative;isolation:isolate;overflow:hidden;
+ background:
+  linear-gradient(125deg,transparent 0 35%,#fff8 36% 39%,transparent 41% 100%),
+  radial-gradient(ellipse at 22% 16%,#fffbdc 0 5%,transparent 30%),
+  linear-gradient(145deg,#fff4b0 0%,#e8ae28 28%,#9b5b0a 62%,#ffe68b 100%)!important;
+ border:2px solid #fff0a6!important;
+ box-shadow:inset 0 2px 5px #fff9,inset 0 -8px 12px #704006aa,0 0 0 1px #9b681c,0 0 18px #ffc84dcc,0 8px 16px #000b!important;
+}
+.dice-cube.skin-dice_gold i.on,.player-die.skin-dice_gold i.on{
+ background:radial-gradient(circle at 35% 25%,#fffdf0 0 12%,#6a430b 45%,#241503 100%)!important;
+ box-shadow:0 0 4px #fff5c4,0 1px 3px #0009!important;
+}
+.dice-cube.skin-dice_crystal,.player-die.skin-dice_crystal{
+ position:relative;isolation:isolate;overflow:hidden;
+ background:
+  linear-gradient(130deg,transparent 0 36%,#fff9 37% 40%,transparent 42% 100%),
+  repeating-linear-gradient(45deg,#ffffff12 0 2px,transparent 2px 13px),
+  radial-gradient(ellipse at 20% 12%,#fff 0 4%,transparent 27%),
+  linear-gradient(145deg,#f1ffff 0%,#79e8f5 30%,#2789cf 68%,#172c79 100%)!important;
+ border:2px solid #d9ffff!important;
+ box-shadow:inset 0 2px 6px #fff,inset 0 -8px 13px #124b9c99,0 0 0 1px #3daecb,0 0 19px #5ceaffcc,0 8px 16px #000b!important;
+}
+.dice-cube.skin-dice_crystal i.on,.player-die.skin-dice_crystal i.on{
+ background:radial-gradient(circle at 35% 25%,#fff 0 15%,#b8fbff 35%,#176c9e 100%)!important;
+ box-shadow:0 0 5px #fff,0 0 10px #6ef4ff!important;
+}
+.dice-cube.skin-dice_lightning,.player-die.skin-dice_lightning{
+ position:relative;isolation:isolate;overflow:hidden;
+ background:
+  linear-gradient(125deg,transparent 0 34%,#fff9 35% 38%,transparent 40% 100%),
+  repeating-linear-gradient(115deg,transparent 0 13px,#d9caff20 14px 16px,transparent 18px 29px),
+  radial-gradient(ellipse at 20% 12%,#fff 0 5%,transparent 28%),
+  linear-gradient(145deg,#f8f4ff 0%,#a58bff 30%,#5140bc 67%,#17154c 100%)!important;
+ border:2px solid #e8dcff!important;
+ box-shadow:inset 0 2px 5px #fff,inset 0 -8px 13px #17104eaa,0 0 0 1px #6953c5,0 0 19px #a88affcc,0 8px 16px #000b!important;
+}
+.dice-cube.skin-dice_lightning i.on,.player-die.skin-dice_lightning i.on{
+ background:radial-gradient(circle at 35% 25%,#fff 0 15%,#e5d9ff 36%,#5540b9 100%)!important;
+ box-shadow:0 0 5px #fff,0 0 10px #b69aff!important;
+}
+.dice-cube.skin-dice_galaxy,.player-die.skin-dice_galaxy{
+ position:relative;isolation:isolate;overflow:hidden;
+ background:
+  radial-gradient(circle at 23% 20%,#fff 0 1px,transparent 2px),
+  radial-gradient(circle at 72% 66%,#ffb8f4 0 1px,transparent 2px),
+  radial-gradient(ellipse at 25% 15%,#ffb8f477 0 4%,transparent 28%),
+  repeating-linear-gradient(135deg,transparent 0 14px,#d9a4ff19 15px 17px,transparent 19px 31px),
+  linear-gradient(145deg,#49316f 0%,#25205e 42%,#101638 76%,#080d20 100%)!important;
+ background-size:31px 29px,43px 37px,auto,auto,auto!important;
+ border:2px solid #edc5ff!important;
+ box-shadow:inset 0 2px 5px #fff8,inset 0 -8px 13px #080b25,0 0 0 1px #7e4ab0,0 0 20px #b45cffcc,0 8px 16px #000b!important;
+}
+.dice-cube.skin-dice_galaxy i.on,.player-die.skin-dice_galaxy i.on{
+ background:radial-gradient(circle at 35% 25%,#fff 0 13%,#ffd5ff 34%,#7146b9 100%)!important;
+ box-shadow:0 0 5px #fff,0 0 10px #e18bff!important;
+}
+/* Six-roll signatures: each player's own die triggers its own visual language */
+.dice-effect-overlay.fx-dice_gold:before{
+ width:100%;height:100%;border-radius:0;opacity:1;
+ background:radial-gradient(ellipse at 50% 100%,#fff4ad 0 2%,#ffc83d99 10%,transparent 38%),linear-gradient(0deg,#ffbd3538,transparent 30%);
+ filter:drop-shadow(0 0 12px #ffc83d);animation:lammaGoldBurst .55s ease-out 4 both;
+}
+.dice-effect-overlay.fx-dice_gold:after{
+ width:100%;height:100%;border-radius:0;opacity:1;
+ background:radial-gradient(circle,#fff4b5 0 2px,transparent 3px) 0 0/37px 41px,radial-gradient(circle,#ffc83d 0 2px,transparent 3px) 13px 17px/53px 47px;
+ mask:linear-gradient(transparent,#000 22%,#000 78%,transparent);animation:lammaEmbers .8s ease-out 3 both;
+}
+.dice-effect-overlay.fx-dice_crystal:before{
+ width:100%;height:100%;border-radius:0;opacity:1;
+ background:repeating-linear-gradient(115deg,transparent 0 12%,#c8fbff55 13%,transparent 14% 25%),radial-gradient(ellipse at 50% 100%,#d9ffff88,transparent 55%);
+ filter:drop-shadow(0 0 14px #6ceaff);animation:lammaCrystalShards .7s ease-out 3 both;
+}
+.dice-effect-overlay.fx-dice_crystal:after{
+ width:100%;height:100%;border-radius:0;opacity:1;
+ background:radial-gradient(circle,#fff 0 2px,transparent 3px) 0 0/41px 43px,radial-gradient(circle,#8cf5ff 0 2px,transparent 3px) 17px 13px/59px 53px;
+ animation:lammaEmbers .8s ease-out 3 both;
+}
+.dice-effect-overlay.fx-dice_lightning:before{
+ width:100%;height:100%;border-radius:0;opacity:1;
+ background:repeating-linear-gradient(105deg,transparent 0 12%,#c8b5ff55 13%,transparent 14% 27%),linear-gradient(90deg,transparent,#eee5ff88,transparent);
+ filter:drop-shadow(0 0 16px #a88aff);animation:lammaLightningStorm .22s steps(2) 8 both;
+}
+.dice-effect-overlay.fx-dice_lightning:after{
+ width:100%;height:100%;border-radius:0;opacity:1;
+ background:radial-gradient(circle,#fff 0 2px,transparent 3px) 0 0/47px 43px;
+ animation:lammaEmbers .55s linear 4 both;
+}
+.dice-effect-overlay.fx-dice_galaxy:before{
+ width:100%;height:100%;border-radius:0;opacity:1;
+ background:radial-gradient(ellipse at 50% 50%,#d9a4ff33,transparent 60%),repeating-conic-gradient(from 0deg at 50% 50%,#b67cff22 0 5deg,transparent 6deg 16deg);
+ filter:drop-shadow(0 0 16px #a65cff);animation:lammaGalaxyWave 1.1s ease-out 2 both;
+}
+.dice-effect-overlay.fx-dice_galaxy:after{
+ width:100%;height:100%;border-radius:0;opacity:1;
+ background:radial-gradient(circle,#fff 0 1.5px,transparent 2.5px) 0 0/31px 37px,radial-gradient(circle,#f3aaff 0 2px,transparent 3px) 13px 19px/53px 47px;
+ mask:radial-gradient(ellipse at center,transparent 15%,#000 80%);animation:lammaGalaxyStars 1.2s ease-out 2 both;
+}
+@keyframes lammaGoldBurst{0%{opacity:0;transform:translateY(25px) scale(.96)}35%{opacity:1}100%{opacity:0;transform:translateY(-12px) scale(1.04)}}
+@keyframes lammaCrystalShards{0%{opacity:0;transform:scale(.9)}35%{opacity:1}100%{opacity:0;transform:scale(1.08)}}
+@keyframes lammaLightningStorm{0%,100%{opacity:0}25%,65%{opacity:1}}
+@keyframes lammaGalaxyWave{0%{opacity:0;transform:rotate(0) scale(.8)}40%{opacity:1}100%{opacity:0;transform:rotate(35deg) scale(1.2)}}
+@keyframes lammaGalaxyStars{0%{opacity:0;transform:scale(.85)}35%{opacity:1}100%{opacity:0;transform:scale(1.12)}}
+@media(prefers-reduced-motion:reduce){
+ .dice-effect-overlay.fx-dice_gold:before,.dice-effect-overlay.fx-dice_gold:after,
+ .dice-effect-overlay.fx-dice_crystal:before,.dice-effect-overlay.fx-dice_crystal:after,
+ .dice-effect-overlay.fx-dice_lightning:before,.dice-effect-overlay.fx-dice_lightning:after,
+ .dice-effect-overlay.fx-dice_galaxy:before,.dice-effect-overlay.fx-dice_galaxy:after{animation:none}
+}
+</style>
