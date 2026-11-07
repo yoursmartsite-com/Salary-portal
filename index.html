@@ -60,6 +60,7 @@
     <div class="person"><div class="avatar" id="accountAvatar" style="display:grid;place-items:center;background:#18264a;color:#c4b5fd;font-size:19px">ل</div><div><b id="accountTitle">أهلاً بيك في لَمّة</b><span class="online" id="accountStatus">● مش مسجل دخول</span></div></div>
     <p class="account-note" id="accountNote">سجّل دخولك واحفظ حسابك وتقدمك في لَمّة.</p>
     <div class="auth-actions" id="authActions"><button class="auth-btn primary-auth" id="openLogin">تسجيل الدخول</button><button class="auth-btn" id="openRegister">إنشاء حساب</button></div>
+    <a class="auth-btn" id="profileLink" href="profile.html" style="display:none;width:100%;margin-top:10px;text-align:center;text-decoration:none">👤 بروفايلي</a>
     <button class="auth-btn" id="logoutBtn" style="display:none;width:100%;margin-top:10px">تسجيل الخروج</button>
     <a class="store" style="display:block;text-align:center;text-decoration:none" href="online-room.html">＋ إنشاء غرفة لعب</a>
   </div>
@@ -162,7 +163,7 @@ function setMode(next){
 }
 document.getElementById("openLogin").addEventListener("click",()=>openAuth("login"));
 document.getElementById("openRegister").addEventListener("click",()=>openAuth("register"));
-document.getElementById("topAuthBtn").addEventListener("click",()=>openAuth(auth.currentUser?"login":"login"));
+document.getElementById("topAuthBtn").addEventListener("click",()=>{if(auth.currentUser&&!auth.currentUser.isAnonymous)location.href="profile.html";else openAuth("login");});
 document.getElementById("closeAuth").addEventListener("click",closeAuth);
 modal.addEventListener("click",e=>{if(e.target===modal)closeAuth();});
 document.getElementById("switchLogin").addEventListener("click",()=>setMode("login"));
@@ -207,6 +208,7 @@ form.addEventListener("submit",async e=>{
   document.getElementById("accountTitle").textContent=credential.user.displayName||credential.user.email.split("@")[0];
   document.getElementById("authActions").style.display="none";
   document.getElementById("logoutBtn").style.display="block";
+  document.getElementById("profileLink").style.display="block";
   document.getElementById("topAuthBtn").textContent="حسابي";
  }catch(err){document.getElementById("authError").textContent=authMessage(err);}
  finally{submit.disabled=false;submit.textContent=mode==="register"?"إنشاء الحساب":"دخول";}
@@ -220,6 +222,7 @@ onAuthStateChanged(auth,user=>{
  document.getElementById("accountNote").textContent=logged?user.email:"سجّل دخولك واحفظ حسابك وتقدمك في لَمّة.";
  document.getElementById("authActions").style.display=logged?"none":"grid";
  document.getElementById("logoutBtn").style.display=logged?"block":"none";
+ document.getElementById("profileLink").style.display=logged?"block":"none";
  document.getElementById("accountAvatar").textContent=logged?(user.displayName||user.email).trim().charAt(0).toUpperCase():"ل";
  document.getElementById("topAuthBtn").textContent=logged?"حسابي":"تسجيل الدخول";
 });
