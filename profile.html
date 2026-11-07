@@ -14,6 +14,7 @@ a{color:inherit;text-decoration:none}.wrap{max-width:980px;margin:auto}.top{disp
 .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin:16px 0}.stat,.panel{background:linear-gradient(145deg,#111d34,#0b1325);border:1px solid var(--line);border-radius:16px;padding:17px}.stat small{color:var(--muted)}.stat strong{display:block;font-size:25px;margin-top:5px}
 .panel h2{font-size:18px;margin:0 0 14px}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{display:grid;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:12px;color:#bdc9df}.field input,.field textarea{width:100%;background:#070f20;border:1px solid #344563;color:white;border-radius:10px;padding:11px;font:inherit;outline:none}.field textarea{min-height:90px;resize:vertical}
 .actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}.btn{padding:10px 17px;border:0;border-radius:10px;background:linear-gradient(110deg,#5526e8,#8242ff);color:white;font:700 13px Cairo;cursor:pointer}.btn.secondary{background:#1a2943;border:1px solid #344563}.msg{min-height:24px;color:var(--green);margin-top:9px}.danger{background:#421d32}
+.bag-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}.bag-item{background:#0a1428;border:1px solid #30415f;border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px}.bag-icon{width:52px;height:52px;display:grid;place-items:center;border-radius:13px;background:linear-gradient(145deg,#f7e5b9,#b98737);color:#182238;font-size:27px;flex:0 0 52px}.bag-item b{display:block}.bag-item small{display:block;color:var(--muted)}.bag-item .btn{margin-top:8px;padding:7px 12px}.bag-item.equipped{border-color:#35dfad;box-shadow:0 0 0 1px #35dfad44}.bag-empty{padding:18px;text-align:center;color:var(--muted);border:1px dashed #344563;border-radius:12px}
 @media(max-width:650px){body{padding:12px}.hero{padding:18px}.avatar{width:84px;height:84px}.identity h1{font-size:22px}.grid{grid-template-columns:1fr 1fr}.formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}.stat{padding:13px}.stat strong{font-size:21px}}
 </style>
 </head>
@@ -28,6 +29,7 @@ a{color:inherit;text-decoration:none}.wrap{max-width:980px;margin:auto}.top{disp
 <div class="stat"><small>العناصر في مخزني</small><strong id="inventoryCount">—</strong></div>
 <div class="stat"><small>تاريخ الانضمام</small><strong id="joinDate" style="font-size:16px">—</strong></div>
 </section>
+<section class="panel"><h2>شنطة مشترياتي</h2><p style="color:var(--muted);margin:-6px 0 14px">كل الحاجات اللي اشتريتها محفوظة في حسابك. اختار النرد اللي تحب تلعب بيه.</p><div id="bagItems" class="bag-grid"><div class="bag-empty">جاري تحميل الشنطة...</div></div><div class="msg" id="bagStatus" role="status"></div></section>
 <section class="panel">
 <h2>تعديل البروفايل</h2>
 <form id="profileForm">
@@ -45,11 +47,13 @@ a{color:inherit;text-decoration:none}.wrap{max-width:980px;margin:auto}.top{disp
 import {firebaseConfig} from "./firebase-config.js";
 import {initializeApp,getApps} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import {getAuth,onAuthStateChanged,updateProfile,signOut,setPersistence,browserLocalPersistence} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import {getDatabase,ref,get,set} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
+import {getDatabase,ref,get,set,onValue} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
 const app=getApps().length?getApps()[0]:initializeApp(firebaseConfig),auth=getAuth(app),db=getDatabase(app);
 const $=id=>document.getElementById(id);let currentUser=null;
+const DICE_ITEMS={dice_gold:{name:"النرد الذهبي",icon:"✦"},dice_crystal:{name:"نرد الكريستال",icon:"💎"},dice_fire:{name:"نرد اللهب الأسطوري",icon:"🔥"},dice_lightning:{name:"نرد البرق",icon:"⚡"},dice_galaxy:{name:"نرد المجرة",icon:"🌌"}};
 function showAvatar(url,name){const box=$("avatarView");if(url){box.innerHTML="";const img=document.createElement("img");img.src=url;img.alt="الصورة الشخصية";img.style.cssText="width:100%;height:100%;object-fit:cover";img.onerror=()=>{box.textContent=(name||"ل").charAt(0)};box.append(img)}else box.textContent=(name||"ل").trim().charAt(0).toUpperCase()}
 function say(t,bad=false){$("status").textContent=t;$("status").style.color=bad?"#ff8da4":"#35dfad"}
+function renderBag(items,equipped){const root=$("bagItems");const owned=Object.entries(DICE_ITEMS).filter(([id])=>Number(items?.[id]?.quantity||0)>0);if(!owned.length){root.innerHTML='<div class="bag-empty">شنطتك لسه فاضية من النرد المميز. مشترياتك هتظهر هنا تلقائيًا.</div>';return}root.replaceChildren();owned.forEach(([id,item])=>{const card=document.createElement("div");card.className="bag-item"+(equipped===id?" equipped":"");const icon=document.createElement("div");icon.className="bag-icon";icon.textContent=item.icon;const info=document.createElement("div");info.style.flex="1";const name=document.createElement("b");name.textContent=item.name;const qty=document.createElement("small");qty.textContent="الكمية: "+Number(items[id].quantity||0);const btn=document.createElement("button");btn.className="btn"+(equipped===id?" secondary":"");btn.textContent=equipped===id?"مستخدم حاليًا":"استخدام النرد";btn.disabled=equipped===id;btn.onclick=async()=>{btn.disabled=true;try{await set(ref(db,"profiles/"+currentUser.uid+"/diceSkin"),id);renderBag(items,id);$("bagStatus").textContent="تم اختيار "+item.name+" بنجاح."; }catch(e){btn.disabled=false;$("bagStatus").textContent="فشل تغيير النرد: "+e.message;}};info.append(name,qty,btn);card.append(icon,info);root.append(card);});}
 (async()=>{
  try{
   await setPersistence(auth,browserLocalPersistence);
@@ -67,7 +71,7 @@ function say(t,bad=false){$("status").textContent=t;$("status").style.color=bad?
   try{const snap=await get(ref(db,"profiles/"+user.uid));profile=snap.val()||{};}catch(e){say("تعذر تحميل بيانات البروفايل: "+e.message,true)}
   $("profileName").textContent=profile.displayName||fallbackName;$("displayName").value=profile.displayName||fallbackName;$("bio").value=profile.bio||"";$("avatarUrl").value=profile.avatarUrl||"";showAvatar(profile.avatarUrl||user.photoURL,profile.displayName||fallbackName);
   $("joinDate").textContent=profile.createdAt?new Date(profile.createdAt).toLocaleDateString("ar-EG"):(user.metadata.creationTime?new Date(user.metadata.creationTime).toLocaleDateString("ar-EG"):"—");
-  try{const [walletSnap,inventorySnap]=await Promise.all([get(ref(db,"wallets/"+user.uid+"/balance")),get(ref(db,"inventory/"+user.uid+"/items"))]);$("coinBalance").textContent=(Number(walletSnap.val())||0)+" LC";const items=inventorySnap.val();$("inventoryCount").textContent=items?(Array.isArray(items)?items.length:Object.keys(items).length):"0";}catch(e){$("coinBalance").textContent="— LC";$("inventoryCount").textContent="—"}
+  try{const [walletSnap,inventorySnap]=await Promise.all([get(ref(db,"wallets/"+user.uid+"/balance")),get(ref(db,"inventory/"+user.uid+"/items"))]);$("coinBalance").textContent=(Number(walletSnap.val())||0)+" LC";const items=inventorySnap.val()||{};const total=Object.values(items).reduce((n,v)=>n+Math.max(0,Number(v?.quantity)||0),0);$("inventoryCount").textContent=String(total);renderBag(items,profile.diceSkin||"classic");}catch(e){$("coinBalance").textContent="— LC";$("inventoryCount").textContent="—";$("bagItems").textContent="تعذر تحميل الشنطة: "+e.message}
  });
 })();
 $("avatarUrl").addEventListener("input",()=>showAvatar($("avatarUrl").value,$("displayName").value));
