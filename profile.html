@@ -44,8 +44,8 @@ a{color:inherit;text-decoration:none}.wrap{max-width:980px;margin:auto}.top{disp
 <script type="module">
 import {firebaseConfig} from "./firebase-config.js";
 import {initializeApp,getApps} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import {getAuth,onAuthStateChanged,updateProfile,signOut} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import {getDatabase,ref,get,set,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
+import {getAuth,onAuthStateChanged,updateProfile,signOut,setPersistence,browserLocalPersistence} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import {getDatabase,ref,get,set} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
 const app=getApps().length?getApps()[0]:initializeApp(firebaseConfig),auth=getAuth(app),db=getDatabase(app);
 const $=id=>document.getElementById(id);let currentUser=null;
 function showAvatar(url,name){const box=$("avatarView");if(url){box.innerHTML="";const img=document.createElement("img");img.src=url;img.alt="الصورة الشخصية";img.style.cssText="width:100%;height:100%;object-fit:cover";img.onerror=()=>{box.textContent=(name||"ل").charAt(0)};box.append(img)}else box.textContent=(name||"ل").trim().charAt(0).toUpperCase()}
