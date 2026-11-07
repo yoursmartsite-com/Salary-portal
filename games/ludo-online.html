@@ -122,10 +122,10 @@ function draw(){
   round(px+3,py+3,30,30,3,'#ffffffa8',null);
  });
  // Colored home lanes, preserving the existing game coordinates
- const lanes=[{color:colors[0],cells:[[6,1],[6,2],[6,3],[6,4],[6,5]]},{color:colors[1],cells:[[13,6],[12,6],[11,6],[10,6],[9,6]]},{color:colors[2],cells:[[8,13],[8,12],[8,11],[8,10],[8,9]]},{color:colors[3],cells:[[1,8],[2,8],[3,8],[4,8],[5,8]]}];
+ const lanes=[{color:colors[0],cells:[[1,7],[2,7],[3,7],[4,7],[5,7]]},{color:colors[1],cells:[[7,1],[7,2],[7,3],[7,4],[7,5]]},{color:colors[2],cells:[[7,9],[7,10],[7,11],[7,12],[7,13]]},{color:colors[3],cells:[[9,7],[10,7],[11,7],[12,7],[13,7]]}];
  lanes.forEach(l=>l.cells.forEach(([x,y])=>{const px=x*S+2,py=y*S+2;round(px,py,36,36,5,l.color,'#ffffff',1.5);}));
  // Safe squares on the actual shared track
- const safeCoords=[[6,0],[8,2],[12,6],[14,8],[8,14],[6,12],[2,8],[0,6]];
+ const safeCoords=[[1,6],[6,2],[8,1],[14,6],[12,8],[8,12],[6,13],[2,8]];
  safeCoords.forEach(([x,y])=>{const px=x*S+20,py=y*S+20;c.save();c.translate(px,py);c.fillStyle='#f5c84c';c.strokeStyle='#9c741a';c.lineWidth=1;c.beginPath();for(let q=0;q<10;q++){const a=-Math.PI/2+q*Math.PI/5,r=q%2?7:13;c.lineTo(Math.cos(a)*r,Math.sin(a)*r)}c.closePath();c.fill();c.stroke();c.restore()});
  // Entry arrows
  const arrows=[{x:300,y:20,a:'↓',col:colors[1]},{x:580,y:300,a:'←',col:colors[2]},{x:300,y:580,a:'↑',col:colors[3]},{x:20,y:300,a:'→',col:colors[0]}];
