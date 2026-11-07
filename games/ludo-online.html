@@ -424,3 +424,65 @@ body{background:radial-gradient(ellipse at 50% 0%,#243d70 0,#111b35 48%,#070d1b 
 @media(max-width:760px){.board-area{padding:5px;border-radius:17px}.board{border-radius:12px!important}.dice-control{min-width:68px}.dice-control .dice{font-size:30px}}
 </style>
 <style>.dice-cube{width:66px;height:66px;min-width:66px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:3px;padding:9px;border-radius:15px;background:linear-gradient(145deg,#fffef8,#e8e5dc 48%,#bfc5d0);border:1px solid #fff;box-shadow:inset 0 2px 3px #fff,inset 0 -5px 9px #7b849455,0 9px 18px #0008;color:#17243c;transform-style:preserve-3d}.dice-cube i{display:block;border-radius:50%;background:transparent}.dice-cube i.on{background:radial-gradient(circle at 35% 30%,#48536a,#101a2d 72%);box-shadow:inset 0 1px 2px #0008,0 1px 1px #fff}.dice-cube.is-rolling{animation:diceTumble .9s cubic-bezier(.2,.75,.25,1)}@keyframes diceTumble{0%{transform:translateY(0) rotate(0) scale(1)}18%{transform:translateY(-18px) rotate(110deg) scale(1.08)}42%{transform:translateY(-8px) rotate(280deg) scale(1.12)}68%{transform:translateY(3px) rotate(520deg) scale(.98)}85%{transform:translateY(-4px) rotate(660deg) scale(1.02)}100%{transform:translateY(0) rotate(720deg) scale(1)}}.player-die.is-rolling{animation:miniDiceTumble .85s ease-in-out}@keyframes miniDiceTumble{0%{transform:rotate(0) scale(1)}50%{transform:rotate(360deg) scale(1.18)}100%{transform:rotate(720deg) scale(1)}}@media(max-width:760px){.dice-cube{width:52px;height:52px;min-width:52px;padding:7px;gap:2px;border-radius:12px}.dice-control{gap:10px}}@media(prefers-reduced-motion:reduce){.dice-cube.is-rolling,.player-die.is-rolling{animation:none}}.dice-cube.dice-gold{background:linear-gradient(145deg,#fff4b8 0%,#f6c84f 38%,#b87916 72%,#fff0a1 100%);border:2px solid #fff0a6;box-shadow:inset 0 2px 4px #fff9,inset 0 -6px 10px #81500b88,0 0 0 2px #b98227aa,0 10px 22px #0009;color:#3a2608}.dice-cube.dice-gold i.on{background:radial-gradient(circle at 35% 30%,#5b3a0b,#211303 75%);box-shadow:inset 0 1px 2px #0009,0 1px 1px #fff8}</style>
+
+<style>
+/* Legendary Fire Dice: obsidian body, molten cracks, glowing ember pips */
+.dice-cube.skin-dice_fire,
+.player-die.skin-dice_fire{
+ position:relative;isolation:isolate;overflow:hidden;
+ background:
+  radial-gradient(ellipse at 22% 18%,#ffcc6840 0 8%,transparent 30%),
+  repeating-linear-gradient(132deg,transparent 0 12px,#ff5a1a20 13px 15px,transparent 17px 27px),
+  linear-gradient(145deg,#343039 0%,#17151c 38%,#090b12 72%,#3b160e 100%)!important;
+ border:2px solid #ffbd59!important;
+ box-shadow:inset 0 2px 5px #fff5,inset 0 -7px 12px #000d,0 0 0 1px #7e2b13,0 0 17px #ff641caa,0 7px 16px #000b!important;
+}
+.dice-cube.skin-dice_fire:before,
+.player-die.skin-dice_fire:before{
+ content:"";position:absolute;inset:3px;border-radius:inherit;pointer-events:none;z-index:0;
+ background:linear-gradient(125deg,transparent 0 26%,#ff8a2528 27%,transparent 30% 57%,#ff4c1c30 58%,transparent 62%);
+}
+.dice-cube.skin-dice_fire i,
+.player-die.skin-dice_fire i{position:relative;z-index:1}
+.dice-cube.skin-dice_fire i.on,
+.player-die.skin-dice_fire i.on{
+ background:radial-gradient(circle at 35% 28%,#fffbd2 0 12%,#ffd36b 24%,#ff761c 56%,#9f210c 100%)!important;
+ box-shadow:0 0 4px #fff2a8,0 0 9px #ff751c,0 0 15px #ff3d12!important;
+}
+.player-strip .player-die.dice-cube.skin-dice_fire{border-radius:10px}
+.dice-cube.skin-dice_fire.is-rolling,
+.player-die.skin-dice_fire.is-rolling{filter:drop-shadow(0 0 10px #ff6a1b)}
+/* Fire six: flames climb all four edges of the game screen */
+.dice-effect-overlay.fx-dice_fire:before{
+ inset:0;width:100%;height:100%;border-radius:0;
+ background:
+  linear-gradient(to bottom,#ff3b12dd 0%,#ff9a22a8 24%,transparent 100%) top/100% 23% no-repeat,
+  linear-gradient(to top,#ff3b12dd 0%,#ff9a22a8 24%,transparent 100%) bottom/100% 23% no-repeat,
+  linear-gradient(to right,#ff3b12dd 0%,#ff9a22a8 24%,transparent 100%) left/19% 100% no-repeat,
+  linear-gradient(to left,#ff3b12dd 0%,#ff9a22a8 24%,transparent 100%) right/19% 100% no-repeat;
+ filter:blur(7px) drop-shadow(0 0 18px #ff4b16);
+ animation:lammaArenaFlames .72s ease-in-out 3 both;
+}
+.dice-effect-overlay.fx-dice_fire:after{
+ inset:0;width:100%;height:100%;border-radius:0;
+ background:
+  radial-gradient(circle,#ffd36b 0 1px,transparent 2px) 0 0/31px 37px,
+  radial-gradient(circle,#ff6a1b 0 1px,transparent 2px) 12px 17px/43px 49px;
+ mask:radial-gradient(ellipse at center,transparent 48%,#000 78%);
+ animation:lammaEmbers .9s ease-out 2 both;
+}
+@keyframes lammaArenaFlames{
+ 0%{opacity:0;transform:scale(.98)}
+ 25%{opacity:1;transform:scale(1.015)}
+ 55%{opacity:.72;transform:scale(1)}
+ 100%{opacity:0;transform:scale(1.02)}
+}
+@keyframes lammaEmbers{
+ 0%{opacity:0;transform:translateY(22px)}
+ 30%{opacity:.95}
+ 100%{opacity:0;transform:translateY(-34px)}
+}
+@media(prefers-reduced-motion:reduce){
+ .dice-effect-overlay.fx-dice_fire:before,.dice-effect-overlay.fx-dice_fire:after{animation:none}
+}
+</style>
