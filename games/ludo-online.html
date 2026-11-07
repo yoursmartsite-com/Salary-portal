@@ -249,7 +249,7 @@ async function init(){try{
  const auth=firebase.auth();
  await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
  let current=await new Promise((resolve,reject)=>{let off=()=>{};off=auth.onAuthStateChanged(user=>{off();resolve(user)},error=>{off();reject(error)})});
- if(!current){const cred=await auth.signInAnonymously();current=cred.user}
+ if(!current||current.isAnonymous){status('سجّل دخولك من الصفحة الرئيسية بنفس الإيميل الأول، وبعدها ارجع للعبة.');return}
  uid=current.uid;
  db.ref('inventory/'+uid+'/items/dice_gold').on('value',snap=>{
   const item=snap.val();
