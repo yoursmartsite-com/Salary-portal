@@ -21,7 +21,7 @@ a{color:inherit;text-decoration:none}.wrap{max-width:980px;margin:auto}.top{disp
 <header class="top"><a class="brand" href="./">♛ لَمّة</a><a class="back" href="./">← الرئيسية</a></header>
 <section class="hero">
 <div class="avatar" id="avatarView">ل</div>
-<div class="identity"><h1 id="profileName">بروفايلي</h1><p id="profileEmail">جارٍ تحميل الحساب...</p><div class="uid" id="profileUid"></div></div>
+<div class="identity"><h1 id="profileName">بروفايلي</h1><p id="profileEmail">جارٍ تحميل الحساب...</p><div class="uid" id="profileUid"></div><div class="actions" id="adminActions" hidden><a class="btn" href="admin.html" style="background:linear-gradient(110deg,#b87916,#f4cf69);color:#211707">♛ لوحة الإدارة</a></div></div>
 </section>
 <section class="grid">
 <div class="stat"><small>رصيد عملات لَمّة</small><strong id="coinBalance">— LC</strong></div>
@@ -61,7 +61,7 @@ function say(t,bad=false){$("status").textContent=t;$("status").style.color=bad?
    say("جلسة الحساب مش موجودة على المتصفح الحالي.",true);
    return;
   }
-  currentUser=user;$("profileEmail").textContent=user.email||"";$("profileUid").textContent="معرّف اللاعب: "+user.uid;
+  currentUser=user;$("profileEmail").textContent=user.email||"";$("profileUid").textContent="معرّف اللاعب: "+user.uid;$("adminActions").hidden=!(user.uid==="91N0rI5SCDN1aKBXJkowj5KcUOz1"&&user.email==="admin@lamma.com");
   const fallbackName=user.displayName||user.email?.split("@")[0]||"لاعب";
   let profile={};
   try{const snap=await get(ref(db,"profiles/"+user.uid));profile=snap.val()||{};}catch(e){say("تعذر تحميل بيانات البروفايل: "+e.message,true)}
