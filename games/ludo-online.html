@@ -192,9 +192,9 @@ function isBlocked(color,from,steps,playerId,game=room){
  return false;
 }
 function canMove(color,from,roll,playerId,game=room){
- if(from<0)return roll===6&&!isBlocked(color,-1,0,playerId,game);
+ // المرور فوق أي قطعة أو حاجز مسموح؛ المنع الوحيد هو تجاوز نهاية المسار.
+ if(from<0)return roll===6;
  if(from+roll>56)return false;
- if(from<=50&&isBlocked(color,from,roll,playerId,game))return false;
  return true;
 }
 let botBusy=false;async function runBotTurn(r){
