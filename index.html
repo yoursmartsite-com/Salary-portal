@@ -26,6 +26,21 @@
 .rightcol a{color:inherit;text-decoration:none}
 .widget-action{display:block;width:100%;margin-top:10px;padding:11px;border-radius:10px;background:linear-gradient(110deg,#4c1de0,#8139ff);text-align:center;font-weight:800}
 @media(max-width:760px){.nav a{flex:0 0 auto;gap:6px;padding:8px 10px;font-size:11px}.nav a span{font-size:15px;width:auto}}
+
+/* Lamma account access */
+.auth-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.auth-btn{padding:10px 8px;border-radius:10px;font-weight:800;background:#192947;border:1px solid #35496c;color:#fff}
+.auth-btn.primary-auth{background:linear-gradient(110deg,#5426e8,#8139ff);border:0}
+.top-auth{padding:9px 13px;border-radius:10px;background:linear-gradient(110deg,#5426e8,#8139ff);font-weight:800;white-space:nowrap}
+.auth-modal{display:none;position:fixed;inset:0;z-index:1000;background:#020611dc;backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:16px}
+.auth-modal.open{display:flex}
+.auth-card{width:min(100%,420px);background:linear-gradient(145deg,#121e37,#091224);border:1px solid #34466a;border-radius:20px;padding:22px;box-shadow:0 25px 80px #000b}
+.auth-card h2{margin:0 0 5px;font-size:23px}.auth-card p{color:#aab8d3;line-height:1.8;margin:0 0 16px}
+.auth-field{display:grid;gap:6px;margin:11px 0}.auth-field label{color:#c8d3e8;font-size:12px}.auth-field input{width:100%;padding:12px;border:1px solid #344562;border-radius:10px;background:#071022;color:#fff;outline:none}
+.auth-submit{width:100%;padding:12px;border-radius:10px;background:linear-gradient(110deg,#5426e8,#8139ff);font-weight:900;margin-top:8px}
+.auth-switch{display:flex;gap:8px;margin-top:12px}.auth-switch button{flex:1;padding:9px;border-radius:9px;background:#1a2943;color:#dce5f7}
+.auth-error{color:#ff8da4;min-height:22px;font-size:12px;margin-top:8px}.auth-close{float:left;background:#1a2943;border-radius:8px;padding:5px 10px}
+@media(max-width:760px){.account{display:block;margin-top:12px}.account-note{display:none}.auth-actions{grid-template-columns:1fr 1fr}.top-auth{font-size:10px;padding:8px}.topbar{flex-wrap:wrap}.top-auth{order:2}}
 </style>
 </head>
 
@@ -41,16 +56,18 @@
     <a href="store-page.html"><span>🛍</span>متجر لَمّة</a>
     <a href="chat.html"><span>▤</span>شات لَمّة</a>
   </nav>
-  <div class="account">
-    <div class="person"><div class="avatar" style="display:grid;place-items:center;background:#18264a;color:#c4b5fd;font-size:19px">ل</div><div><b>أهلاً بيك في لَمّة</b><span class="online">● جاهز للّعب؟</span></div></div>
-    <p class="account-note">اختار لعبة فردية أو اعمل غرفة خاصة وشارك كود الدعوة مع أصحابك.</p>
+  <div class="account" id="accountBox">
+    <div class="person"><div class="avatar" id="accountAvatar" style="display:grid;place-items:center;background:#18264a;color:#c4b5fd;font-size:19px">ل</div><div><b id="accountTitle">أهلاً بيك في لَمّة</b><span class="online" id="accountStatus">● مش مسجل دخول</span></div></div>
+    <p class="account-note" id="accountNote">سجّل دخولك واحفظ حسابك وتقدمك في لَمّة.</p>
+    <div class="auth-actions" id="authActions"><button class="auth-btn primary-auth" id="openLogin">تسجيل الدخول</button><button class="auth-btn" id="openRegister">إنشاء حساب</button></div>
+    <button class="auth-btn" id="logoutBtn" style="display:none;width:100%;margin-top:10px">تسجيل الخروج</button>
     <a class="store" style="display:block;text-align:center;text-decoration:none" href="online-room.html">＋ إنشاء غرفة لعب</a>
   </div>
 </aside>
 <main class="main">
   <header class="topbar">
     <label class="search">⌕ <input id="search" placeholder="ابحث عن لعبة..."></label>
-    <div class="topicons"><a href="games/index.html" title="الألعاب">🎮</a><a href="online-room.html" title="الغرف">▣</a><a href="chat.html" title="الشات">▤</a></div>
+    <button class="top-auth" id="topAuthBtn">تسجيل الدخول</button><div class="topicons"><a href="games/index.html" title="الألعاب">🎮</a><a href="online-room.html" title="الغرف">▣</a><a href="chat.html" title="الشات">▤</a></div>
   </header>
   <section class="hero">
     <div class="hero-copy"><span class="eyebrow">✦ عالمك، لعبتك، أصحابك</span><h1>لَمّة... <em>اللعب أحلى</em><br>لما نكون سوا</h1><p>اكتشف ألعابك، العب ضد الكمبيوتر، أو اجمع أصحابك في غرفة أونلاين. كل ده من مكان واحد.</p><a class="primary" href="games/index.html" style="text-decoration:none">اكتشف الألعاب　➜</a></div>
@@ -105,5 +122,94 @@
 <script>
 const search=document.getElementById('search');
 search.addEventListener('input',()=>{const q=search.value.trim().toLowerCase();document.querySelectorAll('.game').forEach(g=>{g.style.display=(!q||g.dataset.name?.toLowerCase().includes(q)||g.innerText.toLowerCase().includes(q))?'':'none'})});
+</script>
+
+<div class="auth-modal" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+ <div class="auth-card">
+  <button class="auth-close" id="closeAuth" type="button">✕</button>
+  <h2 id="authTitle">تسجيل الدخول</h2><p id="authIntro">ادخل حسابك عشان تكمل معانا في لَمّة.</p>
+  <form id="authForm">
+   <div class="auth-field" id="nameField" style="display:none"><label for="authName">اسم اللاعب</label><input id="authName" maxlength="24" autocomplete="nickname" placeholder="اكتب اسمك"></div>
+   <div class="auth-field"><label for="authEmail">البريد الإلكتروني</label><input id="authEmail" type="email" required autocomplete="email" placeholder="name@example.com"></div>
+   <div class="auth-field"><label for="authPassword">كلمة المرور</label><input id="authPassword" type="password" required minlength="6" autocomplete="current-password" placeholder="6 أحرف على الأقل"></div>
+   <button class="auth-submit" id="authSubmit" type="submit">دخول</button>
+  </form>
+  <div class="auth-switch"><button id="switchLogin" type="button">عندي حساب</button><button id="switchRegister" type="button">حساب جديد</button></div>
+  <button id="forgotPassword" type="button" style="background:none;color:#b8a2ff;margin-top:12px;padding:4px">نسيت كلمة المرور؟</button>
+  <div class="auth-error" id="authError" role="status"></div>
+ </div>
+</div>
+
+<script type="module">
+import { firebaseConfig } from "./firebase-config.js";
+import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, sendPasswordResetEmail, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+const app=getApps().length?getApps()[0]:initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const modal=document.getElementById("authModal"),form=document.getElementById("authForm");
+let mode="login";
+function openAuth(next="login"){setMode(next);modal.classList.add("open");document.getElementById("authError").textContent="";}
+function closeAuth(){modal.classList.remove("open");}
+function setMode(next){
+ mode=next==="register"?"register":"login";
+ document.getElementById("authTitle").textContent=mode==="register"?"إنشاء حساب جديد":"تسجيل الدخول";
+ document.getElementById("authIntro").textContent=mode==="register"?"اعمل حسابك بالإيميل وكلمة المرور وابدأ لَمّة.":"ادخل بيانات حسابك للمتابعة.";
+ document.getElementById("authSubmit").textContent=mode==="register"?"إنشاء الحساب":"دخول";
+ document.getElementById("nameField").style.display=mode==="register"?"grid":"none";
+ document.getElementById("authPassword").autocomplete=mode==="register"?"new-password":"current-password";
+ document.getElementById("authError").textContent="";
+}
+document.getElementById("openLogin").addEventListener("click",()=>openAuth("login"));
+document.getElementById("openRegister").addEventListener("click",()=>openAuth("register"));
+document.getElementById("topAuthBtn").addEventListener("click",()=>openAuth(auth.currentUser?"login":"login"));
+document.getElementById("closeAuth").addEventListener("click",closeAuth);
+modal.addEventListener("click",e=>{if(e.target===modal)closeAuth();});
+document.getElementById("switchLogin").addEventListener("click",()=>setMode("login"));
+document.getElementById("switchRegister").addEventListener("click",()=>setMode("register"));
+document.getElementById("logoutBtn").addEventListener("click",async()=>{try{await signOut(auth);}catch(e){alert("تعذر تسجيل الخروج: "+e.message);}});
+document.getElementById("forgotPassword").addEventListener("click",async()=>{
+ const email=document.getElementById("authEmail").value.trim();
+ if(!email){document.getElementById("authError").textContent="اكتب الإيميل الأول.";return;}
+ try{await sendPasswordResetEmail(auth,email);document.getElementById("authError").textContent="بعتنالك رابط تغيير كلمة المرور على الإيميل.";}
+ catch(e){document.getElementById("authError").textContent=authMessage(e);}
+});
+function authMessage(e){
+ const code=e?.code||"";
+ if(code.includes("email-already-in-use"))return "الإيميل ده مسجل قبل كده. جرّب تسجيل الدخول.";
+ if(code.includes("invalid-credential")||code.includes("wrong-password")||code.includes("user-not-found"))return "الإيميل أو كلمة المرور غير صحيحة.";
+ if(code.includes("weak-password"))return "كلمة المرور لازم تكون 6 أحرف على الأقل.";
+ if(code.includes("invalid-email"))return "صيغة الإيميل مش صحيحة.";
+ if(code.includes("network-request-failed"))return "راجع اتصال الإنترنت وحاول تاني.";
+ if(code.includes("operation-not-allowed"))return "تسجيل الإيميل وكلمة المرور غير مفعّل في Firebase Authentication.";
+ return e?.message||"حصل خطأ. حاول تاني.";
+}
+form.addEventListener("submit",async e=>{
+ e.preventDefault();
+ const email=document.getElementById("authEmail").value.trim();
+ const password=document.getElementById("authPassword").value;
+ const name=document.getElementById("authName").value.trim();
+ const submit=document.getElementById("authSubmit");
+ submit.disabled=true;submit.textContent="لحظة...";
+ try{
+  await setPersistence(auth,browserLocalPersistence);
+  if(mode==="register"){
+   const cred=await createUserWithEmailAndPassword(auth,email,password);
+   if(name)await updateProfile(cred.user,{displayName:name});
+  }else await signInWithEmailAndPassword(auth,email,password);
+  closeAuth();
+ }catch(err){document.getElementById("authError").textContent=authMessage(err);}
+ finally{submit.disabled=false;submit.textContent=mode==="register"?"إنشاء الحساب":"دخول";}
+});
+onAuthStateChanged(auth,user=>{
+ const logged=!!user&&!user.isAnonymous;
+ const title=document.getElementById("accountTitle"),status=document.getElementById("accountStatus");
+ title.textContent=logged?(user.displayName||user.email.split("@")[0]):"أهلاً بيك في لَمّة";
+ status.textContent=logged?"● مسجل دخول":"● مش مسجل دخول";
+ document.getElementById("accountNote").textContent=logged?user.email:"سجّل دخولك واحفظ حسابك وتقدمك في لَمّة.";
+ document.getElementById("authActions").style.display=logged?"none":"grid";
+ document.getElementById("logoutBtn").style.display=logged?"block":"none";
+ document.getElementById("accountAvatar").textContent=logged?(user.displayName||user.email).trim().charAt(0).toUpperCase():"ل";
+ document.getElementById("topAuthBtn").textContent=logged?"حسابي":"تسجيل الدخول";
+});
 </script>
 </body></html>
