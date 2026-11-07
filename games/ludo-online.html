@@ -165,14 +165,34 @@ function draw(){
  c.save();c.shadowColor='#16243c55';c.shadowBlur=12;
  const tri=(pts,col)=>{c.beginPath();c.moveTo(...pts[0]);pts.slice(1).forEach(p=>c.lineTo(...p));c.closePath();c.fillStyle=col;c.fill();c.strokeStyle='#fff';c.lineWidth=2;c.stroke()};
  tri([[240,240],[360,240],[300,300]],colors[0]);tri([[360,240],[360,360],[300,300]],colors[1]);tri([[360,360],[240,360],[300,300]],colors[2]);tri([[240,360],[240,240],[300,300]],colors[3]);c.restore();
- // Players' pieces, with glossy 3D finish and number markers
- if(room&&room.players){Object.values(room.players).forEach(p=>{const pi=p.color||0;for(let j=0;j<4;j++){
-  const pos=(room.pieces&&room.pieces[p.uid]&&room.pieces[p.uid][j]!==undefined)?room.pieces[p.uid][j]:-1,point=pieceCell(pi,pos,j);let x=point[0],y=point[1];if(pieceAnimation&&pieceAnimation.uid===p.uid&&pieceAnimation.index===j){x=pieceAnimation.x;y=pieceAnimation.y;}
-  c.save();c.shadowColor='#11182788';c.shadowBlur=9;c.shadowOffsetY=5;c.beginPath();c.arc(x,y,15,0,Math.PI*2);c.fillStyle=grad(x-15,y-15,30,30,'#ffffff',colors[pi]);c.fill();c.restore();
-  c.beginPath();c.arc(x,y,15,0,Math.PI*2);c.strokeStyle='#ffffff';c.lineWidth=2.5;c.stroke();
-  c.beginPath();c.arc(x-5,y-6,4,0,Math.PI*2);c.fillStyle='#ffffffc9';c.fill();
-  c.fillStyle='#142033';c.font='900 10px Cairo, sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText(String(j+1),x,y+8);
- }});}
+ // Draw stacked pieces side-by-side so every player's token remains visible
+ if(room&&room.players){
+  const grouped=new Map();
+  Object.values(room.players).forEach(p=>{
+   const pi=p.color||0;
+   for(let j=0;j<4;j++){
+    const pos=(room.pieces&&room.pieces[p.uid]&&room.pieces[p.uid][j]!==undefined)?room.pieces[p.uid][j]:-1;
+    const point=pieceCell(pi,pos,j);let x=point[0],y=point[1];
+    if(pieceAnimation&&pieceAnimation.uid===p.uid&&pieceAnimation.index===j){x=pieceAnimation.x;y=pieceAnimation.y;}
+    const key=Math.round(x)+','+Math.round(y);
+    if(!grouped.has(key))grouped.set(key,[]);
+    grouped.get(key).push({x,y,pi,index:j});
+   }
+  });
+  grouped.forEach(items=>{
+   const n=items.length;
+   const offsets=n===1?[[0,0]]:n===2?[[-8,0],[8,0]]:n===3?[[-8,-6],[8,-6],[0,9]]:[[-8,-8],[8,-8],[-8,8],[8,8]];
+   items.forEach((item,k)=>{
+    const x=item.x+offsets[k][0],y=item.y+offsets[k][1],r=n===1?15:10.5;
+    c.save();c.shadowColor='#11182799';c.shadowBlur=n===1?9:5;c.shadowOffsetY=3;
+    c.beginPath();c.arc(x,y,r,0,Math.PI*2);
+    c.fillStyle=grad(x-r,y-r,r*2,r*2,'#ffffff',colors[item.pi]);c.fill();c.restore();
+    c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.strokeStyle='#ffffff';c.lineWidth=n===1?2.5:2;c.stroke();
+    c.beginPath();c.arc(x-r*.32,y-r*.38,n===1?4:2.8,0,Math.PI*2);c.fillStyle='#ffffffd9';c.fill();
+    c.fillStyle='#142033';c.font='900 '+(n===1?'10':'9')+'px Cairo, sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText(String(item.index+1),x,y+(n===1?8:5));
+   });
+  });
+ }
 }function animatePiece(uid,color,index,from,to){
  return new Promise(resolve=>{
   const path=[];
