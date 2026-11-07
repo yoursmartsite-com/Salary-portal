@@ -67,7 +67,7 @@ async function load(){
   if(!response.ok||!data.items)throw Error(data.error||"تعذر تحميل المنتجات.");
   $("items").innerHTML=Object.entries(data.items).map(([id,item])=>{
    const count=Number(inventory[id]?.quantity||0);
-   const icon={dice:"🎲",piece:"💎",board:"♟",frame:"🖼️",effect:"🏆"}[item.type]||"✦";
+   const icon=({dice_gold:"🎲",dice_crystal:"🔷",dice_fire:"🔥",dice_lightning:"⚡",dice_galaxy:"🌌"}[id]||{dice:"🎲",piece:"💎",board:"♟",frame:"🖼️",effect:"🏆"}[item.type]||"✦");
    return '<article class="item"><div class="symbol">'+icon+'</div><h2>'+esc(item.name)+'</h2><p>إضافة لحسابك في ألعاب لَمّة.</p><div class="meta"><span>'+Number(item.price)+' LC</span><span class="'+(count?'owned':'')+'">'+(count?"معاك: "+count:"غير مملوك")+'</span></div><button data-buy="'+esc(id)+'" '+(signedIn?"":"disabled")+'>'+(count?"شراء نسخة أخرى":(signedIn?"شراء فوري":"سجّل الدخول للشراء"))+'</button></article>';
   }).join("")||'<div class="empty">المتجر فاضي حاليًا.</div>';
   document.querySelectorAll("[data-buy]").forEach(button=>button.addEventListener("click",()=>buy(button.dataset.buy,button)));
