@@ -77,15 +77,22 @@ async function load(){
 async function buy(id,button){
  if(!user||user.isAnonymous)return say("سجّل دخولك بإيميلك من الرئيسية الأول.");
  button.disabled=true;button.textContent="جاري الشراء…";
+ // Keep the same operation ID when retrying so a delayed delivery cannot charge twice.
+ const requestId=button.dataset.requestId||(button.dataset.requestId=crypto.randomUUID().replace(/-/g,""));
  try{
   const token=await user.getIdToken(true);
-  const response=await fetch(API+"/purchase",{method:"POST",headers:{"content-type":"application/json",authorization:"Bearer "+token},body:JSON.stringify({itemId:id,requestId:crypto.randomUUID().replace(/-/g,"")})});
-  const data=await response.json();
-  if(!response.ok||!data.ok)throw Error(data.error||"فشل الشراء.");
+  const response=await fetch(API+"/purchase",{method:"POST",headers:{"content-type":"application/json",authorization:"Bearer "+token},body:JSON.stringify({itemId:id,requestId})});
+  const data=await response.json().catch(()=>({error:"الخدمة رجعت استجابة غير مفهومة (HTTP "+response.status+")."}));
+  if(!response.ok||!data.ok)throw Error(data.error||"فشل الشراء (HTTP "+response.status+").");
+  delete button.dataset.requestId;
   $("balance").textContent=Number(data.balance||0).toLocaleString("en-US")+" LC";
   say("تم شراء "+data.itemName+" وتسليمه لحسابك.");
   await load();
- }catch(error){say(error.message||"تعذر الشراء.");button.disabled=false;button.textContent="إعادة المحاولة"}
+ }catch(error){
+  console.error("Lamma store purchase failed:",error);
+  say("فشل الشراء: "+(error.message||"تعذر الاتصال بخدمة المتجر.")+" — اضغط إعادة المحاولة لنفس العملية.");
+  button.disabled=false;button.textContent="إعادة المحاولة";
+ }
 }
 load();
 })();
