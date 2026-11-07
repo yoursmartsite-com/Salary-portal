@@ -70,7 +70,7 @@ function watch(){
   $("players").innerHTML=list.length?list.sort((a,b)=>(b.at||0)-(a.at||0)).map(p=>'<div class="player"><span class="dot"></span><div class="info"><b>'+esc(p.name||"لاعب")+'</b><small>'+esc(p.uid)+'</small></div><div class="actions"><button data-copy="'+esc(p.uid)+'">نسخ UID</button><button class="ban" data-ban="'+esc(p.uid)+'">حظر</button></div></div>').join(""):'<div class="empty">مفيش لاعبين متصلين دلوقتي.</div>';
   $("players").querySelectorAll("[data-copy]").forEach(b=>b.onclick=()=>navigator.clipboard?.writeText(b.dataset.copy));
   $("players").querySelectorAll("[data-ban]").forEach(b=>b.onclick=()=>moderate(b.dataset.ban,true));
- },e=>msg("announceStatus","تعذر قراءة اللاعبين: "+e.message));
+ },e=>{console.error("Presence read error:",e);$("onlineCount").textContent="!";$("players").innerHTML='<div class="empty">تعذر تحميل اللاعبين: '+esc(e.message)+'</div>';});
  const p2=rooms.on("value",snap=>{
   const list=[];snap.forEach(c=>{const r=c.val()||{};if(r.status!=="closed"&&Date.now()-(r.updatedAt||0)<36e6)list.push({id:c.key,...r})});
   $("roomCount").textContent=list.length;
