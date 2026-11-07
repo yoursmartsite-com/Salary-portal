@@ -277,6 +277,9 @@ async function init(){try{
  let current=await new Promise((resolve,reject)=>{let off=()=>{};off=auth.onAuthStateChanged(user=>{off();resolve(user)},error=>{off();reject(error)})});
  if(!current||current.isAnonymous){status('سجّل دخولك من الصفحة الرئيسية بنفس الإيميل الأول، وبعدها ارجع للعبة.');return}
  uid=current.uid;
+ // Keep the signed-in player visible to the admin while this Ludo page is connected.
+ const presenceRef=db.ref('presence/'+uid);
+ db.ref('.info/connected').on('value',async snap=>{if(snap.val()!==true)return;try{await presenceRef.onDisconnect().remove();await presenceRef.set({uid,name:current.displayName||current.email?.split('@')[0]||'لاعب',email:current.email||'',online:true,at:Date.now()});}catch(err){console.warn('Presence registration failed:',err);}});
  const prof=await db.ref('profiles/'+uid).get();selectedDiceSkin=prof.val()?.diceSkin||'classic';
  db.ref('inventory/'+uid+'/items').on('value',snap=>{const items=snap.val()||{};ownedDice={classic:true};Object.keys(DICE_SKINS).filter(k=>k!=='classic').forEach(k=>{if(Number(items[k]?.quantity||0)>0)ownedDice[k]=true});fillDiceChoices()});
  $('diceSkin').addEventListener('change',async()=>{const k=$('diceSkin').value;if(!ownedDice[k])return;selectedDiceSkin=k;applyDiceSkin(k);try{await db.ref('profiles/'+uid+'/diceSkin').set(k);if(roomRef&&room?.players?.[uid])await roomRef.child('players/'+uid+'/diceSkin').set(k)}catch(e){status('تعذر حفظ اختيار النرد: '+e.message)}});
