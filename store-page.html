@@ -22,6 +22,10 @@ a{color:inherit;text-decoration:none}.wrap{width:min(1180px,100%);margin:auto;pa
 .item .meta{display:flex;justify-content:space-between;gap:8px;color:#e9d39f;font-size:12px;font-weight:800}
 .item button{margin-top:auto;width:100%;border:0;border-radius:11px;padding:10px;background:linear-gradient(110deg,#d6a849,#f1d17c);color:#211a0c;font:900 13px Cairo;cursor:pointer}
 .item button:disabled{opacity:.5;cursor:wait}.owned{color:#65ddb1!important}.empty{padding:22px;border:1px dashed #52617b;border-radius:14px;color:var(--muted);text-align:center}
+.equip{margin-top:16px;padding:16px;border:1px solid #7f6bd866;border-radius:17px;background:linear-gradient(135deg,#1b2943,#111a2c)}
+.equip h2{font-size:17px;margin:0 0 5px}.equip p{font-size:12px;color:var(--muted);margin:0 0 10px}
+.equip-row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.equip select{flex:1;min-width:190px;padding:11px;border-radius:11px;background:#071022;color:#fff;border:1px solid #52617b;font:700 13px Cairo}
+@media(max-width:520px){.equip{padding:12px}.equip-row{display:grid;grid-template-columns:1fr}.equip select{width:100%}}
 @media(max-width:760px){.wrap{padding:9px}.top{padding:10px}.brand{font-size:18px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.item{padding:11px}.item h2{font-size:14px}.item p{font-size:11px}.item .symbol{width:49px;height:49px;font-size:25px}.wallet{padding:12px}.hero{padding:18px}}
 </style>
 </head>
@@ -31,6 +35,7 @@ a{color:inherit;text-decoration:none}.wrap{width:min(1180px,100%);margin:auto;pa
 <section class="wallet"><div><small>رصيد عملة لَمّة</small><strong id="balance">— LC</strong></div><div id="accountState">جاري تسجيل الدخول…</div></section>
 <div class="status" id="status" aria-live="polite">جاري تحميل المنتجات…</div>
 <section class="grid" id="items"><div class="empty">جاري تحميل المتجر…</div></section>
+<section class="equip" id="movementEquip" hidden><h2>✨ تأثير الحركة المفعّل</h2><p>اختار التأثير اللي يظهر خلف قطعك في الليدو، والخصم هيشوفه كمان أثناء اللعب.</p><div class="equip-row"><select id="movementEffectSelect" aria-label="تأثير الحركة"></select><button class="btn" id="applyMovementEffect">تفعيل التأثير</button></div></section>
 </main>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
@@ -39,14 +44,15 @@ a{color:inherit;text-decoration:none}.wrap{width:min(1180px,100%);margin:auto;pa
 (()=>{
 const cfg={apiKey:"AIzaSyArJNDKNNTs2oFGFWV58_1UKY3GmE06ghk",authDomain:"play-with-friends-com.firebaseapp.com",databaseURL:"https://play-with-friends-com-default-rtdb.firebaseio.com",projectId:"play-with-friends-com",storageBucket:"play-with-friends-com.firebasestorage.app",messagingSenderId:"52443545219",appId:"1:52443545219:web:62c9746888f7fe2bf9a5b6"};
 const API="https://empty-unit-a7ab.fibrahem865.workers.dev", $=id=>document.getElementById(id);
-let db=null,auth=null,user=null,inventory={};
+let db=null,auth=null,user=null,inventory={},selectedMovementEffect="none";
 function say(t){$("status").textContent=t}
 function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 async function refresh(){
  if(!user||user.isAnonymous)return;
- const [walletSnap,inventorySnap]=await Promise.all([db.ref("wallets/"+user.uid).get(),db.ref("inventory/"+user.uid).get()]);
+ const [walletSnap,inventorySnap,profileSnap]=await Promise.all([db.ref("wallets/"+user.uid).get(),db.ref("inventory/"+user.uid).get(),db.ref("profiles/"+user.uid).get()]);
  $("balance").textContent=Number(walletSnap.val()?.balance||0).toLocaleString("en-US")+" LC";
  inventory=inventorySnap.val()?.items||{};
+ selectedMovementEffect=profileSnap.val()?.movementEffect||"none";
 }
 async function load(){
  try{
@@ -67,12 +73,32 @@ async function load(){
   if(!response.ok||!data.items)throw Error(data.error||"تعذر تحميل المنتجات.");
   $("items").innerHTML=Object.entries(data.items).map(([id,item])=>{
    const count=Number(inventory[id]?.quantity||0);
-   const icon=({dice_gold:"🎲",dice_crystal:"🔷",dice_fire:"🔥",dice_lightning:"⚡",dice_galaxy:"🌌"}[id]||{dice:"🎲",piece:"💎",board:"♟",frame:"🖼️",effect:"🏆"}[item.type]||"✦");
-   return '<article class="item"><div class="symbol">'+icon+'</div><h2>'+esc(item.name)+'</h2><p>إضافة لحسابك في ألعاب لَمّة.</p><div class="meta"><span>'+Number(item.price)+' LC</span><span class="'+(count?'owned':'')+'">'+(count?"معاك: "+count:"غير مملوك")+'</span></div><button data-buy="'+esc(id)+'" '+(signedIn?"":"disabled")+'>'+(count?"شراء نسخة أخرى":(signedIn?"شراء فوري":"سجّل الدخول للشراء"))+'</button></article>';
+   const icon=({dice_gold:"🎲",dice_crystal:"🔷",dice_fire:"🔥",dice_lightning:"⚡",dice_galaxy:"🌌",move_lightning:"⚡",move_fire:"🔥",move_ghost:"👻",move_gold:"👑",move_ice:"❄️",move_rainbow:"🌈"}[id]||{dice:"🎲",piece:"💎",board:"♟",frame:"🖼️",effect:"🏆",movementEffect:"✨"}[item.type]||"✦");
+   const descriptions={move_lightning:"شرارات كهربائية زرقاء تندفع خلف القطعة.",move_fire:"لهب متحرك يترك أثرًا ناريًا خلف القطعة.",move_ghost:"دخان بنفسجي شفاف ينساب خلف القطعة.",move_gold:"غبار ذهبي لامع يرافق كل حركة.",move_ice:"بلورات جليدية تتناثر مع الحركة.",move_rainbow:"مسار نيون بألوان قوس قزح."};
+   return '<article class="item"><div class="symbol">'+icon+'</div><h2>'+esc(item.name)+'</h2><p>'+esc(descriptions[id]||"إضافة لحسابك في ألعاب لَمّة.")+'</p><div class="meta"><span>'+Number(item.price)+' LC</span><span class="'+(count?'owned':'')+'">'+(count?"معاك: "+count:"غير مملوك")+'</span></div><button data-buy="'+esc(id)+'" '+(signedIn?"":"disabled")+'>'+(count?"شراء نسخة أخرى":(signedIn?"شراء فوري":"سجّل الدخول للشراء"))+'</button></article>';
   }).join("")||'<div class="empty">المتجر فاضي حاليًا.</div>';
   document.querySelectorAll("[data-buy]").forEach(button=>button.addEventListener("click",()=>buy(button.dataset.buy,button)));
+  renderMovementEquip();
   say(signedIn?"الشراء متاح من رصيد LC الخاص بحسابك.":"المتجر للعرض؛ سجّل دخولك من الرئيسية لتظهر عملاتك وتقدر تشتري.");
  }catch(error){$("accountState").textContent="تعذر الاتصال";say(error.message||"حصل خطأ أثناء تحميل المتجر.")}
+}
+function renderMovementEquip(){
+ const section=$("movementEquip"),select=$("movementEffectSelect");
+ if(!section||!select||!user||user.isAnonymous){if(section)section.hidden=true;return;}
+ const effects=Object.entries(inventory).filter(([id,item])=>id.startsWith("move_")&&item?.type==="movementEffect"&&Number(item.quantity||0)>0);
+ if(!effects.length){section.hidden=true;return;}
+ section.hidden=false;
+ select.innerHTML='<option value="none">بدون تأثير حركة</option>'+effects.map(([id,item])=>'<option value="'+esc(id)+'">'+esc(item.name||id)+'</option>').join("");
+ if(!effects.some(([id])=>id===selectedMovementEffect))selectedMovementEffect="none";
+ select.value=selectedMovementEffect;
+ $("applyMovementEffect").onclick=async()=>{
+  const value=select.value;
+  try{
+   await db.ref("profiles/"+user.uid+"/movementEffect").set(value);
+   selectedMovementEffect=value;
+   say(value==="none"?"تم إيقاف تأثير الحركة.":"تم تفعيل "+(select.selectedOptions[0]?.textContent||"تأثير الحركة")+" — هيظهر في الليدو.");
+  }catch(error){say("تعذر حفظ تأثير الحركة: "+error.message);}
+ };
 }
 async function buy(id,button){
  if(!user||user.isAnonymous)return say("سجّل دخولك بإيميلك من الرئيسية الأول.");
