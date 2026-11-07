@@ -213,6 +213,11 @@
         "lastMove": {
           ".write": "auth != null && root.child('ludoRooms').child($roomId).child('players').child(auth.uid).exists()"
         },
+        "finishOrder": {
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid && root.child('ludoRooms').child($roomId).child('players').child($uid).exists() && newData.isNumber()"
+          }
+        },
         "rolls": {
           "$uid": {
             ".write": "auth != null && auth.uid === $uid && root.child('ludoRooms').child($roomId).child('players').child($uid).exists() && newData.isNumber() && newData.val() >= 1 && newData.val() <= 6"
