@@ -66,6 +66,12 @@
         ".write": "auth != null && auth.uid === $uid"
       }
     },
+    "userDirectory": {
+      ".read": "auth != null && (auth.uid === '91N0rI5SCDN1aKBXJkowj5KcUOz1' || auth.token.email === 'admin@lamma.com')",
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
     "invites": {
       "$toUid": {
         ".read": "auth != null && (auth.uid === $toUid || data.child('fromUid').val() === auth.uid)",
