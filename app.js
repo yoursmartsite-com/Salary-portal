@@ -397,13 +397,33 @@ function subscribePresence() {
   if (!state.firebase || !state.dbApi) return;
   const { ref, onValue, set, onDisconnect, remove } = state.dbApi;
   const me = ref(state.db, `presence/${state.uid}`);
-  set(me, { uid: state.uid, name: state.name || "لاعب", online: true, at: Date.now() }).catch(console.error);
-  onDisconnect(me).remove().catch(console.error);
+  const connection = ref(state.db, ".info/connected");
+
+  // سجل اللاعب كمتصل فقط بعد تأكيد اتصال Firebase وتجهيز onDisconnect.
+  onValue(connection, async snap => {
+    if (snap.val() !== true) return;
+    try {
+      await onDisconnect(me).remove();
+      await set(me, {
+        uid: state.uid,
+        name: state.name || "لاعب",
+        online: true,
+        at: Date.now()
+      });
+      if ($("#connectionLabel")) $("#connectionLabel").textContent = "متصل أونلاين";
+      if ($("#firebaseStatus")) $("#firebaseStatus").textContent = "متصل";
+    } catch (err) {
+      console.error("Presence write error:", err);
+      if ($("#connectionLabel")) $("#connectionLabel").textContent = "تعذر تسجيل الاتصال";
+      if ($("#firebaseStatus")) $("#firebaseStatus").textContent = "خطأ اتصال";
+    }
+  });
+
   onValue(ref(state.db, "presence"), snap => {
     const users = [];
     snap.forEach(child => {
       const u = child.val();
-      if (child.key !== state.uid && u?.online && true) users.push({ ...u, uid: child.key });
+      if (child.key !== state.uid && u?.online === true) users.push({ ...u, uid: child.key });
     });
     const inviteMarkup = users.length ? users.map(u => `
       <div class="room-item"><span class="room-emoji">🟢</span><div><strong>${safeText(u.name || "لاعب")}</strong><small>متصل الآن</small></div><button data-invite="${safeText(u.uid)}">دعوة</button></div>
@@ -412,7 +432,13 @@ function subscribePresence() {
       const root = $(selector);
       if (root) root.innerHTML = inviteMarkup;
     });
-      $("[data-invite]").forEach(btn => btn.addEventListener("click", () => sendInvite(btn.dataset.invite)));
+    $$("[data-invite]").forEach(btn => btn.addEventListener("click", () => sendInvite(btn.dataset.invite)));
+  }, err => {
+    console.error("Presence read error:", err);
+    ["#onlinePlayersList", "#roomOnlinePlayersList"].forEach(selector => {
+      const root = $(selector);
+      if (root) root.innerHTML = '<p class="empty-notice">تعذر تحميل اللاعبين: ' + safeText(err.message) + '</p>';
+    });
   });
   onValue(ref(state.db, `gameInvites/${state.uid}`), snap => {
     const root = $("#inviteNotice");
