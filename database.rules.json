@@ -213,6 +213,9 @@
         "lastMove": {
           ".write": "auth != null && root.child('ludoRooms').child($roomId).child('players').child(auth.uid).exists()"
         },
+        "gameOver": {
+          ".write": "auth != null && root.child('ludoRooms').child($roomId).child('players').child(auth.uid).exists() && newData.val() === true"
+        },
         "finishOrder": {
           "$uid": {
             ".write": "auth != null && auth.uid === $uid && root.child('ludoRooms').child($roomId).child('players').child($uid).exists() && newData.isNumber()"
