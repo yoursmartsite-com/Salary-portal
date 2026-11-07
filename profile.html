@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#070b18">
+<title>بروفايلي | لَمّة</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#070b18;--panel:#101a30;--line:#263653;--muted:#9baac8;--purple:#713cff;--green:#35dfad}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -20%,#202b58,transparent 55%),var(--bg);color:#f5f7ff;font:14px Cairo,Arial,sans-serif;min-height:100vh;padding:22px}
+a{color:inherit;text-decoration:none}.wrap{max-width:980px;margin:auto}.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}.brand{font-size:24px;font-weight:900}.back{padding:9px 14px;background:#182642;border:1px solid var(--line);border-radius:10px}
+.hero{background:linear-gradient(130deg,#172647,#10182d 65%,#24164c);border:1px solid #34466b;border-radius:22px;padding:26px;display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+.avatar{width:112px;height:112px;border-radius:50%;border:3px solid #9a79ff;background:#0b1326;object-fit:cover;display:grid;place-items:center;font-size:42px;font-weight:900;color:#c8baff;overflow:hidden}
+.identity{flex:1;min-width:220px}.identity h1{font-size:28px;margin:0 0 4px}.identity p{margin:3px 0;color:var(--muted);overflow-wrap:anywhere}.uid{font-size:11px;color:#8d9bbb}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin:16px 0}.stat,.panel{background:linear-gradient(145deg,#111d34,#0b1325);border:1px solid var(--line);border-radius:16px;padding:17px}.stat small{color:var(--muted)}.stat strong{display:block;font-size:25px;margin-top:5px}
+.panel h2{font-size:18px;margin:0 0 14px}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{display:grid;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:12px;color:#bdc9df}.field input,.field textarea{width:100%;background:#070f20;border:1px solid #344563;color:white;border-radius:10px;padding:11px;font:inherit;outline:none}.field textarea{min-height:90px;resize:vertical}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}.btn{padding:10px 17px;border:0;border-radius:10px;background:linear-gradient(110deg,#5526e8,#8242ff);color:white;font:700 13px Cairo;cursor:pointer}.btn.secondary{background:#1a2943;border:1px solid #344563}.msg{min-height:24px;color:var(--green);margin-top:9px}.danger{background:#421d32}
+@media(max-width:650px){body{padding:12px}.hero{padding:18px}.avatar{width:84px;height:84px}.identity h1{font-size:22px}.grid{grid-template-columns:1fr 1fr}.formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}.stat{padding:13px}.stat strong{font-size:21px}}
+</style>
+</head>
+<body><main class="wrap">
+<header class="top"><a class="brand" href="./">♛ لَمّة</a><a class="back" href="./">← الرئيسية</a></header>
+<section class="hero">
+<div class="avatar" id="avatarView">ل</div>
+<div class="identity"><h1 id="profileName">بروفايلي</h1><p id="profileEmail">جارٍ تحميل الحساب...</p><div class="uid" id="profileUid"></div></div>
+</section>
+<section class="grid">
+<div class="stat"><small>رصيد عملات لَمّة</small><strong id="coinBalance">— LC</strong></div>
+<div class="stat"><small>العناصر في مخزني</small><strong id="inventoryCount">—</strong></div>
+<div class="stat"><small>تاريخ الانضمام</small><strong id="joinDate" style="font-size:16px">—</strong></div>
+</section>
+<section class="panel">
+<h2>تعديل البروفايل</h2>
+<form id="profileForm">
+<div class="formgrid">
+<div class="field"><label for="displayName">اسم اللاعب</label><input id="displayName" maxlength="24" required placeholder="اكتب اسمك في لَمّة"></div>
+<div class="field"><label for="avatarUrl">رابط صورة شخصية (اختياري)</label><input id="avatarUrl" type="url" placeholder="https://..."></div>
+<div class="field full"><label for="bio">نبذة عنك</label><textarea id="bio" maxlength="180" placeholder="اكتب نبذة قصيرة عنك..."></textarea></div>
+</div>
+<div class="actions"><button class="btn" id="saveBtn" type="submit">حفظ التعديلات</button><button class="btn secondary" type="button" id="logoutBtn">تسجيل الخروج</button></div>
+<div class="msg" id="status" role="status"></div>
+</form>
+</section>
+</main>
+<script type="module">
+import {firebaseConfig} from "./firebase-config.js";
+import {initializeApp,getApps} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import {getAuth,onAuthStateChanged,updateProfile,signOut} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import {getDatabase,ref,get,set,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
+const app=getApps().length?getApps()[0]:initializeApp(firebaseConfig),auth=getAuth(app),db=getDatabase(app);
+const $=id=>document.getElementById(id);let currentUser=null;
+function showAvatar(url,name){const box=$("avatarView");if(url){box.innerHTML="";const img=document.createElement("img");img.src=url;img.alt="الصورة الشخصية";img.style.cssText="width:100%;height:100%;object-fit:cover";img.onerror=()=>{box.textContent=(name||"ل").charAt(0)};box.append(img)}else box.textContent=(name||"ل").trim().charAt(0).toUpperCase()}
+function say(t,bad=false){$("status").textContent=t;$("status").style.color=bad?"#ff8da4":"#35dfad"}
+onAuthStateChanged(auth,async user=>{
+ if(!user||user.isAnonymous){location.replace("./");return}
+ currentUser=user;$("profileEmail").textContent=user.email||"";$("profileUid").textContent="معرّف اللاعب: "+user.uid;
+ const fallbackName=user.displayName||user.email?.split("@")[0]||"لاعب";
+ let profile={};
+ try{const snap=await get(ref(db,"profiles/"+user.uid));profile=snap.val()||{};}catch(e){say("تعذر تحميل بيانات البروفايل: "+e.message,true)}
+ $("profileName").textContent=profile.displayName||fallbackName;$("displayName").value=profile.displayName||fallbackName;$("bio").value=profile.bio||"";$("avatarUrl").value=profile.avatarUrl||"";showAvatar(profile.avatarUrl||user.photoURL,profile.displayName||fallbackName);
+ $("joinDate").textContent=profile.createdAt?new Date(profile.createdAt).toLocaleDateString("ar-EG"):(user.metadata.creationTime?new Date(user.metadata.creationTime).toLocaleDateString("ar-EG"):"—");
+ try{const [walletSnap,inventorySnap]=await Promise.all([get(ref(db,"wallets/"+user.uid+"/balance")),get(ref(db,"inventory/"+user.uid+"/items"))]);$("coinBalance").textContent=(Number(walletSnap.val())||0)+" LC";const items=inventorySnap.val();$("inventoryCount").textContent=items?(Array.isArray(items)?items.length:Object.keys(items).length):"0";}catch(e){$("coinBalance").textContent="— LC";$("inventoryCount").textContent="—"}
+});
+$("avatarUrl").addEventListener("input",()=>showAvatar($("avatarUrl").value,$("displayName").value));
+$("displayName").addEventListener("input",()=>{$("profileName").textContent=$("displayName").value||"بروفايلي";if(!$("avatarUrl").value)showAvatar("",$("displayName").value)});
+$("profileForm").addEventListener("submit",async e=>{
+ e.preventDefault();if(!currentUser)return;
+ const displayName=$("displayName").value.trim().slice(0,24),bio=$("bio").value.trim().slice(0,180),avatarUrl=$("avatarUrl").value.trim();
+ if(!displayName){say("اكتب اسم اللاعب الأول.",true);return}
+ $("saveBtn").disabled=true;$("saveBtn").textContent="بيحفظ...";
+ try{
+  await updateProfile(currentUser,{displayName,photoURL:avatarUrl||null});
+  const old=await get(ref(db,"profiles/"+currentUser.uid));const oldData=old.val()||{};
+  await set(ref(db,"profiles/"+currentUser.uid),{...oldData,uid:currentUser.uid,email:currentUser.email||"",displayName,bio,avatarUrl,createdAt:oldData.createdAt||Date.now(),updatedAt:Date.now()});
+  $("profileName").textContent=displayName;showAvatar(avatarUrl,displayName);say("تم حفظ البروفايل بنجاح.");
+ }catch(err){say("فشل الحفظ: "+err.message,true)}
+ finally{$("saveBtn").disabled=false;$("saveBtn").textContent="حفظ التعديلات"}
+});
+$("logoutBtn").addEventListener("click",async()=>{await signOut(auth);location.replace("./")});
+</script></body></html>
