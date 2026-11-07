@@ -39,11 +39,11 @@ a{color:inherit;text-decoration:none}.wrap{width:min(1180px,100%);margin:auto;pa
 (()=>{
 const cfg={apiKey:"AIzaSyArJNDKNNTs2oFGFWV58_1UKY3GmE06ghk",authDomain:"play-with-friends-com.firebaseapp.com",databaseURL:"https://play-with-friends-com-default-rtdb.firebaseio.com",projectId:"play-with-friends-com",storageBucket:"play-with-friends-com.firebasestorage.app",messagingSenderId:"52443545219",appId:"1:52443545219:web:62c9746888f7fe2bf9a5b6"};
 const API="https://empty-unit-a7ab.fibrahem865.workers.dev", $=id=>document.getElementById(id);
-let db=null,user=null,inventory={};
+let db=null,auth=null,user=null,inventory={};
 function say(t){$("status").textContent=t}
 function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 async function refresh(){
- if(!user)return;
+ if(!user||user.isAnonymous)return;
  const [walletSnap,inventorySnap]=await Promise.all([db.ref("wallets/"+user.uid).get(),db.ref("inventory/"+user.uid).get()]);
  $("balance").textContent=Number(walletSnap.val()?.balance||0).toLocaleString("en-US")+" LC";
  inventory=inventorySnap.val()?.items||{};
@@ -52,24 +52,30 @@ async function load(){
  try{
   if(!firebase.apps.length)firebase.initializeApp(cfg);
   db=firebase.database();
-  user=firebase.auth().currentUser;
-  if(!user){const credential=await firebase.auth().signInAnonymously();user=credential.user}
-  $("accountState").textContent="الحساب متصل";
-  await refresh();
+  auth=firebase.auth();
+  await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+  user=await new Promise((resolve,reject)=>{
+   let unsubscribe=()=>{};
+   unsubscribe=auth.onAuthStateChanged(current=>{unsubscribe();resolve(current)},error=>{unsubscribe();reject(error)});
+  });
+  const signedIn=!!user&&!user.isAnonymous;
+  $("accountState").innerHTML=signedIn?"<span style='color:#65ddb1'>حسابك مسجل بالإيميل</span>":'<a href="./index.html" style="color:#ffd98a;text-decoration:underline">سجّل دخولك من الرئيسية لعرض رصيدك والشراء</a>';
+  if(signedIn)await refresh();
+  else {$("balance").textContent="سجّل دخولك أولاً";inventory={};}
   const response=await fetch(API+"/catalog");
   const data=await response.json();
   if(!response.ok||!data.items)throw Error(data.error||"تعذر تحميل المنتجات.");
   $("items").innerHTML=Object.entries(data.items).map(([id,item])=>{
    const count=Number(inventory[id]?.quantity||0);
    const icon={dice:"🎲",piece:"💎",board:"♟",frame:"🖼️",effect:"🏆"}[item.type]||"✦";
-   return '<article class="item"><div class="symbol">'+icon+'</div><h2>'+esc(item.name)+'</h2><p>إضافة لحسابك في ألعاب لَمّة.</p><div class="meta"><span>'+Number(item.price)+' LC</span><span class="'+(count?'owned':'')+'">'+(count?"معاك: "+count:"غير مملوك")+'</span></div><button data-buy="'+esc(id)+'">'+(count?"شراء نسخة أخرى":"شراء فوري")+'</button></article>';
+   return '<article class="item"><div class="symbol">'+icon+'</div><h2>'+esc(item.name)+'</h2><p>إضافة لحسابك في ألعاب لَمّة.</p><div class="meta"><span>'+Number(item.price)+' LC</span><span class="'+(count?'owned':'')+'">'+(count?"معاك: "+count:"غير مملوك")+'</span></div><button data-buy="'+esc(id)+'" '+(signedIn?"":"disabled")+'>'+(count?"شراء نسخة أخرى":(signedIn?"شراء فوري":"سجّل الدخول للشراء"))+'</button></article>';
   }).join("")||'<div class="empty">المتجر فاضي حاليًا.</div>';
   document.querySelectorAll("[data-buy]").forEach(button=>button.addEventListener("click",()=>buy(button.dataset.buy,button)));
-  say("الشراء فوري ويُخصم من رصيد LC بعد تأكيد العملية.");
+  say(signedIn?"الشراء متاح من رصيد LC الخاص بحسابك.":"المتجر للعرض؛ سجّل دخولك من الرئيسية لتظهر عملاتك وتقدر تشتري.");
  }catch(error){$("accountState").textContent="تعذر الاتصال";say(error.message||"حصل خطأ أثناء تحميل المتجر.")}
 }
 async function buy(id,button){
- if(!user)return say("سجل دخولك الأول.");
+ if(!user||user.isAnonymous)return say("سجّل دخولك بإيميلك من الرئيسية الأول.");
  button.disabled=true;button.textContent="جاري الشراء…";
  try{
   const token=await user.getIdToken(true);
