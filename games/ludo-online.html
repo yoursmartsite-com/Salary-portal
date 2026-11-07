@@ -1,7 +1,85 @@
 <!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#10192e"><title>ليدو أونلاين | لَمّة</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#243d69,#0b1020 65%);color:#f5f7ff;font-family:Cairo,system-ui,sans-serif;min-height:100vh}button,input{font:inherit}button{border:1px solid #ffffff25;border-radius:13px;background:linear-gradient(135deg,#7158ed,#258bc0);color:#fff;padding:10px 14px;font-weight:800;cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}.top{padding:13px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px;background:#090f20d9;border-bottom:1px solid #ffffff18}.brand{font-size:20px;font-weight:900}.brand span{color:#69e5ff}.lobby{max-width:1000px;margin:8px auto 0;padding:9px 10px;background:#111c33;border:1px solid #ffffff20;border-radius:14px}.lobby-head{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;margin-bottom:6px}.lobby-head #status{min-height:0;font-size:11px;text-align:left}.lobby-controls{display:grid;grid-template-columns:1.1fr 1fr 1fr 1fr;gap:6px;align-items:center}.lobby-controls .input{margin:0;min-width:0;padding:8px;font-size:12px}.lobby-controls button{padding:8px;font-size:12px}.lobby .note{margin-top:5px}.wrap{max-width:1000px;margin:auto;padding:8px 10px;display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:9px}.boardbox,.side{background:#111c33;border:1px solid #ffffff20;border-radius:15px;padding:9px;box-shadow:0 15px 40px #0003}.boardbox{min-width:0}.boardbox h1{margin:0 0 8px;font-size:22px}.boardbox p{margin:0 0 12px;color:#b7c6e1;font-size:13px}.board-area{position:relative;width:100%;max-width:620px;margin:auto}.board{width:100%;height:auto;aspect-ratio:1;display:block;margin:auto;border-radius:12px;box-shadow:0 10px 35px #0005;touch-action:manipulation}.dice-control{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 8px;border:1px solid #ffffff65;border-radius:12px;background:#101a2ddd;box-shadow:0 4px 18px #0005;min-width:74px}.dice-control .dice{margin:0;font-size:32px;line-height:1.05}.dice-control button{padding:6px 8px;font-size:11px;white-space:nowrap}.turn-status{text-align:center;min-height:0;margin:6px 0 3px}.rules-note{text-align:center}.side{display:flex;flex-direction:column;gap:12px}.panel{border-radius:14px;background:#0a1429;padding:12px;border:1px solid #ffffff15}.panel h3{margin:0 0 9px;font-size:15px}.row{display:flex;gap:8px}.row>*{min-width:0;flex:1}.input{width:100%;padding:10px;background:#071022;color:#fff;border:1px solid #344665;border-radius:11px;margin-bottom:8px}.status{font-size:13px;line-height:1.7;color:#bfd0ec;min-height:42px}.dice{font-size:48px;font-weight:900;text-align:center;line-height:1.2;margin:8px 0;color:#ffe08b;text-shadow:0 4px 20px #ffbe4c45}.players{display:grid;grid-template-columns:1fr 1fr;gap:7px}.pl{padding:8px;border-radius:10px;font-size:12px;background:#17233b}.player-profile-row{display:flex;align-items:center;gap:7px;min-width:0}.player-avatar{width:34px;height:34px;flex:0 0 34px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#253451;border:2px solid #ffffff35;font-size:20px;line-height:1}.player-avatar img{width:100%;height:100%;object-fit:cover}.player-identity{display:flex;flex-direction:column;min-width:0;gap:1px}.player-identity b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}.player-identity small{font-size:10px;color:#a9bbd9}.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-left:5px}.note{color:#8fa5c9;font-size:11px;line-height:1.7}.back{background:#1a2943}@media(max-width:760px){.lobby{margin:6px 7px 0;padding:7px;border-radius:11px}.lobby-controls{grid-template-columns:1fr 1fr;gap:5px}.lobby-head{font-size:12px}.lobby-head #status{font-size:10px}.wrap{grid-template-columns:1fr;padding:6px;gap:6px}.side{display:grid;grid-template-columns:1fr 1fr;gap:6px}.boardbox{padding:6px}.boardbox h1{font-size:17px;margin-bottom:5px}.top{padding:8px 10px}.brand{font-size:16px}.top .back{font-size:12px;padding:7px 9px}.dice-control{min-width:58px;padding:4px;border-radius:9px}.dice-control .dice{font-size:25px}.dice-control button{font-size:9px;padding:4px}.pl{padding:5px;font-size:10px}.panel{padding:7px}.panel h3{font-size:12px;margin-bottom:5px}.rules-note{font-size:10px}}@media(max-width:420px){.lobby-controls{grid-template-columns:1fr 1fr}.side{grid-template-columns:1fr 1fr}.dice-control{min-width:52px}.dice-control .dice{font-size:22px}.dice-control button{font-size:8px;padding:3px}.lobby .note{font-size:10px}}
-.lobby-controls select.input{color:#fff;background:#071022}.lobby-controls select option{background:#10192e;color:#fff}.board-area{filter:drop-shadow(0 14px 20px #0005)}.board{border:5px solid #f7e8bd;outline:1px solid #ffffff55;border-radius:18px;background:#f8f4e8}.panel,.lobby,.boardbox,.side{box-shadow:0 12px 32px #0003, inset 0 1px #ffffff0d}.pl{border:1px solid #ffffff10;border-radius:12px}.dice-control{backdrop-filter:blur(8px)}@media(max-width:760px){.lobby-controls{grid-template-columns:1fr 1fr}.lobby-controls>*{min-width:0}.lobby-controls .input{width:100%}}</style></head><body><header class="top"><div class="brand">🎲 <span>لَمّة</span> | ليدو أونلاين</div><button class="back" id="back">↩ رجوع للموقع</button></header>
+.lobby-controls select.input{color:#fff;background:#071022}.lobby-controls select option{background:#10192e;color:#fff}.board-area{filter:drop-shadow(0 14px 20px #0005)}.board{border:5px solid #f7e8bd;outline:1px solid #ffffff55;border-radius:18px;background:#f8f4e8}.panel,.lobby,.boardbox,.side{box-shadow:0 12px 32px #0003, inset 0 1px #ffffff0d}.pl{border:1px solid #ffffff10;border-radius:12px}.dice-control{backdrop-filter:blur(8px)}@media(max-width:760px){.lobby-controls{grid-template-columns:1fr 1fr}.lobby-controls>*{min-width:0}.lobby-controls .input{width:100%}}
+/* Lamma Ludo visual refresh */
+body{background:radial-gradient(ellipse at 50% -15%,#263d68 0,#111b32 42%,#080e1b 100%);background-attachment:fixed}
+.top{position:sticky;top:0;z-index:5;padding:14px clamp(14px,3vw,30px);background:rgba(7,13,27,.88);backdrop-filter:blur(16px);border-bottom:1px solid #ffffff18}
+.brand{letter-spacing:.1px;font-size:21px}
+.top .back{background:#172640;border:1px solid #ffffff22;box-shadow:none}
+.lobby{max-width:1180px;margin:18px auto 12px;padding:16px 18px;border-radius:20px;background:linear-gradient(135deg,rgba(25,41,69,.96),rgba(13,24,44,.96));border:1px solid #ffffff20;box-shadow:0 16px 42px #0003}
+.lobby-head{font-size:15px;margin-bottom:12px}
+.lobby-head b{font-size:16px}
+.lobby-head #status{color:#9fe8cf;font-weight:700}
+.lobby-controls{grid-template-columns:minmax(150px,1.2fr) minmax(125px,.8fr) minmax(130px,.9fr) minmax(130px,.9fr) minmax(125px,.8fr) minmax(120px,.8fr);gap:9px}
+.lobby-controls .input{height:44px;margin:0;padding:9px 12px;border-radius:12px;background:#081326;border:1px solid #ffffff20}
+.lobby-controls button{min-height:44px;border-radius:12px;padding:9px 13px;box-shadow:0 7px 18px #0002}
+.lobby-controls button:hover,.top button:hover{filter:brightness(1.12)}
+.lobby .note{margin-top:10px;font-size:12px}
+.wrap{max-width:1180px;padding:8px 12px 28px;grid-template-columns:minmax(0,1fr) 280px;gap:16px;align-items:start}
+.boardbox,.side{border-radius:22px;background:linear-gradient(160deg,rgba(21,34,57,.98),rgba(12,22,40,.98));border:1px solid #ffffff1c;box-shadow:0 18px 48px #0004}
+.boardbox{padding:18px}
+.boardbox h1{font-size:24px;margin:0 0 4px}
+.boardbox>p{font-size:13px}
+.board-area{max-width:660px;margin:14px auto 8px}
+.board{border:7px solid #e8d9b2;outline:1px solid #ffffff55;border-radius:22px;box-shadow:0 18px 40px #0006,0 0 0 5px #0b1528}
+.dice-control{min-width:100px;gap:7px;padding:12px 14px;border-radius:18px;background:rgba(9,18,34,.94);border:1px solid #ffffff55;box-shadow:0 12px 28px #0008}
+.dice-control .dice{font-size:42px;color:#ffdf83;text-shadow:0 0 22px #ffc44d55}
+.dice-control button{font-size:12px;padding:8px 12px;border-radius:11px}
+.turn-status{margin:12px auto 5px;padding:11px 14px;max-width:660px;border-radius:13px;background:#0a172b;border:1px solid #ffffff18;color:#d9e9ff;font-weight:800}
+.rules-note{margin-top:9px}
+.side{padding:12px;gap:12px}
+.panel{padding:15px;border-radius:16px;background:rgba(7,16,31,.72);border:1px solid #ffffff17}
+.panel h3{font-size:16px;margin-bottom:12px}
+.players{gap:9px}
+.pl{min-height:66px;padding:9px;border-radius:13px;background:linear-gradient(145deg,#1a2b47,#111e34);border:1px solid #ffffff17}
+.player-avatar{width:38px;height:38px;flex-basis:38px;border:2px solid #ffffff45;background:#263b5d}
+.player-identity b{font-size:12px;color:#f4f7ff}
+.player-identity small{font-size:10px;color:#9db2d2}
+#addBot{min-height:42px;border-radius:12px;background:linear-gradient(135deg,#286f9e,#2256a0)}
+.panel .note{font-size:12px;line-height:2}
+button{transition:filter .15s ease,transform .15s ease}
+button:active{transform:translateY(1px)}
+@media(max-width:900px){
+ .lobby{margin:12px 10px;padding:13px}
+ .lobby-controls{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .wrap{grid-template-columns:minmax(0,1fr) 240px;gap:10px}
+ .boardbox{padding:12px}
+ .side{padding:9px}
+}
+@media(max-width:760px){
+ .top{padding:10px 12px}
+ .brand{font-size:16px}
+ .lobby{margin:9px 8px;padding:11px;border-radius:16px}
+ .lobby-head{margin-bottom:9px}
+ .lobby-controls{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+ .lobby-controls .input,.lobby-controls button{min-height:42px;height:42px;font-size:12px}
+ .lobby .note{font-size:10px}
+ .wrap{display:flex;flex-direction:column;padding:7px;width:100%;gap:9px}
+ .boardbox{width:100%;padding:10px;border-radius:18px;order:1}
+ .boardbox h1{font-size:19px}
+ .board-area{width:min(100%,620px);margin:10px auto}
+ .board{border-width:5px;border-radius:16px}
+ .dice-control{min-width:70px;padding:7px 9px;gap:4px;border-radius:13px}
+ .dice-control .dice{font-size:31px}
+ .dice-control button{font-size:10px;padding:6px 8px}
+ .turn-status{font-size:12px;padding:9px;margin:8px auto 4px}
+ .side{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:8px;order:2;padding:0;background:none;border:0;box-shadow:none}
+ .panel{padding:10px;border-radius:15px}
+ .panel h3{font-size:13px;margin-bottom:8px}
+ .players{gap:6px}
+ .pl{min-height:58px;padding:6px;gap:5px}
+ .player-avatar{width:30px;height:30px;flex-basis:30px;font-size:17px}
+ #addBot{font-size:11px;padding:7px;margin-top:7px}
+ .panel .note{font-size:10px;line-height:1.9}
+}
+@media(max-width:390px){
+ .side{grid-template-columns:1fr}
+ .lobby-controls{gap:6px}
+ .dice-control{min-width:62px}
+ .dice-control .dice{font-size:27px}
+}
+</style></head><body><header class="top"><div class="brand">🎲 <span>لَمّة</span> | ليدو أونلاين</div><button class="back" id="back">↩ رجوع للموقع</button></header>
 <section class="lobby"><div class="lobby-head"><b>🌐 جهّز غرفة اللعب</b><span id="status">جاري الاتصال…</span></div><div class="lobby-controls"><input class="input" id="name" maxlength="16" placeholder="اسمك في اللعبة"><select class="input" id="maxPlayers" aria-label="عدد اللاعبين"><option value="2">👥 لاعبان</option><option value="3">👥 3 لاعبين</option><option value="4" selected>👥 4 لاعبين</option></select><button id="create">➕ إنشاء غرفة</button><label class="input" style="display:flex;align-items:center;gap:6px;margin:0"><input type="checkbox" id="botOn"> 🤖 العب ضد بوت</label><input class="input" id="code" maxlength="6" placeholder="كود الغرفة" style="text-transform:uppercase"><button id="join">دخول بالكود</button></div><div class="note">شارك كود الغرفة مع أصحابك — إنشاء الغرفة والدخول من هنا قبل اللعب.</div></section>
 <main class="wrap"><section class="boardbox"><h1>ليدو أونلاين</h1><div class="board-area"><canvas id="board" class="board" width="600" height="600" aria-label="لوحة لعبة ليدو"></canvas><div class="dice-control"><div class="dice" id="dice">⚄</div><button id="roll" disabled>🎲 ارمِ النرد</button></div></div><div class="status turn-status" id="turn">أنشئ غرفة أو ادخل بكود لبدء اللعب.</div><div class="note rules-note">تحتاج إلى 6 لإخراج القطعة من البيت. ارمِ النرد ثم اضغط على قطعة من لونك لتحريكها.</div></section>
 <aside class="side"><section class="panel"><h3>👥 اللاعبون</h3><div class="players" id="players"><div class="pl">🔴 الأحمر — ينتظر</div><div class="pl">🟢 الأخضر — ينتظر</div><div class="pl">🟡 الأصفر — ينتظر</div><div class="pl">🔵 الأزرق — ينتظر</div></div><button id="addBot" type="button" style="width:100%;margin-top:9px">🤖 إضافة بوت للغرفة</button></section><section class="panel"><h3>🧭 طريقة اللعب</h3><div class="note">1. أنشئ غرفة وشارك الكود.<br>2. أصحابك يدخلون نفس الكود.<br>3. ارمِ النرد واضغط على قطعة من لونك.<br>4. أول لاعب يوصل كل قطعه للنهاية يفوز.</div></section></aside></main>
