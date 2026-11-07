@@ -216,7 +216,7 @@ form.addEventListener("submit",async e=>{
  }catch(err){document.getElementById("authError").textContent=authMessage(err);}
  finally{submit.disabled=false;submit.textContent=mode==="register"?"إنشاء الحساب":"دخول";}
 });
-onAuthStateChanged(auth,user=>{
+setPersistence(auth,browserLocalPersistence).then(()=>onAuthStateChanged(auth,user=>{
  if(connectionUnsub){connectionUnsub();connectionUnsub=null;}
  if(presenceRef){remove(presenceRef).catch(()=>{});presenceRef=null;}
  if(user&&!user.isAnonymous){
@@ -248,6 +248,6 @@ onAuthStateChanged(auth,user=>{
  document.getElementById("profileLink").style.display=logged?"block":"none";
  document.getElementById("accountAvatar").textContent=logged?(user.displayName||user.email).trim().charAt(0).toUpperCase():"ل";
  document.getElementById("topAuthBtn").textContent=logged?"حسابي":"تسجيل الدخول";
-});
+})).catch(err=>{console.error('Auth persistence initialization failed:',err);document.getElementById('accountStatus').textContent='تعذر استعادة جلسة الدخول: '+err.message;});
 </script>
 </body></html>
