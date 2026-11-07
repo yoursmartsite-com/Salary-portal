@@ -228,7 +228,7 @@ let botBusy=false;async function runBotTurn(r){
   let extraRoll=false;
   try{
    if(!roomRef||!room||room.gameOver)return;
-   const ids=turnOrder(room),current=ids[room.turnIndex||0],bot=room.players[current];
+   const ids=activeTurnOrder(room),current=ids[room.turnIndex||0],bot=room.players[current];
    if(!bot?.bot||room.hostUid!==uid||room.gameOver)return;
    const roll=1+Math.floor(Math.random()*6);
    await roomRef.child('rolls/'+current).set(roll);
@@ -285,7 +285,7 @@ let botBusy=false;async function runBotTurn(r){
    botBusy=false;
    if(extraRoll)setTimeout(()=>{
     if(room&&!room.gameOver&&roomRef&&room.hostUid===uid){
-     const ids=turnOrder(room),current=ids[room.turnIndex||0];
+     const ids=activeTurnOrder(room),current=ids[room.turnIndex||0];
      if(room.players?.[current]?.bot)runBotTurn(room);
     }
    },450);
