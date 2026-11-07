@@ -486,3 +486,39 @@ body{background:radial-gradient(ellipse at 50% 0%,#243d70 0,#111b35 48%,#070d1b 
  .dice-effect-overlay.fx-dice_fire:before,.dice-effect-overlay.fx-dice_fire:after{animation:none}
 }
 </style>
+<style>
+/* Replace the soft glow with visible animated flame tongues around all four edges */
+.dice-effect-overlay.fx-dice_fire:before{
+ content:"";position:absolute;inset:-3px;width:auto;height:auto;border-radius:0;opacity:1;
+ background:
+  radial-gradient(ellipse 18px 76px at 50% 100%,#fff6a5 0 9%,#ffd34c 20%,#ff7a18 48%,#e52b0b 68%,transparent 100%) 0 0/46px 122px repeat-x,
+  radial-gradient(ellipse 15px 58px at 50% 100%,#fff0a0 0 8%,#ffb52e 24%,#ff4a12 58%,transparent 100%) 19px 0/37px 96px repeat-x,
+  radial-gradient(ellipse 76px 18px at 100% 50%,#fff6a5 0 9%,#ffd34c 20%,#ff7a18 48%,#e52b0b 68%,transparent 100%) 0 0/122px 46px repeat-y,
+  radial-gradient(ellipse 58px 15px at 100% 50%,#fff0a0 0 8%,#ffb52e 24%,#ff4a12 58%,transparent 100%) 0 19px/96px 37px repeat-y,
+  radial-gradient(ellipse 18px 76px at 50% 0%,#fff6a5 0 9%,#ffd34c 20%,#ff7a18 48%,#e52b0b 68%,transparent 100%) 0 0/46px 122px repeat-x,
+  radial-gradient(ellipse 15px 58px at 50% 0%,#fff0a0 0 8%,#ffb52e 24%,#ff4a12 58%,transparent 100%) 19px 0/37px 96px repeat-x,
+  radial-gradient(ellipse 76px 18px at 0% 50%,#fff6a5 0 9%,#ffd34c 20%,#ff7a18 48%,#e52b0b 68%,transparent 100%) 0 0/122px 46px repeat-y,
+  radial-gradient(ellipse 58px 15px at 0% 50%,#fff0a0 0 8%,#ffb52e 24%,#ff4a12 58%,transparent 100%) 0 19px/96px 37px repeat-y;
+ filter:drop-shadow(0 0 7px #ff4b0d);
+ animation:lammaRealFlames .48s ease-in-out 6 alternate;
+}
+.dice-effect-overlay.fx-dice_fire:after{
+ content:"";position:absolute;inset:0;width:auto;height:auto;border-radius:0;opacity:1;
+ background:
+  radial-gradient(circle,#fff3a0 0 1px,transparent 2px) 0 0/29px 31px,
+  radial-gradient(circle,#ffb52e 0 1.5px,transparent 2.5px) 11px 17px/43px 47px,
+  radial-gradient(circle,#ff4b12 0 2px,transparent 3px) 23px 9px/61px 53px;
+ mask:linear-gradient(#000,transparent 18%,transparent 82%,#000);
+ animation:lammaFireSparks .75s linear 4 both;
+}
+@keyframes lammaRealFlames{
+  0%{transform:scaleY(.82) skewX(-1deg);filter:brightness(.9) drop-shadow(0 0 6px #ff4b0d)}
+  50%{transform:scaleY(1.12) skewX(1deg);filter:brightness(1.3) drop-shadow(0 0 13px #ff9b20)}
+  100%{transform:scaleY(.94) skewX(-.5deg);filter:brightness(1.08) drop-shadow(0 0 9px #ff4b0d)}
+}
+@keyframes lammaFireSparks{
+  0%{opacity:0;transform:translateY(28px)}
+  20%{opacity:1}
+  100%{opacity:0;transform:translateY(-45px)}
+}
+</style>
