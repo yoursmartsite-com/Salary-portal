@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080d19"><title>إدارة لَمّة</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#080d19;--panel:#101a2d;--line:#263653;--muted:#9aabc8;--purple:#7547ed;--green:#36d6a0}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -20%,#26305b 0,transparent 45%),var(--bg);color:#f5f7ff;font:14px Cairo,Arial,sans-serif}button,input,textarea{font:inherit}button{cursor:pointer;border:0}.wrap{max-width:1200px;margin:auto;padding:20px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}.brand{font-size:25px;font-weight:900}.brand span{color:#a78bfa}.muted{color:var(--muted)}.panel{background:linear-gradient(145deg,#121e34,#0d1627);border:1px solid var(--line);border-radius:17px;padding:18px;margin-bottom:15px}.login{max-width:430px;margin:8vh auto}.login h1{margin:0 0 4px}.field{display:grid;gap:6px;margin:12px 0}.field input,.field textarea{width:100%;border:1px solid #344562;border-radius:10px;background:#091222;color:white;padding:12px;outline:none}.field textarea{min-height:90px;resize:vertical}.btn{padding:10px 16px;border-radius:10px;background:linear-gradient(110deg,#6032dc,#8a54fa);color:#fff;font-weight:800}.btn.secondary{background:#1b2a43}.btn.danger{background:#87324a}.btn:disabled{opacity:.5}.error{color:#ff829a;min-height:22px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.stat{padding:15px;border:1px solid var(--line);border-radius:13px;background:#0b1425}.stat small{display:block;color:var(--muted)}.stat strong{font-size:25px}.columns{display:grid;grid-template-columns:1.2fr .8fr;gap:15px}.list{display:grid;gap:8px}.player,.request{display:flex;align-items:center;gap:10px;padding:10px;border-radius:11px;background:#0b1425;border:1px solid #1c2b45}.player .info,.request .info{flex:1;min-width:0}.player b,.request b{display:block}.player small,.request small{color:var(--muted);display:block;overflow-wrap:anywhere}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);margin-left:6px}.actions{display:flex;gap:6px;flex-wrap:wrap}.actions button{padding:6px 9px;border-radius:8px;background:#263753;color:#fff;font-size:12px}.actions .ban{background:#713047}.actions .unban{background:#145d4c}.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.row .field{flex:1;min-width:150px}.hidden{display:none!important}.notice{padding:10px;border-radius:10px;background:#13233b;color:#c7d4ec;margin:10px 0}.section-title{margin:0 0 12px;font-size:17px}.empty{padding:18px;text-align:center;color:var(--muted);border:1px dashed #344562;border-radius:12px}.logout{background:#263753;color:white;padding:8px 12px;border-radius:9px}@media(max-width:760px){.wrap{padding:10px}.columns{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.brand{font-size:21px}.panel{padding:13px}.player{align-items:flex-start;flex-wrap:wrap}.player .info{min-width:65%}.actions{width:100%;padding-right:34px}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<header class="top"><div class="brand"><span>♛</span> لَمّة <small class="muted"> / لوحة الإدارة</small></div><button id="logout" class="logout hidden">تسجيل خروج</button></header>
+<section id="loginPanel" class="panel login">
+<h1>دخول الإدارة</h1><p class="muted">سجّل دخول بحساب المدير المعتمد.</p>
+<form id="loginForm">
+<label class="field">البريد الإلكتروني<input id="email" type="email" autocomplete="username" required placeholder="admin@lamma.com"></label>
+<label class="field">كلمة المرور<input id="password" type="password" autocomplete="current-password" required placeholder="كلمة المرور"></label>
+<button class="btn" type="submit" style="width:100%">دخول لوحة الإدارة</button>
+</form><div id="loginError" class="error"></div>
+</section>
+<section id="dashboard" class="hidden">
+<div class="stats">
+<div class="stat"><small>اللاعبون المتصلون</small><strong id="onlineCount">—</strong></div>
+<div class="stat"><small>الغرف النشطة</small><strong id="roomCount">—</strong></div>
+<div class="stat"><small>حالة الإدارة</small><strong style="font-size:17px;color:var(--green)">مصرّح</strong></div>
+</div>
+<div class="columns" style="margin-top:15px">
+<section class="panel"><h2 class="section-title">اللاعبون المتصلون</h2><div id="players" class="list"><div class="empty">جاري التحميل…</div></div></section>
+<section>
+<div class="panel"><h2 class="section-title">إرسال إعلان للموقع</h2>
+<label class="field">نص الإعلان<textarea id="announcement" maxlength="240" placeholder="اكتب الإعلان اللي هيظهر للاعبين…"></textarea></label>
+<button id="sendAnnouncement" class="btn">نشر الإعلان</button><div id="announceStatus" class="muted" style="margin-top:8px"></div>
+</div>
+<div class="panel"><h2 class="section-title">إضافة عملات للاعب</h2>
+<label class="field">UID اللاعب<input id="targetUid" placeholder="UID اللاعب"></label>
+<label class="field">عدد عملات LC<input id="coinAmount" type="number" min="1" max="100000" step="1" value="10"></label>
+<button id="sendCoins" class="btn">إضافة الرصيد</button><div id="coinStatus" class="muted" style="margin-top:8px"></div>
+</div>
+</section>
+</div>
+<section class="panel"><h2 class="section-title">الغرف النشطة</h2><div id="rooms" class="list"><div class="empty">جاري التحميل…</div></div></section>
+<div class="notice">إدارة الحسابات والرصيد والإعلانات محمية بقواعد Firebase. لو أي عملية اترفضت، تأكد إنك نشرت آخر نسخة من database.rules.json.</div>
+</section>
+</main>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
+<script>
+(()=>{
+const CFG={apiKey:"AIzaSyArJNDKNNTs2oFGFWV58_1UKY3GmE06ghk",authDomain:"play-with-friends-com.firebaseapp.com",databaseURL:"https://play-with-friends-com-default-rtdb.firebaseio.com",projectId:"play-with-friends-com",storageBucket:"play-with-friends-com.firebasestorage.app",messagingSenderId:"52443545219",appId:"1:52443545219:web:62c9746888f7fe2bf9a5b6"};
+const ADMIN_UID="91N0rI5SCDN1aKBXJkowj5KcUOz1";
+const $=id=>document.getElementById(id);let auth,db,unsubs=[];
+const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function msg(id,text){$(id).textContent=text}
+function stop(){unsubs.forEach(fn=>{try{fn()}catch{}});unsubs=[]}
+function failLogin(text){msg("loginError",text)}
+function admin(user){return user&&user.uid===ADMIN_UID&&user.email==="admin@lamma.com"}
+function show(user){
+ if(!admin(user)){auth.signOut();$("dashboard").classList.add("hidden");$("loginPanel").classList.remove("hidden");failLogin("الحساب ده مش حساب المدير المعتمد.");return}
+ $("loginPanel").classList.add("hidden");$("dashboard").classList.remove("hidden");$("logout").classList.remove("hidden");failLogin("");watch();
+}
+function watch(){
+ stop();
+ const pres=db.ref("presence");const rooms=db.ref("rooms");
+ const p1=pres.on("value",snap=>{
+  const list=[];snap.forEach(c=>{const p=c.val()||{};if(p.online)list.push({uid:c.key,...p})});
+  $("onlineCount").textContent=list.length;
+  $("players").innerHTML=list.length?list.sort((a,b)=>(b.at||0)-(a.at||0)).map(p=>'<div class="player"><span class="dot"></span><div class="info"><b>'+esc(p.name||"لاعب")+'</b><small>'+esc(p.uid)+'</small></div><div class="actions"><button data-copy="'+esc(p.uid)+'">نسخ UID</button><button class="ban" data-ban="'+esc(p.uid)+'">حظر</button></div></div>').join(""):'<div class="empty">مفيش لاعبين متصلين دلوقتي.</div>';
+  $("players").querySelectorAll("[data-copy]").forEach(b=>b.onclick=()=>navigator.clipboard?.writeText(b.dataset.copy));
+  $("players").querySelectorAll("[data-ban]").forEach(b=>b.onclick=()=>moderate(b.dataset.ban,true));
+ },e=>msg("announceStatus","تعذر قراءة اللاعبين: "+e.message));
+ const p2=rooms.on("value",snap=>{
+  const list=[];snap.forEach(c=>{const r=c.val()||{};if(r.status!=="closed"&&Date.now()-(r.updatedAt||0)<36e6)list.push({id:c.key,...r})});
+  $("roomCount").textContent=list.length;
+  $("rooms").innerHTML=list.length?list.sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0)).map(r=>'<div class="request"><div class="info"><b>'+esc(r.title||r.game||"غرفة")+'</b><small>كود: '+esc(String(r.id).slice(-6).toUpperCase())+' • المضيف: '+esc(r.hostName||r.hostUid||"—")+' • '+Object.keys(r.players||{}).length+' لاعب</small></div></div>').join(""):'<div class="empty">مفيش غرف نشطة.</div>';
+ },e=>msg("announceStatus","تعذر قراءة الغرف: "+e.message));
+ unsubs.push(()=>pres.off("value",p1),()=>rooms.off("value",p2));
+}
+async function moderate(uid,banned){
+ if(!confirm(banned?"تأكيد حظر اللاعب؟":"تأكيد إلغاء الحظر؟"))return;
+ try{await db.ref("adminModeration/"+uid).update({banned:!!banned,updatedAt:Date.now(),by:auth.currentUser.uid});alert(banned?"تم تسجيل الحظر.":"تم إلغاء الحظر.");}
+ catch(e){alert("تعذر تنفيذ الإجراء: "+e.message)}
+}
+$("loginForm").addEventListener("submit",async e=>{
+ e.preventDefault();failLogin("جاري تسجيل الدخول…");
+ try{const cred=await auth.signInWithEmailAndPassword($("email").value.trim(),$("password").value);show(cred.user)}
+ catch(err){failLogin(err.message==="Firebase: Error (auth/invalid-credential)."?"البريد أو كلمة المرور غير صحيحة.":err.message)}
+});
+$("logout").onclick=async()=>{stop();await auth.signOut();$("dashboard").classList.add("hidden");$("loginPanel").classList.remove("hidden");$("logout").classList.add("hidden")};
+$("sendAnnouncement").onclick=async()=>{
+ const text=$("announcement").value.trim();if(!text)return msg("announceStatus","اكتب نص الإعلان الأول.");
+ try{await db.ref("siteAnnouncements").push({text,at:Date.now(),active:true,by:auth.currentUser.uid});$("announcement").value="";msg("announceStatus","تم نشر الإعلان.");}
+ catch(e){msg("announceStatus","فشل النشر: "+e.message)}
+};
+$("sendCoins").onclick=async()=>{
+ const uid=$("targetUid").value.trim(),amount=Number($("coinAmount").value);
+ if(!uid||!Number.isSafeInteger(amount)||amount<1||amount>100000)return msg("coinStatus","اكتب UID صحيح وعدد من 1 إلى 100000.");
+ try{
+  const ref=db.ref("wallets/"+uid);let valid=false;
+  const result=await ref.transaction(w=>{w=w&&typeof w==="object"?w:{balance:0};const balance=Number(w.balance||0);if(!Number.isSafeInteger(balance)||balance<0||balance+amount>9007199254740991)return;valid=true;return {...w,balance:balance+amount,adminUpdatedAt:Date.now()};});
+  if(!result.committed||!valid)throw Error("تعذر تحديث المحفظة.");
+  msg("coinStatus","تمت إضافة "+amount+" LC. الرصيد الجديد: "+result.snapshot.val().balance+" LC.");
+ }catch(e){msg("coinStatus","فشل إضافة الرصيد: "+e.message)}
+};
+firebase.initializeApp(CFG);auth=firebase.auth();db=firebase.database();
+auth.onAuthStateChanged(user=>{if(user)show(user);else{stop();$("dashboard").classList.add("hidden");$("loginPanel").classList.remove("hidden");$("logout").classList.add("hidden")}});
+})();
+</script>
+</body></html>
