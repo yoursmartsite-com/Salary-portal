@@ -247,12 +247,19 @@ function draw(){
    const offsets=n===1?[[0,0]]:n===2?[[-8,0],[8,0]]:n===3?[[-8,-6],[8,-6],[0,9]]:[[-8,-8],[8,-8],[-8,8],[8,8]];
    items.forEach((item,k)=>{
     const x=item.x+offsets[k][0],y=item.y+offsets[k][1],r=n===1?15:10.5;
-    c.save();c.shadowColor='#11182799';c.shadowBlur=n===1?9:5;c.shadowOffsetY=3;
-    c.beginPath();c.arc(x,y,r,0,Math.PI*2);
-    c.fillStyle=grad(x-r,y-r,r*2,r*2,'#ffffff',colors[item.pi]);c.fill();c.restore();
-    c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.strokeStyle='#ffffff';c.lineWidth=n===1?2.5:2;c.stroke();
-    c.beginPath();c.arc(x-r*.32,y-r*.38,n===1?4:2.8,0,Math.PI*2);c.fillStyle='#ffffffd9';c.fill();
-    c.fillStyle='#142033';c.font='900 '+(n===1?'10':'9')+'px Cairo, sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText(String(item.index+1),x,y+(n===1?8:5));
+    const moving=!!(pieceAnimation&&pieceAnimation.uid===Object.keys(room.players||{}).find(id=>room.players[id].color===item.pi));
+    const bob=moving?Math.sin(performance.now()/55)*2.2:0,yy=y-bob;
+    c.save();
+    c.shadowColor=colors[item.pi]+'aa';c.shadowBlur=n===1?15:8;c.shadowOffsetY=5;
+    c.beginPath();c.ellipse(x,yy+r*.82,r*.9,r*.42,0,0,Math.PI*2);c.fillStyle='#10182755';c.fill();
+    c.beginPath();c.arc(x,yy,r,0,Math.PI*2);
+    c.fillStyle=grad(x-r,yy-r,r*2,r*2,'#ffffff',colors[item.pi]);c.fill();c.restore();
+    c.save();c.beginPath();c.arc(x,yy,r,0,Math.PI*2);c.strokeStyle='#ffffff';c.lineWidth=n===1?2.5:2;c.stroke();
+    c.beginPath();c.ellipse(x,yy-r*.48,r*.66,r*.30,0,Math.PI,Math.PI*2);c.fillStyle='#ffffff55';c.fill();
+    c.beginPath();c.arc(x-r*.32,yy-r*.38,n===1?4:2.8,0,Math.PI*2);c.fillStyle='#ffffffed';c.fill();
+    c.beginPath();c.arc(x,yy,r*.43,0,Math.PI*2);c.strokeStyle='#ffffff88';c.lineWidth=1;c.stroke();
+    c.fillStyle='#142033';c.font='900 '+(n===1?'10':'9')+'px Cairo, sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText(String(item.index+1),x,yy+(n===1?1:1));
+    c.restore();
    });
   });
  }
@@ -262,14 +269,15 @@ function draw(){
   if(from<0){path.push(pieceCell(color,0,index));}
   else for(let step=from+1;step<=to;step++)path.push(pieceCell(color,step,index));
   if(!path.length){resolve();return;}
-  const start=pieceCell(color,from,index);let segment=-1,segmentStart=0;
-  const duration=145;
+  let segment=-1,segmentStart=0,segmentFrom=pieceCell(color,from,index);
+  const duration=175;
   function frame(now){
    if(segment<0){segment=0;segmentStart=now;}
-   const target=path[segment],t=Math.min(1,(now-segmentStart)/duration),ease=1-Math.pow(1-t,3);
-   pieceAnimation={uid,index,x:start[0]+(target[0]-start[0])*ease,y:start[1]+(target[1]-start[1])*ease};
+   const target=path[segment],t=Math.min(1,(now-segmentStart)/duration),ease=t*t*(3-2*t);
+   const lift=Math.sin(t*Math.PI)*8;
+   pieceAnimation={uid,index,x:segmentFrom[0]+(target[0]-segmentFrom[0])*ease,y:segmentFrom[1]+(target[1]-segmentFrom[1])*ease-lift};
    draw();
-   if(t>=1){segment++;if(segment>=path.length){pieceAnimation=null;draw();resolve();return;}segmentStart=now;}
+   if(t>=1){segmentFrom=target;segment++;if(segment>=path.length){pieceAnimation=null;draw();resolve();return;}segmentStart=now;}
    requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
@@ -634,4 +642,9 @@ body{background:radial-gradient(ellipse at 50% 0%,#243d70 0,#111b35 48%,#070d1b 
  .dice-effect-overlay.fx-dice_lightning:before,.dice-effect-overlay.fx-dice_lightning:after,
  .dice-effect-overlay.fx-dice_galaxy:before,.dice-effect-overlay.fx-dice_galaxy:after{animation:none}
 }
+</style>
+
+<style>
+/* Premium 3D Lamma player tokens and movement feedback */
+#board{filter:drop-shadow(0 7px 12px #07142630)}
 </style>
