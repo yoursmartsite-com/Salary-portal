@@ -145,8 +145,11 @@ search.addEventListener('input',()=>{const q=search.value.trim().toLowerCase();d
 import { firebaseConfig } from "./firebase-config.js";
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, sendPasswordResetEmail, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getDatabase, ref, set, onValue, onDisconnect, remove } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
 const app=getApps().length?getApps()[0]:initializeApp(firebaseConfig);
 const auth=getAuth(app);
+const db=getDatabase(app);
+let presenceRef=null,connectionUnsub=null;
 const modal=document.getElementById("authModal"),form=document.getElementById("authForm");
 let mode="login";
 let justLoggedIn=false;
@@ -214,6 +217,26 @@ form.addEventListener("submit",async e=>{
  finally{submit.disabled=false;submit.textContent=mode==="register"?"إنشاء الحساب":"دخول";}
 });
 onAuthStateChanged(auth,user=>{
+ if(connectionUnsub){connectionUnsub();connectionUnsub=null;}
+ if(presenceRef){remove(presenceRef).catch(()=>{});presenceRef=null;}
+ if(user&&!user.isAnonymous){
+  presenceRef=ref(db,"presence/"+user.uid);
+  const currentPresence=presenceRef;
+  const connectionRef=ref(db,".info/connected");
+  connectionUnsub=onValue(connectionRef,async snap=>{
+   if(snap.val()!==true)return;
+   try{
+    await onDisconnect(currentPresence).remove();
+    await set(currentPresence,{
+     uid:user.uid,
+     name:user.displayName||user.email?.split("@")[0]||"لاعب",
+     email:user.email||"",
+     online:true,
+     at:Date.now()
+    });
+   }catch(err){console.error("Presence registration failed:",err);}
+  });
+ }
  const logged=!!user&&!user.isAnonymous;
  const title=document.getElementById("accountTitle"),status=document.getElementById("accountStatus");
  title.textContent=logged?(user.displayName||user.email.split("@")[0]):"أهلاً بيك في لَمّة";
