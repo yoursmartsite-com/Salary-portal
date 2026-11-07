@@ -237,6 +237,11 @@ setPersistence(auth,browserLocalPersistence).then(()=>onAuthStateChanged(auth,us
    }catch(err){console.error("Presence registration failed:",err);}
   });
  }
+ if(user&&!user.isAnonymous){
+  const directoryRef=ref(db,"userDirectory/"+user.uid);
+  const directoryName=user.displayName||user.email?.split("@")[0]||"لاعب";
+  set(directoryRef,{uid:user.uid,name:directoryName,email:user.email||"",createdAt:user.metadata.creationTime?Date.parse(user.metadata.creationTime):Date.now(),lastSeen:Date.now()}).catch(err=>console.error("User directory update failed:",err));
+ }
  const logged=!!user&&!user.isAnonymous;
  const title=document.getElementById("accountTitle"),status=document.getElementById("accountStatus");
  title.textContent=logged?(user.displayName||user.email.split("@")[0]):"أهلاً بيك في لَمّة";
