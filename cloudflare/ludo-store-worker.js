@@ -10,7 +10,13 @@ const CATALOG = {
   board_ice: { name: "لوحة جليدية", price: 100, type: "board" },
   board_royal: { name: "لوحة ملكية", price: 100, type: "board" },
   profile_frame: { name: "إطار صورة شخصية", price: 40, type: "frame" },
-  victory_effect: { name: "مؤثر فوز", price: 60, type: "effect" }
+  victory_effect: { name: "مؤثر فوز", price: 60, type: "effect" },
+  move_lightning: { name: "مسار البرق", price: 100, type: "movementEffect" },
+  move_fire: { name: "مسار اللهب", price: 150, type: "movementEffect" },
+  move_ghost: { name: "مسار الشبح", price: 80, type: "movementEffect" },
+  move_gold: { name: "مسار الذهب", price: 120, type: "movementEffect" },
+  move_ice: { name: "مسار الجليد", price: 100, type: "movementEffect" },
+  move_rainbow: { name: "مسار قوس قزح", price: 200, type: "movementEffect" }
 };
 
 const API_KEY = "AIzaSyArJNDKNNTs2oFGFWV58_1UKY3GmE06ghk";
