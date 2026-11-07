@@ -40,6 +40,7 @@
 </div>
 </section>
 </div>
+<section class="panel"><h2 class="section-title">كل حسابات اللاعبين</h2><input id="accountSearch" class="field" style="width:100%;margin:0 0 12px" placeholder="ابحث بالاسم أو الإيميل أو UID"><div id="accounts" class="list"><div class="empty">جاري تحميل الحسابات...</div></div><div class="muted" id="accountsCount" style="margin-top:8px"></div></section>
 <section class="panel"><h2 class="section-title">الغرف النشطة</h2><div id="rooms" class="list"><div class="empty">جاري التحميل…</div></div></section>
 <div class="notice">إدارة الحسابات والرصيد والإعلانات محمية بقواعد Firebase. لو أي عملية اترفضت، تأكد إنك نشرت آخر نسخة من database.rules.json.</div>
 </section>
@@ -63,7 +64,10 @@ function show(user){
 }
 function watch(){
  stop();
- const pres=db.ref("presence");const rooms=db.ref("rooms");
+ const pres=db.ref("presence");const rooms=db.ref("rooms");const directory=db.ref("userDirectory");let accountCache=[];
+ const renderAccounts=()=>{const q=($("accountSearch").value||"").trim().toLowerCase();const filtered=accountCache.filter(p=>[p.name,p.email,p.uid].some(v=>String(v||"").toLowerCase().includes(q)));$("accountsCount").textContent="عدد الحسابات المسجلة: "+accountCache.length;$("accounts").innerHTML=filtered.length?filtered.sort((a,b)=>String(a.name||"").localeCompare(String(b.name||""),"ar")).map(p=>'<div class="player"><span class="dot" style="background:#8294b8"></span><div class="info"><b>'+esc(p.name||"لاعب")+(p.online?' <small style="color:#36d6a0;display:inline">● متصل</small>':'')+'</b><small>'+esc(p.email||"بدون إيميل")+'</small><small>'+esc(p.uid)+'</small></div><div class="actions"><button data-pick-uid="'+esc(p.uid)+'">اختيار لإرسال LC</button></div></div>').join(""):'<div class="empty">مفيش حسابات مطابقة.</div>';$("accounts").querySelectorAll("[data-pick-uid]").forEach(b=>b.onclick=()=>{$("targetUid").value=b.dataset.pickUid;msg("coinStatus","تم اختيار اللاعب. اكتب قيمة LC واضغط إضافة الرصيد.");$("coinAmount").focus();});};
+ $("accountSearch").oninput=renderAccounts;
+ const p3=directory.on("value",snap=>{accountCache=[];snap.forEach(c=>{const p=c.val()||{};accountCache.push({uid:c.key,...p,online:false})});const onlineSet=new Set();pres.once("value").then(ps=>{ps.forEach(x=>{if(x.val()?.online===true)onlineSet.add(x.key)});accountCache.forEach(p=>p.online=onlineSet.has(p.uid));renderAccounts();}).catch(renderAccounts);renderAccounts();},e=>{$("accounts").innerHTML='<div class="empty">تعذر تحميل الحسابات: '+esc(e.message)+' — راجع قواعد Firebase.</div>';});
  const p1=pres.on("value",snap=>{
   const list=[];snap.forEach(c=>{const p=c.val()||{};if(p.online)list.push({uid:c.key,...p})});
   $("onlineCount").textContent=list.length;
@@ -76,7 +80,7 @@ function watch(){
   $("roomCount").textContent=list.length;
   $("rooms").innerHTML=list.length?list.sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0)).map(r=>'<div class="request"><div class="info"><b>'+esc(r.title||r.game||"غرفة")+'</b><small>كود: '+esc(String(r.id).slice(-6).toUpperCase())+' • المضيف: '+esc(r.hostName||r.hostUid||"—")+' • '+Object.keys(r.players||{}).length+' لاعب</small></div></div>').join(""):'<div class="empty">مفيش غرف نشطة.</div>';
  },e=>msg("announceStatus","تعذر قراءة الغرف: "+e.message));
- unsubs.push(()=>pres.off("value",p1),()=>rooms.off("value",p2));
+ unsubs.push(()=>pres.off("value",p1),()=>rooms.off("value",p2),()=>directory.off("value",p3));
 }
 async function moderate(uid,banned){
  if(!confirm(banned?"تأكيد حظر اللاعب؟":"تأكيد إلغاء الحظر؟"))return;
