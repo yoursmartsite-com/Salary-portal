@@ -50,16 +50,26 @@ const app=getApps().length?getApps()[0]:initializeApp(firebaseConfig),auth=getAu
 const $=id=>document.getElementById(id);let currentUser=null;
 function showAvatar(url,name){const box=$("avatarView");if(url){box.innerHTML="";const img=document.createElement("img");img.src=url;img.alt="الصورة الشخصية";img.style.cssText="width:100%;height:100%;object-fit:cover";img.onerror=()=>{box.textContent=(name||"ل").charAt(0)};box.append(img)}else box.textContent=(name||"ل").trim().charAt(0).toUpperCase()}
 function say(t,bad=false){$("status").textContent=t;$("status").style.color=bad?"#ff8da4":"#35dfad"}
-onAuthStateChanged(auth,async user=>{
- if(!user||user.isAnonymous){location.replace("./");return}
- currentUser=user;$("profileEmail").textContent=user.email||"";$("profileUid").textContent="معرّف اللاعب: "+user.uid;
- const fallbackName=user.displayName||user.email?.split("@")[0]||"لاعب";
- let profile={};
- try{const snap=await get(ref(db,"profiles/"+user.uid));profile=snap.val()||{};}catch(e){say("تعذر تحميل بيانات البروفايل: "+e.message,true)}
- $("profileName").textContent=profile.displayName||fallbackName;$("displayName").value=profile.displayName||fallbackName;$("bio").value=profile.bio||"";$("avatarUrl").value=profile.avatarUrl||"";showAvatar(profile.avatarUrl||user.photoURL,profile.displayName||fallbackName);
- $("joinDate").textContent=profile.createdAt?new Date(profile.createdAt).toLocaleDateString("ar-EG"):(user.metadata.creationTime?new Date(user.metadata.creationTime).toLocaleDateString("ar-EG"):"—");
- try{const [walletSnap,inventorySnap]=await Promise.all([get(ref(db,"wallets/"+user.uid+"/balance")),get(ref(db,"inventory/"+user.uid+"/items"))]);$("coinBalance").textContent=(Number(walletSnap.val())||0)+" LC";const items=inventorySnap.val();$("inventoryCount").textContent=items?(Array.isArray(items)?items.length:Object.keys(items).length):"0";}catch(e){$("coinBalance").textContent="— LC";$("inventoryCount").textContent="—"}
-});
+(async()=>{
+ try{
+  await setPersistence(auth,browserLocalPersistence);
+  if(auth.authStateReady) await auth.authStateReady();
+ }catch(e){say("تعذر استعادة جلسة الدخول: "+e.message,true);return;}
+ onAuthStateChanged(auth,async user=>{
+  if(!user||user.isAnonymous){
+   $("profileEmail").textContent="مش مسجل دخول على الحساب ده. ارجع للرئيسية وسجّل دخولك بنفس الإيميل.";
+   say("جلسة الحساب مش موجودة على المتصفح الحالي.",true);
+   return;
+  }
+  currentUser=user;$("profileEmail").textContent=user.email||"";$("profileUid").textContent="معرّف اللاعب: "+user.uid;
+  const fallbackName=user.displayName||user.email?.split("@")[0]||"لاعب";
+  let profile={};
+  try{const snap=await get(ref(db,"profiles/"+user.uid));profile=snap.val()||{};}catch(e){say("تعذر تحميل بيانات البروفايل: "+e.message,true)}
+  $("profileName").textContent=profile.displayName||fallbackName;$("displayName").value=profile.displayName||fallbackName;$("bio").value=profile.bio||"";$("avatarUrl").value=profile.avatarUrl||"";showAvatar(profile.avatarUrl||user.photoURL,profile.displayName||fallbackName);
+  $("joinDate").textContent=profile.createdAt?new Date(profile.createdAt).toLocaleDateString("ar-EG"):(user.metadata.creationTime?new Date(user.metadata.creationTime).toLocaleDateString("ar-EG"):"—");
+  try{const [walletSnap,inventorySnap]=await Promise.all([get(ref(db,"wallets/"+user.uid+"/balance")),get(ref(db,"inventory/"+user.uid+"/items"))]);$("coinBalance").textContent=(Number(walletSnap.val())||0)+" LC";const items=inventorySnap.val();$("inventoryCount").textContent=items?(Array.isArray(items)?items.length:Object.keys(items).length):"0";}catch(e){$("coinBalance").textContent="— LC";$("inventoryCount").textContent="—"}
+ });
+})();
 $("avatarUrl").addEventListener("input",()=>showAvatar($("avatarUrl").value,$("displayName").value));
 $("displayName").addEventListener("input",()=>{$("profileName").textContent=$("displayName").value||"بروفايلي";if(!$("avatarUrl").value)showAvatar("",$("displayName").value)});
 $("profileForm").addEventListener("submit",async e=>{
