@@ -229,6 +229,7 @@ let botBusy=false;async function runBotTurn(r){
      const score=(capture?10000:0)+(choice.v<0?500:landing*10)+Math.random();
      if(score>best){best=score;pick={...choice,landing,capture};}
     }
+    await animatePiece(current,bot.color,pick.i,Number(pick.v),pick.landing);
     arr[pick.i]=pick.landing;
     let captured=false;
     if(pick.landing<=50){
