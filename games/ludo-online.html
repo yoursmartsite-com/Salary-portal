@@ -274,8 +274,8 @@ let botBusy=false;async function runBotTurn(r){
     await roomRef.child('pieces/'+current).set(arr);
     if(arr.every(v=>v===56)){const finishOrder={...(room.finishOrder||{}),[current]:Date.now()};await roomRef.child('finishOrder/'+current).set(finishOrder[current]);const ranked=ids.filter(id=>finishOrder[id]).sort((a,b)=>finishOrder[a]-finishOrder[b]);const remaining=ids.filter(id=>!finishOrder[id]);const updates={};if(!room.winner)updates.winner=ranked[0]||current;if(!remaining.length)updates.gameOver=true;if(Object.keys(updates).length)await roomRef.update(updates);const nextId=ids.slice(ids.indexOf(current)+1).concat(ids.slice(0,ids.indexOf(current))).find(id=>!finishOrder[id]);const active=ids.filter(id=>!finishOrder[id]);if(nextId)await roomRef.child('turnIndex').set(active.indexOf(nextId));extraRoll=false;}
     else{
-     extraRoll=extraRoll||captured;
-     if(!extraRoll)await roomRef.child('turnIndex').set((ids.indexOf(current)+1)%ids.length);
+     extraRoll=extraRoll||captured||pick.landing===56;
+     if(!extraRoll)await roomRef.child('turnIndex').set((activeTurnOrder(room).indexOf(current)+1)%activeTurnOrder(room).length);
     }
    }else if(!extraRoll){
     await roomRef.child('turnIndex').set((ids.indexOf(current)+1)%ids.length);
