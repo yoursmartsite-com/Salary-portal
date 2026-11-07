@@ -147,7 +147,8 @@ import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWith
 const app=getApps().length?getApps()[0]:initializeApp(firebaseConfig);
 const auth=getAuth(app);
 const modal=document.getElementById("authModal"),form=document.getElementById("authForm");
-let mode="login";\nlet justLoggedIn=false;
+let mode="login";
+let justLoggedIn=false;
 function openAuth(next="login"){setMode(next);modal.classList.add("open");document.getElementById("authError").textContent="";}
 function closeAuth(){modal.classList.remove("open");}
 function setMode(next){
@@ -214,7 +215,8 @@ onAuthStateChanged(auth,user=>{
  const logged=!!user&&!user.isAnonymous;
  const title=document.getElementById("accountTitle"),status=document.getElementById("accountStatus");
  title.textContent=logged?(user.displayName||user.email.split("@")[0]):"أهلاً بيك في لَمّة";
- status.textContent=logged?(justLoggedIn?"✓ تم تسجيل الدخول بنجاح":"● مسجل دخول"):"● مش مسجل دخول";\n status.style.color=logged?"#39e6b2":"";
+ status.textContent=logged?(justLoggedIn?"✓ تم تسجيل الدخول بنجاح":"● مسجل دخول"):"● مش مسجل دخول";
+ status.style.color=logged?"#39e6b2":"";
  document.getElementById("accountNote").textContent=logged?user.email:"سجّل دخولك واحفظ حسابك وتقدمك في لَمّة.";
  document.getElementById("authActions").style.display=logged?"none":"grid";
  document.getElementById("logoutBtn").style.display=logged?"block":"none";
