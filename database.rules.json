@@ -223,7 +223,7 @@
         },
         "rolls": {
           "$uid": {
-            ".write": "auth != null && auth.uid === $uid && root.child('ludoRooms').child($roomId).child('players').child($uid).exists() && newData.isNumber() && newData.val() >= 1 && newData.val() <= 6"
+            ".write": "auth != null && root.child('ludoRooms').child($roomId).child('players').child($uid).exists() && (auth.uid === $uid || (root.child('ludoRooms').child($roomId).child('players').child($uid).child('bot').val() === true && root.child('ludoRooms').child($roomId).child('hostUid').val() === auth.uid)) && newData.isNumber() && newData.val() >= 1 && newData.val() <= 6"
           }
         }
       }
