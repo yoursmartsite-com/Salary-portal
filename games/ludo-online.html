@@ -409,7 +409,7 @@ async function makeLudoPeer(peerUid){
  pc.ontrack=e=>{
   let audio=document.getElementById('remote-audio-'+peerUid);
   if(!audio){audio=document.createElement('audio');audio.id='remote-audio-'+peerUid;audio.autoplay=true;audio.playsInline=true;$('remoteAudios')?.appendChild(audio)}
-  audio.srcObject=e.streams[0];if(!$('muteOthers')?.checked)audio.play().catch(()=>voiceStatus('اضغط مرة على الصفحة للسماح بتشغيل صوت اللاعبين'));
+  audio.srcObject=e.streams[0];audio.muted=!!$('muteOthers')?.checked;if(!audio.muted)audio.play().catch(()=>voiceStatus('اضغط مرة على الصفحة للسماح بتشغيل صوت اللاعبين'));
  };
  pc.onconnectionstatechange=()=>{if(['failed','closed','disconnected'].includes(pc.connectionState)){if(pc.connectionState==='failed')voiceStatus('تعذر ربط الصوت مع لاعب؛ قد تحتاج الشبكة إلى TURN')}};return pc;
 }
@@ -456,6 +456,7 @@ async function toggleLudoMic(){
 $('micToggle').addEventListener('click',toggleLudoMic);
 $('muteOthers').addEventListener('change',e=>document.querySelectorAll('#remoteAudios audio').forEach(a=>{a.muted=e.target.checked;if(!a.muted)a.play().catch(()=>voiceStatus('اضغط على الصفحة لتشغيل الصوت'))}));
 $('ludoChatForm').addEventListener('submit',e=>{e.preventDefault();const input=$('ludoChatInput');const v=input.value;input.value='';sendLudoChat(v)});
+window.addEventListener('pagehide',()=>{try{sendVoiceSignal({type:'left',to:'*'});ludoVoiceSocket?.close()}catch(e){};ludoLocalStream?.getTracks().forEach(t=>t.stop());ludoPeers.forEach(pc=>pc.close());if(ludoChatRef&&ludoChatListener)ludoChatRef.off('child_added',ludoChatListener)});
 
 function isBlocked(color,from,steps,playerId,game=room){
  if(from<0){const square=starts[color],counts={};for(const [id,p] of Object.entries(game.players||{})){for(const v of (game.pieces?.[id]||[])){if(v>=0&&v<=50&&(starts[p.color]+Number(v))%52===square)counts[id]=(counts[id]||0)+1;}}return Object.values(counts).some(n=>n>=2);}
