@@ -34,6 +34,24 @@ export class Room extends DurableObject {
     const url = new URL(request.url);
     const headers = corsHeaders(request);
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers });
+    if (url.pathname.endsWith("/voice") && request.headers.get("Upgrade") === "websocket") {
+      const uid = url.searchParams.get("uid") || "";
+      if (!validUid(uid)) return json({ ok:false, error:"INVALID_PLAYER" }, 400, headers);
+      const roomCode = url.pathname.split("/").filter(Boolean)[1];
+      const existing = this.ctx.getWebSockets(roomCode);
+      const pair = new WebSocketPair();
+      const client = pair[0], server = pair[1];
+      this.ctx.acceptWebSocket(server, [roomCode]);
+      server.serializeAttachment({ roomCode, uid });
+      for (const peer of existing) {
+        const data = peer.deserializeAttachment();
+        if (data?.uid) {
+          server.send(JSON.stringify({ type:"peer", uid:data.uid }));
+          try { peer.send(JSON.stringify({ type:"peer", uid })); } catch {}
+        }
+      }
+      return new Response(null, { status: 101, webSocket: client });
+    }
 
     let state = await this.ctx.storage.get("room");
     const path = url.pathname.split("/").filter(Boolean).slice(2);
@@ -126,6 +144,34 @@ export class Room extends DurableObject {
     } catch (error) {
       return json({ ok: false, error: "SERVER_ERROR", message: error.message }, 500, headers);
     }
+  }
+
+  async webSocketMessage(ws, message) {
+    const attachment = ws.deserializeAttachment() || {};
+    let data;
+    try { data = JSON.parse(message); } catch { return; }
+    const allowed = new Set(["offer","answer","ice","left"]);
+    if (!allowed.has(data.type) || typeof data.to !== "string" || data.to.length > 128) return;
+    const payload = { ...data, from: attachment.uid };
+    const text = JSON.stringify(payload);
+    for (const peer of this.ctx.getWebSockets(attachment.roomCode)) {
+      const target = peer.deserializeAttachment();
+      if (target?.uid === data.to) {
+        try { peer.send(text); } catch {}
+      }
+    }
+  }
+
+  async webSocketClose(ws) {
+    const attachment = ws.deserializeAttachment() || {};
+    const payload = JSON.stringify({ type:"left", from:attachment.uid });
+    for (const peer of this.ctx.getWebSockets(attachment.roomCode)) {
+      try { peer.send(payload); } catch {}
+    }
+  }
+
+  async webSocketError(ws) {
+    try { ws.close(1011, "voice signaling error"); } catch {}
   }
 }
 
