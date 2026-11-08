@@ -320,33 +320,31 @@ function applyDiceSkin(skin){const die=$('dice');if(!die)return;Object.keys(DICE
 function fillDiceChoices(){const sel=$('diceSkin');if(!sel)return;if(!ownedDice[selectedDiceSkin])selectedDiceSkin='classic';sel.replaceChildren(...Object.keys(DICE_SKINS).filter(k=>ownedDice[k]).map(k=>new Option(DICE_SKINS[k],k)));sel.value=selectedDiceSkin;applyDiceSkin(selectedDiceSkin)}
 function playDiceEffect(skin){const el=$('diceEffectOverlay');if(!el)return;const k=DICE_SKINS[skin]?skin:'classic';el.className='dice-effect-overlay fx-'+k+' show';setTimeout(()=>{el.className='dice-effect-overlay'},2400)}
 async function playPieceEffect(effect,color){const el=$("diceEffectOverlay");if(!el)return;el.className="dice-effect-overlay piece-fx-"+(effect==="capture"?"capture":"finish")+" show";el.style.setProperty("--piece-fx-color",colors[Number(color)||0]);setTimeout(()=>{el.className="dice-effect-overlay"},effect==="capture"?1100:1800)}async function publishPieceEffect(effect,color,playerId){if(!roomRef)return;try{await roomRef.child("lastMove").set({type:"pieceEffect",effect,color:Number(color)||0,by:playerId||uid,at:Date.now(),id:String(playerId||uid)+"_"+effect+"_"+Date.now()})}catch(e){console.warn("Piece effect sync failed",e)}}async function publishDiceEffect(skin,roll,playerId){if(Number(roll)!==6||!roomRef)return;try{await roomRef.child('lastMove').set({type:'diceEffect',skin:DICE_SKINS[skin]?skin:'classic',roll:6,by:playerId||uid,at:Date.now(),id:String(playerId||uid)+'_'+Date.now()})}catch(e){console.warn('Dice effect sync failed',e)}}
+function waitForLudoStep(promise,label,ms=12000){let timer;return Promise.race([Promise.resolve(promise),new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('انتهت مهلة '+label+' بعد '+Math.round(ms/1000)+' ثانية')),ms)})]).finally(()=>clearTimeout(timer))}
 async function init(){try{
+ status('١/٤ تحميل خدمات Firebase…');
+ if(!window.firebase||!firebase.initializeApp||!firebase.auth||!firebase.database)throw new Error('ملفات Firebase لم تتحمّل. افحص تحميل gstatic.com.');
  if(!firebase.apps.length)firebase.initializeApp(cfg);
- db=firebase.database();
- const auth=firebase.auth();
- await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
- let current=await new Promise((resolve,reject)=>{let off=()=>{};off=auth.onAuthStateChanged(user=>{off();resolve(user)},error=>{off();reject(error)})});
- if(!current||current.isAnonymous){status('سجّل دخولك من الصفحة الرئيسية بنفس الإيميل الأول، وبعدها ارجع للعبة.');return}
- uid=current.uid;
- // Keep the signed-in player visible to the admin while this Ludo page is connected.
+ db=firebase.database();const auth=firebase.auth();
+ status('٢/٤ فحص تسجيل الدخول…');
+ try{await waitForLudoStep(auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL),'حفظ جلسة الدخول',8000)}catch(e){console.warn('Firebase persistence:',e.message)}
+ let current=await waitForLudoStep(new Promise((resolve,reject)=>{let off=()=>{};off=auth.onAuthStateChanged(user=>{off();resolve(user)},error=>{off();reject(error)})}),'استجابة تسجيل الدخول');
+ current=current||auth.currentUser;
+ if(!current||current.isAnonymous){status('محتاج تسجّل دخولك من الصفحة الرئيسية بنفس الإيميل، وبعدها ارجع للعبة.');return}
+ uid=current.uid;status('٣/٤ الاتصال بقاعدة بيانات اللعبة…');
  const presenceRef=db.ref('presence/'+uid);
- db.ref('.info/connected').on('value',async snap=>{if(snap.val()!==true)return;try{await presenceRef.onDisconnect().remove();await presenceRef.set({uid,name:current.displayName||current.email?.split('@')[0]||'لاعب',email:current.email||'',online:true,at:Date.now()});}catch(err){console.warn('Presence registration failed:',err);}});
- const prof=await db.ref('profiles/'+uid).get();selectedDiceSkin=prof.val()?.diceSkin||'classic';selectedMovementEffect=prof.val()?.movementEffect||'none';
+ db.ref('.info/connected').on('value',async snap=>{if(snap.val()!==true)return;try{await presenceRef.onDisconnect().remove();await presenceRef.set({uid,name:current.displayName||current.email?.split('@')[0]||'لاعب',email:current.email||'',online:true,at:Date.now()})}catch(err){console.warn('Presence registration failed:',err)}});
+ selectedDiceSkin='classic';selectedMovementEffect='none';
+ try{const prof=await waitForLudoStep(db.ref('profiles/'+uid).get(),'قراءة البروفايل',9000);selectedDiceSkin=prof.val()?.diceSkin||'classic';selectedMovementEffect=prof.val()?.movementEffect||'none'}catch(e){console.warn('Profile read skipped:',e.message)}
  db.ref('inventory/'+uid+'/items').on('value',snap=>{
-  const items=snap.val()||{};ownedDice={classic:true};
-  Object.keys(DICE_SKINS).filter(k=>k!=='classic').forEach(k=>{if(Number(items[k]?.quantity||0)>0)ownedDice[k]=true});
-  fillDiceChoices();
-  const ownedEffects=Object.keys(items).filter(k=>k.startsWith('move_')&&items[k]?.type==='movementEffect'&&Number(items[k]?.quantity||0)>0);
-  if(!ownedEffects.includes(selectedMovementEffect))selectedMovementEffect='none';
-  const effectSelect=$('movementEffect');
-  effectSelect.replaceChildren(new Option('بدون تأثير حركة','none'),...ownedEffects.map(k=>new Option(({move_lightning:'البرق',move_fire:'اللهب',move_ghost:'الشبح',move_gold:'الذهب',move_ice:'الجليد',move_rainbow:'قوس قزح'})[k]||k,k)));
-  effectSelect.value=selectedMovementEffect;
+  const items=snap.val()||{};ownedDice={classic:true};Object.keys(DICE_SKINS).filter(k=>k!=='classic').forEach(k=>{if(Number(items[k]?.quantity||0)>0)ownedDice[k]=true});fillDiceChoices();
+  const ownedEffects=Object.keys(items).filter(k=>k.startsWith('move_')&&items[k]?.type==='movementEffect'&&Number(items[k]?.quantity||0)>0);if(!ownedEffects.includes(selectedMovementEffect))selectedMovementEffect='none';
+  const effectSelect=$('movementEffect');effectSelect.replaceChildren(new Option('بدون تأثير حركة','none'),...ownedEffects.map(k=>new Option(({move_lightning:'البرق',move_fire:'اللهب',move_ghost:'الشبح',move_gold:'الذهب',move_ice:'الجليد',move_rainbow:'قوس قزح'})[k]||k,k)));effectSelect.value=selectedMovementEffect;
  });
  $('diceSkin').addEventListener('change',async()=>{const k=$('diceSkin').value;if(!ownedDice[k])return;selectedDiceSkin=k;applyDiceSkin(k);try{await db.ref('profiles/'+uid+'/diceSkin').set(k);if(roomRef&&room?.players?.[uid])await roomRef.child('players/'+uid+'/diceSkin').set(k)}catch(e){status('تعذر حفظ اختيار النرد: '+e.message)}});
  $('movementEffect').addEventListener('change',async()=>{const k=$('movementEffect').value;selectedMovementEffect=k;try{await db.ref('profiles/'+uid+'/movementEffect').set(k);if(roomRef&&room?.players?.[uid])await roomRef.child('players/'+uid+'/movementEffect').set(k);status(k==='none'?'تم إيقاف تأثير الحركة.':'تم تفعيل تأثير الحركة في الليدو.')}catch(e){status('تعذر حفظ تأثير الحركة: '+e.message)}});
-
- status('متصل. أنشئ غرفة أو أدخل كود صديقك.');
- }catch(e){status('تعذر الاتصال بفايربيس: '+e.message+' — تأكد من تفعيل Anonymous Authentication وقواعد قاعدة البيانات.')}}
+ status('متصل بحسابك. أنشئ غرفة أو أدخل كود صديقك.');
+ }catch(e){console.error('Ludo Firebase initialization failed:',e);status('تعذر الاتصال: '+e.message+' — راجع تسجيل الدخول واتصال Firebase.')}}
 async function enter(id,create){if(!db||!uid)return status('لسه بنتصل بفايربيس…');const name=$('name').value.trim()||'لاعب';roomId=id;roomRef=db.ref('ludoRooms/'+id);try{if(create){const snap=await roomRef.get();if(snap.exists())return status('الكود مستخدم، جرّب إنشاء غرفة تانية.');const limit=Math.max(2,Math.min(4,Number($('maxPlayers').value)||4));const myProfile=await loadPlayerProfile(uid);const playerName=myProfile.name||name;const players={[uid]:{uid,name:playerName,avatar:myProfile.avatar,diceSkin:myProfile.diceSkin||selectedDiceSkin||"classic",movementEffect:myProfile.movementEffect||selectedMovementEffect||"none",color:0,joinedAt:Date.now()}};const pieces={[uid]:[-1,-1,-1,-1]};if($('botOn')?.checked){const botUid='bot_'+id;players[botUid]={uid:botUid,name:'البوت',avatar:'🤖',color:nextSeat(players,limit),bot:true,joinedAt:Date.now()};pieces[botUid]=[-1,-1,-1,-1];}await roomRef.set({createdAt:Date.now(),turnIndex:0,maxPlayers:limit,hostUid:uid,players,pieces,lastMove:null});}else{const snap=await roomRef.get();if(!snap.exists())return status('الكود مش موجود. اتأكد من الكود.');const r=snap.val(),players=Object.values(r.players||{});if(players.length>=(r.maxPlayers||4)&&!r.players[uid])return status('الغرفة كاملة ('+(r.maxPlayers||4)+' لاعبين).');if(!r.players[uid]){const color=nextSeat(r.players,r.maxPlayers||4);const profile=await loadPlayerProfile(uid);await roomRef.child('players/'+uid).set({uid,name:profile.name||name,avatar:profile.avatar,diceSkin:profile.diceSkin||selectedDiceSkin||"classic",movementEffect:profile.movementEffect||selectedMovementEffect||"none",color,joinedAt:Date.now()});await roomRef.child('pieces/'+uid).set([-1,-1,-1,-1]);}}
 if(roomRef&&selectedDiceSkin)await roomRef.child('players/'+uid+'/diceSkin').set(selectedDiceSkin);if(roomRef)await roomRef.child('players/'+uid+'/movementEffect').set(selectedMovementEffect||"none");$('code').value=id;status('الغرفة '+id+' — ابعت الكود لأصحابك.');roomRef.on('value',snap=>{if(!snap.exists())return;renderRoom(snap.val())});$('ludoReactions').hidden=false;roomRef.child('reactions').limitToLast(20).on('child_added',snap=>{const item=snap.val();if(!item||!item.emoji)return;if(Date.now()-Number(item.at||0)>10000)return;if(lastReactionId===snap.key)return;lastReactionId=snap.key;showRoomReaction(item)});$('ludoComms').hidden=false;startLudoChat();connectLudoVoice();}catch(e){status('فشل دخول الغرفة: '+e.message+' — قد تحتاج تعديل Firebase Rules لمسار ludoRooms.')}}
 let lastReactionId=null,reactionAudio=null;
