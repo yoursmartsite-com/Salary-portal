@@ -61,13 +61,14 @@ export class Room extends DurableObject {
       if (request.method === "POST" && !action) {
         if (state) return json({ ok: false, error: "ROOM_EXISTS" }, 409, headers);
         const body = await request.json();
-        if (!validUid(body.uid) || !validName(body.name) || typeof body.game !== "string" || body.game !== "estimation") {
+        if (!validUid(body.uid) || !validName(body.name) || typeof body.game !== "string" || !["none","xo","guess","rps","connect4","words","quiz","estimation","basra","uno","tarneeb","hokm","konkan"].includes(body.game)) {
           return json({ ok: false, error: "INVALID_ROOM_DATA" }, 400, headers);
         }
         state = {
           code: url.pathname.split("/").filter(Boolean)[1],
           game: "estimation",
-          gameType: "cards",
+          gameType: body.game === "estimation" ? "cards" : "lobby",
+          maxPlayers: body.game === "estimation" ? 4 : Math.max(2, Math.min(8, Number(body.maxPlayers) || 8)),
           status: "waiting",
           host: body.uid,
           createdAt: Date.now(),
@@ -91,7 +92,7 @@ export class Room extends DurableObject {
         const body = await request.json();
         if (!validUid(body.uid) || !validName(body.name)) return json({ ok: false, error: "INVALID_PLAYER" }, 400, headers);
         const current = state.players[body.uid];
-        if (!current && Object.keys(state.players).length >= 4) return json({ ok: false, error: "ROOM_FULL" }, 409, headers);
+        if (!current && Object.keys(state.players).length >= (Number(state.maxPlayers) || 4)) return json({ ok: false, error: "ROOM_FULL" }, 409, headers);
         state.players[body.uid] = {
           uid: body.uid, name: body.name.trim(),
           avatar: typeof body.avatar === "string" ? body.avatar.slice(0, 100) : "🍓",
@@ -109,6 +110,19 @@ export class Room extends DurableObject {
           return json({ ok: false, error: "PLAYER_NOT_IN_ROOM" }, 400, headers);
         }
         state.players[body.uid].ready = body.ready;
+        state.updatedAt = Date.now();
+        await this.ctx.storage.put("room", state);
+        return json({ ok: true, room: state }, 200, headers);
+      }
+
+      if (request.method === "POST" && action === "game") {
+        const body = await request.json();
+        const allowedGames = ["none","xo","guess","rps","connect4","words","quiz","estimation","basra","uno","tarneeb","hokm","konkan"];
+        if (!validUid(body.uid) || !state.players[body.uid] || !allowedGames.includes(body.game)) {
+          return json({ ok: false, error: "INVALID_GAME_SELECTION" }, 400, headers);
+        }
+        state.game = body.game;
+        state.gameUpdatedBy = state.players[body.uid].name;
         state.updatedAt = Date.now();
         await this.ctx.storage.put("room", state);
         return json({ ok: true, room: state }, 200, headers);
