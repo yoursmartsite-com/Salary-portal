@@ -45,49 +45,55 @@
 <h3>اختاروا لعبة للجولة</h3><div class="games"><button class="game" data-game="xo"><span>❎</span>إكس أو</button><button class="game" data-game="guess"><span>🔢</span>تخمين الرقم</button><button class="game" data-game="rps"><span>✊</span>حجر ورقة مقص</button><button class="game" data-game="connect4"><span>🔴</span>أربعة على التوالي</button><button class="game" data-game="words"><span>🔤</span>تحدي الكلمات</button><button class="game" data-game="quiz"><span>🧠</span>تحدي المعلومات</button><button class="game" data-game="estimation"><span>🃏</span>الاستميشن</button><button class="game" data-game="basra"><span>♦️</span>البصرة</button><button class="game" data-game="uno"><span>🎨</span>أونو</button><button class="game" data-game="tarneeb"><span>♠️</span>الطرنيب</button><button class="game" data-game="hokm"><span>♥️</span>الحكم</button><button class="game" data-game="konkan"><span>🂡</span>الكونكان</button></div><div id="gameStatus" class="status">اختاروا لعبة واتفقوا عليها في الدردشة. اختيار اللعبة بيتزامن مع الموجودين في الغرفة.</div>
 <h3>💬 دردشة الغرفة</h3><div id="chat" class="chat" aria-live="polite"></div><form id="chatForm" class="chat-send"><input id="chatInput" class="input" maxlength="300" placeholder="اكتب رسالة لأصحابك…" autocomplete="off"><button class="btn" type="submit">إرسال</button></form><button id="leaveBtn" class="btn secondary">الخروج من الغرفة</button></section>
 <footer class="foot">لَمّة · اللعب أحلى لما نكون سوا</footer></div>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script>
 (function(){
-const config={apiKey:"AIzaSyArJNDKNNTs2oFGFWV58_1UKZ3GmE06ghk",authDomain:"play-with-friends-com.firebaseapp.com",databaseURL:"https://play-with-friends-com-default-rtdb.firebaseio.com",projectId:"play-with-friends-com",storageBucket:"play-with-friends-com.firebasestorage.app",messagingSenderId:"52443545219",appId:"1:52443545219:web:62c9746888f7fe2bf9a5b6"};
-const $=id=>document.getElementById(id);let db=null,uid=null,code=null,roomRef=null,playerRef=null,chatRef=null,joined=false,connectionError=null,connecting=true;
+const API='https://lamma-rooms.fibrahem865.workers.dev';
+const $=id=>document.getElementById(id);
+let uid=localStorage.getItem('arcade_uid')||localStorage.getItem('lamma_uid');
+if(!uid){uid='lm_'+(crypto.randomUUID?crypto.randomUUID().replace(/-/g,''):Math.random().toString(36).slice(2));localStorage.setItem('lamma_uid',uid);}
+let code=null,room=null,pollTimer=null,joined=false;
 const status=(t,bad=false)=>{const el=$('status');el.textContent=t;el.style.borderColor=bad?'#a84b64':'var(--line)';};
 const clean=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const nameFrom=id=>localStorage.getItem(id)||'';
-async function init(){connecting=true;connectionError=null;status('جاري الاتصال بخدمة الغرف…');try{if(!firebase.apps.length)firebase.initializeApp(config);const auth=firebase.auth();db=firebase.database();let user=auth.currentUser;if(!user)user=(await auth.signInAnonymously()).user;uid=user.uid;connecting=false;connectionError=null;status('متصل بخدمة الغرف. تقدر تنشئ غرفة أو تدخل بكود.');const remembered=localStorage.getItem('lammaName')||localStorage.getItem('arcade_name')||'';$('createName').value=remembered;$('joinName').value=remembered;}catch(e){console.error('Online room Firebase initialization failed:',e);connecting=false;connectionError=e;status('الاتصال فشل ('+(e.code||e.message||'خطأ غير معروف')+'). راجع تفعيل Anonymous Authentication ونطاق الموقع في Firebase.',true);}}
-function genCode(){return String(Math.floor(100000+Math.random()*900000));}
-async function createRoom(){if(!db||!uid){if(connecting)return status('لسه بنوصل بخدمة الغرف؛ استنى ثانيتين وجرب تاني.',true);return status('الاتصال مش مكتمل: '+(connectionError?.code||connectionError?.message||'Firebase لم يجهّز تسجيل الدخول')+'. حدّث الصفحة بعد مراجعة Firebase Authentication.',true);}const n=$('createName').value.trim()||'لاعب';localStorage.setItem('lammaName',n);status('جاري إنشاء الغرفة…');for(let i=0;i<8;i++){const c=genCode(),ref=db.ref('onlineRooms/'+c);try{const result=await ref.transaction(cur=>cur===null?{code:c,createdAt:firebase.database.ServerValue.TIMESTAMP,host:uid,game:'none',status:'waiting',players:{[uid]:{uid:uid,name:n,avatar:localStorage.getItem('lammaAvatar')||'🍓',joinedAt:firebase.database.ServerValue.TIMESTAMP}},chat:{}}:undefined);if(result.committed){await enterRoom(c);return;}}catch(e){console.error(e);status('فشل إنشاء الغرفة: '+e.message,true);return;}}status('ملقيناش كود متاح، جرّب تاني.',true);}
-async function joinRoom(){if(!db||!uid){if(connecting)return status('لسه بنوصل بخدمة الغرف؛ استنى ثانيتين وجرب تاني.',true);return status('الاتصال مش مكتمل: '+(connectionError?.code||connectionError?.message||'Firebase لم يجهّز تسجيل الدخول')+'. حدّث الصفحة بعد مراجعة Firebase Authentication.',true);}const c=$('joinCode').value.replace(/\D/g,'').slice(0,6),n=$('joinName').value.trim()||'لاعب';if(c.length!==6)return status('اكتب كود الغرفة المكوّن من 6 أرقام.',true);localStorage.setItem('lammaName',n);const ref=db.ref('onlineRooms/'+c);try{const snap=await ref.get();if(!snap.exists())return status('الكود ده مش موجود أو الغرفة انتهت.',true);await ref.child('players/'+uid).set({uid:uid,name:n,avatar:localStorage.getItem('lammaAvatar')||'🍓',joinedAt:firebase.database.ServerValue.TIMESTAMP});await enterRoom(c);}catch(e){console.error(e);status('مش قادر تدخل الغرفة: '+e.message,true);}}
-async function enterRoom(c){if(joined)cleanup(false);code=c;roomRef=db.ref('onlineRooms/'+c);playerRef=roomRef.child('players/'+uid);chatRef=roomRef.child('chat');joined=true;playerRef.onDisconnect().remove();$('entry').classList.add('hide');$('room').style.display='block';$('roomCode').textContent=c;$('roomTitle').textContent='غرفة '+c;status('دخلت الغرفة بنجاح. ابعت الكود لصاحبك عشان ينضم.');roomRef.child('players').on('value',snap=>{const players=snap.val()||{};const entries=Object.values(players);$('playerCount').textContent='('+entries.length+')';$('players').innerHTML=entries.map(p=>'<div class="player">🍓 '+clean(p.name||'لاعب')+(p.uid===uid?' <b>(أنت)</b>':'')+'</div>').join('')||'<div class="small">مفيش لاعبين</div>';});roomRef.child('game').on('value',snap=>{const games={none:'لسه مفيش لعبة مختارة',xo:'إكس أو',guess:'تخمين الرقم',rps:'حجر ورقة مقص',connect4:'أربعة على التوالي',words:'تحدي الكلمات',quiz:'تحدي المعلومات',estimation:'الاستميشن',basra:'البصرة',uno:'أونو',tarneeb:'الطرنيب',hokm:'الحكم',konkan:'الكونكان'};$('gameStatus').textContent='اللعبة المختارة: '+(games[snap.val()]||games.none);document.querySelectorAll('[data-game]').forEach(b=>b.style.borderColor=b.dataset.game===snap.val()?'var(--cyan)':'var(--line)');});chatRef.limitToLast(80).on('value',snap=>{const msgs=Object.values(snap.val()||{});$('chat').innerHTML=msgs.map(m=>'<div class="msg"><b>'+clean(m.name||'لاعب')+':</b> '+clean(m.text||'')+'</div>').join('');$('chat').scrollTop=$('chat').scrollHeight;});}
-function cleanup(showEntry=true){if(!joined)return;if(roomRef){roomRef.child('players').off();roomRef.child('game').off();}if(chatRef)chatRef.off();if(playerRef){playerRef.onDisconnect().cancel();playerRef.remove().catch(()=>{});}joined=false;roomRef=null;playerRef=null;chatRef=null;code=null;if(showEntry){$('room').style.display='none';$('entry').classList.remove('hide');status('خرجت من الغرفة. تقدر تنشئ غرفة جديدة أو تدخل بكود.');}}
-$('createBtn').addEventListener('click',createRoom);$('joinBtn').addEventListener('click',joinRoom);$('copyBtn').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(code||'');$('copyBtn').textContent='اتنسخ ✓';setTimeout(()=>$('copyBtn').textContent='نسخ الكود',1600);}catch(e){status('الكود هو '+code+' — انسخه يدويًا.');}});$('leaveBtn').addEventListener('click',()=>cleanup(true));$('chatForm').addEventListener('submit',async e=>{e.preventDefault();const text=$('chatInput').value.trim();if(!text||!chatRef)return;try{await chatRef.push({uid:uid,name:localStorage.getItem('lammaName')||'لاعب',text:text,at:firebase.database.ServerValue.TIMESTAMP});$('chatInput').value='';}catch(err){status('تعذر إرسال الرسالة. راجع صلاحيات قاعدة البيانات.',true);}});document.querySelectorAll('[data-game]').forEach(b=>b.addEventListener('click',async()=>{if(!roomRef)return;try{await roomRef.child('game').set(b.dataset.game);await roomRef.child('gameUpdatedBy').set(localStorage.getItem('lammaName')||'لاعب');}catch(e){status('تعذر اختيار اللعبة. راجع صلاحيات قاعدة البيانات.',true);}}));window.addEventListener('beforeunload',()=>{if(playerRef)playerRef.remove();});
-
-const smartGameChoices = {
-  xo:{label:'إكس أو',id:'xo',players:[2],moods:['quick','party'],why:'ممتازة لمباراة سريعة واحد ضد واحد.'},
-  guess:{label:'تخمين الرقم',id:'guess',players:[2,3,4],moods:['thinking','party'],why:'تخمين ومنافسة؛ كل واحد يحاول يقرب من الرقم السري.'},
-  rps:{label:'حجر ورقة مقص',id:'rps',players:[2,3,4],moods:['quick','party','group'],why:'اختيار سريع ومناسب لكسر الملل.'},
-  connect4:{label:'أربعة على التوالي',id:'connect4',players:[2],moods:['thinking'],why:'محتاج تركيز وتخطيط عشان تكوّن أربعة متصلة.'},
-  words:{label:'تحدي الكلمات',id:'words',players:[2,3,4],moods:['thinking','party','group'],why:'يناسب التحديات الجماعية واللعب بالكلمات.'},
-  quiz:{label:'تحدي المعلومات',id:'quiz',players:[2,3,4],moods:['thinking','group'],why:'اختبروا معلوماتكم وتنافسوا في الأسئلة.'}
-};
-let smartRecommendedGame = null;
-function suggestSmartGame(){
-  const count=Number($('smartPlayers').value), mood=$('smartMood').value;
-  const available=Object.values(smartGameChoices).filter(g=>g.players.includes(count)&&g.moods.includes(mood));
-  const pool=available.length?available:Object.values(smartGameChoices).filter(g=>g.players.includes(count));
-  const choice=pool[Math.floor(Math.random()*pool.length)]||smartGameChoices.rps;
-  smartRecommendedGame=choice;
-  $('smartSuggestion').innerHTML='<strong>اقتراحنا: '+clean(choice.label)+'</strong><br>'+clean(choice.why)+'<br><span class="small">ده اقتراح مبني على اختياراتكم، مش نموذج ذكاء اصطناعي متصل بالإنترنت.</span>';
-  $('smartChooseBtn').classList.remove('hide');
-  $('smartChooseBtn').textContent=roomRef?'اختار '+choice.label+' في غرفتي':'افتح الغرفة عشان تختار اللعبة';
+const api=async(path,method='GET',body=null)=>{const res=await fetch(API+path,{method,headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined});let data={};try{data=await res.json()}catch{}if(!res.ok)throw new Error(data.error||('HTTP '+res.status));return data;};
+function renderRoom(r){
+ room=r;
+ const entries=Object.values(r.players||{});
+ $('playerCount').textContent='('+entries.length+')';
+ $('players').innerHTML=entries.map(p=>'<div class="player">'+clean(p.avatar||'🍓')+' '+clean(p.name||'لاعب')+(p.uid===uid?' <b>(أنت)</b>':'')+'</div>').join('')||'<div class="small">مفيش لاعبين</div>';
+ const games={none:'لسه مفيش لعبة مختارة',xo:'إكس أو',guess:'تخمين الرقم',rps:'حجر ورقة مقص',connect4:'أربعة على التوالي',words:'تحدي الكلمات',quiz:'تحدي المعلومات',estimation:'الاستميشن',basra:'البصرة',uno:'أونو',tarneeb:'الطرنيب',hokm:'الحكم',konkan:'الكونكان'};
+ $('gameStatus').textContent='اللعبة المختارة: '+(games[r.game]||games.none);
+ document.querySelectorAll('[data-game]').forEach(b=>b.style.borderColor=b.dataset.game===r.game?'var(--cyan)':'var(--line)');
+ const msgs=Array.isArray(r.chat)?r.chat:[];
+ $('chat').innerHTML=msgs.map(m=>'<div class="msg"><b>'+clean(m.name||'لاعب')+':</b> '+clean(m.text||'')+'</div>').join('');
+ $('chat').scrollTop=$('chat').scrollHeight;
 }
+async function refreshRoom(){if(!joined||!code)return;try{const data=await api('/rooms/'+code);if(!data.room){throw new Error('ROOM_NOT_FOUND')}renderRoom(data.room);}catch(e){status(e.message==='ROOM_NOT_FOUND'?'الغرفة انتهت أو لم تعد موجودة.':'انقطع تحديث الغرفة: '+e.message,true);}}
+function startPolling(){clearInterval(pollTimer);pollTimer=setInterval(refreshRoom,1400);refreshRoom();}
+async function init(){status('جاري الاتصال بخدمة غرف Cloudflare…');try{await api('/health');const remembered=localStorage.getItem('lammaName')||localStorage.getItem('arcade_name')||'';$('createName').value=remembered;$('joinName').value=remembered;status('متصل بخدمة غرف Cloudflare. تقدر تنشئ غرفة أو تدخل بكود.');}catch(e){status('تعذر الاتصال بخدمة Cloudflare: '+e.message,true);}}
+function genCode(){return String(Math.floor(100000+Math.random()*900000));}
+async function createRoom(){const n=$('createName').value.trim()||'لاعب';localStorage.setItem('lammaName',n);status('جاري إنشاء الغرفة على Cloudflare…');for(let i=0;i<10;i++){const c=genCode();try{await api('/rooms/'+c,'POST',{uid,name:n,game:'none',maxPlayers:8,avatar:localStorage.getItem('lammaAvatar')||'🍓'});await enterRoom(c);return;}catch(e){if(e.message!=='ROOM_EXISTS'){status('فشل إنشاء الغرفة: '+e.message,true);return;}}}status('ملقيناش كود متاح، جرّب تاني.',true);}
+async function joinRoom(){const c=$('joinCode').value.replace(/\D/g,'').slice(0,6),n=$('joinName').value.trim()||'لاعب';if(c.length!==6)return status('اكتب الكود المكوّن من 6 أرقام.',true);localStorage.setItem('lammaName',n);try{await api('/rooms/'+c+'/join','POST',{uid,name:n,avatar:localStorage.getItem('lammaAvatar')||'🍓'});await enterRoom(c);}catch(e){status(e.message==='ROOM_NOT_FOUND'?'الكود ده مش موجود أو الغرفة انتهت.':e.message==='ROOM_FULL'?'الغرفة وصلت للحد الأقصى من اللاعبين.':'مش قادر تدخل الغرفة: '+e.message,true);}}
+async function enterRoom(c){if(joined)await cleanup(false);code=c;joined=true;$('entry').classList.add('hide');$('room').style.display='block';$('roomCode').textContent=c;$('roomTitle').textContent='غرفة '+c;status('دخلت الغرفة على Cloudflare بنجاح. ابعت الكود لأصحابك.');await refreshRoom();startPolling();}
+async function cleanup(showEntry=true){if(!joined)return;clearInterval(pollTimer);pollTimer=null;const oldCode=code;joined=false;code=null;room=null;try{await api('/rooms/'+oldCode+'/players/'+uid,'DELETE');}catch(e){console.warn('Leave room:',e);}if(showEntry){$('room').style.display='none';$('entry').classList.remove('hide');status('خرجت من الغرفة. تقدر تنشئ غرفة جديدة أو تدخل بكود.');}}
+$('createBtn').addEventListener('click',createRoom);
+$('joinBtn').addEventListener('click',joinRoom);
+$('copyBtn').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(code||'');$('copyBtn').textContent='اتنسخ ✓';setTimeout(()=>$('copyBtn').textContent='نسخ الكود',1600);}catch(e){status('الكود هو '+code+' — انسخه يدويًا.');}});
+$('leaveBtn').addEventListener('click',()=>cleanup(true));
+$('chatForm').addEventListener('submit',async e=>{e.preventDefault();const text=$('chatInput').value.trim();if(!text||!code)return;try{await api('/rooms/'+code+'/chat','POST',{uid,text});$('chatInput').value='';await refreshRoom();}catch(err){status('تعذر إرسال الرسالة: '+err.message,true);}});
+document.querySelectorAll('[data-game]').forEach(b=>b.addEventListener('click',async()=>{if(!code)return;try{await api('/rooms/'+code+'/game','POST',{uid,game:b.dataset.game});await refreshRoom();}catch(e){status('تعذر اختيار اللعبة: '+e.message,true);}}));
+window.addEventListener('beforeunload',()=>{if(joined&&code){const url=API+'/rooms/'+code+'/players/'+uid;try{fetch(url,{method:'DELETE',keepalive:true});}catch{}}});
+const smartGameChoices={
+ xo:{label:'إكس أو',id:'xo',players:[2],moods:['quick','party'],why:'ممتازة لمباراة سريعة واحد ضد واحد.'},
+ guess:{label:'تخمين الرقم',id:'guess',players:[2,3,4],moods:['thinking','party'],why:'تخمين ومنافسة؛ كل واحد يحاول يقرب من الرقم السري.'},
+ rps:{label:'حجر ورقة مقص',id:'rps',players:[2,3,4],moods:['quick','party','group'],why:'اختيار سريع ومناسب لكسر الملل.'},
+ connect4:{label:'أربعة على التوالي',id:'connect4',players:[2],moods:['thinking'],why:'محتاج تركيز وتخطيط عشان تكوّن أربعة متصلة.'},
+ words:{label:'تحدي الكلمات',id:'words',players:[2,3,4],moods:['thinking','party','group'],why:'يناسب التحديات الجماعية واللعب بالكلمات.'},
+ quiz:{label:'تحدي المعلومات',id:'quiz',players:[2,3,4],moods:['thinking','group'],why:'اختبروا معلوماتكم وتنافسوا في الأسئلة.'}
+};
+let smartRecommendedGame=null;
+function suggestSmartGame(){const count=Number($('smartPlayers').value),mood=$('smartMood').value;const available=Object.values(smartGameChoices).filter(g=>g.players.includes(count)&&g.moods.includes(mood));const pool=available.length?available:Object.values(smartGameChoices).filter(g=>g.players.includes(count));const choice=pool[Math.floor(Math.random()*pool.length)]||smartGameChoices.rps;smartRecommendedGame=choice;$('smartSuggestion').innerHTML='<strong>اقتراحنا: '+clean(choice.label)+'</strong><br>'+clean(choice.why)+'<br><span class="small">ده اقتراح مبني على اختياراتكم، مش نموذج ذكاء اصطناعي متصل بالإنترنت.</span>';$('smartChooseBtn').classList.remove('hide');$('smartChooseBtn').textContent=code?'اختار '+choice.label+' في غرفتي':'افتح الغرفة عشان تختار اللعبة';}
 $('smartSuggestBtn').addEventListener('click',suggestSmartGame);
-$('smartChooseBtn').addEventListener('click',async()=>{
-  if(!smartRecommendedGame)return;
-  if(!roomRef){status('أنشئ غرفة أو ادخل بكود الأول، وبعدها اضغط الزر لاختيار اللعبة المقترحة.');return;}
-  try{await roomRef.child('game').set(smartRecommendedGame.id);await roomRef.child('gameUpdatedBy').set((localStorage.getItem('lammaName')||'لاعب')+' · مساعد لَمّة');status('المساعد اختار '+smartRecommendedGame.label+' للغرفة.');}
-  catch(e){status('تعذر تطبيق الاقتراح على الغرفة: '+e.message,true);}
-});
-
+$('smartChooseBtn').addEventListener('click',async()=>{if(!smartRecommendedGame)return;if(!code){status('أنشئ غرفة أو ادخل بكود الأول، وبعدها اختار اللعبة المقترحة.');return;}try{await api('/rooms/'+code+'/game','POST',{uid,game:smartRecommendedGame.id});await refreshRoom();status('المساعد اختار '+smartRecommendedGame.label+' للغرفة.');}catch(e){status('تعذر تطبيق الاقتراح: '+e.message,true);}});
 init();
 })();
-</script></body></html>
+</script></body>
