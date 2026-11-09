@@ -308,6 +308,39 @@
           ".write": "auth != null && auth.uid === $uid && !data.exists()"
         }
       }
+    },
+    "drawGuessRooms": {
+      ".read": "auth != null",
+      "$roomId": {
+        ".read": "auth != null",
+        "hostUid": {
+          ".write": "auth != null && ((!data.exists() && newData.val() === auth.uid) || data.val() === auth.uid)"
+        },
+        "players": {
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid"
+          }
+        },
+        "strokes": {
+          ".write": "auth != null && root.child('drawGuessRooms').child($roomId).child('players').child(auth.uid).exists()"
+        },
+        "game": {
+          ".write": "auth != null && root.child('drawGuessRooms').child($roomId).child('players').child(auth.uid).exists()"
+        },
+        "scores": {
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid && root.child('drawGuessRooms').child($roomId).child('players').child($uid).exists()"
+          }
+        },
+        "guesses": {
+          "$guessId": {
+            ".write": "auth != null && !data.exists() && newData.child('uid').val() === auth.uid && root.child('drawGuessRooms').child($roomId).child('players').child(auth.uid).exists()"
+          }
+        },
+        "updatedAt": {
+          ".write": "auth != null && root.child('drawGuessRooms').child($roomId).child('players').child(auth.uid).exists()"
+        }
+      }
     }
   }
 }
