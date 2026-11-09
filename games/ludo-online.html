@@ -294,7 +294,7 @@ function draw(){
   else for(let step=from+1;step<=to;step++)path.push(pieceCell(color,step,index));
   if(!path.length){resolve();return;}
   let segment=-1,segmentStart=0,segmentFrom=pieceCell(color,from,index);
-  const duration=175,effect=(room?.players?.[uid]?.movementEffect&&room.players[uid].movementEffect!=="none")?room.players[uid].movementEffect:"move_ice",trail=[];
+  const duration=175,effect=(room?.players?.[uid]?.movementEffect&&room.players[uid].movementEffect!=="none")?room.players[uid].movementEffect:"none",trail=[];
   function frame(now){
    if(segment<0){segment=0;segmentStart=now;}
    const target=path[segment],t=Math.min(1,(now-segmentStart)/duration),ease=t*t*(3-2*t);
