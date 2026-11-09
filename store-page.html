@@ -52,7 +52,8 @@ async function refresh(){
  const [walletSnap,inventorySnap,profileSnap]=await Promise.all([db.ref("wallets/"+user.uid).get(),db.ref("inventory/"+user.uid).get(),db.ref("profiles/"+user.uid).get()]);
  $("balance").textContent=Number(walletSnap.val()?.balance||0).toLocaleString("en-US")+" LC";
  inventory=inventorySnap.val()?.items||{};
- selectedMovementEffect=profileSnap.val()?.movementEffect||"none";\n selectedLudoBoard=profileSnap.val()?.ludoBoard||"classic";selectedLudoPiece=profileSnap.val()?.ludoPiece||"classic";
+ selectedMovementEffect=profileSnap.val()?.movementEffect||"none";
+ selectedLudoBoard=profileSnap.val()?.ludoBoard||"classic";selectedLudoPiece=profileSnap.val()?.ludoPiece||"classic";
 }
 async function load(){
  try{
