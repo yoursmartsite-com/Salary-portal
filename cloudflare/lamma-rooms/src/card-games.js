@@ -66,7 +66,7 @@ function applyCardMove(room,uid,b){
     while(true){const combo=find(0,target,[]);if(!combo)break;take.push(...combo.map(x=>x.c));const used=new Set(combo.map(x=>x.c.id));nums=nums.filter(x=>!used.has(x.c.id))}
    }
   }
-  if(take.length){g.table=g.table.filter(x=>!take.some(t=>t.id===x.id));g.captured[uid].push(card,...take);if(!g.table.length&&card.r!=="J"&&(!(card.r==="7"&&card.s==="♦")||sevenDiamondBasra))g.players[uid].basras=(g.players[uid].basras||0)+1;g.players[uid].roundBasras=(g.players[uid].roundBasras||0)+1}
+  if(take.length){g.table=g.table.filter(x=>!take.some(t=>t.id===x.id));g.captured[uid].push(card,...take);if(!g.table.length&&card.r!=="J"&&(!(card.r==="7"&&card.s==="♦")||sevenDiamondBasra)){g.players[uid].basras=(g.players[uid].basras||0)+1;g.players[uid].roundBasras=(g.players[uid].roundBasras||0)+1}}
   else g.table.push(card);
   if(take.length)g.lastCapturer=uid;
   if(ids.every(id=>!g.players[id].hand.length)&&g.deck.length){for(const id of ids)g.players[id].hand=g.deck.splice(0,Math.min(4,g.deck.length))}
