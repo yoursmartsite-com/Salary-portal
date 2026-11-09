@@ -34,12 +34,13 @@ function applyCardMove(room,uid,b){
  const g=room.gameState;if(!g)throw Error("GAME_NOT_STARTED");const ids=Object.keys(room.players),p=g.players[uid];if(!p)throw Error("NOT_IN_ROOM");const game=g.game;
  if(game==="uno"){
   if(g.phase!=="playing"||ids[g.turn]!==uid)throw Error("NOT_YOUR_TURN");
+  if(b.action==="draw"){if(!g.deck.length)g.deck=shuffle(g.discard.splice(0,g.discard.length-1));if(!g.deck.length)throw Error("NO_CARDS");p.hand.push(g.deck.pop());g.turn=next(g.turn+g.direction,ids.length);log(g,room.players[uid].name+" سحب ورقة");return}
   const card=p.hand.find(x=>x.id===b.card);if(!card)throw Error("CARD_NOT_IN_HAND");
   const top=g.discard.at(-1),valid=card.c==="wild"||card.c===g.color||card.v===top.v;if(!valid)throw Error("INVALID_CARD");
   p.hand=p.hand.filter(x=>x.id!==card.id);g.discard.push(card);if(card.c==="wild"){if(!["red","yellow","green","blue"].includes(b.color))throw Error("CHOOSE_COLOR");g.color=b.color}else g.color=card.c;
   let skip=0,draw=0;if(card.v==="skip")skip=1;if(card.v==="reverse"){g.direction*=-1;if(ids.length===2)skip=1}if(card.v==="+2")draw=2;if(card.v==="+4")draw=4;
-  if(p.hand.length===1&&!b.uno)log(g,room.players[uid].name+" نسي يقول أونو");
-  if(!p.hand.length){g.phase="finished";g.winner=uid;g.winnerTeam=game==="uno"&&ids.length===4?Math.floor(p.seat/2):null;log(g,"انتهت الجولة وفاز "+room.players[uid].name);return}
+  if(p.hand.length===1&&!b.uno){for(let i=0;i<2;i++){if(!g.deck.length)g.deck=shuffle(g.discard.splice(0,g.discard.length-1));if(g.deck.length)p.hand.push(g.deck.pop())}log(g,room.players[uid].name+" نسي يقول أونو وسحب ورقتين")}
+  if(!p.hand.length){g.phase="finished";g.winner=uid;g.winnerTeam=game==="uno"&&ids.length===4?p.seat%2:null;log(g,"انتهت الجولة وفاز "+room.players[uid].name);return}
   g.turn=next(g.turn+g.direction*(1+skip),ids.length);
   if(draw){const target=ids[g.turn],n=draw;for(let i=0;i<n;i++){if(!g.deck.length)g.deck=shuffle(g.discard.splice(0,g.discard.length-1));if(g.deck.length)g.players[target].hand.push(g.deck.pop())}g.turn=next(g.turn+g.direction,ids.length)}
   log(g,room.players[uid].name+" لعب "+card.v);return;
