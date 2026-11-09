@@ -255,7 +255,7 @@ function draw(){
   });
   if(pieceAnimation&&pieceAnimation.effect&&pieceAnimation.effect!=="none"&&pieceAnimation.trail?.length>1){
    const pts=pieceAnimation.trail,c0=pts[0],c1=pts[pts.length-1],fx=pieceAnimation.effect;
-   const palettes={move_fire:["#fff2a0","#ff9a22","#ed3214"],move_lightning:["#ffffff","#8beaff","#286cff"],move_ghost:["#f5c7ff","#a75cff","#54218e"],move_gold:["#fff5b0","#ffd044","#a96812"],move_ice:["#ffffff","#a9f5ff","#3b9edb"],move_rainbow:["#ff5577","#ffd34d","#65e6a4","#54c9ff","#b77aff"]};
+   const palettes={move_fire:["#fff2a0","#ff9a22","#ed3214"],move_lightning:["#ffffff","#8beaff","#286cff"],move_ghost:["#f5c7ff","#a75cff","#54218e"],move_gold:["#fff5b0","#ffd044","#a96812"],move_ice:["#ffffff","#a9f5ff","#3b9edb"],move_rainbow:["#ff5577","#ffd34d","#65e6a4","#54c9ff","#b77aff"],move_phoenix:["#fff7bd","#ffcf55","#ff702e","#e83225","#8f1b55"]};
    const palette=palettes[fx]||palettes.move_lightning;
    c.save();c.globalCompositeOperation="screen";c.lineCap="round";c.lineJoin="round";c.globalAlpha=.78;
    const trailGradient=c.createLinearGradient(c0.x,c0.y,c1.x,c1.y);
@@ -263,6 +263,7 @@ function draw(){
    c.strokeStyle=trailGradient;c.lineWidth=fx==="move_fire"?13:10;c.shadowColor=palette[1];c.shadowBlur=fx==="move_fire"?18:13;
    c.beginPath();pts.forEach((pt,i)=>i?c.lineTo(pt.x,pt.y):c.moveTo(pt.x,pt.y));c.stroke();
    pts.forEach((pt,i)=>{if(i%3===0){c.globalAlpha=.3+i/pts.length*.55;c.fillStyle=palette[i%palette.length];c.beginPath();c.arc(pt.x,pt.y,2.5+(i%3),0,Math.PI*2);c.fill();}});
+   if(fx==="move_phoenix"){const now=performance.now();pts.forEach((pt,i)=>{const phase=now/115+i*1.7;for(let side=-1;side<=1;side+=2){const drift=Math.sin(phase+side)*5;const rise=((now/5+i*17)%22);c.globalAlpha=.72*(1-rise/28);c.fillStyle=palette[(i+Math.floor(now/90))%palette.length];c.shadowColor="#ff9b35";c.shadowBlur=13;c.beginPath();c.arc(pt.x+Math.cos(phase)*side*7+drift,pt.y+Math.sin(phase*1.3)*4-rise*.35,2.2+(1-rise/28)*2.5,0,Math.PI*2);c.fill();}}const head=pts[pts.length-1],pulse=7+Math.sin(now/55)*2;c.globalAlpha=.9;c.strokeStyle="#ffe9a0";c.lineWidth=2;c.shadowColor="#ff6a25";c.shadowBlur=20;c.beginPath();c.arc(head.x,head.y,pulse,now/170,now/170+Math.PI*1.45);c.stroke();}
    c.restore();
   }
   grouped.forEach(items=>{
@@ -340,7 +341,7 @@ async function init(){ludoInitError='';try{
  db.ref('inventory/'+uid+'/items').on('value',snap=>{
   const items=snap.val()||{};ownedDice={classic:true};Object.keys(DICE_SKINS).filter(k=>k!=='classic').forEach(k=>{if(Number(items[k]?.quantity||0)>0)ownedDice[k]=true});fillDiceChoices();
   const ownedEffects=Object.keys(items).filter(k=>k.startsWith('move_')&&items[k]?.type==='movementEffect'&&Number(items[k]?.quantity||0)>0);if(!ownedEffects.includes(selectedMovementEffect))selectedMovementEffect='move_ice';
-  const effectSelect=$('movementEffect');effectSelect.replaceChildren(new Option('❄️ الجليد — تأثير مجاني','move_ice'),...ownedEffects.filter(k=>k!=='move_ice').map(k=>new Option(({move_lightning:'البرق',move_fire:'اللهب',move_ghost:'الشبح',move_gold:'الذهب',move_ice:'الجليد',move_rainbow:'قوس قزح'})[k]||k,k)));effectSelect.value=selectedMovementEffect;
+  const effectSelect=$('movementEffect');effectSelect.replaceChildren(new Option('❄️ الجليد — تأثير مجاني','move_ice'),...ownedEffects.filter(k=>k!=='move_ice').map(k=>new Option(({move_lightning:'البرق',move_fire:'اللهب',move_ghost:'الشبح',move_gold:'الذهب',move_ice:'الجليد',move_rainbow:'قوس قزح',move_phoenix:'العنقاء'})[k]||k,k)));effectSelect.value=selectedMovementEffect;
  });
  $('diceSkin').addEventListener('change',async()=>{const k=$('diceSkin').value;if(!ownedDice[k])return;selectedDiceSkin=k;applyDiceSkin(k);try{await db.ref('profiles/'+uid+'/diceSkin').set(k);if(roomRef&&room?.players?.[uid])await roomRef.child('players/'+uid+'/diceSkin').set(k)}catch(e){status('تعذر حفظ اختيار النرد: '+e.message)}});
  $('movementEffect').addEventListener('change',async()=>{const k=$('movementEffect').value;selectedMovementEffect=k;try{await db.ref('profiles/'+uid+'/movementEffect').set(k);if(roomRef&&room?.players?.[uid])await roomRef.child('players/'+uid+'/movementEffect').set(k);status(k==='none'?'تم إيقاف تأثير الحركة.':'تم تفعيل تأثير الحركة في الليدو.')}catch(e){status('تعذر حفظ تأثير الحركة: '+e.message)}});
