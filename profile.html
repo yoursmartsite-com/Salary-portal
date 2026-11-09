@@ -36,6 +36,7 @@ a{color:inherit;text-decoration:none}.wrap{max-width:980px;margin:auto}.top{disp
 <div class="formgrid">
 <div class="field"><label for="displayName">اسم اللاعب</label><input id="displayName" maxlength="24" required placeholder="اكتب اسمك في لَمّة"></div>
 <div class="field"><label for="avatarUrl">رابط صورة شخصية (اختياري)</label><input id="avatarUrl" type="url" placeholder="https://..."></div>
+<div class="field"><label for="avatarFile">أو ارفع صورة من جهازك</label><input id="avatarFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif"><button class="btn secondary" id="uploadAvatarBtn" type="button">رفع الصورة</button><small id="uploadAvatarStatus" style="color:var(--muted)">JPG أو PNG أو WEBP أو GIF · حتى 10 ميجابايت</small></div>
 <div class="field full"><label for="bio">نبذة عنك</label><textarea id="bio" maxlength="180" placeholder="اكتب نبذة قصيرة عنك..."></textarea></div>
 </div>
 <div class="actions"><button class="btn" id="saveBtn" type="submit">حفظ التعديلات</button><button class="btn secondary" type="button" id="logoutBtn">تسجيل الخروج</button></div>
@@ -74,6 +75,30 @@ function renderBag(items,equipped){const root=$("bagItems");const owned=Object.e
   try{const [walletSnap,inventorySnap]=await Promise.all([get(ref(db,"wallets/"+user.uid+"/balance")),get(ref(db,"inventory/"+user.uid+"/items"))]);$("coinBalance").textContent=(Number(walletSnap.val())||0)+" LC";const items=inventorySnap.val()||{};const total=Object.values(items).reduce((n,v)=>n+Math.max(0,Number(v?.quantity)||0),0);$("inventoryCount").textContent=String(total);renderBag(items,profile.diceSkin||"classic");}catch(e){$("coinBalance").textContent="— LC";$("inventoryCount").textContent="—";$("bagItems").textContent="تعذر تحميل الشنطة: "+e.message}
  });
 })();
+
+$("uploadAvatarBtn").addEventListener("click",async()=>{
+ const file=$("avatarFile").files?.[0],btn=$("uploadAvatarBtn"),status=$("uploadAvatarStatus");
+ if(!file){status.textContent="اختار صورة الأول.";return}
+ if(!currentUser){status.textContent="سجّل الدخول الأول.";return}
+ if(!["image/jpeg","image/png","image/webp","image/gif"].includes(file.type)){status.textContent="الصيغة دي مش مدعومة.";return}
+ if(file.size>10*1024*1024){status.textContent="حجم الصورة أكبر من 10 ميجابايت.";return}
+ btn.disabled=true;btn.textContent="جاري الرفع...";status.textContent="بنجهّز الصورة ونرفعها بأمان...";
+ try{
+  let uploadFile=file;
+  if(file.type!=="image/gif"){
+   const bitmap=await createImageBitmap(file),scale=Math.min(1,1600/Math.max(bitmap.width,bitmap.height));
+   const canvas=document.createElement("canvas");canvas.width=Math.round(bitmap.width*scale);canvas.height=Math.round(bitmap.height*scale);
+   canvas.getContext("2d").drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close();
+   const blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/jpeg",.84));
+   if(blob)uploadFile=new File([blob],"profile.jpg",{type:"image/jpeg"});
+  }
+  const token=await currentUser.getIdToken(true),body=new FormData();body.append("file",uploadFile);
+  const response=await fetch("https://lamma-rooms.fibrahem865.workers.dev/media/upload",{method:"POST",headers:{Authorization:"Bearer "+token},body});
+  const result=await response.json();if(!response.ok||!result.ok)throw new Error(result.message||result.error||"فشل رفع الصورة");
+  $("avatarUrl").value=result.url;showAvatar(result.url,$("displayName").value);status.textContent="اترفعت الصورة بنجاح. اضغط «حفظ التعديلات» لتثبيتها في بروفايلك.";
+ }catch(err){status.textContent="فشل رفع الصورة: "+err.message}
+ finally{btn.disabled=false;btn.textContent="رفع الصورة"}
+});
 $("avatarUrl").addEventListener("input",()=>showAvatar($("avatarUrl").value,$("displayName").value));
 $("displayName").addEventListener("input",()=>{$("profileName").textContent=$("displayName").value||"بروفايلي";if(!$("avatarUrl").value)showAvatar("",$("displayName").value)});
 $("profileForm").addEventListener("submit",async e=>{
@@ -86,7 +111,7 @@ $("profileForm").addEventListener("submit",async e=>{
   const old=await get(ref(db,"profiles/"+currentUser.uid));const oldData=old.val()||{};
   await set(ref(db,"profiles/"+currentUser.uid),{...oldData,uid:currentUser.uid,email:currentUser.email||"",displayName,bio,avatarUrl,createdAt:oldData.createdAt||Date.now(),updatedAt:Date.now()});
   await set(ref(db,"userDirectory/"+currentUser.uid),{uid:currentUser.uid,name:displayName,email:currentUser.email||"",createdAt:oldData.createdAt||Date.now(),lastSeen:Date.now()});
-  $("profileName").textContent=displayName;showAvatar(avatarUrl,displayName);say("تم حفظ البروفايل بنجاح.");
+  $("profileName").textContent=displayName;if(avatarUrl)localStorage.setItem("lammaAvatar",avatarUrl);else localStorage.removeItem("lammaAvatar");showAvatar(avatarUrl,displayName);say("تم حفظ البروفايل بنجاح.");
  }catch(err){say("فشل الحفظ: "+err.message,true)}
  finally{$("saveBtn").disabled=false;$("saveBtn").textContent="حفظ التعديلات"}
 });

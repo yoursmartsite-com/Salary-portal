@@ -1,6 +1,6 @@
 import { DurableObject } from "cloudflare:workers";
 const ORIGINS=new Set(["https://yoursmartsite-com.github.io","http://localhost:8000","http://127.0.0.1:8000"]);
-const cors=r=>{const o=r.headers.get("Origin")||"";return {"Access-Control-Allow-Origin":ORIGINS.has(o)?o:"https://yoursmartsite-com.github.io","Access-Control-Allow-Methods":"GET,POST,DELETE,OPTIONS","Access-Control-Allow-Headers":"Content-Type","Access-Control-Max-Age":"86400","Vary":"Origin"}};
+const cors=r=>{const o=r.headers.get("Origin")||"";return {"Access-Control-Allow-Origin":ORIGINS.has(o)?o:"https://yoursmartsite-com.github.io","Access-Control-Allow-Methods":"GET,POST,DELETE,OPTIONS","Access-Control-Allow-Headers":"Content-Type, Authorization","Access-Control-Max-Age":"86400","Vary":"Origin"}};
 const out=(d,s=200,h={})=>Response.json(d,{status:s,headers:h});
 const uidOk=v=>typeof v==="string"&&/^[A-Za-z0-9_-]{3,128}$/.test(v);
 const nameOk=v=>typeof v==="string"&&v.trim().length>0&&v.trim().length<=24;
@@ -23,11 +23,11 @@ export class Room extends DurableObject{
   const parts=u.pathname.split("/").filter(Boolean),roomCode=parts[1],action=parts[2]||"",target=parts[3];let state=await this.ctx.storage.get("room");
   try{
    if(req.method==="POST"&&!action){if(state)return out({ok:false,error:"ROOM_EXISTS"},409,h);const b=await req.json();if(!uidOk(b.uid)||!nameOk(b.name))return out({ok:false,error:"INVALID_ROOM_DATA"},400,h);
-    state={code:roomCode,title:String(b.title||"قعدة لَمّة").slice(0,35),topic:String(b.topic||"").slice(0,90),visibility:b.visibility==="public"?"public":"private",game:"none",maxPlayers:Math.max(2,Math.min(30,Number(b.maxPlayers)||20)),host:b.uid,createdAt:Date.now(),updatedAt:Date.now(),players:{[b.uid]:{uid:b.uid,name:b.name.trim(),avatar:String(b.avatar||"🍓").slice(0,100),hand:false,joinedAt:Date.now()}},chat:[]};
+    state={code:roomCode,title:String(b.title||"قعدة لَمّة").slice(0,35),topic:String(b.topic||"").slice(0,90),visibility:b.visibility==="public"?"public":"private",game:"none",maxPlayers:Math.max(2,Math.min(30,Number(b.maxPlayers)||20)),host:b.uid,createdAt:Date.now(),updatedAt:Date.now(),players:{[b.uid]:{uid:b.uid,name:b.name.trim(),avatar:String(b.avatar||"🍓").slice(0,1000),hand:false,joinedAt:Date.now()}},chat:[]};
     await this.ctx.storage.put("room",state);return out({ok:true,room:state},201,h)}
    if(!state)return out({ok:false,error:"ROOM_NOT_FOUND"},404,h);
    if(req.method==="GET"&&!action)return out({ok:true,room:state},200,h);
-   if(req.method==="POST"&&action==="join"){const b=await req.json();if(!uidOk(b.uid)||!nameOk(b.name))return out({ok:false,error:"INVALID_PLAYER"},400,h);if(!state.players[b.uid]&&Object.keys(state.players).length>=state.maxPlayers)return out({ok:false,error:"ROOM_FULL"},409,h);state.players[b.uid]={uid:b.uid,name:b.name.trim(),avatar:String(b.avatar||"🍓").slice(0,100),hand:false,joinedAt:state.players[b.uid]?.joinedAt||Date.now()};state.updatedAt=Date.now();await this.ctx.storage.put("room",state);return out({ok:true,room:state},200,h)}
+   if(req.method==="POST"&&action==="join"){const b=await req.json();if(!uidOk(b.uid)||!nameOk(b.name))return out({ok:false,error:"INVALID_PLAYER"},400,h);if(!state.players[b.uid]&&Object.keys(state.players).length>=state.maxPlayers)return out({ok:false,error:"ROOM_FULL"},409,h);state.players[b.uid]={uid:b.uid,name:b.name.trim(),avatar:String(b.avatar||"🍓").slice(0,1000),hand:false,joinedAt:state.players[b.uid]?.joinedAt||Date.now()};state.updatedAt=Date.now();await this.ctx.storage.put("room",state);return out({ok:true,room:state},200,h)}
    if(req.method==="POST"&&action==="hand"){const b=await req.json();if(!state.players[b.uid]||typeof b.hand!=="boolean")return out({ok:false,error:"PLAYER_NOT_IN_ROOM"},400,h);state.players[b.uid].hand=b.hand;state.updatedAt=Date.now();await this.ctx.storage.put("room",state);return out({ok:true},200,h)}
    if(req.method==="POST"&&action==="game"){const b=await req.json();if(!state.players[b.uid]||!games.includes(b.game)||b.game==="none")return out({ok:false,error:"INVALID_GAME_SELECTION"},400,h);state.game=b.game;state.gameUpdatedBy=state.players[b.uid].name;state.updatedAt=Date.now();await this.ctx.storage.put("room",state);return out({ok:true},200,h)}
    if(req.method==="POST"&&action==="chat"){const b=await req.json();if(!state.players[b.uid]||typeof b.text!=="string"||!b.text.trim()||b.text.length>300)return out({ok:false,error:"INVALID_CHAT_MESSAGE"},400,h);state.chat.push({uid:b.uid,name:state.players[b.uid].name,text:b.text.trim(),at:Date.now()});state.chat=state.chat.slice(-100);state.updatedAt=Date.now();await this.ctx.storage.put("room",state);return out({ok:true},200,h)}
@@ -39,4 +39,54 @@ export class Room extends DurableObject{
  async webSocketClose(ws){const a=ws.deserializeAttachment()||{},m=JSON.stringify({type:"left",from:a.uid});for(const p of this.ctx.getWebSockets(a.room))try{p.send(m)}catch{}}
  async webSocketError(ws){try{ws.close(1011,"voice signaling error")}catch{}}
 }
-export default{async fetch(req,env){const u=new URL(req.url),h=cors(req);if(req.method==="OPTIONS")return new Response(null,{status:204,headers:h});if(u.pathname==="/"||u.pathname==="/health")return out({ok:true,service:"lamma-rooms-worker",version:3},200,h);if(u.pathname==="/discover")return env.ROOMS.get(env.ROOMS.idFromName("__directory__")).fetch(req);const m=u.pathname.match(/^\/rooms\/([A-Za-z0-9_-]{3,32})(?:\/.*)?$/);if(!m)return out({ok:false,error:"ROOM_CODE_REQUIRED"},400,h);return env.ROOMS.get(env.ROOMS.idFromName(m[1])).fetch(req)}};
+
+let firebaseKeys=null,firebaseKeysUntil=0;
+const b64url=s=>Uint8Array.from(atob(s.replace(/-/g,"+").replace(/_/g,"/")+"=".repeat((4-s.length%4)%4)),c=>c.charCodeAt(0));
+async function verifyFirebaseToken(request){
+ const auth=request.headers.get("Authorization")||"",token=auth.startsWith("Bearer ")?auth.slice(7):"";
+ const p=token.split(".");if(p.length!==3)throw new Error("AUTH_REQUIRED");
+ const header=JSON.parse(new TextDecoder().decode(b64url(p[0]))),claims=JSON.parse(new TextDecoder().decode(b64url(p[1])));
+ if(header.alg!=="RS256"||!header.kid)throw new Error("INVALID_TOKEN");
+ if(!firebaseKeys||Date.now()>firebaseKeysUntil){
+  const r=await fetch("https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com");
+  if(!r.ok)throw new Error("AUTH_KEYS_UNAVAILABLE");
+  firebaseKeys=(await r.json()).keys||[];firebaseKeysUntil=Date.now()+3600000;
+ }
+ const jwk=firebaseKeys.find(k=>k.kid===header.kid);if(!jwk)throw new Error("INVALID_TOKEN");
+ const key=await crypto.subtle.importKey("jwk",jwk,{name:"RSASSA-PKCS1-v1_5",hash:"SHA-256"},false,["verify"]);
+ const valid=await crypto.subtle.verify("RSASSA-PKCS1-v1_5",key,b64url(p[2]),new TextEncoder().encode(p[0]+"."+p[1]));
+ const now=Math.floor(Date.now()/1000);
+ if(!valid||claims.iss!=="https://securetoken.google.com/play-with-friends-com"||claims.aud!=="play-with-friends-com"||!claims.sub||!claims.exp||claims.exp<=now||!claims.iat||claims.iat>now+60)throw new Error("INVALID_TOKEN");
+ return claims;
+}
+async function cloudinarySignature(params,secret){
+ const raw=Object.keys(params).sort().map(k=>k+"="+params[k]).join("&")+secret;
+ const digest=await crypto.subtle.digest("SHA-1",new TextEncoder().encode(raw));
+ return [...new Uint8Array(digest)].map(x=>x.toString(16).padStart(2,"0")).join("");
+}
+
+export default{async fetch(req,env){
+ const url=new URL(req.url);
+ if(url.pathname==="/media/upload"&&req.method==="POST"){
+  const h=cors(req);
+  try{
+   if(!env.CLOUDINARY_API_SECRET)return out({ok:false,error:"CLOUDINARY_SECRET_MISSING"},500,h);
+   const claims=await verifyFirebaseToken(req);
+   const length=Number(req.headers.get("Content-Length")||0);
+   if(length>11*1024*1024)return out({ok:false,error:"FILE_TOO_LARGE",message:"الحد الأقصى للصورة 10 ميجابايت"},413,h);
+   const form=await req.formData(),file=form.get("file");
+   if(!file||typeof file==="string"||!file.type?.startsWith("image/"))return out({ok:false,error:"IMAGE_REQUIRED"},400,h);
+   if(file.size>10*1024*1024)return out({ok:false,error:"FILE_TOO_LARGE",message:"الحد الأقصى للصورة 10 ميجابايت"},413,h);
+   const allowed=["image/jpeg","image/png","image/webp","image/gif"];
+   if(!allowed.includes(file.type))return out({ok:false,error:"UNSUPPORTED_IMAGE",message:"الصيغ المدعومة JPG وPNG وWEBP وGIF"},415,h);
+   const timestamp=Math.floor(Date.now()/1000),folder="lamma/profiles/"+claims.sub,public_id=crypto.randomUUID();
+   const params={folder,overwrite:"false",public_id,timestamp:String(timestamp)};
+   const signature=await cloudinarySignature(params,env.CLOUDINARY_API_SECRET);
+   const upload=new FormData();upload.set("file",file,file.name||"profile-image");upload.set("api_key","557134562778449");upload.set("timestamp",String(timestamp));upload.set("folder",folder);upload.set("public_id",public_id);upload.set("overwrite","false");upload.set("signature",signature);
+   const response=await fetch("https://api.cloudinary.com/v1_1/g21wbsl1/image/upload",{method:"POST",body:upload});
+   const data=await response.json();
+   if(!response.ok)return out({ok:false,error:"CLOUDINARY_UPLOAD_FAILED",message:data.error?.message||"فشل رفع الصورة"},502,h);
+   return out({ok:true,url:data.secure_url,publicId:data.public_id,width:data.width,height:data.height,bytes:data.bytes},200,h);
+  }catch(e){const status=e.message==="AUTH_REQUIRED"||e.message==="INVALID_TOKEN"?401:500;return out({ok:false,error:e.message||"UPLOAD_FAILED"},status,h)}
+ }
+const u=new URL(req.url),h=cors(req);if(req.method==="OPTIONS")return new Response(null,{status:204,headers:h});if(u.pathname==="/"||u.pathname==="/health")return out({ok:true,service:"lamma-rooms-worker",version:3},200,h);if(u.pathname==="/discover")return env.ROOMS.get(env.ROOMS.idFromName("__directory__")).fetch(req);const m=u.pathname.match(/^\/rooms\/([A-Za-z0-9_-]{3,32})(?:\/.*)?$/);if(!m)return out({ok:false,error:"ROOM_CODE_REQUIRED"},400,h);return env.ROOMS.get(env.ROOMS.idFromName(m[1])).fetch(req)}};
