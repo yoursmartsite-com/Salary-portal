@@ -50,7 +50,7 @@ const games={estimation:{name:'الاستميشن',icon:'🃏',desc:'4 لاعب�
 const params=new URLSearchParams(location.search);let gameId=params.get('game')||'estimation';if(!games[gameId])gameId='estimation';const game=games[gameId];
 if(Object.prototype.hasOwnProperty.call(games,gameId)){
 const $=id=>document.getElementById(id), API='https://lamma-rooms.fibrahem865.workers.dev';
-const teamGame=['estimation','tarneeb','hokm'].includes(gameId);$('maxPlayers').querySelectorAll('option').forEach(o=>{o.disabled=teamGame&&o.value!=='4'});if(teamGame)$('maxPlayers').value='4';
+$('maxPlayers').querySelectorAll('option').forEach(o=>{o.disabled=false});
 const esc=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const avatarHtml=v=>{const s=String(v||'🍓');return (/^https:\/\/[^\s"'<>]+$/i.test(s)||/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(s))?'<img src="'+esc(s)+'" alt="" loading="lazy">':esc(s)};
 let uid=localStorage.getItem('arcade_uid')||localStorage.getItem('lamma_uid');
@@ -84,7 +84,7 @@ function drawGame(){
  html+='<div class="hand-area"><div class="hand-title"><span>ورقك في إيدك</span><span>'+mine.length+' ورقة</span></div><div class="card-hand">'+mine.map(c=>cardFace(c,true,finished||g.currentPlayer!==uid)).join('')+'</div></div>';
  if(gameId==='konkan'&&g.phase==='discard'&&g.currentPlayer===uid)html+='<p>اختار ورقة من يدك للتخلص منها.</p>';
  if(gameId==='basra')html+='<p>اضغط على ورقة من يدك للعبها؛ الولد يلمّ كل الورق، والورقة المطابقة تلمّ مثيلتها.</p>';
- if(gameId==='estimation')html+='<div class="muted" style="margin-top:10px">النقاط الفردية: '+ids.map(id=>esc(room.players[id]?.name||'لاعب')+' '+(g.players[id]?.score||0)).join(' · ')+'</div>';else html+='<div class="muted" style="margin-top:10px">نقاط الفرق: '+(g.teamScores?g.teamScores.join(' - '):'—')+'</div>';
+ if(gameId==='estimation'||ids.length!==4)html+='<div class="muted" style="margin-top:10px">النقاط الفردية: '+ids.map(id=>esc(room.players[id]?.name||'لاعب')+' '+(g.players[id]?.score||0)).join(' · ')+'</div>';else html+='<div class="muted" style="margin-top:10px">نقاط الفرق: '+(g.teamScores?g.teamScores.join(' - '):'—')+'</div>';
  area.innerHTML=html;
  area.querySelectorAll('[data-card]').forEach(b=>b.onclick=()=>{const data={card:b.dataset.card};if(gameId==='uno'&&mine.find(c=>c.id===data.card)?.c==='wild')data.color=prompt('اختار اللون: red أو yellow أو green أو blue','red');if(gameId==='uno'&&mine.length===2)data.uno=confirm('هتعلن UNO بعد الورقة دي؟');if(gameId==='konkan')data.action='discard';sendMove(data)});
  area.querySelectorAll('[data-trump]').forEach(b=>b.onclick=()=>sendMove({trump:b.dataset.trump}));
