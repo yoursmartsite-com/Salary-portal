@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080b14">
+<title>تحدي المعلومات | لَمّة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080b14;--panel:#111827;--panel2:#151f33;--line:#283550;--muted:#9eabc4;--text:#f5f7ff;--purple:#8b5cf6;--cyan:#32d6e9;--green:#37d6a0;--red:#ff6688;--gold:#f6c76a}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -15%,#30245c 0,transparent 42%),radial-gradient(circle at 100% 80%,#0b3b4a33,transparent 32%),var(--bg);color:var(--text);font-family:Cairo,system-ui,sans-serif}button,input{font:inherit}button{cursor:pointer;color:inherit;border:0}a{color:inherit;text-decoration:none}.wrap{width:min(1050px,100%);margin:auto;padding:16px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 15px;border:1px solid var(--line);border-radius:17px;background:#101727eF}.brand{font-size:21px;font-weight:900}.brand b{display:inline-grid;place-items:center;width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--purple),var(--cyan));margin-left:9px}.back,.soft{padding:9px 13px;border-radius:10px;background:#1b2940;border:1px solid #34435e;font-size:12px;font-weight:800}.hero{position:relative;overflow:hidden;margin:15px 0;padding:clamp(23px,5vw,48px);border:1px solid #443b72;border-radius:22px;background:linear-gradient(110deg,#11182af5 0%,#141b31e8 58%,#11182a99),radial-gradient(circle at 80% 40%,#794dff55,transparent 35%)}.hero:after{content:'?';position:absolute;left:7%;top:-35px;font-size:220px;font-weight:900;color:#a18bff12;line-height:1}.eyebrow{color:#83e8f2;font-size:11px;font-weight:900;letter-spacing:.5px}.hero h1{font-size:clamp(29px,5vw,48px);line-height:1.25;margin:8px 0}.hero p{max-width:620px;color:#bdc8dd;line-height:1.9;margin:0}.panel{border:1px solid var(--line);border-radius:18px;background:linear-gradient(145deg,#141d30f5,#0e1524f5);padding:18px;box-shadow:0 15px 45px #0003}.section-title{font-size:17px;font-weight:900;margin:0 0 12px}.mode-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.mode{padding:19px;border:1px solid #344565;border-radius:16px;background:linear-gradient(145deg,#1a2843,#111a2d);text-align:right;min-height:145px;transition:.2s}.mode:hover{border-color:#9b7cff;transform:translateY(-2px)}.mode .big{font-size:31px}.mode strong{display:block;font-size:17px;margin:4px 0}.mode small{color:var(--muted);line-height:1.8}.controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.field{display:grid;gap:6px}.field label{font-size:11px;color:#b8c4dc;font-weight:800}.field input,.field select{width:100%;min-width:0;background:#0a1221;border:1px solid #35435e;color:#fff;border-radius:10px;padding:11px;outline:none}.primary{padding:12px 16px;border-radius:11px;background:linear-gradient(105deg,#6334e9,#278ca8);font-weight:900;box-shadow:0 8px 25px #5429d744}.primary:disabled{opacity:.45;cursor:not-allowed}.wide{width:100%;margin-top:12px}.muted{color:var(--muted)}.hidden{display:none!important}.notice{margin-top:12px;padding:10px 12px;border-radius:10px;background:#122b35;border:1px solid #236274;color:#b8f4f2;font-size:12px;line-height:1.8}.error{background:#321b2a;border-color:#71364e;color:#ffc2d1}.room-tools{display:grid;grid-template-columns:1fr auto;gap:9px;margin-top:12px}.room-tools input{min-width:0;background:#091221;border:1px solid #34445f;border-radius:10px;color:#fff;padding:11px;text-transform:uppercase;letter-spacing:3px;text-align:center}.game-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}.pill{border:1px solid #394a67;background:#17233a;padding:6px 10px;border-radius:30px;color:#c9d5ed;font-size:11px;font-weight:800}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:13px}.stat{padding:10px;border:1px solid #2c3b57;border-radius:12px;background:#0b1424;text-align:center}.stat small{display:block;color:var(--muted);font-size:10px}.stat b{font-size:19px;font-variant-numeric:tabular-nums}.timer{height:8px;border-radius:10px;background:#25324a;overflow:hidden;margin:8px 0 15px}.timer span{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--green),var(--cyan),var(--purple));transition:width .2s linear}.question-card{padding:clamp(17px,4vw,27px);border:1px solid #3b4770;border-radius:17px;background:radial-gradient(circle at 90% 0,#4c398033,transparent 38%),linear-gradient(145deg,#19243b,#101827);text-align:center}.q-meta{display:flex;justify-content:space-between;gap:8px;color:#aebbd3;font-size:11px}.question{font-size:clamp(19px,3.5vw,28px);font-weight:900;line-height:1.65;margin:20px auto;max-width:780px}.answers{display:grid;grid-template-columns:1fr 1fr;gap:10px}.answer{min-height:58px;padding:12px;border:1px solid #34435f;border-radius:12px;background:#17233a;text-align:right;font-weight:800;display:flex;align-items:center;gap:10px;transition:.15s}.answer:hover:not(:disabled){border-color:#9b80ff;background:#25264a}.answer .letter{flex:0 0 29px;height:29px;border-radius:9px;display:grid;place-items:center;background:#293958;color:#d8caff;font-size:12px}.answer.correct{border-color:#2cbd8d;background:#10382f}.answer.wrong{border-color:#e45c7c;background:#3a1c2a}.answer:disabled{cursor:default}.feedback{min-height:28px;margin:13px 0 0;font-weight:800}.players{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-top:12px}.player{padding:10px;border:1px solid #2e3c58;border-radius:11px;background:#0d1728}.player b{display:block;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.player small{color:var(--muted);font-size:10px}.player strong{color:var(--gold);font-size:16px}.result-list{display:grid;gap:8px;margin:15px 0}.result-row{display:flex;align-items:center;gap:10px;padding:11px;border:1px solid #33435f;border-radius:12px;background:#111c30}.result-row .rank{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:#293958;font-weight:900}.result-row .person{flex:1;min-width:0}.result-row .person b{display:block}.result-row .person small{color:var(--muted)}.result-row strong{color:var(--gold)}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:13px}.actions>*{flex:1}.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:9;background:#1d2a42;border:1px solid #526483;border-radius:12px;padding:11px 16px;box-shadow:0 10px 30px #0009;font-size:12px;max-width:90%;text-align:center}.footer{text-align:center;padding:20px;color:#7887a3;font-size:11px}
+@media(max-width:650px){.wrap{padding:9px}.top{padding:9px 11px}.brand{font-size:18px}.brand b{width:34px;height:34px}.hero{padding:20px 17px;border-radius:17px}.hero h1{font-size:29px}.hero p{font-size:12px}.panel{padding:13px;border-radius:15px}.mode-grid{gap:8px}.mode{padding:13px;min-height:140px}.mode strong{font-size:15px}.mode small{font-size:10px}.controls{grid-template-columns:1fr}.stats{gap:6px}.stat{padding:8px 4px}.stat b{font-size:17px}.answers{grid-template-columns:1fr}.answer{min-height:52px}.question{margin:14px auto}.game-head{align-items:flex-start;flex-wrap:wrap}.room-tools{grid-template-columns:1fr}.room-tools button{width:100%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top"><a class="brand" href="./index.html"><b>ل</b>لَمّة</a><a class="back" href="./online-games.html">كل ألعاب الأونلاين ←</a></header>
+<section class="hero"><span class="eyebrow">✦ LAMMA QUIZ BATTLE</span><h1>تحدي المعلومات</h1><p>اختبر معلوماتك، سابق الوقت، واجمع النقاط. العب 20 سؤالًا ضد بوت بمستويات مختلفة أو افتح غرفة خاصة وتحدى أصحابك.</p></section>
+
+<section id="home" class="panel">
+<h2 class="section-title">اختار طريقة اللعب</h2>
+<div class="mode-grid">
+<button class="mode" id="soloMode"><span class="big">🧠</span><strong>تحدي فردي</strong><small>20 سؤالًا ضد الكمبيوتر، مع اختيار مستوى البوت ومتابعة نتيجتك.</small></button>
+<button class="mode" id="onlineMode"><span class="big">⚡</span><strong>تحدي الأصحاب</strong><small>أنشئ غرفة بكود أو ادخل غرفة صاحبك، من 2 إلى 8 لاعبين.</small></button>
+</div>
+<div id="soloSetup" class="hidden">
+<h3 class="section-title" style="margin-top:18px">إعداد التحدي الفردي</h3>
+<div class="controls">
+<div class="field"><label for="soloName">اسم اللاعب</label><input id="soloName" maxlength="22" placeholder="اكتب اسمك"></div>
+<div class="field"><label for="difficulty">مستوى البوت</label><select id="difficulty"><option value="easy">سهل</option><option value="medium" selected>متوسط</option><option value="hard">صعب</option></select></div>
+</div>
+<button class="primary wide" id="startSolo">ابدأ 20 سؤالًا ←</button>
+</div>
+<div id="onlineSetup" class="hidden">
+<h3 class="section-title" style="margin-top:18px">غرف الأصدقاء</h3>
+<div class="controls">
+<div class="field"><label for="playerName">اسمك في الغرفة</label><input id="playerName" maxlength="22" placeholder="اسم اللاعب"></div>
+<div class="field"><label>عدد الأسئلة</label><input value="20 سؤالًا" disabled></div>
+</div>
+<div class="actions"><button class="primary" id="createRoom">＋ إنشاء غرفة</button><button class="soft" id="showJoin">دخول بكود</button></div>
+<div id="joinBox" class="room-tools hidden"><input id="roomCode" maxlength="6" placeholder="كود الغرفة"><button class="primary" id="joinRoom">انضم للغرفة</button></div>
+<div id="onlineNotice" class="notice">الأونلاين يحتاج اتصال Firebase وقواعد قاعدة البيانات الخاصة باللعبة.</div>
+</div>
+<div id="status" class="notice hidden" role="status"></div>
+</section>
+
+<section id="lobby" class="panel hidden">
+<div class="game-head"><div><span class="eyebrow">غرفة خاصة</span><h2 class="section-title" style="margin:4px 0">استعد للتحدي</h2></div><span class="pill" id="lobbyCode">------</span></div>
+<p class="muted" id="lobbyText">شارك الكود مع أصحابك.</p>
+<div class="players" id="lobbyPlayers"></div>
+<div class="actions"><button class="primary" id="startOnline">ابدأ المباراة</button><button class="soft" id="copyCode">نسخ الكود</button><button class="soft" id="leaveRoom">خروج</button></div>
+<div class="notice">الحد الأقصى 8 لاعبين. يبدأ المضيف المباراة بعد دخول أصحابك.</div>
+</section>
+
+<section id="game" class="panel hidden">
+<div class="game-head"><div><span class="eyebrow" id="gameModeLabel">تحدي المعلومات</span><h2 class="section-title" style="margin:4px 0" id="gameTitle">السؤال الأول</h2></div><span class="pill" id="roundLabel">1 / 20</span></div>
+<div class="stats"><div class="stat"><small>نقاطك</small><b id="myScore">0</b></div><div class="stat"><small>الوقت</small><b id="timeLeft">15</b></div><div class="stat"><small>الإجابات</small><b id="answeredCount">0</b></div></div>
+<div class="timer"><span id="timerBar"></span></div>
+<div class="question-card">
+<div class="q-meta"><span id="category">معلومات عامة</span><span>20 سؤالًا · 15 ثانية</span></div>
+<div class="question" id="questionText">جهّز نفسك!</div>
+<div class="answers" id="answers"></div>
+<div class="feedback" id="feedback" aria-live="polite"></div>
+</div>
+<div class="players" id="gamePlayers"></div>
+</section>
+
+<section id="results" class="panel hidden">
+<div class="eyebrow">✦ انتهى التحدي</div><h2 class="section-title" style="font-size:25px;margin:7px 0" id="resultTitle">النتيجة النهائية</h2>
+<p class="muted" id="resultSummary"></p><div class="result-list" id="resultList"></div>
+<div class="actions"><button class="primary" id="playAgain">العب من جديد</button><a class="soft" href="./online-games.html" style="text-align:center">العودة للألعاب</a></div>
+</section>
+<div class="footer">لَمّة · اللعب أحلى لما نكون سوا</div>
+</div>
+<div id="toast" class="toast hidden"></div>
+
+<script type="module">
+import { firebaseConfig } from "./firebase-config.js";
+import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getDatabase, ref, get, set, update, onValue, off, remove } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
+
+const $ = id => document.getElementById(id);
+const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+const QUESTIONS = [
+{c:"جغرافيا",q:"ما عاصمة أستراليا؟",a:["سيدني","كانبرا","ملبورن","بيرث"],k:1},
+{c:"علوم",q:"ما الكوكب المعروف بالكوكب الأحمر؟",a:["الزهرة","المشتري","المريخ","عطارد"],k:2},
+{c:"تاريخ",q:"في أي عام افتُتحت قناة السويس للملاحة؟",a:["1869","1882","1914","1956"],k:0},
+{c:"رياضة",q:"كم لاعبًا يشارك من كل فريق داخل ملعب كرة القدم؟",a:["9","10","11","12"],k:2},
+{c:"علوم",q:"ما الغاز الذي تمتصه النباتات في عملية البناء الضوئي؟",a:["الأكسجين","ثاني أكسيد الكربون","النيتروجين","الهيدروجين"],k:1},
+{c:"جغرافيا",q:"أي قارة تضم أكبر عدد من الدول؟",a:["آسيا","أوروبا","أفريقيا","أمريكا الجنوبية"],k:2},
+{c:"ثقافة",q:"من مؤلف رواية البؤساء؟",a:["فيكتور هوغو","تشارلز ديكنز","دوستويفسكي","تولستوي"],k:0},
+{c:"علوم",q:"ما وحدة قياس شدة التيار الكهربائي؟",a:["الفولت","الأوم","الأمبير","الواط"],k:2},
+{c:"رياضة",q:"كم عدد الحلقات في شعار الألعاب الأولمبية؟",a:["4","5","6","7"],k:1},
+{c:"جغرافيا",q:"ما أكبر محيط على سطح الأرض؟",a:["الأطلسي","الهندي","المتجمد الشمالي","الهادئ"],k:3},
+{c:"تاريخ",q:"أي حضارة بنت مدينة ماتشو بيتشو؟",a:["المايا","الإنكا","الأزتك","الرومان"],k:1},
+{c:"علوم",q:"ما العنصر الكيميائي الذي رمزه Fe؟",a:["الفضة","الحديد","الفلور","الزنك"],k:1},
+{c:"معلومات عامة",q:"كم ضلعًا للمسدس؟",a:["5","6","7","8"],k:1},
+{c:"رياضة",q:"في أي رياضة تُستخدم كلمة (ضربة إرسال) بشكل أساسي؟",a:["التنس","الملاكمة","السباحة","الرماية"],k:0},
+{c:"جغرافيا",q:"ما النهر الذي يمر بمدينة القاهرة؟",a:["دجلة","الفرات","النيل","الأردن"],k:2},
+{c:"علوم",q:"ما أقرب نجم إلى الأرض؟",a:["الشعرى اليمانية","الشمس","النجم القطبي","منكب الجوزاء"],k:1},
+{c:"ثقافة",q:"من رسم لوحة الموناليزا؟",a:["بابلو بيكاسو","فان جوخ","ليوناردو دا فينشي","كلود مونيه"],k:2},
+{c:"تاريخ",q:"في أي دولة ظهرت الطباعة بالحروف المتحركة مبكرًا على يد يوهان غوتنبرغ؟",a:["إيطاليا","ألمانيا","فرنسا","إسبانيا"],k:1},
+{c:"علوم",q:"كم عدد عظام جسم الإنسان البالغ عادةً؟",a:["186","196","206","216"],k:2},
+{c:"جغرافيا",q:"ما الدولة التي تقع فيها مدينة إسطنبول؟",a:["اليونان","تركيا","بلغاريا","قبرص"],k:1},
+{c:"معلومات عامة",q:"أي من هذه الحيوانات يُعد من الثدييات؟",a:["التمساح","الدلفين","القرش","الأخطبوط"],k:1},
+{c:"رياضة",q:"كم دقيقة مدة مباراة كرة القدم الأساسية دون الوقت بدل الضائع؟",a:["80","90","100","120"],k:1},
+{c:"علوم",q:"ما الجزء المسؤول عن ضخ الدم في جسم الإنسان؟",a:["الرئة","الكبد","القلب","الكلى"],k:2},
+{c:"جغرافيا",q:"ما عاصمة اليابان؟",a:["كيوتو","أوساكا","طوكيو","هيروشيما"],k:2},
+{c:"ثقافة",q:"أي آلة موسيقية تحتوي عادةً على 88 مفتاحًا؟",a:["الكمان","البيانو","العود","الناي"],k:1},
+{c:"علوم",q:"ما اسم تحول الماء من الحالة السائلة إلى الغازية؟",a:["التكاثف","التجمد","التبخر","الانصهار"],k:2},
+{c:"تاريخ",q:"من القائد الذي ارتبط اسمه بتحرير القدس عام 1187؟",a:["طارق بن زياد","صلاح الدين الأيوبي","خالد بن الوليد","عمرو بن العاص"],k:1},
+{c:"جغرافيا",q:"ما أعلى جبل في العالم فوق مستوى سطح البحر؟",a:["K2","إيفرست","كليمنجارو","مون بلان"],k:1},
+{c:"رياضة",q:"كم عدد اللاعبين في فريق كرة السلة داخل الملعب؟",a:["4","5","6","7"],k:1},
+{c:"معلومات عامة",q:"ما العملة الرسمية لليابان؟",a:["الوون","اليوان","الين","الروبية"],k:2},
+{c:"علوم",q:"ما الفيتامين الذي ينتجه الجلد عند التعرض لأشعة الشمس؟",a:["A","B12","C","D"],k:3},
+{c:"جغرافيا",q:"أي دولة تُعرف بأرض الشمس المشرقة؟",a:["الصين","اليابان","تايلاند","كوريا الجنوبية"],k:1},
+{c:"ثقافة",q:"من صاحب مسرحية روميو وجولييت؟",a:["ويليام شكسبير","جورج برنارد شو","موليير","أوسكار وايلد"],k:0},
+{c:"علوم",q:"ما أسرع الحيوانات البرية؟",a:["الأسد","الفهد الصياد","الحصان","الغزال"],k:1},
+{c:"تاريخ",q:"ما اسم أول قمر صناعي أُطلق إلى الفضاء؟",a:["أبولو 11","سبوتنيك 1","فوستوك 1","فوياجر 1"],k:1},
+{c:"جغرافيا",q:"ما أصغر دولة في العالم من حيث المساحة؟",a:["موناكو","ناورو","الفاتيكان","سان مارينو"],k:2},
+{c:"علوم",q:"ما المعدن السائل في درجة حرارة الغرفة؟",a:["الزئبق","الألومنيوم","النحاس","الرصاص"],k:0},
+{c:"رياضة",q:"في أي رياضة تُستخدم المضارب والريشة؟",a:["الإسكواش","تنس الطاولة","الريشة الطائرة","التنس"],k:2},
+{c:"معلومات عامة",q:"كم عدد ألوان قوس قزح التقليدية؟",a:["5","6","7","8"],k:2},
+{c:"جغرافيا",q:"ما عاصمة المغرب؟",a:["الدار البيضاء","مراكش","فاس","الرباط"],k:3},
+{c:"علوم",q:"ما اسم المجرة التي تقع فيها المجموعة الشمسية؟",a:["المرأة المسلسلة","درب التبانة","مجرة المثلث","سحابة ماجلان"],k:1},
+{c:"تاريخ",q:"في أي عام انتهت الحرب العالمية الثانية؟",a:["1939","1942","1945","1948"],k:2},
+{c:"رياضة",q:"ما الدولة التي فازت بكأس العالم لكرة القدم 2022؟",a:["فرنسا","البرازيل","الأرجنتين","كرواتيا"],k:2},
+{c:"ثقافة",q:"من كتب سلسلة هاري بوتر؟",a:["سوزان كولينز","ج. ك. رولينغ","أغاثا كريستي","جين أوستن"],k:1},
+{c:"علوم",q:"ما الرمز الكيميائي للماء؟",a:["CO2","O2","H2O","NaCl"],k:2},
+{c:"جغرافيا",q:"أي بحر يفصل بين قارتي أفريقيا وأوروبا؟",a:["البحر الأحمر","البحر المتوسط","بحر العرب","بحر قزوين"],k:1},
+{c:"معلومات عامة",q:"كم شهرًا في السنة الميلادية؟",a:["10","11","12","13"],k:2}
+];
+
+let user=null,uid="",displayName="لاعب",mode="",roomCode="",roomRef=null,roomUnsub=null,roomData=null;
+let soloQuestions=[],soloIndex=0,soloScore=0,soloBotScore=0,soloTimer=null,soloDeadline=0,soloLocked=false,soloBotDifficulty="medium";
+let hostTimer=null,hostProcessing=false,onlineTimer=null,lastRenderedQuestion=-1,localAnswered=false,onlineDeadline=0;
+const show = id => $(id).classList.remove("hidden");
+const hide = id => $(id).classList.add("hidden");
+function toast(message){$("toast").textContent=message;show("toast");setTimeout(()=>hide("toast"),2600);}
+function notice(message,error=false){$("status").textContent=message;$("status").classList.remove("hidden");$("status").classList.toggle("error",error);}
+function clearNotice(){hide("status");$("status").classList.remove("error");}
+function panel(id){["home","lobby","game","results"].forEach(x=>hide(x));show(id);window.scrollTo({top:0,behavior:"smooth"});}
+function randomCode(){const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";let s="";for(let i=0;i<6;i++)s+=chars[Math.floor(Math.random()*chars.length)];return s;}
+function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function pickQuestions(){return shuffle(QUESTIONS.map((_,i)=>i)).slice(0,20);}
+function cleanName(value){return String(value||"لاعب").trim().replace(/[<>]/g,"").slice(0,22)||"لاعب";}
+function safeText(value){return String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));}
+function currentQuestion(index){return QUESTIONS[index];}
+function scoreFor(answer,startedAt){const elapsed=Math.max(0,Math.min(15,(answer.at-startedAt)/1000));return 100+Math.round((15-elapsed)*3);}
+function shuffledOptions(q){return q.a.map((label,index)=>({label,index}));}
+function renderAnswers(q,selected,disabled,callback){
+ const root=$("answers");root.replaceChildren();
+ q.a.forEach((label,index)=>{const b=document.createElement("button");b.className="answer"+(selected===index?(index===q.k?" correct":" wrong"):"");b.disabled=disabled;const letter=document.createElement("span");letter.className="letter";letter.textContent=["أ","ب","ج","د"][index];const txt=document.createElement("span");txt.textContent=label;b.append(letter,txt);b.addEventListener("click",()=>callback(index));root.append(b);});
+}
+function getPlayerName(){return cleanName($("playerName").value||$("soloName").value||displayName);}
+function setProfileName(){if(user&&!user.isAnonymous)displayName=cleanName(user.displayName||user.email?.split("@")[0]||"لاعب");else displayName=cleanName(localStorage.getItem("arcade_name")||"لاعب");$("soloName").value=displayName;$("playerName").value=displayName;}
+function waitForAuth(){return new Promise(resolve=>{const stop=onAuthStateChanged(auth,async u=>{stop();try{if(u){user=u;}else{const cred=await signInAnonymously(auth);user=cred.user;}uid=user.uid;displayName=cleanName(user.displayName||user.email?.split("@")[0]||localStorage.getItem("arcade_name")||"لاعب");setProfileName();resolve();}catch(e){resolve(e);}});});}
+const authReady=waitForAuth();
+
+$("soloMode").onclick=()=>{show("soloSetup");hide("onlineSetup");clearNotice();};
+$("onlineMode").onclick=()=>{show("onlineSetup");hide("soloSetup");clearNotice();};
+$("showJoin").onclick=()=>show("joinBox");
+$("startSolo").onclick=()=>{startSolo();};
+$("createRoom").onclick=async()=>{await createRoom();};
+$("joinRoom").onclick=async()=>{await joinRoom($("roomCode").value);};
+$("copyCode").onclick=async()=>{try{await navigator.clipboard.writeText(roomCode);toast("تم نسخ كود الغرفة");}catch(e){toast("الكود: "+roomCode);}};
+$("leaveRoom").onclick=()=>leaveRoom();
+$("startOnline").onclick=()=>startOnline();
+$("playAgain").onclick=()=>{if(mode==="solo")startSolo();else{panel("home");show("onlineSetup");}};
+$("roomCode").addEventListener("input",e=>e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,6));
+$("soloName").addEventListener("change",e=>localStorage.setItem("arcade_name",cleanName(e.target.value)));
+$("playerName").addEventListener("change",e=>localStorage.setItem("arcade_name",cleanName(e.target.value)));
+
+async function startSolo(){
+ await authReady;if(authReady instanceof Error){notice("تعذر تجهيز الاتصال: "+authReady.message,true);return;}
+ mode="solo";soloBotDifficulty=$("difficulty").value;displayName=cleanName($("soloName").value||displayName);localStorage.setItem("arcade_name",displayName);
+ soloQuestions=pickQuestions();soloIndex=0;soloScore=0;soloBotScore=0;clearInterval(soloTimer);panel("game");$("gameModeLabel").textContent="تحدي فردي ضد بوت "+({easy:"سهل",medium:"متوسط",hard:"صعب"}[soloBotDifficulty]);renderSoloQuestion();
+}
+function renderSoloQuestion(){
+ if(soloIndex>=20){showSoloResults();return;}
+ soloLocked=false;const q=currentQuestion(soloQuestions[soloIndex]);soloDeadline=Date.now()+15000;
+ $("gameTitle").textContent="السؤال "+(soloIndex+1);$("roundLabel").textContent=(soloIndex+1)+" / 20";$("category").textContent=q.c;$("questionText").textContent=q.q;$("myScore").textContent=soloScore;$("answeredCount").textContent="1 / 2";$("feedback").textContent="اختار إجابتك قبل انتهاء الوقت";$("timeLeft").textContent="15";$("timerBar").style.width="100%";
+ renderAnswers(q,null,false,answer=>submitSolo(answer));
+ renderSoloPlayers();
+ clearInterval(soloTimer);soloTimer=setInterval(()=>{const left=Math.max(0,(soloDeadline-Date.now())/1000);$("timeLeft").textContent=String(Math.ceil(left));$("timerBar").style.width=(left/15*100)+"%";if(left<=0){clearInterval(soloTimer);if(!soloLocked)finishSoloQuestion(null,true);}},150);
+}
+function renderSoloPlayers(){
+ $("gamePlayers").innerHTML='<div class="player"><b>'+safeText(displayName)+'</b><small>أنت</small><strong>'+soloScore+' نقطة</strong></div><div class="player"><b>🤖 بوت لَمّة</b><small>'+({easy:"سهل",medium:"متوسط",hard:"صعب"}[soloBotDifficulty])+'</small><strong>'+soloBotScore+' نقطة</strong></div>';
+}
+function submitSolo(answer){if(soloLocked)return;finishSoloQuestion(answer,false);}
+function finishSoloQuestion(answer,timedOut){
+ if(soloLocked)return;soloLocked=true;clearInterval(soloTimer);const q=currentQuestion(soloQuestions[soloIndex]);const elapsed=Math.max(0,Math.min(15,(Date.now()-(soloDeadline-15000))/1000));const correct=answer===q.k;
+ if(correct)soloScore+=100+Math.round((15-elapsed)*3);
+ const chance={easy:.52,medium:.72,hard:.9}[soloBotDifficulty];const botCorrect=Math.random()<chance;
+ if(botCorrect)soloBotScore+=100+Math.floor(Math.random()*31);
+ renderAnswers(q,answer,true,()=>{});
+ $("feedback").textContent=timedOut?"انتهى الوقت! الإجابة الصحيحة: "+q.a[q.k]:(correct?"إجابة صحيحة! +"+(100+Math.round((15-elapsed)*3))+" نقطة":"إجابة غير صحيحة. الصحيح: "+q.a[q.k]);
+ $("myScore").textContent=soloScore;$("answeredCount").textContent="2 / 2";renderSoloPlayers();
+ setTimeout(()=>{soloIndex++;renderSoloQuestion();},1800);
+}
+function showSoloResults(){
+ clearInterval(soloTimer);panel("results");const you=soloScore>=soloBotScore; $("resultTitle").textContent=you?"🏆 كسبت التحدي!":"🤖 البوت كسب الجولة";$("resultSummary").textContent="أنهيت 20 سؤالًا. نتيجتك "+soloScore+" نقطة مقابل "+soloBotScore+" للبوت.";
+ $("resultList").innerHTML='<div class="result-row"><span class="rank">1</span><div class="person"><b>'+safeText(displayName)+'</b><small>إجمالي نقاطك</small></div><strong>'+soloScore+'</strong></div><div class="result-row"><span class="rank">2</span><div class="person"><b>بوت لَمّة</b><small>مستوى '+({easy:"سهل",medium:"متوسط",hard:"صعب"}[soloBotDifficulty])+'</small></div><strong>'+soloBotScore+'</strong></div>';
+}
+
+async function createRoom(){
+ clearNotice();await authReady;if(authReady instanceof Error){notice("تعذر الاتصال بـ Firebase: "+authReady.message,true);return;}
+ const name=getPlayerName();$("playerName").value=name;localStorage.setItem("arcade_name",name);
+ try{
+  let code=randomCode(),tries=0,room;
+  while(tries<8){const snap=await get(ref(db,"quizRooms/"+code));if(!snap.exists())break;code=randomCode();tries++;}
+  roomRef=ref(db,"quizRooms/"+code);roomCode=code;mode="online";
+  room={hostUid:uid,hostName:name,createdAt:Date.now(),players:{[uid]:{uid:uid,name:name,joinedAt:Date.now()}},scores:{[uid]:0},answers:{},game:{phase:"lobby",questionIndex:0,questionOrder:[],startedAt:0,updatedAt:Date.now()}};
+  await set(roomRef,room);listenRoom();panel("lobby");renderLobby();
+ }catch(e){notice("تعذر إنشاء الغرفة: "+e.message,true);}
+}
+async function joinRoom(code){
+ clearNotice();await authReady;if(authReady instanceof Error){notice("تعذر الاتصال بـ Firebase: "+authReady.message,true);return;}
+ code=String(code||"").trim().toUpperCase();if(code.length!==6){notice("اكتب كود الغرفة المكوّن من 6 حروف أو أرقام.",true);return;}
+ try{
+  const r=ref(db,"quizRooms/"+code),snap=await get(r);if(!snap.exists()){notice("الغرفة غير موجودة. راجع الكود.",true);return;}
+  const data=snap.val(),players=data.players||{};if(data.game?.phase!=="lobby"){notice("المباراة بدأت بالفعل أو انتهت.",true);return;}
+  if(Object.keys(players).length>=8&&!players[uid]){notice("الغرفة مكتملة. الحد الأقصى 8 لاعبين.",true);return;}
+  const name=getPlayerName();await set(ref(db,"quizRooms/"+code+"/players/"+uid),{uid:uid,name:name,joinedAt:Date.now()});
+  roomRef=r;roomCode=code;mode="online";listenRoom();panel("lobby");renderLobby();
+ }catch(e){notice("تعذر دخول الغرفة: "+e.message,true);}
+}
+function listenRoom(){
+ if(roomUnsub&&roomRef)off(roomRef);
+ roomUnsub=null;roomUnsub=onValue(roomRef,snap=>{
+  if(!snap.exists()){toast("الغرفة اتقفلت");cleanupRoom();panel("home");return;}
+  roomData=snap.val();
+  if(roomData.game?.phase==="lobby"){panel("lobby");renderLobby();}
+  else if(roomData.game?.phase==="playing"||roomData.game?.phase==="result"){panel("game");renderOnlineGame();}
+  else if(roomData.game?.phase==="finished"){showOnlineResults();}
+  if(uid===roomData.hostUid)runHostController();
+ });
+}
+function renderLobby(){
+ if(!roomData)return;$("lobbyCode").textContent=roomCode;$("lobbyText").textContent="شارك الكود مع أصحابك. عدد اللاعبين: "+Object.keys(roomData.players||{}).length+" من 8.";
+ const host=uid===roomData.hostUid;$("startOnline").classList.toggle("hidden",!host);$("lobbyPlayers").innerHTML=Object.values(roomData.players||{}).map((p,i)=>'<div class="player"><b>'+(i===0?"👑 ":"")+safeText(p.name||"لاعب")+'</b><small>'+(p.uid===roomData.hostUid?"مضيف الغرفة":"جاهز")+'</small></div>').join("");
+}
+async function startOnline(){
+ if(!roomData||uid!==roomData.hostUid)return;const players=Object.keys(roomData.players||{});if(players.length<2){toast("محتاج لاعب تاني على الأقل.");return;}
+ const order=pickQuestions();const scores={};players.forEach(id=>scores[id]=0);
+ try{await update(roomRef,{scores:scores,answers:{},game:{phase:"playing",questionIndex:0,questionOrder:order,startedAt:Date.now(),updatedAt:Date.now()}});}catch(e){toast("تعذر بدء المباراة: "+e.message);}
+}
+function runHostController(){
+ if(!roomData||uid!==roomData.hostUid||!["playing","result"].includes(roomData.game?.phase))return;
+ if(hostTimer)return;
+ hostTimer=setInterval(async()=>{
+  if(!roomData||uid!==roomData.hostUid){clearInterval(hostTimer);hostTimer=null;return;}
+  const g=roomData.game||{},idx=Number(g.questionIndex||0);
+  if(g.phase==="playing"){
+   const answers=roomData.answers?.[String(idx)]||{},players=Object.keys(roomData.players||{});
+   const allAnswered=players.length>0&&players.every(id=>answers[id]);
+   const expired=Date.now()>=Number(g.startedAt||0)+15000;
+   if((allAnswered||expired)&&!hostProcessing){
+    hostProcessing=true;
+    try{
+     const q=currentQuestion(g.questionOrder[idx]);const scores={...(roomData.scores||{})};const detail={};
+     players.forEach(id=>{const a=answers[id];const pts=a&&a.choice===q.k?scoreFor(a,g.startedAt):0;scores[id]=(scores[id]||0)+pts;detail[id]={choice:a?a.choice:null,points:pts,correct:!!a&&a.choice===q.k};});
+     await update(roomRef,{scores:scores,game:{...g,phase:"result",resultUntil:Date.now()+3000,lastResult:{correct:q.k,details:detail},updatedAt:Date.now()}});
+    }catch(e){console.error(e);}finally{hostProcessing=false;}
+   }
+  }else if(g.phase==="result"&&Date.now()>=Number(g.resultUntil||0)){
+   const next=idx+1;
+   if(next>=20){await update(roomRef,{"game/phase":"finished","game/updatedAt":Date.now()});}
+   else{await update(roomRef,{game:{...g,phase:"playing",questionIndex:next,startedAt:Date.now(),updatedAt:Date.now(),lastResult:null}});}
+  }
+ },250);
+}
+function renderOnlineGame(){
+ const g=roomData.game||{},idx=Number(g.questionIndex||0),qIndex=g.questionOrder?.[idx];if(qIndex===undefined)return;
+ const q=currentQuestion(qIndex);const result=g.phase==="result";const answer=roomData.answers?.[String(idx)]?.[uid];const already=!!answer||result;
+ $("gameModeLabel").textContent="تحدي الأصحاب · غرفة "+roomCode;$("gameTitle").textContent="السؤال "+(idx+1);$("roundLabel").textContent=(idx+1)+" / 20";$("category").textContent=q.c;$("questionText").textContent=q.q;
+ const scores=roomData.scores||{};$("myScore").textContent=scores[uid]||0;$("answeredCount").textContent=Object.keys(roomData.answers?.[String(idx)]||{}).length+" / "+Object.keys(roomData.players||{}).length;
+ const elapsed=result?0:Math.max(0,15-(Date.now()-Number(g.startedAt||Date.now()))/1000);$("timeLeft").textContent=result?"✓":String(Math.ceil(elapsed));$("timerBar").style.width=(result?0:elapsed/15*100)+"%";
+ if(result){
+  const detail=g.lastResult?.details?.[uid];const correct=g.lastResult?.correct;$("feedback").textContent=detail?.correct?"إجابة صحيحة! +"+detail.points+" نقطة":(detail?.choice===null||!detail?"انتهى الوقت. ":"إجابة غير صحيحة. ")+"الإجابة: "+q.a[correct];
+  renderAnswers(q,detail?.choice??null,true,()=>{});
+ }else if(answer){$("feedback").textContent="تم تسجيل إجابتك. مستني باقي اللاعبين...";renderAnswers(q,answer.choice,true,()=>{});}
+ else{$("feedback").textContent="اختار إجابتك بسرعة!";renderAnswers(q,null,false,choice=>submitOnline(choice));}
+ $("gamePlayers").innerHTML=Object.entries(roomData.players||{}).map(([id,p])=>'<div class="player"><b>'+safeText(p.name||"لاعب")+'</b><small>'+(roomData.answers?.[String(idx)]?.[id]?"أجاب":"يفكر...")+'</small><strong>'+(scores[id]||0)+' نقطة</strong></div>').join("");
+ if(onlineTimer)clearInterval(onlineTimer);
+ if(!result&&!answer){onlineTimer=setInterval(()=>{if(!roomData)return;const left=Math.max(0,15-(Date.now()-Number(roomData.game?.startedAt||Date.now()))/1000);$("timeLeft").textContent=String(Math.ceil(left));$("timerBar").style.width=(left/15*100)+"%";},150);}
+}
+async function submitOnline(choice){
+ if(!roomRef||!roomData)return;const g=roomData.game,idx=String(g.questionIndex),existing=roomData.answers?.[idx]?.[uid];if(existing||g.phase!=="playing")return;
+ try{await set(ref(db,"quizRooms/"+roomCode+"/answers/"+idx+"/"+uid),{choice:choice,at:Date.now()});}catch(e){toast("تعذر تسجيل الإجابة: "+e.message);}
+}
+function showOnlineResults(){
+ if(!roomData)return;clearInterval(hostTimer);hostTimer=null;clearInterval(onlineTimer);onlineTimer=null;panel("results");
+ const scores=roomData.scores||{},ranked=Object.entries(roomData.players||{}).map(([id,p])=>({id,name:p.name||"لاعب",score:scores[id]||0})).sort((a,b)=>b.score-a.score);
+ const winner=ranked[0];$("resultTitle").textContent=winner?.id===uid?"🏆 أنت بطل التحدي!":"🏆 الفائز: "+(winner?.name||"لاعب");$("resultSummary").textContent="20 سؤالًا · "+ranked.length+" لاعبين · ترتيب المباراة النهائي.";
+ $("resultList").innerHTML=ranked.map((p,i)=>'<div class="result-row"><span class="rank">'+(i+1)+'</span><div class="person"><b>'+safeText(p.name)+'</b><small>'+(p.id===roomData.hostUid?"مضيف الغرفة":"لاعب")+'</small></div><strong>'+p.score+' نقطة</strong></div>').join("");
+ $("playAgain").textContent="العودة للغرف";$("playAgain").onclick=()=>{cleanupRoom();panel("home");show("onlineSetup");};
+}
+function cleanupRoom(){
+ if(roomRef&&roomUnsub)off(roomRef);roomUnsub=null;roomRef=null;roomData=null;roomCode="";clearInterval(hostTimer);hostTimer=null;clearInterval(onlineTimer);onlineTimer=null;hostProcessing=false;
+}
+async function leaveRoom(){
+ const oldRef=roomRef,oldCode=roomCode;if(oldRef&&uid){try{await remove(ref(db,"quizRooms/"+oldCode+"/players/"+uid));}catch(e){}}
+ cleanupRoom();panel("home");show("onlineSetup");
+}
+window.addEventListener("beforeunload",()=>{if(roomRef&&roomData?.game?.phase==="lobby")remove(ref(db,"quizRooms/"+roomCode+"/players/"+uid)).catch(()=>{});});
+authReady.then(err=>{if(err instanceof Error){$("onlineNotice").textContent="الاتصال غير جاهز: "+err.message;$("onlineNotice").classList.add("error");}else{$("onlineNotice").textContent=user&&!user.isAnonymous?"متصل بحساب لَمّة: "+displayName:"متصل كضيف. سجّل دخولك من الصفحة الرئيسية لحفظ اسم حسابك.";}});
+
+const params=new URLSearchParams(location.search);if(params.get("mode")==="solo"){$("soloMode").click();}else if(params.get("mode")==="online"){$("onlineMode").click();}
+</script>
+</body>
+</html>
