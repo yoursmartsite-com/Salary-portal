@@ -20,6 +20,7 @@
 <div class="room-grid"><div><div class="table"><div class="table-mark" id="tableIcon">🃏</div><h2 id="tableName">طاولة الكوتشينة</h2><p id="tableDesc">الغرفة جاهزة لاستقبال اللاعبين. نظام الغرفة متزامن بين الموجودين.</p><div class="muted" id="tableState">في انتظار بدء الجولة</div></div><div class="actions"><button id="readyBtn">أنا جاهز ✓</button><button id="leaveBtn" class="back">الخروج من الغرفة</button></div></div>
 <aside><section><h2>اللاعبون <span class="muted" id="playerCount"></span></h2><div id="players" class="players"></div></section><section style="margin-top:14px"><h2>💬 دردشة الغرفة</h2><div id="chat" class="chat"></div><form id="chatForm" class="chat-form"><input id="chatInput" class="input" maxlength="250" placeholder="اكتب رسالة…"><button>إرسال</button></form></section></aside></div>
 <div class="status" id="roomStatus">اختاروا اللعبة واتأكدوا إن كل اللاعبين دخلوا الغرفة.</div>
+<section id="gamePanel" class="panel" style="margin-top:12px"><h2>🎮 ساحة المباراة</h2><div id="gameArea" class="status">جهّزوا نفسكم، المباراة هتظهر هنا بعد البداية.</div></section>
 </section></main>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script>
@@ -38,7 +39,37 @@ const playerName=()=>localStorage.getItem('lammaName')||localStorage.getItem('ar
 const playerAvatar=()=>localStorage.getItem('lammaAvatar')||'🍓';
 function status(s,bad=false){$('status').textContent=s;$('status').style.borderColor=bad?'#d45b73':'var(--line)'}
 async function api(path,method='GET',body){const r=await fetch(API+path,{method,headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined});let d;try{d=await r.json()}catch{throw new Error('استجابة غير مفهومة من السيرفر')}if(!r.ok||!d.ok)throw new Error(({ROOM_NOT_FOUND:'الغرفة مش موجودة.',ROOM_FULL:'الغرفة كاملة.',ROOM_EXISTS:'الكود مستخدم بالفعل.'})[d.error]||d.error||'فشل الاتصال بالسيرفر');return d}
-function render(r){room=r;const ps=Object.values(r.players||{});$('playerCount').textContent='('+ps.length+'/'+(r.maxPlayers||4)+')';$('players').innerHTML=ps.map(p=>'<div class="player"><span class="avatar">'+avatarHtml(p.avatar)+'</span><span><b>'+esc(p.name)+(p.uid===uid?' (أنت)':'')+'</b><small>'+(p.ready?'جاهز ✓':'في الانتظار')+'</small></span></div>').join('')||'<div class="muted">في انتظار اللاعبين…</div>';$('tableState').textContent=ps.filter(p=>p.ready).length+' من '+ps.length+' لاعبين جاهزين';$('readyBtn').textContent=r.players?.[uid]?.ready?'إلغاء الجاهزية':'أنا جاهز ✓';$('readyBtn').disabled=ps.length<2;$('chat').innerHTML=(r.chat||[]).map(m=>'<div class="msg"><b>'+esc(m.name)+':</b> '+esc(m.text)+'</div>').join('');$('chat').scrollTop=$('chat').scrollHeight;$('roomStatus').textContent='الغرفة متصلة بـ Cloudflare · آخر تحديث '+new Date().toLocaleTimeString('ar-EG')}
+function render(r){room=r;const ps=Object.values(r.players||{});$('playerCount').textContent='('+ps.length+'/'+(r.maxPlayers||4)+')';$('players').innerHTML=ps.map(p=>'<div class="player"><span class="avatar">'+avatarHtml(p.avatar)+'</span><span><b>'+esc(p.name)+(p.uid===uid?' (أنت)':'')+'</b><small>'+(p.ready?'جاهز ✓':'في الانتظار')+'</small></span></div>').join('')||'<div class="muted">في انتظار اللاعبين…</div>';$('tableState').textContent=ps.filter(p=>p.ready).length+' من '+ps.length+' لاعبين جاهزين';$('readyBtn').textContent=r.players?.[uid]?.ready?'إلغاء الجاهزية':'أنا جاهز ✓';$('readyBtn').disabled=ps.length<2;$('chat').innerHTML=(r.chat||[]).map(m=>'<div class="msg"><b>'+esc(m.name)+':</b> '+esc(m.text)+'</div>').join('');$('chat').scrollTop=$('chat').scrollHeight;$('roomStatus').textContent='الغرفة متصلة بـ Cloudflare · آخر تحديث '+new Date().toLocaleTimeString('ar-EG');refreshGame()}
+let gameState=null;
+const cardLabel=c=>c.c?(c.c==="wild"?"🌈":({red:"🔴",yellow:"🟡",green:"🟢",blue:"🔵"}[c.c]||""))+" "+({skip:"منع",reverse:"عكس","+2":"+2","+4":"+4",wild:"اختيار لون"}[c.v]||c.v):c.s+c.r;
+async function refreshGame(){if(!code)return;try{const d=await api('/rooms/'+code+'/game?uid='+encodeURIComponent(uid));gameState=d.game;drawGame()}catch(e){$('gameArea').textContent=e.message}}
+function drawGame(){
+ const g=gameState,area=$('gameArea');if(!g){area.innerHTML='المباراة لم تبدأ بعد.'+(room?.host===uid?' <button id="startGame">ابدأ المباراة</button>':'');const b=$('startGame');if(b)b.onclick=startGame;return}
+ const ids=Object.keys(room?.players||{}),mine=g.myHand||[],finished=g.phase==='finished';
+ let html='<div><b>الحالة:</b> '+(finished?'انتهت المباراة':g.phase==='bidding'?'المزايدات':g.phase==='chooseTrump'?'اختيار الحكم':g.phase==='draw'?'اسحب ورقة':'اللعب')+'</div>';
+ html+='<div style="margin:8px 0">الدور: <b>'+esc(g.currentName||'—')+'</b> · الأوراق المتبقية: '+(g.stockCount??'—')+'</div>';
+ if(g.discardTop)html+='<div>آخر ورقة: <b>'+esc(cardLabel(g.discardTop))+'</b> '+(g.color?'· اللون '+esc(g.color):'')+'</div>';
+ if(g.table)html+='<div style="margin:8px 0">الورق على الطاولة: '+g.table.map(cardLabel).join(' · ')+'</div>';
+ if(g.trick?.length)html+='<div>اللّمة الحالية: '+g.trick.map(t=>esc(room.players[t.uid]?.name||'لاعب')+' '+cardLabel(t.card)).join(' | ')+'</div>';
+ if(g.phase==='bidding'&&g.currentPlayer===uid)html+='<div style="margin:10px 0">المزايدة <input id="bidValue" type="number" min="1" max="13" value="7" style="width:65px"><button id="bidBtn">تأكيد</button></div>';
+ if(g.phase==='chooseTrump'&&g.currentPlayer===uid)html+='<div>اختار الحكم: '+['♠','♥','♦','♣'].map(x=>'<button data-trump="'+x+'">'+x+'</button>').join(' ')+'</div>';
+ if(g.phase==='draw'&&g.currentPlayer===uid)html+='<div style="margin:10px 0"><button id="drawDeck">اسحب من السحب</button><button id="drawDiscard">اسحب آخر ورقة مرمية</button></div>';
+ if(!finished&&g.currentPlayer===uid&&g.phase==='playing'&&gameId==='uno'&&mine.length===1)html+='<button id="sayUno">UNO!</button>';
+ if(finished)html+='<h3>الفائز: '+esc(room.players[g.winner]?.name|| (g.winnerTeam!==undefined?'الفريق '+(g.winnerTeam+1):'—'))+'</h3>';
+ html+='<div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:12px">'+mine.map(c=>'<button class="playCard" data-card="'+esc(c.id)+'" '+(finished||g.currentPlayer!==uid?'disabled':'')+'>'+esc(cardLabel(c))+'</button>').join('')+'</div>';
+ if(gameId==='konkan'&&g.phase==='discard'&&g.currentPlayer===uid)html+='<p>اختار ورقة من يدك للتخلص منها.</p>';
+ if(gameId==='basra')html+='<p>اضغط على ورقة من يدك للعبها؛ الولد يلمّ كل الورق، والورقة المطابقة تلمّ مثيلتها.</p>';
+ html+='<div class="muted" style="margin-top:10px">نقاط الفرق: '+(g.teamScores?g.teamScores.join(' - '):'—')+'</div>';
+ area.innerHTML=html;
+ area.querySelectorAll('.playCard').forEach(b=>b.onclick=()=>{const data={card:b.dataset.card};if(gameId==='uno'&&mine.find(c=>c.id===data.card)?.c==='wild')data.color=prompt('اختار اللون: red أو yellow أو green أو blue','red');if(gameId==='konkan')data.action='discard';sendMove(data)});
+ area.querySelectorAll('[data-trump]').forEach(b=>b.onclick=()=>sendMove({trump:b.dataset.trump}));
+ const bid=$('bidBtn');if(bid)bid.onclick=()=>sendMove({bid:Number($('bidValue').value)});
+ const dd=$('drawDeck');if(dd)dd.onclick=()=>sendMove({action:'draw',from:'deck'});
+ const dc=$('drawDiscard');if(dc)dc.onclick=()=>sendMove({action:'draw',from:'discard'});
+ const uno=$('sayUno');if(uno)uno.onclick=()=>sendMove({card:mine[0]?.id,uno:true});
+}
+async function startGame(){try{await api('/rooms/'+code+'/start','POST',{uid});await refreshGame()}catch(e){$('roomStatus').textContent=e.message}}
+async function sendMove(move){try{await api('/rooms/'+code+'/move','POST',{uid,...move});await refreshGame()}catch(e){$('roomStatus').textContent=e.message}}
 async function refresh(){if(!code||polling)return;polling=true;try{const d=await api('/rooms/'+code);render(d.room)}catch(e){$('roomStatus').textContent=e.message}finally{polling=false}}
 async function openRoom(c){code=c;$('roomCode').textContent=c;$('roomTitle').textContent='غرفة '+game.name;$('tableIcon').textContent=game.icon;$('tableName').textContent='طاولة '+game.name;$('tableDesc').textContent=game.desc+' · الغرفة متزامنة عبر Cloudflare.';$('entry').classList.add('hide');$('room').style.display='block';status('دخلت غرفة '+game.name+' على Cloudflare.');await refresh();clearInterval(pollTimer);pollTimer=setInterval(refresh,1000)}
 async function create(){const n=$('createName').value.trim()||'لاعب';localStorage.setItem('lammaName',n);status('جاري إنشاء الغرفة على Cloudflare…');for(let i=0;i<8;i++){const c=String(Math.floor(100000+Math.random()*900000));try{await api('/rooms/'+c,'POST',{uid,name:n,game:gameId,avatar:playerAvatar(),maxPlayers:Number($('maxPlayers').value)||4});await openRoom(c);return}catch(e){if(!String(e.message).includes('مستخدم بالفعل')){status(e.message,true);return}}}status('تعذر إنشاء كود متاح، حاول مرة أخرى.',true)}
