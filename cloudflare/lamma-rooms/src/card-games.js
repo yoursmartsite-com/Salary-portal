@@ -11,7 +11,7 @@ function startCardGame(room,game){
  if(ids.some(id=>!room.players[id].ready))throw Error("PLAYERS_NOT_READY");
 
  const base={game,phase:"playing",players:{},turn:0,startedAt:Date.now(),log:[]};
- ids.forEach((id,i)=>base.players[id]={seat:i,hand:[],score:0,tricks:0,bid:null,saidUno:false});
+ ids.forEach((id,i)=>base.players[id]={seat:i,hand:[],score:0,tricks:0,bid:null,saidUno:false,basras:0,roundBasras:0,lastRoundPoints:0});
  if(game==="uno"){
   const deck=unoDeck();ids.forEach(id=>base.players[id].hand=deck.splice(0,7));let top=deck.pop();while(["wild","+4"].includes(top.v)){deck.unshift(top);top=deck.pop()}
   let firstTurn=0,direction=1;
@@ -31,7 +31,7 @@ function startCardGame(room,game){
 }
 function publicCardGame(room,uid){
  const g=room.gameState;if(!g)return null;const ids=Object.keys(room.players||{});
- return {...g,deck:undefined,players:Object.fromEntries(ids.map(id=>[id,{seat:g.players[id]?.seat,handCount:g.players[id]?.hand?.length||0,hand:id===uid?g.players[id]?.hand:undefined,score:g.players[id]?.score||0,tricks:g.players[id]?.tricks||0,bid:g.players[id]?.bid,saidUno:g.players[id]?.saidUno}])),myHand:g.players[uid]?.hand||[],currentPlayer:ids[g.turn],currentName:room.players[ids[g.turn]]?.name,discardTop:g.discard?.at(-1)||null,stockCount:g.deck?.length||0};
+ return {...g,deck:undefined,players:Object.fromEntries(ids.map(id=>[id,{seat:g.players[id]?.seat,handCount:g.players[id]?.hand?.length||0,hand:id===uid?g.players[id]?.hand:undefined,score:g.players[id]?.score||0,tricks:g.players[id]?.tricks||0,bid:g.players[id]?.bid,saidUno:g.players[id]?.saidUno,capturedCount:g.game==="basra"?(g.captured?.[id]?.length||0):0,basras:g.players[id]?.basras||0,roundBasras:g.players[id]?.roundBasras||0,roundPoints:g.game==="basra"?((g.captured?.[id]||[]).reduce((v,c)=>v+(c.r==="A"?1:0)+(c.r==="J"?1:0)+(c.s==="♦"&&c.r==="10"?3:0)+(c.s==="♣"&&c.r==="2"?2:0),0)+(g.players[id]?.roundBasras||0)*10):0,lastRoundPoints:g.players[id]?.lastRoundPoints||0}])),myHand:g.players[uid]?.hand||[],currentPlayer:ids[g.turn],currentName:room.players[ids[g.turn]]?.name,discardTop:g.discard?.at(-1)||null,stockCount:g.deck?.length||0};
 }
 function log(g,s){g.log=(g.log||[]).concat({text:s,at:Date.now()}).slice(-30)}
 function applyCardMove(room,uid,b){
@@ -66,11 +66,11 @@ function applyCardMove(room,uid,b){
     while(true){const combo=find(0,target,[]);if(!combo)break;take.push(...combo.map(x=>x.c));const used=new Set(combo.map(x=>x.c.id));nums=nums.filter(x=>!used.has(x.c.id))}
    }
   }
-  if(take.length){g.table=g.table.filter(x=>!take.some(t=>t.id===x.id));g.captured[uid].push(card,...take);if(!g.table.length&&card.r!=="J"&&(!(card.r==="7"&&card.s==="♦")||sevenDiamondBasra))g.players[uid].basras=(g.players[uid].basras||0)+1}
+  if(take.length){g.table=g.table.filter(x=>!take.some(t=>t.id===x.id));g.captured[uid].push(card,...take);if(!g.table.length&&card.r!=="J"&&(!(card.r==="7"&&card.s==="♦")||sevenDiamondBasra))g.players[uid].basras=(g.players[uid].basras||0)+1;g.players[uid].roundBasras=(g.players[uid].roundBasras||0)+1}
   else g.table.push(card);
   if(take.length)g.lastCapturer=uid;
   if(ids.every(id=>!g.players[id].hand.length)&&g.deck.length){for(const id of ids)g.players[id].hand=g.deck.splice(0,Math.min(4,g.deck.length))}
-  if(ids.every(id=>!g.players[id].hand.length)&&!g.deck.length){if(g.lastCapturer&&g.table.length)g.captured[g.lastCapturer].push(...g.table);g.table=[];const score=id=>{const cards=g.captured[id]||[];return cards.reduce((v,c)=>v+(c.r==="A"?1:0)+(c.r==="J"?1:0)+(c.s==="♦"&&c.r==="10"?3:0)+(c.s==="♣"&&c.r==="2"?2:0),0)+(g.players[id].basras||0)*10};const counts=ids.map(id=>({id,count:(g.captured[id]||[]).length}));const most=counts.reduce((a,x)=>x.count>a.count?x:a,counts[0]);if(counts.filter(x=>x.count===most.count).length===1)g.players[most.id].score+=30;for(const id of ids)g.players[id].score+=score(id);const top=Math.max(...ids.map(id=>g.players[id].score)),leaders=ids.filter(id=>g.players[id].score===top);if(top>=101&&leaders.length===1){g.phase="finished";g.winner=leaders[0];log(g,"انتهت لعبة البصرة وفاز "+room.players[g.winner].name)}else{g.turn=next(g.turn+1,ids.length);g.round=(g.round||1)+1;const deck=standardDeck();ids.forEach(id=>{g.players[id].hand=deck.splice(0,4);g.players[id].basras=0});g.deck=deck;g.table=deck.splice(0,4);g.captured=Object.fromEntries(ids.map(id=>[id,[]]));g.lastCapturer=null;log(g,"انتهت الجولة؛ النتيجة الحالية: "+ids.map(id=>room.players[id].name+" "+g.players[id].score).join(" - ")+" · بدأت جولة جديدة")}}
+  if(ids.every(id=>!g.players[id].hand.length)&&!g.deck.length){if(g.lastCapturer&&g.table.length)g.captured[g.lastCapturer].push(...g.table);g.table=[];const score=id=>{const cards=g.captured[id]||[];return cards.reduce((v,c)=>v+(c.r==="A"?1:0)+(c.r==="J"?1:0)+(c.s==="♦"&&c.r==="10"?3:0)+(c.s==="♣"&&c.r==="2"?2:0),0)+(g.players[id].roundBasras||0)*10};const counts=ids.map(id=>({id,count:(g.captured[id]||[]).length}));const most=counts.reduce((a,x)=>x.count>a.count?x:a,counts[0]);const majorityBonus=counts.filter(x=>x.count===most.count).length===1?most.id:null;for(const id of ids){g.players[id].lastRoundPoints=score(id)+(id===majorityBonus?30:0);g.players[id].score+=g.players[id].lastRoundPoints}const top=Math.max(...ids.map(id=>g.players[id].score)),leaders=ids.filter(id=>g.players[id].score===top);if(top>=100&&leaders.length===1){g.phase="finished";g.winner=leaders[0];log(g,"انتهت لعبة البصرة وفاز "+room.players[g.winner].name)}else{g.turn=next(g.turn+1,ids.length);g.round=(g.round||1)+1;const deck=standardDeck();ids.forEach(id=>{g.players[id].hand=deck.splice(0,4);g.players[id].roundBasras=0});g.deck=deck;g.table=deck.splice(0,4);g.captured=Object.fromEntries(ids.map(id=>[id,[]]));g.lastCapturer=null;log(g,"انتهت الجولة؛ النتيجة الحالية: "+ids.map(id=>room.players[id].name+" "+g.players[id].score).join(" - ")+" · بدأت جولة جديدة")}}
   else g.turn=next(g.turn+1,ids.length);return;
  }
  if(["tarneeb","hokm","estimation"].includes(game)){
