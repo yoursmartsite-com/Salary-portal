@@ -63,11 +63,11 @@ function applyCardMove(room,uid,b){
     if(combo)take=combo.map(i=>g.table[i]);
    }
   }
-  if(take.length){g.table=g.table.filter(x=>!take.some(t=>t.id===x.id));g.captured[uid].push(card,...take);if(!g.table.length)g.players[uid].basras=(g.players[uid].basras||0)+1}
+  if(take.length){g.table=g.table.filter(x=>!take.some(t=>t.id===x.id));g.captured[uid].push(card,...take);if(!g.table.length&&card.r!=="J")g.players[uid].basras=(g.players[uid].basras||0)+1}
   else g.table.push(card);
   if(take.length)g.lastCapturer=uid;
   if(ids.every(id=>!g.players[id].hand.length)&&g.deck.length){for(const id of ids)g.players[id].hand=g.deck.splice(0,Math.min(4,g.deck.length))}
-  if(ids.every(id=>!g.players[id].hand.length)&&!g.deck.length){if(g.lastCapturer&&g.table.length)g.captured[g.lastCapturer].push(...g.table);g.table=[];const score=id=>{const cards=g.captured[id]||[];return cards.reduce((v,c)=>v+(c.r==="A"?1:0)+(c.s==="♦"&&c.r==="10"?2:0)+(c.s==="♠"&&c.r==="2"?1:0),0)+(g.players[id].basras||0)*10};const counts=ids.map(id=>({id,count:(g.captured[id]||[]).length,spades:(g.captured[id]||[]).filter(c=>c.s==="♠").length}));const most=counts.reduce((a,x)=>x.count>a.count?x:a,counts[0]),sp=counts.reduce((a,x)=>x.spades>a.spades?x:a,counts[0]);if(counts.filter(x=>x.count===most.count).length===1)g.players[most.id].score+=30;if(counts.filter(x=>x.spades===sp.spades).length===1)g.players[sp.id].score+=30;for(const id of ids)g.players[id].score+=score(id);g.phase="finished";g.winner=ids.slice().sort((a,b)=>g.players[b].score-g.players[a].score)[0];log(g,"انتهت لعبة البصرة")}
+  if(ids.every(id=>!g.players[id].hand.length)&&!g.deck.length){if(g.lastCapturer&&g.table.length)g.captured[g.lastCapturer].push(...g.table);g.table=[];const score=id=>{const cards=g.captured[id]||[];return cards.reduce((v,c)=>v+(c.r==="A"?1:0)+(c.r==="J"?1:0)+(c.s==="♦"&&c.r==="10"?2:0)+(c.s==="♣"&&c.r==="2"?1:0),0)+(g.players[id].basras||0)*10};const counts=ids.map(id=>({id,count:(g.captured[id]||[]).length,spades:(g.captured[id]||[]).filter(c=>c.s==="♠").length}));const most=counts.reduce((a,x)=>x.count>a.count?x:a,counts[0]),sp=counts.reduce((a,x)=>x.spades>a.spades?x:a,counts[0]);if(counts.filter(x=>x.count===most.count).length===1)g.players[most.id].score+=30;if(counts.filter(x=>x.spades===sp.spades).length===1)g.players[sp.id].score+=30;for(const id of ids)g.players[id].score+=score(id);g.phase="finished";g.winner=ids.slice().sort((a,b)=>g.players[b].score-g.players[a].score)[0];log(g,"انتهت لعبة البصرة")}
   else g.turn=next(g.turn+1,ids.length);return;
  }
  if(["tarneeb","hokm","estimation"].includes(game)){
