@@ -54,19 +54,19 @@ function drawGame(){
  if(g.phase==='bidding'&&g.currentPlayer===uid)html+='<div style="margin:10px 0">المزايدة <input id="bidValue" type="number" min="1" max="13" value="7" style="width:65px"><button id="bidBtn">تأكيد</button></div>';
  if(g.phase==='chooseTrump'&&g.currentPlayer===uid)html+='<div>اختار الحكم: '+['♠','♥','♦','♣'].map(x=>'<button data-trump="'+x+'">'+x+'</button>').join(' ')+'</div>';
  if(g.phase==='draw'&&g.currentPlayer===uid)html+='<div style="margin:10px 0"><button id="drawDeck">اسحب من السحب</button><button id="drawDiscard">اسحب آخر ورقة مرمية</button></div>';
- if(!finished&&g.currentPlayer===uid&&g.phase==='playing'&&gameId==='uno'&&mine.length===1)html+='<button id="sayUno">UNO!</button>';
+ 
  if(finished)html+='<h3>الفائز: '+esc(room.players[g.winner]?.name|| (g.winnerTeam!==undefined?'الفريق '+(g.winnerTeam+1):'—'))+'</h3>';
  html+='<div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:12px">'+mine.map(c=>'<button class="playCard" data-card="'+esc(c.id)+'" '+(finished||g.currentPlayer!==uid?'disabled':'')+'>'+esc(cardLabel(c))+'</button>').join('')+'</div>';
  if(gameId==='konkan'&&g.phase==='discard'&&g.currentPlayer===uid)html+='<p>اختار ورقة من يدك للتخلص منها.</p>';
  if(gameId==='basra')html+='<p>اضغط على ورقة من يدك للعبها؛ الولد يلمّ كل الورق، والورقة المطابقة تلمّ مثيلتها.</p>';
  html+='<div class="muted" style="margin-top:10px">نقاط الفرق: '+(g.teamScores?g.teamScores.join(' - '):'—')+'</div>';
  area.innerHTML=html;
- area.querySelectorAll('.playCard').forEach(b=>b.onclick=()=>{const data={card:b.dataset.card};if(gameId==='uno'&&mine.find(c=>c.id===data.card)?.c==='wild')data.color=prompt('اختار اللون: red أو yellow أو green أو blue','red');if(gameId==='konkan')data.action='discard';sendMove(data)});
+ area.querySelectorAll('.playCard').forEach(b=>b.onclick=()=>{const data={card:b.dataset.card};if(gameId==='uno'&&mine.find(c=>c.id===data.card)?.c==='wild')data.color=prompt('اختار اللون: red أو yellow أو green أو blue','red');if(gameId==='uno'&&mine.length===2)data.uno=confirm('هتعلن UNO بعد الورقة دي؟');if(gameId==='konkan')data.action='discard';sendMove(data)});
  area.querySelectorAll('[data-trump]').forEach(b=>b.onclick=()=>sendMove({trump:b.dataset.trump}));
  const bid=$('bidBtn');if(bid)bid.onclick=()=>sendMove({bid:Number($('bidValue').value)});
  const dd=$('drawDeck');if(dd)dd.onclick=()=>sendMove({action:'draw',from:'deck'});
  const dc=$('drawDiscard');if(dc)dc.onclick=()=>sendMove({action:'draw',from:'discard'});
- const uno=$('sayUno');if(uno)uno.onclick=()=>sendMove({card:mine[0]?.id,uno:true});
+
 }
 async function startGame(){try{await api('/rooms/'+code+'/start','POST',{uid});await refreshGame()}catch(e){$('roomStatus').textContent=e.message}}
 async function sendMove(move){try{await api('/rooms/'+code+'/move','POST',{uid,...move});await refreshGame()}catch(e){$('roomStatus').textContent=e.message}}
