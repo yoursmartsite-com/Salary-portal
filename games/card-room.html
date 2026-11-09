@@ -57,7 +57,7 @@ function drawGame(){
  if(g.phase==='chooseTrump'&&g.currentPlayer===uid)html+='<div>اختار الحكم: '+['♠','♥','♦','♣'].map(x=>'<button data-trump="'+x+'">'+x+'</button>').join(' ')+'</div>';
  if(g.phase==='draw'&&g.currentPlayer===uid)html+='<div style="margin:10px 0"><button id="drawDeck">اسحب من السحب</button><button id="drawDiscard">اسحب آخر ورقة مرمية</button></div>';
  
- if(finished)html+='<h3>الفائز: '+esc(room.players[g.winner]?.name|| (g.winnerTeam!==undefined?'الفريق '+(g.winnerTeam+1):'—'))+'</h3>';
+ if(finished)html+='<h3>الفائز: '+esc(room.players[g.winner]?.name|| (g.winnerTeam!==undefined&&g.winnerTeam!==null?(g.winnerTeam<0?'تعادل':'الفريق '+(g.winnerTeam+1)):'—'))+'</h3>';
  html+='<div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:12px">'+mine.map(c=>'<button class="playCard" data-card="'+esc(c.id)+'" '+(finished||g.currentPlayer!==uid?'disabled':'')+'>'+esc(cardLabel(c))+'</button>').join('')+'</div>';
  if(gameId==='konkan'&&g.phase==='discard'&&g.currentPlayer===uid)html+='<p>اختار ورقة من يدك للتخلص منها.</p>';
  if(gameId==='basra')html+='<p>اضغط على ورقة من يدك للعبها؛ الولد يلمّ كل الورق، والورقة المطابقة تلمّ مثيلتها.</p>';
