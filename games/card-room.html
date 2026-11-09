@@ -30,6 +30,7 @@ const games={estimation:{name:'الاستميشن',icon:'🃏',desc:'غرفة م
 const params=new URLSearchParams(location.search);let gameId=params.get('game')||'estimation';if(!games[gameId])gameId='estimation';const game=games[gameId];
 if(Object.prototype.hasOwnProperty.call(games,gameId)){
 const $=id=>document.getElementById(id), API='https://lamma-rooms.fibrahem865.workers.dev';
+const teamGame=['estimation','tarneeb','hokm'].includes(gameId);$('maxPlayers').querySelectorAll('option').forEach(o=>{o.disabled=teamGame&&o.value!=='4'});if(teamGame)$('maxPlayers').value='4';
 const esc=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const avatarHtml=v=>{const s=String(v||'🍓');return (/^https:\/\/[^\s"'<>]+$/i.test(s)||/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(s))?'<img src="'+esc(s)+'" alt="" loading="lazy">':esc(s)};
 let uid=localStorage.getItem('arcade_uid')||localStorage.getItem('lamma_uid');
