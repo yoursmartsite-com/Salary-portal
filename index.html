@@ -252,6 +252,16 @@ setPersistence(auth,browserLocalPersistence).then(()=>onAuthStateChanged(auth,us
  document.getElementById("logoutBtn").style.display=logged?"block":"none";
  document.getElementById("profileLink").style.display=logged?"block":"none";
  document.getElementById("accountAvatar").textContent=logged?(user.displayName||user.email).trim().charAt(0).toUpperCase():"ل";
+ const accountAvatar=document.getElementById("accountAvatar");
+ if(logged){
+  onValue(ref(db,"profiles/"+user.uid),snap=>{
+   const profile=snap.val()||{},url=profile.avatarUrl||user.photoURL||"";
+   accountAvatar.replaceChildren();
+   if(url){const img=document.createElement("img");img.src=url;img.alt="الصورة الشخصية";img.style.cssText="width:100%;height:100%;object-fit:cover;border-radius:50%";img.onerror=()=>{accountAvatar.textContent=(user.displayName||"ل").trim().charAt(0).toUpperCase()};accountAvatar.append(img);}
+   else accountAvatar.textContent=(user.displayName||user.email||"ل").trim().charAt(0).toUpperCase();
+  },err=>console.warn("Profile photo unavailable:",err));
+ }else accountAvatar.textContent="ل";
+
  document.getElementById("topAuthBtn").textContent=logged?"حسابي":"تسجيل الدخول";
 })).catch(err=>{console.error('Auth persistence initialization failed:',err);document.getElementById('accountStatus').textContent='تعذر استعادة جلسة الدخول: '+err.message;});
 </script>
