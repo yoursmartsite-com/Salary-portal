@@ -335,7 +335,7 @@ const DICE_SKINS={classic:'الكلاسيكي',dice_gold:'الذهبي',dice_cry
 function applyDiceSkin(skin){const die=$('dice');if(!die)return;Object.keys(DICE_SKINS).forEach(k=>die.classList.remove('skin-'+k));die.classList.add('skin-'+(DICE_SKINS[skin]?skin:'classic'))}
 function fillLudoChoices(){
  const b=$('ludoBoardSkin'),p=$('ludoPieceSkin');if(!b||!p)return;
- const boardNames={board_gold:'ذهبية',board_space:'فضائية',board_ice:'جليدية',board_royal:'ملكية'};
+ const boardNames={board_gold:'رخام ملكي',board_space:'مجرة فضائية',board_ice:'غابة مسحورة',board_royal:'بركان متوهج'};
  const pieceNames={piece_crystal:'كريستال',piece_fire:'نار',piece_lightning:'برق',piece_gold:'ذهبية',piece_neon:'نيون'};
  b.replaceChildren(new Option('اللوحة الأصلية','classic'),...Object.keys(ownedBoards).filter(k=>k!=='classic').map(k=>new Option(boardNames[k]||k,k)));
  p.replaceChildren(new Option('القطع الأصلية','classic'),...Object.keys(ownedPieces).filter(k=>k!=='classic').map(k=>new Option(pieceNames[k]||k,k)));
