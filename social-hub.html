@@ -102,6 +102,66 @@ body:before{
 @keyframes communityStars{from{background-position:0 0,0 0,0 0,0 0,0 0,0 0,0 0}to{background-position:310px 260px,155px 130px,-155px 260px,310px -130px,0 260px,0 44px,44px 0}}
 @keyframes communityGlow{from{transform:translate3d(0,0,0) scale(.88)}to{transform:translate3d(14vw,-8vh,0) scale(1.16)}}
 @media(prefers-reduced-motion:reduce){body:after,body:before{animation:none!important}}
+
+/* Lamma futuristic neon city background — distinct from the previous starfield */
+body{
+ background:
+  radial-gradient(ellipse at 50% 38%,rgba(49,91,173,.22),transparent 48%),
+  radial-gradient(ellipse at 14% 20%,rgba(20,202,220,.19),transparent 34%),
+  radial-gradient(ellipse at 88% 18%,rgba(139,63,226,.22),transparent 36%),
+  linear-gradient(180deg,#070b1b 0%,#10152c 52%,#080d1c 100%)!important;
+ background-attachment:fixed!important;
+}
+body:before{
+ opacity:.65;
+ background-image:
+  radial-gradient(2px 2px at 12% 18%,rgba(220,237,255,.8) 50%,transparent 100%),
+  radial-gradient(1.5px 1.5px at 77% 12%,rgba(255,255,255,.75) 50%,transparent 100%),
+  radial-gradient(2px 2px at 88% 55%,rgba(155,220,255,.75) 50%,transparent 100%),
+  radial-gradient(1px 1px at 32% 73%,rgba(255,255,255,.65) 50%,transparent 100%),
+  radial-gradient(1.5px 1.5px at 61% 88%,rgba(200,186,255,.72) 50%,transparent 100%);
+ background-size:280px 230px,320px 250px,300px 240px,340px 260px,290px 230px;
+ animation:cityStars 48s linear infinite;
+}
+body:after{
+ content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+ background:
+  linear-gradient(to top,rgba(4,9,24,.98),rgba(4,9,24,.98)) 0 100%/100% 12% no-repeat,
+  linear-gradient(to top,rgba(8,17,39,.98),rgba(8,17,39,.98)) 2% 100%/7% 34% no-repeat,
+  linear-gradient(to top,rgba(11,21,47,.98),rgba(11,21,47,.98)) 11% 100%/9% 47% no-repeat,
+  linear-gradient(to top,rgba(7,15,35,.98),rgba(7,15,35,.98)) 22% 100%/8% 29% no-repeat,
+  linear-gradient(to top,rgba(12,22,50,.98),rgba(12,22,50,.98)) 33% 100%/10% 55% no-repeat,
+  linear-gradient(to top,rgba(7,15,36,.98),rgba(7,15,36,.98)) 46% 100%/8% 37% no-repeat,
+  linear-gradient(to top,rgba(12,20,48,.98),rgba(12,20,48,.98)) 57% 100%/11% 49% no-repeat,
+  linear-gradient(to top,rgba(7,15,35,.98),rgba(7,15,35,.98)) 70% 100%/8% 31% no-repeat,
+  linear-gradient(to top,rgba(12,21,48,.98),rgba(12,21,48,.98)) 81% 100%/9% 52% no-repeat,
+  linear-gradient(to top,rgba(7,15,35,.98),rgba(7,15,35,.98)) 92% 100%/8% 39% no-repeat,
+  radial-gradient(ellipse at 50% 78%,rgba(28,202,224,.18),transparent 38%),
+  radial-gradient(ellipse at 82% 60%,rgba(136,74,255,.17),transparent 34%);
+ background-repeat:no-repeat;
+ filter:drop-shadow(0 -8px 24px rgba(40,180,220,.08));
+ animation:cityPulse 9s ease-in-out infinite alternate;
+}
+.top,.hero,.card,.tabs button,.item,.who,.tool-chip{
+ backdrop-filter:blur(7px) saturate(135%);
+}
+.top{background:rgba(10,17,35,.50)!important;border-color:rgba(104,160,205,.35)!important}
+.hero{
+ background:linear-gradient(110deg,rgba(14,34,66,.60),rgba(15,22,47,.48) 60%,rgba(47,25,78,.54))!important;
+ border-color:rgba(90,173,207,.48)!important;
+}
+.card{
+ background:linear-gradient(145deg,rgba(14,28,53,.62),rgba(9,17,36,.53))!important;
+ border-color:rgba(92,137,180,.42)!important;
+}
+.item{background:rgba(9,19,39,.54)!important;border-color:rgba(81,127,169,.42)!important}
+.who,.tool-chip,.tabs button{background:rgba(10,21,42,.62)!important;border-color:rgba(88,137,178,.42)!important}
+.notice{background:rgba(15,31,57,.68)!important;backdrop-filter:blur(9px)}
+.empty{background:rgba(7,15,31,.42)}
+@keyframes cityStars{from{background-position:0 0,0 0,0 0,0 0,0 0}to{background-position:280px 230px,-160px 125px,150px 240px,-170px 130px,290px -115px}}
+@keyframes cityPulse{from{opacity:.84}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){body:after,body:before{animation:none!important}}
+
 </style></head><body><main class="wrap">
 <header class="top"><a class="brand" href="./index.html"><b>ل</b>لَمّة</a><div class="top-actions"><a class="btn secondary" href="./profile.html">بروفايلي</a><a class="btn secondary" href="./notifications.html">الإشعارات</a><a class="btn secondary" href="./index.html">الرئيسية</a></div></header>
 <section class="hero"><div><span class="eyebrow">مجتمع لَمّة · العبوا كفريق واحد</span><h1>ميدان الأبطال</h1><p>كوّن فريقك، شارك في البطولات، نافس اللاعبين، وشاهد المباريات. ميدان الأبطال للمجتمع والمنافسة.</p></div><div class="who"><div class="face" id="avatar">ل</div><div><b id="playerName">جارٍ التحقق من الحساب…</b><div class="small" id="connection">جاري الاتصال</div></div></div></section>
