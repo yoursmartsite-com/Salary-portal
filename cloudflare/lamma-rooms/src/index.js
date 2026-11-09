@@ -5,7 +5,7 @@ const out=(d,s=200,h={})=>Response.json(d,{status:s,headers:h});
 const uidOk=v=>typeof v==="string"&&/^[A-Za-z0-9_-]{3,128}$/.test(v);
 const nameOk=v=>typeof v==="string"&&v.trim().length>0&&v.trim().length<=24;
 const games=["none","xo","guess","rps","connect4","words","quiz","estimation","basra","uno","tarneeb","hokm","konkan"];
-const cardLimits={estimation:4,basra:4,uno:4,tarneeb:4,hokm:4,konkan:4};
+
 export class Room extends DurableObject{
  async fetch(req){
   const u=new URL(req.url),h=cors(req);if(req.method==="OPTIONS")return new Response(null,{status:204,headers:h});
@@ -24,11 +24,11 @@ export class Room extends DurableObject{
   const parts=u.pathname.split("/").filter(Boolean),roomCode=parts[1],action=parts[2]||"",target=parts[3];let state=await this.ctx.storage.get("room");
   try{
    if(req.method==="POST"&&!action){if(state)return out({ok:false,error:"ROOM_EXISTS"},409,h);const b=await req.json();if(!uidOk(b.uid)||!nameOk(b.name))return out({ok:false,error:"INVALID_ROOM_DATA"},400,h);
-    state={code:roomCode,title:String(b.title||"قعدة لَمّة").slice(0,35),topic:String(b.topic||"").slice(0,90),visibility:b.visibility==="public"?"public":"private",game:games.includes(b.game)?b.game:"none",maxPlayers:cardLimits[b.game]||Math.max(2,Math.min(30,Number(b.maxPlayers)||20)),host:b.uid,createdAt:Date.now(),updatedAt:Date.now(),players:{[b.uid]:{uid:b.uid,name:b.name.trim(),avatar:String(b.avatar||"🍓").slice(0,1000),hand:false,joinedAt:Date.now()}},chat:[]};
+    state={code:roomCode,title:String(b.title||"قعدة لَمّة").slice(0,35),topic:String(b.topic||"").slice(0,90),visibility:b.visibility==="public"?"public":"private",game:games.includes(b.game)?b.game:"none",maxPlayers:Math.max(2,Math.min(4,Number(b.maxPlayers)||4)),host:b.uid,createdAt:Date.now(),updatedAt:Date.now(),players:{[b.uid]:{uid:b.uid,name:b.name.trim(),avatar:String(b.avatar||"🍓").slice(0,1000),hand:false,joinedAt:Date.now()}},chat:[]};
     await this.ctx.storage.put("room",state);return out({ok:true,room:state},201,h)}
    if(!state)return out({ok:false,error:"ROOM_NOT_FOUND"},404,h);
    if(req.method==="GET"&&!action)return out({ok:true,room:state},200,h);
-   if(req.method==="POST"&&action==="join"){const b=await req.json();if(!uidOk(b.uid)||!nameOk(b.name))return out({ok:false,error:"INVALID_PLAYER"},400,h);if(b.game&&state.game!==b.game)return out({ok:false,error:"WRONG_GAME"},409,h);if(!state.players[b.uid]&&Object.keys(state.players).length>=state.maxPlayers)return out({ok:false,error:"ROOM_FULL"},409,h);state.players[b.uid]={uid:b.uid,name:b.name.trim(),avatar:String(b.avatar||"🍓").slice(0,1000),hand:false,joinedAt:state.players[b.uid]?.joinedAt||Date.now()};state.updatedAt=Date.now();await this.ctx.storage.put("room",state);return out({ok:true,room:state},200,h)}
+   if(req.method==="POST"&&action==="join"){const b=await req.json();if(!uidOk(b.uid)||!nameOk(b.name))return out({ok:false,error:"INVALID_PLAYER"},400,h);if(b.game&&state.game!==b.game)return out({ok:false,error:"WRONG_GAME"},409,h);if(!state.players[b.uid]&&Object.keys(state.players).length>=(state.maxPlayers||4))return out({ok:false,error:"ROOM_FULL"},409,h);state.players[b.uid]={uid:b.uid,name:b.name.trim(),avatar:String(b.avatar||"🍓").slice(0,1000),hand:false,joinedAt:state.players[b.uid]?.joinedAt||Date.now()};state.updatedAt=Date.now();await this.ctx.storage.put("room",state);return out({ok:true,room:state},200,h)}
    if(req.method==="POST"&&action==="ready"){const b=await req.json();if(!state.players[b.uid]||typeof b.ready!=="boolean")return out({ok:false,error:"PLAYER_NOT_IN_ROOM"},400,h);state.players[b.uid].ready=b.ready;state.updatedAt=Date.now();await this.ctx.storage.put("room",state);return out({ok:true,room:state},200,h)}
    if(req.method==="POST"&&action==="hand"){const b=await req.json();if(!state.players[b.uid]||typeof b.hand!=="boolean")return out({ok:false,error:"PLAYER_NOT_IN_ROOM"},400,h);state.players[b.uid].hand=b.hand;state.updatedAt=Date.now();await this.ctx.storage.put("room",state);return out({ok:true},200,h)}
    if(req.method==="POST"&&action==="game"){const b=await req.json();if(!state.players[b.uid]||!games.includes(b.game)||b.game==="none")return out({ok:false,error:"INVALID_GAME_SELECTION"},400,h);state.game=b.game;state.gameUpdatedBy=state.players[b.uid].name;state.updatedAt=Date.now();await this.ctx.storage.put("room",state);return out({ok:true},200,h)}
