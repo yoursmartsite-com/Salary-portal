@@ -35,7 +35,7 @@ function applyCardMove(room,uid,b){
  if(game==="uno"){
   if(g.phase!=="playing"||ids[g.turn]!==uid)throw Error("NOT_YOUR_TURN");
   if(b.action==="draw"){if(g.drawn)throw Error("ALREADY_DREW");if(!g.deck.length)g.deck=shuffle(g.discard.splice(0,g.discard.length-1));if(!g.deck.length)throw Error("NO_CARDS");const drawn=g.deck.pop();p.hand.push(drawn);g.drawn=drawn.id;log(g,room.players[uid].name+" سحب ورقة");return}if(b.action==="pass"){if(!g.drawn)throw Error("DRAW_FIRST");g.drawn=null;g.turn=next(g.turn+g.direction,ids.length);log(g,room.players[uid].name+" أنهى دوره بعد السحب");return}
-  const card=p.hand.find(x=>x.id===b.card);if(!card)throw Error("CARD_NOT_IN_HAND");
+  const card=p.hand.find(x=>x.id===b.card);if(!card)throw Error("CARD_NOT_IN_HAND");if(g.drawn&&card.id!==g.drawn)throw Error("PLAY_DRAWN_CARD_ONLY");
   const top=g.discard.at(-1),valid=card.c==="wild"||card.c===g.color||card.v===top.v;if(!valid)throw Error("INVALID_CARD");
   p.hand=p.hand.filter(x=>x.id!==card.id);g.drawn=null;g.discard.push(card);if(card.c==="wild"){if(!["red","yellow","green","blue"].includes(b.color))throw Error("CHOOSE_COLOR");g.color=b.color}else g.color=card.c;
   let skip=0,draw=0;if(card.v==="skip")skip=1;if(card.v==="reverse"){g.direction*=-1;if(ids.length===2)skip=1}if(card.v==="+2")draw=2;if(card.v==="+4")draw=4;
