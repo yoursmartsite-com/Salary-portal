@@ -281,4 +281,5 @@ setPersistence(auth,browserLocalPersistence).then(()=>onAuthStateChanged(auth,us
  document.getElementById("topAuthBtn").textContent=logged?"حسابي":"تسجيل الدخول";
 })).catch(err=>{console.error('Auth persistence initialization failed:',err);document.getElementById('accountStatus').textContent='تعذر استعادة جلسة الدخول: '+err.message;});
 </script>
+<script src="assets/lamma-assistant.js" defer></script>
 </body></html>
