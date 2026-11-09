@@ -40,27 +40,23 @@ export class Room extends DurableObject{
  async webSocketError(ws){try{ws.close(1011,"voice signaling error")}catch{}}
 }
 
-let firebaseCerts=null,firebaseCertsUntil=0;
+let firebaseKeys=null,firebaseKeysUntil=0;
 const b64url=s=>Uint8Array.from(atob(s.replace(/-/g,"+").replace(/_/g,"/")+"=".repeat((4-s.length%4)%4)),c=>c.charCodeAt(0));
 async function verifyFirebaseToken(request){
  const auth=request.headers.get("Authorization")||"",token=auth.startsWith("Bearer ")?auth.slice(7):"";
  const p=token.split(".");if(p.length!==3)throw new Error("AUTH_REQUIRED");
  const header=JSON.parse(new TextDecoder().decode(b64url(p[0]))),claims=JSON.parse(new TextDecoder().decode(b64url(p[1])));
  if(header.alg!=="RS256"||!header.kid)throw new Error("INVALID_TOKEN");
- if(!firebaseCerts||Date.now()>firebaseCertsUntil){
-  const r=await fetch("https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com");
+ if(!firebaseKeys||Date.now()>firebaseKeysUntil){
+  const r=await fetch("https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com");
   if(!r.ok)throw new Error("AUTH_KEYS_UNAVAILABLE");
-  firebaseCerts=await r.json();firebaseCertsUntil=Date.now()+3600000;
+  firebaseKeys=(await r.json()).keys||[];firebaseKeysUntil=Date.now()+3600000;
  }
- const pem=firebaseCerts[header.kid];if(!pem)throw new Error("INVALID_TOKEN");
- const body=pem.replace(/-----BEGIN CERTIFICATE-----|-----END CERTIFICATE-----|\\s/g,"");
- const der=Uint8Array.from(atob(body),c=>c.charCodeAt(0));
- const cert=await crypto.subtle.importKey("spki",der,{name:"RSASSA-PKCS1-v1_5",hash:"SHA-256"},false,["verify"]).catch(async()=>{
-  const x509=await crypto.subtle.importKey("spki",der,{name:"RSASSA-PKCS1-v1_5",hash:"SHA-256"},false,["verify"]);return x509;
- });
- const valid=await crypto.subtle.verify("RSASSA-PKCS1-v1_5",cert,b64url(p[2]),new TextEncoder().encode(p[0]+"."+p[1]));
+ const jwk=firebaseKeys.find(k=>k.kid===header.kid);if(!jwk)throw new Error("INVALID_TOKEN");
+ const key=await crypto.subtle.importKey("jwk",jwk,{name:"RSASSA-PKCS1-v1_5",hash:"SHA-256"},false,["verify"]);
+ const valid=await crypto.subtle.verify("RSASSA-PKCS1-v1_5",key,b64url(p[2]),new TextEncoder().encode(p[0]+"."+p[1]));
  const now=Math.floor(Date.now()/1000);
- if(!valid||claims.iss!=="https://securetoken.google.com/play-with-friends-com"||claims.aud!=="play-with-friends-com"||!claims.sub||claims.sub!==claims.user_id&&claims.user_id&&false||!claims.exp||claims.exp<=now||claims.iat>now+60)throw new Error("INVALID_TOKEN");
+ if(!valid||claims.iss!=="https://securetoken.google.com/play-with-friends-com"||claims.aud!=="play-with-friends-com"||!claims.sub||!claims.exp||claims.exp<=now||!claims.iat||claims.iat>now+60)throw new Error("INVALID_TOKEN");
  return claims;
 }
 async function cloudinarySignature(params,secret){
