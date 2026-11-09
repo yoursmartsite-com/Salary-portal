@@ -35,7 +35,7 @@ a{color:inherit;text-decoration:none}.wrap{width:min(1180px,100%);margin:auto;pa
 <section class="wallet"><div><small>رصيد عملة لَمّة</small><strong id="balance">— LC</strong></div><div id="accountState">جاري تسجيل الدخول…</div></section>
 <div class="status" id="status" aria-live="polite">جاري تحميل المنتجات…</div>
 <section class="grid" id="items"><div class="empty">جاري تحميل المتجر…</div></section>
-<section class="equip" id="movementEquip" hidden><h2>✨ تأثير الحركة المفعّل</h2><p>اختار التأثير اللي يظهر خلف قطعك في الليدو، والخصم هيشوفه كمان أثناء اللعب.</p><div class="equip-row"><select id="movementEffectSelect" aria-label="تأثير الحركة"></select><button class="btn" id="applyMovementEffect">تفعيل التأثير</button></div></section>
+<section class="equip" id="ludoBoardEquip" hidden><h2>♟ تجهيز لوحة ليدو</h2><p>اختار لوحة اشتريتها عشان تتفعّل في مباريات ليدو.</p><div class="equip-row"><select id="ludoBoardSelect" aria-label="لوحة ليدو"></select><button class="btn" id="applyLudoBoard">تجهيز اللوحة</button></div></section><section class="equip" id="ludoPieceEquip" hidden><h2>💎 تجهيز قطع ليدو</h2><p>اختار شكل القطع المملوك لحسابك.</p><div class="equip-row"><select id="ludoPieceSelect" aria-label="قطع ليدو"></select><button class="btn" id="applyLudoPiece">تجهيز القطع</button></div></section><section class="equip" id="movementEquip" hidden><h2>✨ تأثير الحركة المفعّل</h2><p>اختار التأثير اللي يظهر خلف قطعك في الليدو، والخصم هيشوفه كمان أثناء اللعب.</p><div class="equip-row"><select id="movementEffectSelect" aria-label="تأثير الحركة"></select><button class="btn" id="applyMovementEffect">تفعيل التأثير</button></div></section>
 </main>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
@@ -44,7 +44,7 @@ a{color:inherit;text-decoration:none}.wrap{width:min(1180px,100%);margin:auto;pa
 (()=>{
 const cfg={apiKey:"AIzaSyArJNDKNNTs2oFGFWV58_1UKY3GmE06ghk",authDomain:"play-with-friends-com.firebaseapp.com",databaseURL:"https://play-with-friends-com-default-rtdb.firebaseio.com",projectId:"play-with-friends-com",storageBucket:"play-with-friends-com.firebasestorage.app",messagingSenderId:"52443545219",appId:"1:52443545219:web:62c9746888f7fe2bf9a5b6"};
 const API="https://empty-unit-a7ab.fibrahem865.workers.dev", $=id=>document.getElementById(id);
-let db=null,auth=null,user=null,inventory={},selectedMovementEffect="none";
+let db=null,auth=null,user=null,inventory={},selectedMovementEffect="none",selectedLudoBoard="classic",selectedLudoPiece="classic";
 function say(t){$("status").textContent=t}
 function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 async function refresh(){
@@ -52,7 +52,7 @@ async function refresh(){
  const [walletSnap,inventorySnap,profileSnap]=await Promise.all([db.ref("wallets/"+user.uid).get(),db.ref("inventory/"+user.uid).get(),db.ref("profiles/"+user.uid).get()]);
  $("balance").textContent=Number(walletSnap.val()?.balance||0).toLocaleString("en-US")+" LC";
  inventory=inventorySnap.val()?.items||{};
- selectedMovementEffect=profileSnap.val()?.movementEffect||"none";
+ selectedMovementEffect=profileSnap.val()?.movementEffect||"none";\n selectedLudoBoard=profileSnap.val()?.ludoBoard||"classic";selectedLudoPiece=profileSnap.val()?.ludoPiece||"classic";
 }
 async function load(){
  try{
@@ -74,13 +74,33 @@ async function load(){
   $("items").innerHTML=Object.entries(data.items).map(([id,item])=>{
    const count=Number(inventory[id]?.quantity||0);
    const icon=({dice_gold:"🎲",dice_crystal:"🔷",dice_fire:"🔥",dice_lightning:"⚡",dice_galaxy:"🌌",move_lightning:"⚡",move_fire:"🔥",move_ghost:"👻",move_gold:"👑",move_ice:"❄️",move_rainbow:"🌈",move_phoenix:"🔥"}[id]||{dice:"🎲",piece:"💎",board:"♟",frame:"🖼️",effect:"🏆",movementEffect:"✨"}[item.type]||"✦");
-   const descriptions={move_lightning:"شرارات كهربائية زرقاء تندفع خلف القطعة.",move_fire:"لهب متحرك يترك أثرًا ناريًا خلف القطعة.",move_ghost:"دخان بنفسجي شفاف ينساب خلف القطعة.",move_gold:"غبار ذهبي لامع يرافق كل حركة.",move_ice:"بلورات جليدية تتناثر مع الحركة.",move_rainbow:"مسار نيون بألوان قوس قزح.",move_phoenix:"هالة نارية دوّارة وشرارات ذهبية تتصاعد خلف العسكري."};
+   const descriptions={board_gold:"لوحة ليدو بتصميم ذهبي فاخر.",board_space:"لوحة ليدو بطابع فضائي.",board_ice:"لوحة ليدو جليدية.",board_royal:"لوحة ملكية بإطار فاخر.",piece_crystal:"قطع كريستال لامعة.",piece_fire:"قطع بتأثير ناري.",piece_lightning:"قطع بتصميم البرق.",piece_gold:"قطع ذهبية.",piece_neon:"قطع نيون مضيئة.",move_lightning:"شرارات كهربائية زرقاء تندفع خلف القطعة.",move_fire:"لهب متحرك يترك أثرًا ناريًا خلف القطعة.",move_ghost:"دخان بنفسجي شفاف ينساب خلف القطعة.",move_gold:"غبار ذهبي لامع يرافق كل حركة.",move_ice:"بلورات جليدية تتناثر مع الحركة.",move_rainbow:"مسار نيون بألوان قوس قزح.",move_phoenix:"هالة نارية دوّارة وشرارات ذهبية تتصاعد خلف العسكري."};
    return '<article class="item"><div class="symbol">'+icon+'</div><h2>'+esc(item.name)+'</h2><p>'+esc(descriptions[id]||"إضافة لحسابك في ألعاب لَمّة.")+'</p><div class="meta"><span>'+Number(item.price)+' LC</span><span class="'+(count?'owned':'')+'">'+(count?"معاك: "+count:"غير مملوك")+'</span></div><button data-buy="'+esc(id)+'" '+(signedIn?"":"disabled")+'>'+(count?"شراء نسخة أخرى":(signedIn?"شراء فوري":"سجّل الدخول للشراء"))+'</button></article>';
   }).join("")||'<div class="empty">المتجر فاضي حاليًا.</div>';
   document.querySelectorAll("[data-buy]").forEach(button=>button.addEventListener("click",()=>buy(button.dataset.buy,button)));
-  renderMovementEquip();
+  renderMovementEquip();renderLudoEquip();
   say(signedIn?"الشراء متاح من رصيد LC الخاص بحسابك.":"المتجر للعرض؛ سجّل دخولك من الرئيسية لتظهر عملاتك وتقدر تشتري.");
  }catch(error){$("accountState").textContent="تعذر الاتصال";say(error.message||"حصل خطأ أثناء تحميل المتجر.")}
+}
+function renderLudoEquip(){
+ const groups=[{type:"board",section:"ludoBoardEquip",select:"ludoBoardSelect",button:"applyLudoBoard",field:"ludoBoard",current:selectedLudoBoard,defaultLabel:"اللوحة الأصلية",fallback:"classic"},{type:"piece",section:"ludoPieceEquip",select:"ludoPieceSelect",button:"applyLudoPiece",field:"ludoPiece",current:selectedLudoPiece,defaultLabel:"القطع الأصلية",fallback:"classic"}];
+ for(const group of groups){
+  const section=$(group.section),select=$(group.select),button=$(group.button);
+  const owned=Object.entries(inventory).filter(([id,item])=>item?.type===group.type&&Number(item.quantity||0)>0);
+  if(!section||!select||!button||!user||user.isAnonymous||!owned.length){if(section)section.hidden=true;continue;}
+  section.hidden=false;
+  select.innerHTML='<option value="'+group.fallback+'">'+group.defaultLabel+'</option>'+owned.map(([id,item])=>'<option value="'+esc(id)+'">'+esc(item.name||id)+'</option>').join('');
+  if(!owned.some(([id])=>id===group.current))group.current=group.fallback;
+  select.value=group.current;
+  button.onclick=async()=>{
+   const value=select.value;
+   if(value!=="classic"&&!owned.some(([id])=>id===value))return say("العنصر ده مش موجود في مخزونك.");
+   button.disabled=true;
+   try{await db.ref("profiles/"+user.uid+"/"+group.field).set(value);if(group.field==="ludoBoard")selectedLudoBoard=value;else selectedLudoPiece=value;say(value==="classic"?"رجّعنا الشكل الأصلي.":"تم تجهيز "+(select.selectedOptions[0]?.textContent||"العنصر")+" لحسابك. افتح ليدو بعد التحديث.");}
+   catch(error){say("تعذر حفظ التجهيز: "+error.message);}
+   finally{button.disabled=false;}
+  };
+ }
 }
 function renderMovementEquip(){
  const section=$("movementEquip"),select=$("movementEffectSelect");
