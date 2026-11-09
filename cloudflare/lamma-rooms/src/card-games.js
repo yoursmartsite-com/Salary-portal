@@ -31,7 +31,7 @@ function publicCardGame(room,uid){
 }
 function log(g,s){g.log=(g.log||[]).concat({text:s,at:Date.now()}).slice(-30)}
 function applyCardMove(room,uid,b){
- const g=room.gameState;if(!g)throw Error("GAME_NOT_STARTED");const ids=Object.keys(room.players),p=g.players[uid];if(!p)throw Error("NOT_IN_ROOM");const game=g.game;
+ const g=room.gameState;if(!g)throw Error("GAME_NOT_STARTED");if(g.phase==="finished")throw Error("GAME_FINISHED");const ids=Object.keys(room.players),p=g.players[uid];if(!p)throw Error("NOT_IN_ROOM");const game=g.game;
  if(game==="uno"){
   if(g.phase!=="playing"||ids[g.turn]!==uid)throw Error("NOT_YOUR_TURN");
   if(b.action==="draw"){if(g.drawn)throw Error("ALREADY_DREW");if(!g.deck.length)g.deck=shuffle(g.discard.splice(0,g.discard.length-1));if(!g.deck.length)throw Error("NO_CARDS");const drawn=g.deck.pop();p.hand.push(drawn);g.drawn=drawn.id;log(g,room.players[uid].name+" سحب ورقة");return}if(b.action==="pass"){if(!g.drawn)throw Error("DRAW_FIRST");g.drawn=null;g.turn=next(g.turn+g.direction,ids.length);log(g,room.players[uid].name+" أنهى دوره بعد السحب");return}
