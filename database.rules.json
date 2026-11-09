@@ -233,6 +233,15 @@
           }
         }
       }
+    },
+    "teamRequests": {
+      "$teamId": {
+        ".read": "auth != null && root.child('teams').child($teamId).child('ownerUid').val() === auth.uid",
+        "$uid": {
+          ".read": "auth != null && (auth.uid === $uid || root.child('teams').child($teamId).child('ownerUid').val() === auth.uid)",
+          ".write": "auth != null && (auth.uid === $uid || root.child('teams').child($teamId).child('ownerUid').val() === auth.uid)"
+        }
+      }
     }
   }
 }
