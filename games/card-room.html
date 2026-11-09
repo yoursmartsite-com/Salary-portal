@@ -26,7 +26,7 @@
 <script>
 (()=>{'use strict';
 const cfg={apiKey:"AIzaSyArJNDKNNTs2oFGFWV58_1UKZ3GmE06ghk",authDomain:"play-with-friends-com.firebaseapp.com",databaseURL:"https://play-with-friends-com-default-rtdb.firebaseio.com",projectId:"play-with-friends-com",storageBucket:"play-with-friends-com.firebasestorage.app",messagingSenderId:"52443545219",appId:"1:52443545219:web:62c9746888f7fe2bf9a5b6"};
-const games={estimation:{name:'الاستميشن',icon:'🃏',desc:'غرفة من 2 إلى 4 لاعبين · شراكة وتوقعات',min:2,max:4},basra:{name:'البصرة',icon:'♦️',desc:'2–4 لاعبين · لمّ الورق والنقاط',min:2,max:4},uno:{name:'أونو',icon:'🎨',desc:'2–4 لاعبين · تخلّص من ورقك',min:2,max:4},tarneeb:{name:'الطرنيب',icon:'♠️',desc:'غرفة من 2 إلى 4 لاعبين · فريقان ومزايدات',min:2,max:4},hokm:{name:'الحكم',icon:'♥️',desc:'غرفة من 2 إلى 4 لاعبين · حكم وشراكة',min:2,max:4},konkan:{name:'الكونكان',icon:'🂡',desc:'2–4 لاعبين · تكوين مجموعات وتسلسلات',min:2,max:4}};
+const games={estimation:{name:'الاستميشن',icon:'🃏',desc:'4 لاعبين · شراكة وتوقعات',min:4,max:4},basra:{name:'البصرة',icon:'♦️',desc:'2–4 لاعبين · لمّ الورق والنقاط',min:2,max:4},uno:{name:'أونو',icon:'🎨',desc:'2–4 لاعبين · تخلّص من ورقك',min:2,max:4},tarneeb:{name:'الطرنيب',icon:'♠️',desc:'4 لاعبين · فريقان ومزايدات',min:4,max:4},hokm:{name:'الحكم',icon:'♥️',desc:'4 لاعبين · حكم وشراكة',min:4,max:4},konkan:{name:'الكونكان',icon:'🂡',desc:'2–4 لاعبين · تكوين مجموعات وتسلسلات',min:2,max:4}};
 const params=new URLSearchParams(location.search);let gameId=params.get('game')||'estimation';if(!games[gameId])gameId='estimation';const game=games[gameId];
 if(Object.prototype.hasOwnProperty.call(games,gameId)){
 const $=id=>document.getElementById(id), API='https://lamma-rooms.fibrahem865.workers.dev';
@@ -50,10 +50,10 @@ function drawGame(){
  let html='<div><b>الحالة:</b> '+(finished?'انتهت المباراة':g.phase==='bidding'?'المزايدات':g.phase==='chooseTrump'?'اختيار الحكم':g.phase==='draw'?'اسحب ورقة':'اللعب')+'</div>';
  html+='<div style="margin:8px 0">الدور: <b>'+esc(g.currentName||'—')+'</b> · الأوراق المتبقية: '+(g.stockCount??'—')+'</div>';
  if(g.discardTop)html+='<div>آخر ورقة: <b>'+esc(cardLabel(g.discardTop))+'</b> '+(g.color?'· اللون '+esc(g.color):'')+'</div>';
- if(gameId==='uno'&&!finished&&g.currentPlayer===uid)html+='<button id="unoDraw">اسحب ورقة</button>';
+ if(gameId==='uno'&&!finished&&g.currentPlayer===uid&&!g.drawn)html+='<button id="unoDraw">اسحب ورقة</button>';if(gameId==='uno'&&!finished&&g.currentPlayer===uid&&g.drawn)html+='<button id="unoPass">إنهاء دوري</button>';
  if(g.table)html+='<div style="margin:8px 0">الورق على الطاولة: '+g.table.map(cardLabel).join(' · ')+'</div>';
  if(g.trick?.length)html+='<div>اللّمة الحالية: '+g.trick.map(t=>esc(room.players[t.uid]?.name||'لاعب')+' '+cardLabel(t.card)).join(' | ')+'</div>';
- if(g.phase==='bidding'&&g.currentPlayer===uid)html+='<div style="margin:10px 0">المزايدة <input id="bidValue" type="number" min="1" max="13" value="7" style="width:65px"><button id="bidBtn">تأكيد</button></div>';
+ if(g.phase==='bidding'&&g.currentPlayer===uid)html+='<div style="margin:10px 0">المزايدة <input id="bidValue" type="number" min="'+(gameId==='tarneeb'?7:1)+'" max="13" value="'+(gameId==='tarneeb'?7:1)+'" style="width:65px"><button id="bidBtn">تأكيد</button></div>';
  if(g.phase==='chooseTrump'&&g.currentPlayer===uid)html+='<div>اختار الحكم: '+['♠','♥','♦','♣'].map(x=>'<button data-trump="'+x+'">'+x+'</button>').join(' ')+'</div>';
  if(g.phase==='draw'&&g.currentPlayer===uid)html+='<div style="margin:10px 0"><button id="drawDeck">اسحب من السحب</button><button id="drawDiscard">اسحب آخر ورقة مرمية</button></div>';
  
@@ -65,7 +65,7 @@ function drawGame(){
  area.innerHTML=html;
  area.querySelectorAll('.playCard').forEach(b=>b.onclick=()=>{const data={card:b.dataset.card};if(gameId==='uno'&&mine.find(c=>c.id===data.card)?.c==='wild')data.color=prompt('اختار اللون: red أو yellow أو green أو blue','red');if(gameId==='uno'&&mine.length===2)data.uno=confirm('هتعلن UNO بعد الورقة دي؟');if(gameId==='konkan')data.action='discard';sendMove(data)});
  area.querySelectorAll('[data-trump]').forEach(b=>b.onclick=()=>sendMove({trump:b.dataset.trump}));
- const ud=$('unoDraw');if(ud)ud.onclick=()=>sendMove({action:'draw'});
+ const ud=$('unoDraw');if(ud)ud.onclick=()=>sendMove({action:'draw'});const up=$('unoPass');if(up)up.onclick=()=>sendMove({action:'pass'});
  const bid=$('bidBtn');if(bid)bid.onclick=()=>sendMove({bid:Number($('bidValue').value)});
  const dd=$('drawDeck');if(dd)dd.onclick=()=>sendMove({action:'draw',from:'deck'});
  const dc=$('drawDiscard');if(dc)dc.onclick=()=>sendMove({action:'draw',from:'discard'});
