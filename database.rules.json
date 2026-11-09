@@ -339,7 +339,8 @@
         },
         "updatedAt": {
           ".write": "auth != null && root.child('drawGuessRooms').child($roomId).child('players').child(auth.uid).exists()"
-        }
+        },
+        ".write": "auth != null && !data.exists() && newData.child('hostUid').val() === auth.uid"
       }
     }
   }
