@@ -3,7 +3,7 @@ import { DurableObject } from "cloudflare:workers";
 const ORIGINS=new Set(["https://yoursmartsite-com.github.io","http://localhost:8000","http://127.0.0.1:8000"]);
 const cors=r=>{const o=r.headers.get("Origin")||"";return {"Access-Control-Allow-Origin":ORIGINS.has(o)?o:"https://yoursmartsite-com.github.io","Access-Control-Allow-Methods":"GET,POST,DELETE,OPTIONS","Access-Control-Allow-Headers":"Content-Type, Authorization, X-Room-Token","Access-Control-Max-Age":"86400","Vary":"Origin"}};
 const out=(d,s=200,h={})=>Response.json(d,{status:s,headers:h});
-const roomView=state=>{const safe={...state};delete safe.gameState;delete safe.sessions;return safe};
+const roomView=state=>{const safe={...state};delete safe.gameState;delete safe.bankState;delete safe.sessions;return safe};
 const tokenOk=(state,uid,req)=>!state.sessions||state.sessions[uid]===req.headers.get("X-Room-Token");
 const uidOk=v=>typeof v==="string"&&/^[A-Za-z0-9_-]{3,128}$/.test(v);
 const nameOk=v=>typeof v==="string"&&v.trim().length>0&&v.trim().length<=24;
