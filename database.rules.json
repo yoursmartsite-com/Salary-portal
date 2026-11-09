@@ -248,6 +248,56 @@
         ".read": "auth != null && auth.uid === $uid",
         ".write": "auth != null && auth.uid === $uid"
       }
+    },
+    "playerStats": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "teams": {
+      ".read": "auth != null",
+      "$teamId": {
+        ".write": "auth != null && ((!data.exists() && newData.child('ownerUid').val() === auth.uid) || (data.exists() && data.child('ownerUid').val() === auth.uid))"
+      }
+    },
+    "teamMembers": {
+      ".read": "auth != null",
+      "$teamId": {
+        "$uid": {
+          ".write": "auth != null && (auth.uid === $uid || root.child('teams').child($teamId).child('ownerUid').val() === auth.uid)"
+        }
+      }
+    },
+    "tournaments": {
+      ".read": "auth != null",
+      "$tourId": {
+        ".write": "auth != null && ((!data.exists() && newData.child('ownerUid').val() === auth.uid) || (data.exists() && data.child('ownerUid').val() === auth.uid))"
+      }
+    },
+    "tournamentEntries": {
+      ".read": "auth != null",
+      "$tourId": {
+        "$uid": {
+          ".write": "auth != null && auth.uid === $uid"
+        }
+      }
+    },
+    "rematchRequests": {
+      ".read": "auth != null",
+      "$roomId": {
+        "$uid": {
+          ".write": "auth != null && auth.uid === $uid"
+        }
+      }
+    },
+    "playerReports": {
+      ".read": "auth != null && (auth.uid === '91N0rI5SCDN1aKBXJkowj5KcUOz1' || auth.token.email === 'fibrahem865@gmail.com')",
+      "$uid": {
+        "$reportId": {
+          ".write": "auth != null && auth.uid === $uid && !data.exists()"
+        }
+      }
     }
   }
 }
