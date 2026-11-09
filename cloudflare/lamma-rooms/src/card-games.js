@@ -20,7 +20,7 @@ function startCardGame(room,game){
   else if(top.v==="+2"){for(let k=0;k<2;k++)base.players[ids[firstTurn]].hand.push(deck.pop());firstTurn=next(firstTurn+1,n)}
   Object.assign(base,{deck,discard:[top],color:top.c,direction,turn:firstTurn,drawn:null,phase:"playing"});
  }else if(game==="basra"){
-  const deck=standardDeck();ids.forEach(id=>base.players[id].hand=deck.splice(0,4));Object.assign(base,{deck,table:deck.splice(0,4),captured:Object.fromEntries(ids.map(id=>[id,[]])),phase:"playing"});
+  const deck=standardDeck();ids.forEach(id=>base.players[id].hand=deck.splice(0,4));const table=deck.splice(0,4);for(let i=0;i<table.length;i++)if(table[i].r==="J"||(table[i].r==="7"&&table[i].s==="♦")){deck.push(table[i]);table[i]=deck.shift()}Object.assign(base,{deck,table,captured:Object.fromEntries(ids.map(id=>[id,[]])),phase:"playing"});
  }else if(["tarneeb","hokm","estimation"].includes(game)){
   const deck=standardDeck();ids.forEach(id=>base.players[id].hand=deck.splice(0,13));Object.assign(base,{trick:[],trump:null,leadSuit:null,teamScores:[0,0],round:1,phase:game==="hokm"?"chooseTrump":"bidding",dealer:0});if(game==="hokm")base.turn=1;
   if(game==="tarneeb"){base.phase="bidding";base.turn=1;}
@@ -52,21 +52,21 @@ function applyCardMove(room,uid,b){
  if(game==="basra"){
   if(ids[g.turn]!==uid)throw Error("NOT_YOUR_TURN");const card=p.hand.find(x=>x.id===b.card);if(!card)throw Error("CARD_NOT_IN_HAND");
   p.hand=p.hand.filter(x=>x.id!==card.id);let take=[];
-  if(card.r==="J"){
-   take=[...g.table];
-  }else{
+  const value=c=>c.r==="A"?1:(/^([2-9]|10)$/.test(c.r)?Number(c.r):null);
+  let sevenDiamondBasra=false;
+  if(card.r==="J")take=[...g.table];
+  else if(card.r==="7"&&card.s==="♦"){take=[...g.table];const vals=g.table.map(value);sevenDiamondBasra=g.table.length>0&&vals.every(v=>v!==null)&&vals.reduce((a,v)=>a+v,0)<=10}
+  else{
    // Egyptian Basra: collect matching ranks AND any disjoint numeric groups that sum to the played card.
-   const value=c=>c.r==="A"?1:(/^([2-9]|10)$/.test(c.r)?Number(c.r):null);
-   const target=value(card);
-   const matching=g.table.filter(x=>x.r===card.r);
+   const target=value(card),matching=g.table.filter(x=>x.r===card.r);
    take=[...matching];
    if(target!==null){
-    let nums=g.table.filter(x=>!matching.some(m=>m.id===x.id)).map((c,i)=>({c,i,v:value(c)})).filter(x=>x.v!==null);
+    let nums=g.table.filter(x=>!matching.some(m=>m.id===x.id)).map(c=>({c,v:value(c)})).filter(x=>x.v!==null);
     const find=(start,left,chosen)=>{if(left===0)return chosen;if(left<0)return null;for(let i=start;i<nums.length;i++){const got=find(i+1,left-nums[i].v,[...chosen,nums[i]]);if(got)return got}return null};
     while(true){const combo=find(0,target,[]);if(!combo)break;take.push(...combo.map(x=>x.c));const used=new Set(combo.map(x=>x.c.id));nums=nums.filter(x=>!used.has(x.c.id))}
    }
   }
-  if(take.length){g.table=g.table.filter(x=>!take.some(t=>t.id===x.id));g.captured[uid].push(card,...take);if(!g.table.length&&card.r!=="J")g.players[uid].basras=(g.players[uid].basras||0)+1}
+  if(take.length){g.table=g.table.filter(x=>!take.some(t=>t.id===x.id));g.captured[uid].push(card,...take);if(!g.table.length&&card.r!=="J"&&(!(card.r==="7"&&card.s==="♦")||sevenDiamondBasra))g.players[uid].basras=(g.players[uid].basras||0)+1}
   else g.table.push(card);
   if(take.length)g.lastCapturer=uid;
   if(ids.every(id=>!g.players[id].hand.length)&&g.deck.length){for(const id of ids)g.players[id].hand=g.deck.splice(0,Math.min(4,g.deck.length))}
