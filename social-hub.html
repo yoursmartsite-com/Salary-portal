@@ -103,72 +103,57 @@ body:before{
 @keyframes communityGlow{from{transform:translate3d(0,0,0) scale(.88)}to{transform:translate3d(14vw,-8vh,0) scale(1.16)}}
 @media(prefers-reduced-motion:reduce){body:after,body:before{animation:none!important}}
 
-/* Lamma new signature background: emerald aurora + champagne light */
+/* Lamma modern gaming arena background */
 body{
  background:
-  radial-gradient(ellipse at 18% 18%,rgba(17,139,119,.34),transparent 38%),
-  radial-gradient(ellipse at 83% 24%,rgba(54,91,132,.28),transparent 40%),
-  radial-gradient(ellipse at 55% 88%,rgba(139,105,47,.18),transparent 42%),
-  linear-gradient(135deg,#071714 0%,#0b1c25 46%,#111526 100%)!important;
+  radial-gradient(ellipse at 14% 20%,rgba(0,221,255,.22),transparent 32%),
+  radial-gradient(ellipse at 88% 16%,rgba(126,67,255,.28),transparent 34%),
+  radial-gradient(ellipse at 72% 82%,rgba(255,55,125,.13),transparent 34%),
+  radial-gradient(ellipse at 35% 95%,rgba(35,113,255,.16),transparent 40%),
+  linear-gradient(135deg,#050817 0%,#0b1025 48%,#090817 100%)!important;
  background-attachment:fixed!important;
 }
 body:before{
- content:"";position:fixed;inset:-12%;z-index:-1;pointer-events:none;opacity:.92;
+ content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.78;
  background:
-  radial-gradient(ellipse 42% 24% at 16% 34%,rgba(24,190,150,.20),transparent 72%),
-  radial-gradient(ellipse 38% 25% at 76% 20%,rgba(82,151,190,.18),transparent 72%),
-  radial-gradient(ellipse 34% 22% at 58% 76%,rgba(198,157,83,.13),transparent 72%),
-  linear-gradient(118deg,transparent 20%,rgba(63,194,166,.055) 37%,transparent 53%),
-  linear-gradient(28deg,transparent 35%,rgba(116,167,196,.06) 49%,transparent 64%);
- background-size:150% 150%,145% 145%,150% 150%,100% 100%,100% 100%;
- background-position:0% 0%,100% 0%,50% 100%,center,center;
- filter:blur(2px);
- animation:lammaAurora 24s ease-in-out infinite alternate;
+  linear-gradient(115deg,transparent 0 18%,rgba(40,211,255,.10) 18.15%,transparent 18.5% 68%,rgba(157,92,255,.10) 68.2%,transparent 68.55%),
+  linear-gradient(25deg,transparent 0 42%,rgba(255,70,145,.075) 42.2%,transparent 42.55%),
+  repeating-linear-gradient(0deg,rgba(116,150,255,.045) 0 1px,transparent 1px 58px),
+  repeating-linear-gradient(90deg,rgba(116,150,255,.045) 0 1px,transparent 1px 58px),
+  radial-gradient(ellipse at 50% 48%,transparent 18%,rgba(2,5,16,.45) 100%);
+ mask-image:linear-gradient(to bottom,black 0%,rgba(0,0,0,.9) 75%,transparent 100%);
+ animation:gameGridDrift 30s linear infinite;
 }
 body:after{
- content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
- background:
-  linear-gradient(115deg,transparent 0 34%,rgba(111,213,187,.055) 42%,transparent 51%),
-  linear-gradient(295deg,transparent 0 56%,rgba(215,177,111,.045) 64%,transparent 73%),
-  radial-gradient(ellipse at 50% 50%,transparent 25%,rgba(1,8,12,.30) 100%);
- opacity:.9;mix-blend-mode:screen;
- animation:lammaLight 18s ease-in-out infinite alternate;
+ content:"";position:fixed;z-index:-1;pointer-events:none;
+ width:54vw;height:54vw;min-width:320px;min-height:320px;max-width:760px;max-height:760px;
+ right:-20vw;top:20vh;border-radius:50%;
+ border:1px solid rgba(75,205,255,.12);
+ box-shadow:0 0 0 28px rgba(87,100,255,.025),0 0 0 70px rgba(87,100,255,.02),inset 0 0 90px rgba(65,110,255,.07);
+ background:radial-gradient(circle,rgba(70,83,220,.09),rgba(0,205,255,.035) 42%,transparent 70%);
+ filter:blur(1px);animation:gamePortal 18s ease-in-out infinite alternate;
 }
-.top,.hero,.card,.tabs button,.item,.who,.tool-chip{backdrop-filter:blur(12px) saturate(125%)}
-.top{
- background:rgba(7,22,24,.62)!important;
- border-color:rgba(106,177,157,.30)!important;
-}
+.top{background:rgba(7,12,30,.72)!important;border-color:rgba(89,150,220,.35)!important}
 .hero{
- background:linear-gradient(112deg,rgba(10,53,48,.70),rgba(13,31,42,.58) 58%,rgba(49,43,34,.54))!important;
- border-color:rgba(117,184,159,.38)!important;
- box-shadow:0 20px 58px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.09)!important;
+ background:linear-gradient(112deg,rgba(15,31,73,.78),rgba(12,20,43,.72) 58%,rgba(47,20,72,.70))!important;
+ border-color:rgba(93,148,230,.48)!important;
+ box-shadow:0 20px 58px rgba(0,0,0,.30),inset 0 1px rgba(255,255,255,.10)!important;
 }
 .card{
- background:linear-gradient(145deg,rgba(13,37,39,.69),rgba(10,22,32,.60))!important;
- border-color:rgba(106,159,148,.34)!important;
- box-shadow:0 13px 34px rgba(0,0,0,.19),inset 0 1px rgba(255,255,255,.045)!important;
+ background:linear-gradient(145deg,rgba(16,28,58,.82),rgba(8,15,34,.78))!important;
+ border-color:rgba(91,132,203,.38)!important;
+ box-shadow:0 13px 34px rgba(0,0,0,.25),inset 0 1px rgba(255,255,255,.055)!important;
 }
-.item{background:rgba(8,27,31,.60)!important;border-color:rgba(100,151,139,.32)!important}
-.who,.tool-chip,.tabs button{
- background:rgba(8,28,32,.68)!important;
- border-color:rgba(100,157,146,.34)!important;
-}
-.tabs button.active{
- background:linear-gradient(110deg,rgba(20,119,98,.92),rgba(38,84,104,.92))!important;
- border-color:rgba(135,208,178,.68)!important;
-}
-.notice{background:rgba(12,39,39,.72)!important;border-color:rgba(108,177,153,.34)!important;backdrop-filter:blur(12px)}
-.empty{background:rgba(5,20,24,.42);border-color:rgba(100,151,139,.30)}
-.btn{background:linear-gradient(110deg,#167c68,#326f86)}
-.btn.secondary{background:rgba(19,52,55,.78);border-color:rgba(111,169,155,.38)}
-@keyframes lammaAurora{
- 0%{background-position:0% 0%,100% 0%,50% 100%,center,center;transform:translate3d(-1%,0,0) scale(1)}
- 100%{background-position:35% 30%,65% 45%,35% 70%,center,center;transform:translate3d(1%,-1%,0) scale(1.06)}
-}
-@keyframes lammaLight{from{opacity:.55;transform:translateX(-1%)}to{opacity:1;transform:translateX(1%)}}
+.item{background:rgba(8,17,39,.76)!important;border-color:rgba(78,119,183,.38)!important}
+.who,.tool-chip,.tabs button{background:rgba(9,19,42,.78)!important;border-color:rgba(81,125,192,.40)!important}
+.tabs button.active{background:linear-gradient(110deg,rgba(91,48,205,.96),rgba(20,116,161,.96))!important;border-color:rgba(128,165,255,.75)!important}
+.notice{background:rgba(12,25,53,.84)!important;border-color:rgba(82,139,211,.42)!important;backdrop-filter:blur(12px)}
+.empty{background:rgba(5,12,29,.62);border-color:rgba(80,120,183,.38)}
+.btn{background:linear-gradient(110deg,#6538df,#087fae)}
+.btn.secondary{background:rgba(20,37,72,.88);border-color:rgba(93,137,202,.48)}
+@keyframes gameGridDrift{from{background-position:0 0,0 0,0 0,0 0,center}to{background-position:90px 50px,-60px 30px,0 58px,58px 0,center}}
+@keyframes gamePortal{from{transform:translate3d(0,0,0) rotate(0deg) scale(.94);opacity:.55}to{transform:translate3d(-5vw,4vh,0) rotate(14deg) scale(1.08);opacity:.95}}
 @media(prefers-reduced-motion:reduce){body:before,body:after{animation:none!important}}
-
 </style></head><body><main class="wrap">
 <header class="top"><a class="brand" href="./index.html"><b>ل</b>لَمّة</a><div class="top-actions"><a class="btn secondary" href="./profile.html">بروفايلي</a><a class="btn secondary" href="./notifications.html">الإشعارات</a><a class="btn secondary" href="./index.html">الرئيسية</a></div></header>
 <section class="hero"><div><span class="eyebrow">مجتمع لَمّة · العبوا كفريق واحد</span><h1>ميدان الأبطال</h1><p>كوّن فريقك، شارك في البطولات، نافس اللاعبين، وشاهد المباريات. ميدان الأبطال للمجتمع والمنافسة.</p></div><div class="who"><div class="face" id="avatar">ل</div><div><b id="playerName">جارٍ التحقق من الحساب…</b><div class="small" id="connection">جاري الاتصال</div></div></div></section>
