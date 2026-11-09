@@ -42,6 +42,8 @@
 </div>
 <section class="panel"><h2 class="section-title">كل حسابات اللاعبين</h2><input id="accountSearch" class="field" style="width:100%;margin:0 0 12px" placeholder="ابحث بالاسم أو الإيميل أو UID"><div id="accounts" class="list"><div class="empty">جاري تحميل الحسابات...</div></div><div class="muted" id="accountsCount" style="margin-top:8px"></div></section>
 <section class="panel"><h2 class="section-title">الغرف النشطة</h2><div id="rooms" class="list"><div class="empty">جاري التحميل…</div></div></section>
+<section class="panel"><div class="row"><h2 class="section-title">بلاغات اللاعبين</h2><span class="muted" id="reportsCount">—</span></div><div id="reports" class="list"><div class="empty">جاري تحميل البلاغات…</div></div></section>
+
 <div class="notice">إدارة الحسابات والرصيد والإعلانات محمية بقواعد Firebase. لو أي عملية اترفضت، تأكد إنك نشرت آخر نسخة من database.rules.json.</div>
 </section>
 </main>
@@ -64,7 +66,7 @@ function show(user){
 }
 function watch(){
  stop();
- const pres=db.ref("presence");const rooms=db.ref("rooms");const directory=db.ref("userDirectory");let accountCache=[];
+ const pres=db.ref("presence");const rooms=db.ref("rooms");const directory=db.ref("userDirectory");let accountCache=[];const reportsRef=db.ref("playerReports");
  const renderAccounts=()=>{const q=($("accountSearch").value||"").trim().toLowerCase();const filtered=accountCache.filter(p=>[p.name,p.email,p.uid].some(v=>String(v||"").toLowerCase().includes(q)));$("accountsCount").textContent="عدد الحسابات المسجلة: "+accountCache.length;$("accounts").innerHTML=filtered.length?filtered.sort((a,b)=>String(a.name||"").localeCompare(String(b.name||""),"ar")).map(p=>'<div class="player"><span class="dot" style="background:#8294b8"></span><div class="info"><b>'+esc(p.name||"لاعب")+(p.online?' <small style="color:#36d6a0;display:inline">● متصل</small>':'')+'</b><small>'+esc(p.email||"بدون إيميل")+'</small><small>'+esc(p.uid)+'</small></div><div class="actions"><button data-pick-uid="'+esc(p.uid)+'">اختيار لإرسال LC</button></div></div>').join(""):'<div class="empty">مفيش حسابات مطابقة.</div>';$("accounts").querySelectorAll("[data-pick-uid]").forEach(b=>b.onclick=()=>{$("targetUid").value=b.dataset.pickUid;msg("coinStatus","تم اختيار اللاعب. اكتب قيمة LC واضغط إضافة الرصيد.");$("coinAmount").focus();});};
  $("accountSearch").oninput=renderAccounts;
  const p3=directory.on("value",snap=>{accountCache=[];snap.forEach(c=>{const p=c.val()||{};accountCache.push({uid:c.key,...p,online:false})});const onlineSet=new Set();pres.once("value").then(ps=>{ps.forEach(x=>{if(x.val()?.online===true)onlineSet.add(x.key)});accountCache.forEach(p=>p.online=onlineSet.has(p.uid));renderAccounts();}).catch(renderAccounts);renderAccounts();},e=>{$("accounts").innerHTML='<div class="empty">تعذر تحميل الحسابات: '+esc(e.message)+' — راجع قواعد Firebase.</div>';});
@@ -80,6 +82,7 @@ function watch(){
   $("roomCount").textContent=list.length;
   $("rooms").innerHTML=list.length?list.sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0)).map(r=>'<div class="request"><div class="info"><b>'+esc(r.title||r.game||"غرفة")+'</b><small>كود: '+esc(String(r.id).slice(-6).toUpperCase())+' • المضيف: '+esc(r.hostName||r.hostUid||"—")+' • '+Object.keys(r.players||{}).length+' لاعب</small></div></div>').join(""):'<div class="empty">مفيش غرف نشطة.</div>';
  },e=>msg("announceStatus","تعذر قراءة الغرف: "+e.message));
+ const p4=reportsRef.on("value",snap=>{const rows=[];snap.forEach(userNode=>{userNode.forEach(reportNode=>rows.push({uid:userNode.key,id:reportNode.key,...(reportNode.val()||{})}))});rows.sort((x,y)=>(Number(y.createdAt)||0)-(Number(x.createdAt)||0));$("reportsCount").textContent=rows.filter(x=>x.status!=="resolved").length+" مفتوح";$("reports").innerHTML=rows.length?rows.map(r=>'<div class="request"><div class="info"><b>'+esc(({abuse:"إساءة أو مضايقة",cheating:"غش أو استغلال",spam:"إزعاج أو رسائل مزعجة",impersonation:"انتحال شخصية"}[r.type]||"بلاغ آخر"))+' · '+esc(r.target||"بدون هدف محدد")+'</b><small>صاحب البلاغ: '+esc(r.uid)+' · '+(r.createdAt?new Date(r.createdAt).toLocaleString("ar-EG"):"")+'</small><small>'+esc(r.details||"")+'</small><small>الحالة: '+esc(r.status||"جديد")+'</small></div><div class="actions">'+(r.status==="resolved"?'<span class="muted">تمت المراجعة</span>':'<button data-resolve-report="'+esc(r.uid)+'|'+esc(r.id)+'">تمت المراجعة</button>')+'</div></div>').join(""):'<div class="empty">لا توجد بلاغات حاليًا.</div>'; $("reports").querySelectorAll("[data-resolve-report]").forEach(b=>b.onclick=async()=>{const [uid,id]=b.dataset.resolveReport.split("|");try{await db.ref("playerReports/"+uid+"/"+id).update({status:"resolved",reviewedAt:Date.now(),reviewedBy:auth.currentUser.uid});}catch(e){alert("تعذر تحديث البلاغ: "+e.message)}});},e=>{$("reports").innerHTML='<div class="empty">تعذر تحميل البلاغات: '+esc(e.message)+'</div>'});
  unsubs.push(()=>pres.off("value",p1),()=>rooms.off("value",p2),()=>directory.off("value",p3));
 }
 async function moderate(uid,banned){
