@@ -14,12 +14,12 @@ function startCardGame(room,game){
  ids.forEach((id,i)=>base.players[id]={seat:i,hand:[],score:0,tricks:0,bid:null,saidUno:false});
  if(game==="uno"){
   const deck=unoDeck();ids.forEach(id=>base.players[id].hand=deck.splice(0,7));let top=deck.pop();while(["wild","+4"].includes(top.v)){deck.unshift(top);top=deck.pop()}
-  Object.assign(base,{deck,discard:[top],color:top.c,direction:1,phase:"playing"});
+  Object.assign(base,{deck,discard:[top],color:top.c,direction:1,drawn:null,phase:"playing"});
  }else if(game==="basra"){
   const deck=standardDeck();ids.forEach(id=>base.players[id].hand=deck.splice(0,4));Object.assign(base,{deck,table:deck.splice(0,4),captured:Object.fromEntries(ids.map(id=>[id,[]])),phase:"playing"});
  }else if(["tarneeb","hokm","estimation"].includes(game)){
   const deck=standardDeck();ids.forEach(id=>base.players[id].hand=deck.splice(0,13));Object.assign(base,{trick:[],trump:null,leadSuit:null,teamScores:[0,0],round:1,phase:game==="hokm"?"chooseTrump":"bidding",dealer:0});if(game==="hokm")base.turn=1;
-  if(game==="tarneeb")base.phase="bidding";
+  if(game==="tarneeb"){base.phase="bidding";base.turn=1;}
  }else if(game==="konkan"){
   const deck=standardDeck();ids.forEach(id=>base.players[id].hand=deck.splice(0,7));Object.assign(base,{deck,discard:[deck.pop()],phase:"draw",drawn:false});
  }else throw Error("UNKNOWN_CARD_GAME");
@@ -34,10 +34,10 @@ function applyCardMove(room,uid,b){
  const g=room.gameState;if(!g)throw Error("GAME_NOT_STARTED");const ids=Object.keys(room.players),p=g.players[uid];if(!p)throw Error("NOT_IN_ROOM");const game=g.game;
  if(game==="uno"){
   if(g.phase!=="playing"||ids[g.turn]!==uid)throw Error("NOT_YOUR_TURN");
-  if(b.action==="draw"){if(!g.deck.length)g.deck=shuffle(g.discard.splice(0,g.discard.length-1));if(!g.deck.length)throw Error("NO_CARDS");p.hand.push(g.deck.pop());g.turn=next(g.turn+g.direction,ids.length);log(g,room.players[uid].name+" سحب ورقة");return}
+  if(b.action==="draw"){if(g.drawn)throw Error("ALREADY_DREW");if(!g.deck.length)g.deck=shuffle(g.discard.splice(0,g.discard.length-1));if(!g.deck.length)throw Error("NO_CARDS");const drawn=g.deck.pop();p.hand.push(drawn);g.drawn=drawn.id;log(g,room.players[uid].name+" سحب ورقة");return}if(b.action==="pass"){if(!g.drawn)throw Error("DRAW_FIRST");g.drawn=null;g.turn=next(g.turn+g.direction,ids.length);log(g,room.players[uid].name+" أنهى دوره بعد السحب");return}
   const card=p.hand.find(x=>x.id===b.card);if(!card)throw Error("CARD_NOT_IN_HAND");
   const top=g.discard.at(-1),valid=card.c==="wild"||card.c===g.color||card.v===top.v;if(!valid)throw Error("INVALID_CARD");
-  p.hand=p.hand.filter(x=>x.id!==card.id);g.discard.push(card);if(card.c==="wild"){if(!["red","yellow","green","blue"].includes(b.color))throw Error("CHOOSE_COLOR");g.color=b.color}else g.color=card.c;
+  p.hand=p.hand.filter(x=>x.id!==card.id);g.drawn=null;g.discard.push(card);if(card.c==="wild"){if(!["red","yellow","green","blue"].includes(b.color))throw Error("CHOOSE_COLOR");g.color=b.color}else g.color=card.c;
   let skip=0,draw=0;if(card.v==="skip")skip=1;if(card.v==="reverse"){g.direction*=-1;if(ids.length===2)skip=1}if(card.v==="+2")draw=2;if(card.v==="+4")draw=4;
   if(p.hand.length===1&&!b.uno){for(let i=0;i<2;i++){if(!g.deck.length)g.deck=shuffle(g.discard.splice(0,g.discard.length-1));if(g.deck.length)p.hand.push(g.deck.pop())}log(g,room.players[uid].name+" نسي يقول أونو وسحب ورقتين")}
   if(!p.hand.length){g.phase="finished";g.winner=uid;g.winnerTeam=game==="uno"&&ids.length===4?p.seat%2:null;log(g,"انتهت الجولة وفاز "+room.players[uid].name);return}
@@ -58,7 +58,7 @@ function applyCardMove(room,uid,b){
  }
  if(["tarneeb","hokm","estimation"].includes(game)){
   if(g.phase==="chooseTrump"){if(!["hokm","tarneeb"].includes(game)||ids[g.turn]!==uid||!SUITS.includes(b.trump))throw Error("INVALID_TRUMP");g.trump=b.trump;g.phase="playing";return}
-  if(g.phase==="bidding"){if(ids[g.turn]!==uid)throw Error("NOT_YOUR_TURN");const bid=Number(b.bid);if(!Number.isInteger(bid)||bid<1||bid>13)throw Error("INVALID_BID");p.bid=bid;g.turn=next(g.turn+1,ids.length);if(ids.every(id=>g.players[id].bid!==null)){if(game==="tarneeb"){const high=ids.map(id=>({id,bid:g.players[id].bid})).sort((a,b)=>b.bid-a.bid)[0];g.highBidder=high.id;g.turn=ids.indexOf(high.id);g.phase="chooseTrump"}else{g.phase="playing";g.turn=next(g.dealer+1,ids.length)}}return}
+  if(g.phase==="bidding"){if(ids[g.turn]!==uid)throw Error("NOT_YOUR_TURN");const bid=Number(b.bid);if(!Number.isInteger(bid)||bid<(game==="tarneeb"?7:1)||bid>13)throw Error("INVALID_BID");p.bid=bid;g.turn=next(g.turn+1,ids.length);if(ids.every(id=>g.players[id].bid!==null)){if(game==="tarneeb"){const high=ids.map(id=>({id,bid:g.players[id].bid})).sort((a,b)=>b.bid-a.bid)[0];g.highBidder=high.id;g.turn=ids.indexOf(high.id);g.phase="chooseTrump"}else{g.phase="playing";g.turn=next(g.dealer+1,ids.length)}}return}
   if(g.phase!=="playing"||ids[g.turn]!==uid)throw Error("NOT_YOUR_TURN");const card=p.hand.find(x=>x.id===b.card);if(!card)throw Error("CARD_NOT_IN_HAND");if(g.leadSuit&&!g.trick.some(t=>t.uid===uid)&&p.hand.some(x=>x.s===g.leadSuit)&&card.s!==g.leadSuit)throw Error("FOLLOW_SUIT");
   if(!g.trick.length)g.leadSuit=card.s;p.hand=p.hand.filter(x=>x.id!==card.id);g.trick.push({uid,card});if(g.trick.length<ids.length){g.turn=next(g.turn+1,ids.length);return}
   const trump=g.trump,lead=g.leadSuit;const rank=x=>RANKS.indexOf(x.card.r)+(x.card.s===trump?20:x.card.s===lead?10:0);const win=g.trick.reduce((a,x)=>rank(x)>rank(a)?x:a);const wi=ids.indexOf(win.uid);g.players[win.uid].tricks++;g.turn=wi;g.trick=[];g.leadSuit=null;
