@@ -110,7 +110,7 @@ $("profileForm").addEventListener("submit",async e=>{
   const old=await get(ref(db,"profiles/"+currentUser.uid));const oldData=old.val()||{};
   await set(ref(db,"profiles/"+currentUser.uid),{...oldData,uid:currentUser.uid,email:currentUser.email||"",displayName,bio,avatarUrl,createdAt:oldData.createdAt||Date.now(),updatedAt:Date.now()});
   await set(ref(db,"userDirectory/"+currentUser.uid),{uid:currentUser.uid,name:displayName,email:currentUser.email||"",createdAt:oldData.createdAt||Date.now(),lastSeen:Date.now()});
-  $("profileName").textContent=displayName;showAvatar(avatarUrl,displayName);say("تم حفظ البروفايل بنجاح.");
+  $("profileName").textContent=displayName;if(avatarUrl)localStorage.setItem("lammaAvatar",avatarUrl);else localStorage.removeItem("lammaAvatar");showAvatar(avatarUrl,displayName);say("تم حفظ البروفايل بنجاح.");
  }catch(err){say("فشل الحفظ: "+err.message,true)}
  finally{$("saveBtn").disabled=false;$("saveBtn").textContent="حفظ التعديلات"}
 });
