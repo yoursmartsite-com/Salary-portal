@@ -103,64 +103,71 @@ body:before{
 @keyframes communityGlow{from{transform:translate3d(0,0,0) scale(.88)}to{transform:translate3d(14vw,-8vh,0) scale(1.16)}}
 @media(prefers-reduced-motion:reduce){body:after,body:before{animation:none!important}}
 
-/* Lamma futuristic neon city background — distinct from the previous starfield */
+/* Lamma new signature background: emerald aurora + champagne light */
 body{
  background:
-  radial-gradient(ellipse at 50% 38%,rgba(49,91,173,.22),transparent 48%),
-  radial-gradient(ellipse at 14% 20%,rgba(20,202,220,.19),transparent 34%),
-  radial-gradient(ellipse at 88% 18%,rgba(139,63,226,.22),transparent 36%),
-  linear-gradient(180deg,#070b1b 0%,#10152c 52%,#080d1c 100%)!important;
+  radial-gradient(ellipse at 18% 18%,rgba(17,139,119,.34),transparent 38%),
+  radial-gradient(ellipse at 83% 24%,rgba(54,91,132,.28),transparent 40%),
+  radial-gradient(ellipse at 55% 88%,rgba(139,105,47,.18),transparent 42%),
+  linear-gradient(135deg,#071714 0%,#0b1c25 46%,#111526 100%)!important;
  background-attachment:fixed!important;
 }
 body:before{
- opacity:.65;
- background-image:
-  radial-gradient(2px 2px at 12% 18%,rgba(220,237,255,.8) 50%,transparent 100%),
-  radial-gradient(1.5px 1.5px at 77% 12%,rgba(255,255,255,.75) 50%,transparent 100%),
-  radial-gradient(2px 2px at 88% 55%,rgba(155,220,255,.75) 50%,transparent 100%),
-  radial-gradient(1px 1px at 32% 73%,rgba(255,255,255,.65) 50%,transparent 100%),
-  radial-gradient(1.5px 1.5px at 61% 88%,rgba(200,186,255,.72) 50%,transparent 100%);
- background-size:280px 230px,320px 250px,300px 240px,340px 260px,290px 230px;
- animation:cityStars 48s linear infinite;
+ content:"";position:fixed;inset:-12%;z-index:-1;pointer-events:none;opacity:.92;
+ background:
+  radial-gradient(ellipse 42% 24% at 16% 34%,rgba(24,190,150,.20),transparent 72%),
+  radial-gradient(ellipse 38% 25% at 76% 20%,rgba(82,151,190,.18),transparent 72%),
+  radial-gradient(ellipse 34% 22% at 58% 76%,rgba(198,157,83,.13),transparent 72%),
+  linear-gradient(118deg,transparent 20%,rgba(63,194,166,.055) 37%,transparent 53%),
+  linear-gradient(28deg,transparent 35%,rgba(116,167,196,.06) 49%,transparent 64%);
+ background-size:150% 150%,145% 145%,150% 150%,100% 100%,100% 100%;
+ background-position:0% 0%,100% 0%,50% 100%,center,center;
+ filter:blur(2px);
+ animation:lammaAurora 24s ease-in-out infinite alternate;
 }
 body:after{
  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
  background:
-  linear-gradient(to top,rgba(4,9,24,.98),rgba(4,9,24,.98)) 0 100%/100% 12% no-repeat,
-  linear-gradient(to top,rgba(8,17,39,.98),rgba(8,17,39,.98)) 2% 100%/7% 34% no-repeat,
-  linear-gradient(to top,rgba(11,21,47,.98),rgba(11,21,47,.98)) 11% 100%/9% 47% no-repeat,
-  linear-gradient(to top,rgba(7,15,35,.98),rgba(7,15,35,.98)) 22% 100%/8% 29% no-repeat,
-  linear-gradient(to top,rgba(12,22,50,.98),rgba(12,22,50,.98)) 33% 100%/10% 55% no-repeat,
-  linear-gradient(to top,rgba(7,15,36,.98),rgba(7,15,36,.98)) 46% 100%/8% 37% no-repeat,
-  linear-gradient(to top,rgba(12,20,48,.98),rgba(12,20,48,.98)) 57% 100%/11% 49% no-repeat,
-  linear-gradient(to top,rgba(7,15,35,.98),rgba(7,15,35,.98)) 70% 100%/8% 31% no-repeat,
-  linear-gradient(to top,rgba(12,21,48,.98),rgba(12,21,48,.98)) 81% 100%/9% 52% no-repeat,
-  linear-gradient(to top,rgba(7,15,35,.98),rgba(7,15,35,.98)) 92% 100%/8% 39% no-repeat,
-  radial-gradient(ellipse at 50% 78%,rgba(28,202,224,.18),transparent 38%),
-  radial-gradient(ellipse at 82% 60%,rgba(136,74,255,.17),transparent 34%);
- background-repeat:no-repeat;
- filter:drop-shadow(0 -8px 24px rgba(40,180,220,.08));
- animation:cityPulse 9s ease-in-out infinite alternate;
+  linear-gradient(115deg,transparent 0 34%,rgba(111,213,187,.055) 42%,transparent 51%),
+  linear-gradient(295deg,transparent 0 56%,rgba(215,177,111,.045) 64%,transparent 73%),
+  radial-gradient(ellipse at 50% 50%,transparent 25%,rgba(1,8,12,.30) 100%);
+ opacity:.9;mix-blend-mode:screen;
+ animation:lammaLight 18s ease-in-out infinite alternate;
 }
-.top,.hero,.card,.tabs button,.item,.who,.tool-chip{
- backdrop-filter:blur(7px) saturate(135%);
+.top,.hero,.card,.tabs button,.item,.who,.tool-chip{backdrop-filter:blur(12px) saturate(125%)}
+.top{
+ background:rgba(7,22,24,.62)!important;
+ border-color:rgba(106,177,157,.30)!important;
 }
-.top{background:rgba(10,17,35,.50)!important;border-color:rgba(104,160,205,.35)!important}
 .hero{
- background:linear-gradient(110deg,rgba(14,34,66,.60),rgba(15,22,47,.48) 60%,rgba(47,25,78,.54))!important;
- border-color:rgba(90,173,207,.48)!important;
+ background:linear-gradient(112deg,rgba(10,53,48,.70),rgba(13,31,42,.58) 58%,rgba(49,43,34,.54))!important;
+ border-color:rgba(117,184,159,.38)!important;
+ box-shadow:0 20px 58px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.09)!important;
 }
 .card{
- background:linear-gradient(145deg,rgba(14,28,53,.62),rgba(9,17,36,.53))!important;
- border-color:rgba(92,137,180,.42)!important;
+ background:linear-gradient(145deg,rgba(13,37,39,.69),rgba(10,22,32,.60))!important;
+ border-color:rgba(106,159,148,.34)!important;
+ box-shadow:0 13px 34px rgba(0,0,0,.19),inset 0 1px rgba(255,255,255,.045)!important;
 }
-.item{background:rgba(9,19,39,.54)!important;border-color:rgba(81,127,169,.42)!important}
-.who,.tool-chip,.tabs button{background:rgba(10,21,42,.62)!important;border-color:rgba(88,137,178,.42)!important}
-.notice{background:rgba(15,31,57,.68)!important;backdrop-filter:blur(9px)}
-.empty{background:rgba(7,15,31,.42)}
-@keyframes cityStars{from{background-position:0 0,0 0,0 0,0 0,0 0}to{background-position:280px 230px,-160px 125px,150px 240px,-170px 130px,290px -115px}}
-@keyframes cityPulse{from{opacity:.84}to{opacity:1}}
-@media(prefers-reduced-motion:reduce){body:after,body:before{animation:none!important}}
+.item{background:rgba(8,27,31,.60)!important;border-color:rgba(100,151,139,.32)!important}
+.who,.tool-chip,.tabs button{
+ background:rgba(8,28,32,.68)!important;
+ border-color:rgba(100,157,146,.34)!important;
+}
+.tabs button.active{
+ background:linear-gradient(110deg,rgba(20,119,98,.92),rgba(38,84,104,.92))!important;
+ border-color:rgba(135,208,178,.68)!important;
+}
+.notice{background:rgba(12,39,39,.72)!important;border-color:rgba(108,177,153,.34)!important;backdrop-filter:blur(12px)}
+.empty{background:rgba(5,20,24,.42);border-color:rgba(100,151,139,.30)}
+.btn{background:linear-gradient(110deg,#167c68,#326f86)}
+.btn.secondary{background:rgba(19,52,55,.78);border-color:rgba(111,169,155,.38)}
+@keyframes lammaAurora{
+ 0%{background-position:0% 0%,100% 0%,50% 100%,center,center;transform:translate3d(-1%,0,0) scale(1)}
+ 100%{background-position:35% 30%,65% 45%,35% 70%,center,center;transform:translate3d(1%,-1%,0) scale(1.06)}
+}
+@keyframes lammaLight{from{opacity:.55;transform:translateX(-1%)}to{opacity:1;transform:translateX(1%)}}
+@media(prefers-reduced-motion:reduce){body:before,body:after{animation:none!important}}
 
 </style></head><body><main class="wrap">
 <header class="top"><a class="brand" href="./index.html"><b>ل</b>لَمّة</a><div class="top-actions"><a class="btn secondary" href="./profile.html">بروفايلي</a><a class="btn secondary" href="./notifications.html">الإشعارات</a><a class="btn secondary" href="./index.html">الرئيسية</a></div></header>
