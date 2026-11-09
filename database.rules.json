@@ -117,7 +117,9 @@
     "friends": {
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
-        ".write": "auth != null && (auth.uid === $uid || root.child('friendRequests').child(auth.uid).child($uid).child('status').val() === 'pending' || root.child('friends').child(auth.uid).child($uid).exists())"
+        "$friendUid": {
+          ".write": "auth != null && (auth.uid === $uid || root.child('friendRequests').child($friendUid).child($uid).child('status').val() === 'accepted' || root.child('friendRequests').child($uid).child($friendUid).child('status').val() === 'accepted')"
+        }
       }
     },
     "friendRequests": {
@@ -125,7 +127,15 @@
         ".read": "auth != null && (auth.uid === $toUid || (auth.uid === '91N0rI5SCDN1aKBXJkowj5KcUOz1' || auth.token.email === 'fibrahem865@gmail.com'))",
         "$fromUid": {
           ".read": "auth != null && (auth.uid === $toUid || auth.uid === $fromUid || (auth.uid === '91N0rI5SCDN1aKBXJkowj5KcUOz1' || auth.token.email === 'fibrahem865@gmail.com'))",
-          ".write": "auth != null && (auth.uid === $fromUid || auth.uid === $toUid || (auth.uid === '91N0rI5SCDN1aKBXJkowj5KcUOz1' || auth.token.email === 'fibrahem865@gmail.com'))"
+          ".write": "auth != null && ((auth.uid === $fromUid && !data.exists() && newData.child('fromUid').val() === auth.uid && newData.child('status').val() === 'pending') || (auth.uid === $toUid && data.exists() && newData.child('fromUid').val() === $fromUid && (newData.child('status').val() === 'accepted' || newData.child('status').val() === 'rejected')) || (auth.uid === '91N0rI5SCDN1aKBXJkowj5KcUOz1' || auth.token.email === 'fibrahem865@gmail.com'))"
+        }
+      }
+    },
+    "notifications": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$notificationId": {
+          ".write": "auth != null && ((auth.uid === $uid && data.exists() && newData.child('read').val() === true) || (auth.uid !== $uid && !data.exists() && newData.child('fromUid').val() === auth.uid))"
         }
       }
     },
