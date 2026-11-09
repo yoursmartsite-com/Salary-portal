@@ -48,7 +48,21 @@ function applyCardMove(room,uid,b){
  if(game==="basra"){
   if(ids[g.turn]!==uid)throw Error("NOT_YOUR_TURN");const card=p.hand.find(x=>x.id===b.card);if(!card)throw Error("CARD_NOT_IN_HAND");
   p.hand=p.hand.filter(x=>x.id!==card.id);let take=[];
-  if(card.r==="J")take=[...g.table];else take=g.table.filter(x=>x.r===card.r);
+  if(card.r==="J"){
+   take=[...g.table];
+  }else{
+   // Basra: capture a matching rank, or a numeric combination equal to the played card.
+   const value=c=>c.r==="A"?1:(/^([2-9]|10)$/.test(c.r)?Number(c.r):null);
+   const target=value(card);
+   const matching=g.table.filter(x=>x.r===card.r);
+   if(matching.length)take=matching;
+   else if(target!==null){
+    const nums=g.table.map((c,i)=>({c,i,v:value(c)})).filter(x=>x.v!==null);
+    const find=(start,left,chosen)=>{if(left===0)return chosen;if(left<0)return null;for(let i=start;i<nums.length;i++){const got=find(i+1,left-nums[i].v,[...chosen,nums[i].i]);if(got)return got}return null};
+    const combo=find(0,target,[]);
+    if(combo)take=combo.map(i=>g.table[i]);
+   }
+  }
   if(take.length){g.table=g.table.filter(x=>!take.some(t=>t.id===x.id));g.captured[uid].push(card,...take);if(!g.table.length)g.players[uid].basras=(g.players[uid].basras||0)+1}
   else g.table.push(card);
   if(take.length)g.lastCapturer=uid;
