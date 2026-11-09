@@ -14,7 +14,11 @@ function startCardGame(room,game){
  ids.forEach((id,i)=>base.players[id]={seat:i,hand:[],score:0,tricks:0,bid:null,saidUno:false});
  if(game==="uno"){
   const deck=unoDeck();ids.forEach(id=>base.players[id].hand=deck.splice(0,7));let top=deck.pop();while(["wild","+4"].includes(top.v)){deck.unshift(top);top=deck.pop()}
-  Object.assign(base,{deck,discard:[top],color:top.c,direction:1,drawn:null,phase:"playing"});
+  let firstTurn=0,direction=1;
+  if(top.v==="reverse"){direction=-1;if(n===2)firstTurn=next(firstTurn+1,n)}
+  else if(top.v==="skip")firstTurn=next(firstTurn+1,n);
+  else if(top.v==="+2"){for(let k=0;k<2;k++)base.players[ids[firstTurn]].hand.push(deck.pop());firstTurn=next(firstTurn+1,n)}
+  Object.assign(base,{deck,discard:[top],color:top.c,direction,turn:firstTurn,drawn:null,phase:"playing"});
  }else if(game==="basra"){
   const deck=standardDeck();ids.forEach(id=>base.players[id].hand=deck.splice(0,4));Object.assign(base,{deck,table:deck.splice(0,4),captured:Object.fromEntries(ids.map(id=>[id,[]])),phase:"playing"});
  }else if(["tarneeb","hokm","estimation"].includes(game)){
@@ -36,7 +40,7 @@ function applyCardMove(room,uid,b){
   if(g.phase!=="playing"||ids[g.turn]!==uid)throw Error("NOT_YOUR_TURN");
   if(b.action==="draw"){if(g.drawn)throw Error("ALREADY_DREW");if(!g.deck.length)g.deck=shuffle(g.discard.splice(0,g.discard.length-1));if(!g.deck.length)throw Error("NO_CARDS");const drawn=g.deck.pop();p.hand.push(drawn);g.drawn=drawn.id;log(g,room.players[uid].name+" سحب ورقة");return}if(b.action==="pass"){if(!g.drawn)throw Error("DRAW_FIRST");g.drawn=null;g.turn=next(g.turn+g.direction,ids.length);log(g,room.players[uid].name+" أنهى دوره بعد السحب");return}
   const card=p.hand.find(x=>x.id===b.card);if(!card)throw Error("CARD_NOT_IN_HAND");if(g.drawn&&card.id!==g.drawn)throw Error("PLAY_DRAWN_CARD_ONLY");
-  const top=g.discard.at(-1),valid=card.c==="wild"||card.c===g.color||card.v===top.v;if(!valid)throw Error("INVALID_CARD");
+  const top=g.discard.at(-1),valid=card.c==="wild"||card.c===g.color||card.v===top.v;if(!valid)throw Error("INVALID_CARD");if(card.v==="+4"&&p.hand.some(x=>x.id!==card.id&&x.c===g.color))throw Error("WILD_DRAW_FOUR_NOT_ALLOWED");
   p.hand=p.hand.filter(x=>x.id!==card.id);g.drawn=null;g.discard.push(card);if(card.c==="wild"){if(!["red","yellow","green","blue"].includes(b.color))throw Error("CHOOSE_COLOR");g.color=b.color}else g.color=card.c;
   let skip=0,draw=0;if(card.v==="skip")skip=1;if(card.v==="reverse"){g.direction*=-1;if(ids.length===2)skip=1}if(card.v==="+2")draw=2;if(card.v==="+4")draw=4;
   if(p.hand.length===1&&!b.uno){for(let i=0;i<2;i++){if(!g.deck.length)g.deck=shuffle(g.discard.splice(0,g.discard.length-1));if(g.deck.length)p.hand.push(g.deck.pop())}log(g,room.players[uid].name+" نسي يقول أونو وسحب ورقتين")}
