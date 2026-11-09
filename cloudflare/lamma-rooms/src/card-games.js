@@ -1,5 +1,5 @@
 // Server-authoritative card game engine for Lamma rooms.
-const SUITS=["♠","♥","♦","♣"], RANKS=["7","8","9","10","J","Q","K","A"];
+const SUITS=["♠","♥","♦","♣"], RANKS=["2","3","4","5","6","7","8","9","10","J","Q","K","A"];
 const uidOf=(room,uid)=>room.players?.[uid];
 const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 const standardDeck=()=>shuffle(SUITS.flatMap(s=>RANKS.map(r=>({s,r,id:s+r}))));
@@ -18,7 +18,7 @@ function startCardGame(room,game){
  }else if(game==="basra"){
   const deck=standardDeck();ids.forEach(id=>base.players[id].hand=deck.splice(0,4));Object.assign(base,{deck,table:deck.splice(0,4),captured:Object.fromEntries(ids.map(id=>[id,[]])),phase:"playing"});
  }else if(["tarneeb","hokm","estimation"].includes(game)){
-  const deck=standardDeck();ids.forEach(id=>base.players[id].hand=deck.splice(0,13));Object.assign(base,{trick:[],trump:null,leadSuit:null,teamScores:[0,0],round:1,phase:game==="hokm"?"chooseTrump":"bidding",dealer:0});
+  const deck=standardDeck();ids.forEach(id=>base.players[id].hand=deck.splice(0,13));Object.assign(base,{trick:[],trump:null,leadSuit:null,teamScores:[0,0],round:1,phase:game==="hokm"?"chooseTrump":"bidding",dealer:0});if(game==="hokm")base.turn=1;
   if(game==="tarneeb")base.phase="bidding";
  }else if(game==="konkan"){
   const deck=standardDeck();ids.forEach(id=>base.players[id].hand=deck.splice(0,7));Object.assign(base,{deck,discard:[deck.pop()],phase:"draw",drawn:false});
@@ -56,12 +56,12 @@ function applyCardMove(room,uid,b){
   else g.turn=next(g.turn+1,ids.length);return;
  }
  if(["tarneeb","hokm","estimation"].includes(game)){
-  if(g.phase==="chooseTrump"){if(game!=="hokm"||ids[g.turn]!==uid||!SUITS.includes(b.trump))throw Error("INVALID_TRUMP");g.trump=b.trump;g.phase="playing";return}
-  if(g.phase==="bidding"){if(ids[g.turn]!==uid)throw Error("NOT_YOUR_TURN");const bid=Number(b.bid);if(!Number.isInteger(bid)||bid<1||bid>13)throw Error("INVALID_BID");p.bid=bid;if(game==="tarneeb"&&b.trump&&SUITS.includes(b.trump))g.trump=b.trump;g.turn=next(g.turn+1,ids.length);if(ids.every(id=>g.players[id].bid!==null)){if(game==="hokm"&&!g.trump)g.phase="chooseTrump";else g.phase="playing";g.turn=next(g.dealer+1,ids.length)}return}
+  if(g.phase==="chooseTrump"){if(!["hokm","tarneeb"].includes(game)||ids[g.turn]!==uid||!SUITS.includes(b.trump))throw Error("INVALID_TRUMP");g.trump=b.trump;g.phase="playing";return}
+  if(g.phase==="bidding"){if(ids[g.turn]!==uid)throw Error("NOT_YOUR_TURN");const bid=Number(b.bid);if(!Number.isInteger(bid)||bid<1||bid>13)throw Error("INVALID_BID");p.bid=bid;g.turn=next(g.turn+1,ids.length);if(ids.every(id=>g.players[id].bid!==null)){if(game==="tarneeb"){const high=ids.map(id=>({id,bid:g.players[id].bid})).sort((a,b)=>b.bid-a.bid)[0];g.highBidder=high.id;g.turn=ids.indexOf(high.id);g.phase="chooseTrump"}else{g.phase="playing";g.turn=next(g.dealer+1,ids.length)}}return}
   if(g.phase!=="playing"||ids[g.turn]!==uid)throw Error("NOT_YOUR_TURN");const card=p.hand.find(x=>x.id===b.card);if(!card)throw Error("CARD_NOT_IN_HAND");if(g.leadSuit&&!g.trick.some(t=>t.uid===uid)&&p.hand.some(x=>x.s===g.leadSuit)&&card.s!==g.leadSuit)throw Error("FOLLOW_SUIT");
   if(!g.trick.length)g.leadSuit=card.s;p.hand=p.hand.filter(x=>x.id!==card.id);g.trick.push({uid,card});if(g.trick.length<ids.length){g.turn=next(g.turn+1,ids.length);return}
   const trump=g.trump,lead=g.leadSuit;const rank=x=>RANKS.indexOf(x.card.r)+(x.card.s===trump?20:x.card.s===lead?10:0);const win=g.trick.reduce((a,x)=>rank(x)>rank(a)?x:a);const wi=ids.indexOf(win.uid);g.players[win.uid].tricks++;g.turn=wi;g.trick=[];g.leadSuit=null;
-  if(ids.every(id=>!g.players[id].hand.length)){const team0=g.players[ids[0]].tricks+g.players[ids[2]].tricks,team1=g.players[ids[1]].tricks+g.players[ids[3]].tricks;g.teamScores[0]+=team0;g.teamScores[1]+=team1;g.phase="finished";g.winnerTeam=team0>team1?0:team1>team0?1:-1;log(g,"انتهت الجولة: "+team0+" مقابل "+team1)}return;
+  if(ids.every(id=>!g.players[id].hand.length)){const tricks=[g.players[ids[0]].tricks+g.players[ids[2]].tricks,g.players[ids[1]].tricks+g.players[ids[3]].tricks];if(game==="estimation"){for(let i=0;i<4;i++){const pl=g.players[ids[i]],delta=pl.tricks-pl.bid;pl.score+=delta===0?10+pl.bid:-Math.abs(delta)*10}g.teamScores=[g.players[ids[0]].score+g.players[ids[2]].score,g.players[ids[1]].score+g.players[ids[3]].score]}else if(game==="tarneeb"){const t=ids.indexOf(g.highBidder)%2,contract=g.players[g.highBidder].bid;g.teamScores[t]+=tricks[t]>=contract?tricks[t]:-contract;g.teamScores[1-t]+=tricks[1-t]}else{const t=ids.indexOf(g.trickWinner||win.uid)%2;g.teamScores[t]+=1;g.teamScores[1-t]+=0}g.phase="finished";g.winnerTeam=g.teamScores[0]>g.teamScores[1]?0:g.teamScores[1]>g.teamScores[0]?1:-1;log(g,"انتهت الجولة: "+g.teamScores[0]+" مقابل "+g.teamScores[1])}return;
  }
  if(game==="konkan"){
   if(ids[g.turn]!==uid)throw Error("NOT_YOUR_TURN");
