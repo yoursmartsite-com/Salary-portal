@@ -242,6 +242,12 @@
           ".write": "auth != null && (auth.uid === $uid || root.child('teams').child($teamId).child('ownerUid').val() === auth.uid)"
         }
       }
+    },
+    "playerMissions": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
     }
   }
 }
