@@ -46,6 +46,62 @@
 }
 @media(max-width:520px){.card{box-shadow:0 8px 22px rgba(0,0,0,.17)}.hero:before{animation-duration:15s}}
 @media(prefers-reduced-motion:reduce){:root{scroll-behavior:auto}*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+
+/* Lamma friends community: vivid animated scenery with translucent surfaces */
+body{
+ background:
+  radial-gradient(ellipse at 12% 14%,rgba(50,213,233,.28),transparent 34%),
+  radial-gradient(ellipse at 88% 22%,rgba(128,84,255,.32),transparent 38%),
+  radial-gradient(ellipse at 52% 82%,rgba(32,126,155,.22),transparent 42%),
+  linear-gradient(145deg,#070b18 0%,#0b1225 48%,#090d1c 100%)!important;
+}
+body:after{
+ content:"";position:fixed;z-index:-1;pointer-events:none;
+ width:48vw;height:48vw;min-width:280px;min-height:280px;max-width:650px;max-height:650px;
+ left:-16vw;bottom:-22vw;border-radius:50%;
+ background:radial-gradient(circle,rgba(47,209,214,.19),rgba(92,65,207,.10) 42%,transparent 70%);
+ filter:blur(22px);animation:communityGlow 17s ease-in-out infinite alternate;
+}
+body:before{
+ opacity:.9;
+ background-image:
+  radial-gradient(2px 2px at 12% 18%,rgba(220,237,255,.72) 50%,transparent 100%),
+  radial-gradient(1.5px 1.5px at 77% 12%,rgba(255,255,255,.72) 50%,transparent 100%),
+  radial-gradient(2px 2px at 88% 55%,rgba(155,220,255,.75) 50%,transparent 100%),
+  radial-gradient(1px 1px at 32% 73%,rgba(255,255,255,.65) 50%,transparent 100%),
+  radial-gradient(1.5px 1.5px at 61% 88%,rgba(200,186,255,.72) 50%,transparent 100%),
+  linear-gradient(rgba(125,158,220,.035) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(125,158,220,.035) 1px,transparent 1px);
+ background-size:310px 260px,310px 260px,310px 260px,310px 260px,310px 260px,44px 44px,44px 44px;
+ animation:communityStars 42s linear infinite;
+}
+.top,.hero,.card,.tabs button,.item,.who,.tool-chip{
+ backdrop-filter:blur(9px) saturate(125%);
+}
+.top{background:rgba(16,24,43,.58)!important;border-color:rgba(125,153,205,.34)!important}
+.hero{
+ background:linear-gradient(115deg,rgba(23,36,71,.52),rgba(17,24,43,.40) 65%,rgba(32,22,71,.48))!important;
+ border-color:rgba(120,143,201,.48)!important;
+ box-shadow:0 18px 50px rgba(0,0,0,.18),inset 0 1px rgba(255,255,255,.12)!important;
+}
+.card{
+ background:linear-gradient(145deg,rgba(19,31,55,.48),rgba(10,19,37,.34))!important;
+ border-color:rgba(113,139,188,.40)!important;
+ box-shadow:0 10px 28px rgba(0,0,0,.14),inset 0 1px rgba(255,255,255,.055)!important;
+}
+.item{
+ background:rgba(12,22,42,.43)!important;
+ border-color:rgba(87,112,155,.42)!important;
+}
+.who,.tool-chip,.tabs button{
+ background:rgba(14,25,46,.55)!important;
+ border-color:rgba(94,119,165,.42)!important;
+}
+.notice{background:rgba(23,37,65,.56)!important;backdrop-filter:blur(8px)}
+.empty{background:rgba(8,15,32,.25)}
+@keyframes communityStars{from{background-position:0 0,0 0,0 0,0 0,0 0,0 0,0 0}to{background-position:310px 260px,155px 130px,-155px 260px,310px -130px,0 260px,0 44px,44px 0}}
+@keyframes communityGlow{from{transform:translate3d(0,0,0) scale(.88)}to{transform:translate3d(14vw,-8vh,0) scale(1.16)}}
+@media(prefers-reduced-motion:reduce){body:after,body:before{animation:none!important}}
 </style></head><body><main class="wrap">
 <header class="top"><a class="brand" href="./index.html"><b>ل</b>لَمّة</a><div class="top-actions"><a class="btn secondary" href="./profile.html">بروفايلي</a><a class="btn secondary" href="./notifications.html">الإشعارات</a><a class="btn secondary" href="./index.html">الرئيسية</a></div></header>
 <section class="hero"><div><span class="eyebrow">مجتمع لَمّة · العبوا كفريق واحد</span><h1>ميدان الأبطال</h1><p>كوّن فريقك، شارك في البطولات، نافس اللاعبين، وشاهد المباريات. ميدان الأبطال للمجتمع والمنافسة.</p></div><div class="who"><div class="face" id="avatar">ل</div><div><b id="playerName">جارٍ التحقق من الحساب…</b><div class="small" id="connection">جاري الاتصال</div></div></div></section>
