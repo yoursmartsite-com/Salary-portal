@@ -305,7 +305,7 @@
       ".read": "auth != null && (auth.uid === '91N0rI5SCDN1aKBXJkowj5KcUOz1' || auth.token.email === 'fibrahem865@gmail.com')",
       "$uid": {
         "$reportId": {
-          ".write": "auth != null && auth.uid === $uid && !data.exists()"
+          ".write": "auth != null && ((auth.uid === $uid && !data.exists()) || auth.uid === '91N0rI5SCDN1aKBXJkowj5KcUOz1' || auth.token.email === 'fibrahem865@gmail.com')"
         }
       }
     },
@@ -370,6 +370,32 @@
               ".validate": "newData.hasChildren(['choice','at']) && newData.child('choice').isNumber() && newData.child('choice').val() >= 0 && newData.child('choice').val() <= 3 && newData.child('at').isNumber()"
             }
           }
+        }
+      }
+    },
+    "communityPosts": {
+      ".read": "auth != null",
+      "$postId": {
+        ".write": "auth != null && ((!data.exists() && newData.child('uid').val() === auth.uid) || (data.exists() && data.child('uid').val() === auth.uid))",
+        "likes": {
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid"
+          }
+        },
+        "comments": {
+          "$commentId": {
+            ".write": "auth != null && !data.exists() && newData.child('uid').val() === auth.uid",
+            ".validate": "newData.hasChildren(['uid','name','text','at']) && newData.child('text').isString() && newData.child('text').val().length > 0 && newData.child('text').val().length <= 180 && newData.child('at').isNumber()"
+          }
+        }
+      }
+    },
+    "seasonStats": {
+      ".read": "auth != null",
+      "$month": {
+        ".read": "auth != null",
+        "$uid": {
+          ".write": "auth != null && auth.uid === $uid"
         }
       }
     }
