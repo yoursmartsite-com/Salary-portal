@@ -177,10 +177,10 @@ function draw(){
  c.clearRect(0,0,600,600);
  const round=(x,y,w,h,r,fill,stroke,line=1)=>{c.beginPath();c.roundRect(x,y,w,h,r);if(fill){c.fillStyle=fill;c.fill()}if(stroke){c.lineWidth=line;c.strokeStyle=stroke;c.stroke()}};
  const grad=(x,y,w,h,a,b)=>{const g=c.createLinearGradient(x,y,x+w,y+h);g.addColorStop(0,a);g.addColorStop(1,b);return g};
+ const boardStyle=room?.boardStyle||'classic',boardPalettes={board_gold:['#fff2c6','#d9a441','#76501c'],board_space:['#d8d2ff','#6652b8','#211b55'],board_ice:['#e6fbff','#79c9e8','#27658e'],board_royal:['#f4d8ff','#9b62bd','#45265f']},boardPalette=boardPalettes[boardStyle]||null;
  c.fillStyle=boardPalette?grad(0,0,600,600,boardPalette[0],boardPalette[1]):grad(0,0,600,600,'#fffdf7','#e8edf6');c.fillRect(0,0,600,600);
  // Outer frame and four raised home bases
  round(4,4,592,592,25,grad(0,0,590,590,'#fff','#d6dfeb'),'#b8c5d8',3);
- const boardStyle=room?.boardStyle||'classic',boardPalettes={board_gold:['#fff2c6','#d9a441','#76501c'],board_space:['#d8d2ff','#6652b8','#211b55'],board_ice:['#e6fbff','#79c9e8','#27658e'],board_royal:['#f4d8ff','#9b62bd','#45265f']},boardPalette=boardPalettes[boardStyle]||null;
  const homes=[{x:8,y:8,color:colors[0],light:'#ff9aa5',dark:'#a91d36'},{x:360,y:8,color:colors[1],light:'#a2ffd1',dark:'#08794b'},{x:8,y:360,color:colors[2],light:'#fff0a3',dark:'#a96a00'},{x:360,y:360,color:colors[3],light:'#a8d9ff',dark:'#1452ad'}];
  homes.forEach((h,i)=>{
   round(h.x+4,h.y+4,232,232,22,grad(h.x,h.y,240,240,h.light,h.dark),'#ffffff',3);
