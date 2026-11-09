@@ -45,6 +45,19 @@
 .auth-error{color:#ff8da4;min-height:22px;font-size:12px;margin-top:8px}.auth-close{float:left;background:#1a2943;border-radius:8px;padding:5px 10px}
 @media(max-width:760px){.account{display:block;margin-top:12px}.account-note{display:none}.auth-actions{grid-template-columns:1fr 1fr}.top-auth{font-size:10px;padding:8px}.topbar{flex-wrap:wrap}.top-auth{order:2}}
 </style>
+
+<style>
+/* Lamma community feature on homepage */
+.community-feature{position:relative;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(220px,.85fr);gap:18px;align-items:center;min-height:190px;margin:18px 0 25px;padding:22px 25px;overflow:hidden;border:1px solid #315b63;border-radius:18px;background:radial-gradient(ellipse at 82% 15%,#1b777055,transparent 45%),linear-gradient(115deg,#0d2931,#101b35 58%,#211548);text-decoration:none;color:#fff;box-shadow:0 15px 40px #02071180;isolation:isolate}
+.community-feature:before{content:"";position:absolute;width:240px;height:240px;border:1px solid #59e2c533;border-radius:50%;left:-65px;top:-115px;box-shadow:0 0 0 22px #59e2c30b,0 0 0 48px #59e2c308;z-index:-1}
+.community-copy{position:relative;z-index:1}.community-kicker{color:#65e8c8;font-size:11px;font-weight:900;letter-spacing:.5px}.community-copy h2{font-size:clamp(22px,2.5vw,32px);margin:7px 0 5px;font-weight:900}.community-copy p{color:#c0d4dc;line-height:1.9;margin:0 0 14px;max-width:560px}.community-cta{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:10px;background:linear-gradient(100deg,#087e72,#16b99a);font-weight:900;color:#fff;box-shadow:0 7px 22px #08a88c40}
+.community-art{min-height:135px;display:flex;align-items:center;justify-content:center;gap:10px;position:relative}
+.community-orb{width:92px;height:92px;border-radius:25px;display:grid;place-items:center;font-size:42px;background:linear-gradient(145deg,#1d665f,#132c40);border:1px solid #5ce1c477;box-shadow:0 12px 35px #0007, inset 0 0 25px #6af5d522;transform:rotate(-8deg)}
+.community-orb:nth-child(2){width:108px;height:108px;font-size:49px;background:linear-gradient(145deg,#49318a,#201b4b);border-color:#b39aff88;transform:translateY(-8px) rotate(5deg)}
+.community-orb:nth-child(3){width:78px;height:78px;font-size:34px;transform:rotate(9deg)}
+@media(max-width:760px){.community-feature{grid-template-columns:1fr;gap:7px;padding:17px 16px;margin:12px 0 20px;min-height:0}.community-copy h2{font-size:23px}.community-copy p{font-size:11px;margin-bottom:11px}.community-art{min-height:86px;justify-content:flex-start;padding-right:8px}.community-orb{width:64px;height:64px;border-radius:18px;font-size:30px}.community-orb:nth-child(2){width:76px;height:76px;font-size:36px}.community-orb:nth-child(3){width:55px;height:55px;font-size:25px}}
+</style>
+
 </head>
 
 <body>
@@ -83,6 +96,15 @@
     <a class="promo" href="online-room.html"><img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=600&q=80" alt=""><div class="promo-copy"><b>غرف أون لاين</b><small>كوّن غرفة وادعُ أصحابك</small></div></a>
     <a class="promo" href="chat.html"><img src="https://images.unsplash.com/photo-1606167668584-78701c57f13d?auto=format&fit=crop&w=600&q=80" alt=""><div class="promo-copy"><b>شات لَمّة</b><small>خليك على تواصل مع أصحابك</small></div></a>
   </section>
+  <a class="community-feature" href="social-hub.html" aria-label="افتح مجتمع لَمّة - ميدان الأبطال">
+    <div class="community-copy">
+      <span class="community-kicker">✦ ميدان الأبطال · مجتمع لَمّة</span>
+      <h2>اللعب مش بس جيم… دي لَمّة!</h2>
+      <p>كوّن فريقك، انضم لعائلة، شارك في البطولات والتحديات، تابع ترتيب اللاعبين وخلّي إنجازاتك تتكلم عنك.</p>
+      <span class="community-cta">ادخل مجتمع لَمّة <span aria-hidden="true">←</span></span>
+    </div>
+    <div class="community-art" aria-hidden="true"><span class="community-orb">⚔</span><span class="community-orb">🏆</span><span class="community-orb">♟</span></div>
+  </a>
   <section class="section" id="single">
     <div class="section-head"><h2><span>♛</span> ألعاب فردية</h2><a href="games/index.html">كل الألعاب ←</a></div>
     <div class="games">
