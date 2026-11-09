@@ -3,6 +3,7 @@ import { DurableObject } from "cloudflare:workers";
 const ORIGINS=new Set(["https://yoursmartsite-com.github.io","http://localhost:8000","http://127.0.0.1:8000"]);
 const cors=r=>{const o=r.headers.get("Origin")||"";return {"Access-Control-Allow-Origin":ORIGINS.has(o)?o:"https://yoursmartsite-com.github.io","Access-Control-Allow-Methods":"GET,POST,DELETE,OPTIONS","Access-Control-Allow-Headers":"Content-Type, Authorization","Access-Control-Max-Age":"86400","Vary":"Origin"}};
 const out=(d,s=200,h={})=>Response.json(d,{status:s,headers:h});
+const roomView=state=>{const safe={...state};delete safe.gameState;return safe};
 const uidOk=v=>typeof v==="string"&&/^[A-Za-z0-9_-]{3,128}$/.test(v);
 const nameOk=v=>typeof v==="string"&&v.trim().length>0&&v.trim().length<=24;
 const games=["none","xo","guess","rps","connect4","words","quiz","estimation","basra","uno","tarneeb","hokm","konkan"];
@@ -26,12 +27,12 @@ export class Room extends DurableObject{
   try{
    if(req.method==="POST"&&!action){if(state)return out({ok:false,error:"ROOM_EXISTS"},409,h);const b=await req.json();if(!uidOk(b.uid)||!nameOk(b.name))return out({ok:false,error:"INVALID_ROOM_DATA"},400,h);
     state={code:roomCode,title:String(b.title||"قعدة لَمّة").slice(0,35),topic:String(b.topic||"").slice(0,90),visibility:b.visibility==="public"?"public":"private",game:games.includes(b.game)?b.game:"none",maxPlayers:Math.max(2,Math.min(4,Number(b.maxPlayers)||4)),host:b.uid,createdAt:Date.now(),updatedAt:Date.now(),players:{[b.uid]:{uid:b.uid,name:b.name.trim(),avatar:String(b.avatar||"🍓").slice(0,1000),hand:false,joinedAt:Date.now()}},chat:[]};
-    await this.ctx.storage.put("room",state);return out({ok:true,room:state},201,h)}
+    await this.ctx.storage.put("room",state);return out({ok:true,room:roomView(state)},201,h)}
    if(!state)return out({ok:false,error:"ROOM_NOT_FOUND"},404,h);
    if(req.method==="GET"&&action==="game"){const uid=u.searchParams.get("uid")||"";if(!state.players[uid])return out({ok:false,error:"PLAYER_NOT_IN_ROOM"},403,h);return out({ok:true,game:publicCardGame(state,uid)},200,h)}
    if(req.method==="POST"&&action==="start"){const b=await req.json();if(b.uid!==state.host)return out({ok:false,error:"HOST_ONLY"},403,h);if(!["estimation","basra","uno","tarneeb","hokm","konkan"].includes(state.game))return out({ok:false,error:"NOT_CARD_GAME"},400,h);try{startCardGame(state,state.game);await this.ctx.storage.put("room",state);return out({ok:true,game:publicCardGame(state,b.uid)},200,h)}catch(e){return out({ok:false,error:e.message},409,h)}}
    if(req.method==="POST"&&action==="move"){const b=await req.json();try{if(!state.players[b.uid])return out({ok:false,error:"PLAYER_NOT_IN_ROOM"},403,h);applyCardMove(state,b.uid,b);state.updatedAt=Date.now();await this.ctx.storage.put("room",state);return out({ok:true,game:publicCardGame(state,b.uid)},200,h)}catch(e){return out({ok:false,error:e.message},409,h)}}
-   if(req.method==="GET"&&!action){const safe={...state};delete safe.gameState;return out({ok:true,room:safe},200,h)}
+   if(req.method==="GET"&&!action){return out({ok:true,room:roomView(state)},200,h)}
    if(req.method==="POST"&&action==="join"){const b=await req.json();if(!uidOk(b.uid)||!nameOk(b.name))return out({ok:false,error:"INVALID_PLAYER"},400,h);if(b.game&&state.game!==b.game)return out({ok:false,error:"WRONG_GAME"},409,h);if(!state.players[b.uid]&&Object.keys(state.players).length>=(state.maxPlayers||4))return out({ok:false,error:"ROOM_FULL"},409,h);state.players[b.uid]={uid:b.uid,name:b.name.trim(),avatar:String(b.avatar||"🍓").slice(0,1000),hand:false,joinedAt:state.players[b.uid]?.joinedAt||Date.now()};state.updatedAt=Date.now();await this.ctx.storage.put("room",state);return out({ok:true,room:state},200,h)}
    if(req.method==="POST"&&action==="ready"){const b=await req.json();if(!state.players[b.uid]||typeof b.ready!=="boolean")return out({ok:false,error:"PLAYER_NOT_IN_ROOM"},400,h);state.players[b.uid].ready=b.ready;state.updatedAt=Date.now();await this.ctx.storage.put("room",state);return out({ok:true,room:state},200,h)}
    if(req.method==="POST"&&action==="hand"){const b=await req.json();if(!state.players[b.uid]||typeof b.hand!=="boolean")return out({ok:false,error:"PLAYER_NOT_IN_ROOM"},400,h);state.players[b.uid].hand=b.hand;state.updatedAt=Date.now();await this.ctx.storage.put("room",state);return out({ok:true},200,h)}
