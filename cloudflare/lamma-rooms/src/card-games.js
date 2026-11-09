@@ -48,7 +48,7 @@ function applyCardMove(room,uid,b){
   if(ids[g.turn]!==uid)throw Error("NOT_YOUR_TURN");const card=p.hand.find(x=>x.id===b.card);if(!card)throw Error("CARD_NOT_IN_HAND");
   p.hand=p.hand.filter(x=>x.id!==card.id);let take=[];
   if(card.r==="J")take=[...g.table];else take=g.table.filter(x=>x.r===card.r);
-  if(take.length){g.table=g.table.filter(x=>!take.some(t=>t.id===t.id));g.captured[uid].push(card,...take);if(!g.table.length)g.players[uid].basras=(g.players[uid].basras||0)+1}
+  if(take.length){g.table=g.table.filter(x=>!take.some(t=>t.id===x.id));g.captured[uid].push(card,...take);if(!g.table.length)g.players[uid].basras=(g.players[uid].basras||0)+1}
   else g.table.push(card);
   if(p.hand.length===0&&g.deck.length){for(const id of ids)g.players[id].hand=g.deck.splice(0,Math.min(4,g.deck.length))}
   if(ids.every(id=>!g.players[id].hand.length)&&!g.deck.length){g.phase="finished";const scores=ids.map(id=>({id,score:(g.captured[id]||[]).length+(g.players[id].basras||0)*10})).sort((a,b)=>b.score-a.score);g.winner=scores[0].id;log(g,"انتهت لعبة البصرة")}
