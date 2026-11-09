@@ -17,7 +17,10 @@ const CATALOG = {
   move_gold: { name: "مسار الذهب", price: 120, type: "movementEffect" },
   move_ice: { name: "مسار الجليد", price: 100, type: "movementEffect" },
   move_rainbow: { name: "مسار قوس قزح", price: 200, type: "movementEffect" },
-  move_phoenix: { name: "مسار العنقاء الأسطوري", price: 220, type: "movementEffect" }
+  move_phoenix: { name: "مسار العنقاء الأسطوري", price: 220, type: "movementEffect" },
+  move_smoke: { name: "مسار الدخان الواقعي", price: 130, type: "movementEffect" },
+  move_lava: { name: "مسار الحمم البركانية", price: 170, type: "movementEffect" },
+  move_comet: { name: "مسار المذنب النجمي", price: 190, type: "movementEffect" }
 };
 
 const API_KEY = "AIzaSyArJNDKNNTs2oFGFWV58_1UKY3GmE06ghk";
