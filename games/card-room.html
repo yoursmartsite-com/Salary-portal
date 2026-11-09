@@ -76,7 +76,7 @@ function drawGame(){
  if(gameId==='uno'&&!finished&&g.currentPlayer===uid&&!g.drawn)html+='<button id="unoDraw">اسحب ورقة</button>';if(gameId==='uno'&&!finished&&g.currentPlayer===uid&&g.drawn)html+='<button id="unoPass">إنهاء دوري</button>';
  if(g.table)html+='<div class="card-table">'+g.table.map(c=>cardFace(c,false)).join('')+'</div>';
  if(g.trick?.length)html+='<div class="card-table">'+g.trick.map(t=>'<div style="text-align:center"><small style="display:block;color:#fff;margin-bottom:4px">'+esc(room.players[t.uid]?.name||'لاعب')+'</small>'+cardFace(t.card,false)+'</div>').join('')+'</div>';
- if(g.phase==='bidding'&&g.currentPlayer===uid)html+='<div style="margin:10px 0">المزايدة <input id="bidValue" type="number" min="'+(gameId==='tarneeb'?7:1)+'" max="13" value="'+(gameId==='tarneeb'?7:1)+'" style="width:65px"><button id="bidBtn">تأكيد</button></div>';
+ if(g.phase==='bidding'&&g.currentPlayer===uid)html+='<div style="margin:10px 0">المزايدة <input id="bidValue" type="number" min="'+(gameId==='tarneeb'?7:0)+'" max="13" value="'+(gameId==='tarneeb'?7:0)+'" style="width:65px"><button id="bidBtn">تأكيد</button>'+(gameId==='tarneeb'?'<button id="bidPass">تمرير</button>':'')+'</div>';
  if(g.phase==='chooseTrump'&&g.currentPlayer===uid)html+='<div>اختار الحكم: '+['♠','♥','♦','♣'].map(x=>'<button data-trump="'+x+'">'+x+'</button>').join(' ')+'</div>';
  if(g.phase==='draw'&&g.currentPlayer===uid)html+='<div style="margin:10px 0"><button id="drawDeck">اسحب من السحب</button><button id="drawDiscard">اسحب آخر ورقة مرمية</button></div>';
  
@@ -89,7 +89,7 @@ function drawGame(){
  area.querySelectorAll('[data-card]').forEach(b=>b.onclick=()=>{const data={card:b.dataset.card};if(gameId==='uno'&&mine.find(c=>c.id===data.card)?.c==='wild')data.color=prompt('اختار اللون: red أو yellow أو green أو blue','red');if(gameId==='uno'&&mine.length===2)data.uno=confirm('هتعلن UNO بعد الورقة دي؟');if(gameId==='konkan')data.action='discard';sendMove(data)});
  area.querySelectorAll('[data-trump]').forEach(b=>b.onclick=()=>sendMove({trump:b.dataset.trump}));
  const ud=$('unoDraw');if(ud)ud.onclick=()=>sendMove({action:'draw'});const up=$('unoPass');if(up)up.onclick=()=>sendMove({action:'pass'});
- const bid=$('bidBtn');if(bid)bid.onclick=()=>sendMove({bid:Number($('bidValue').value)});
+ const bid=$('bidBtn');if(bid)bid.onclick=()=>sendMove({bid:Number($('bidValue').value)});const bidPass=$('bidPass');if(bidPass)bidPass.onclick=()=>sendMove({pass:true});
  const dd=$('drawDeck');if(dd)dd.onclick=()=>sendMove({action:'draw',from:'deck'});
  const dc=$('drawDiscard');if(dc)dc.onclick=()=>sendMove({action:'draw',from:'discard'});
 
