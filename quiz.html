@@ -177,7 +177,7 @@ $("soloName").addEventListener("change",e=>localStorage.setItem("arcade_name",cl
 $("playerName").addEventListener("change",e=>localStorage.setItem("arcade_name",cleanName(e.target.value)));
 
 async function startSolo(){
- await authReady;if(authReady instanceof Error){notice("تعذر تجهيز الاتصال: "+authReady.message,true);return;}
+ await authReady; // تسجيل الدخول يحسّن الاسم فقط؛ اللعب الفردي لا يعتمد على اتصال Firebase.
  mode="solo";soloBotDifficulty=$("difficulty").value;displayName=cleanName($("soloName").value||displayName);localStorage.setItem("arcade_name",displayName);
  soloQuestions=pickQuestions();soloIndex=0;soloScore=0;soloBotScore=0;clearInterval(soloTimer);panel("game");$("gameModeLabel").textContent="تحدي فردي ضد بوت "+({easy:"سهل",medium:"متوسط",hard:"صعب"}[soloBotDifficulty]);renderSoloQuestion();
 }
