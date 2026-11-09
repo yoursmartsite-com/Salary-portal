@@ -23,6 +23,64 @@
 .playing-card.action-card{background:linear-gradient(145deg,#fff,#dce4ed)}.playing-card.uno-card{width:68px;height:100px;border:3px solid #fff;border-radius:12px;background:var(--uno-color);color:#fff;box-shadow:0 5px 13px #0008;overflow:hidden}.uno-card .uno-oval{position:absolute;inset:15px 7px;border-radius:50%;background:#fff;transform:rotate(-32deg);box-shadow:0 0 0 2px #ffffff55}.uno-card .uno-value{position:absolute;inset:0;display:grid;place-items:center;color:var(--uno-color);font:900 31px Cairo, sans-serif;text-shadow:1px 2px #0002}.uno-card .uno-corner{position:relative;z-index:1;font:900 12px Cairo,sans-serif}.uno-card.wild{background:conic-gradient(#e83e48 0 25%,#f4ca35 25% 50%,#26a66a 50% 75%,#2874d8 75%)}.uno-card.wild .uno-value{color:#fff;text-shadow:0 2px 5px #000}.card-back{background:repeating-linear-gradient(45deg,#243e70 0 5px,#16294e 5px 10px);border:3px solid #e8d7a4;color:#f5dfaa}.card-back:after{content:'ل';position:absolute;inset:8px;border:1px solid #e8d7a4;border-radius:5px;display:grid;place-items:center;font:900 34px Cairo;color:#f5dfaa}
 .hand-area{margin-top:18px;padding:14px 10px 8px;border:1px solid #ffffff20;border-radius:17px;background:linear-gradient(180deg,#101d30,#091323)}.hand-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;color:#dbe7fa;font-size:12px;font-weight:800}.card-hand{display:flex;justify-content:center;align-items:flex-end;gap:0;min-height:112px;overflow-x:auto;overflow-y:visible;padding:8px 5px 12px;direction:ltr}.card-hand .playing-card{margin-left:-13px;cursor:pointer}.card-hand .playing-card:first-child{margin-left:0}.card-hand .playing-card:hover:not(:disabled){transform:translateY(-13px) rotate(-2deg);z-index:2;box-shadow:0 12px 22px #0008}.card-hand .playing-card:disabled{opacity:.55;filter:grayscale(.25)}.uno-color-tag{display:inline-block;padding:4px 10px;border-radius:20px;background:#ffffff20;font-size:11px}
 @media(max-width:600px){.playing-card{width:58px;height:86px}.playing-card .pip{font-size:29px}.playing-card .corner{font-size:12px}.playing-card .face-label{font-size:22px}.uno-card{width:56px;height:84px}.card-hand .playing-card{margin-left:-18px}.card-hand .playing-card:first-child{margin-left:0}.card-table{min-height:95px;padding:10px;gap:7px}}
+
+/* Lamma premium felt table + responsive motion system */
+:root{--felt:#0c563e;--felt-deep:#073729;--wood:#80552c;--gold-hi:#ffe3a0;--gold-low:#9d7137}
+.room-grid{grid-template-columns:minmax(0,1fr) 285px;align-items:start}
+#gamePanel{overflow:hidden;background:linear-gradient(145deg,#15233a,#0d1729);border-color:#344765;box-shadow:0 18px 50px #0006}
+#gamePanel>h2{display:flex;align-items:center;gap:9px;margin-bottom:14px;font-size:19px}
+#gamePanel>h2:before{content:"";width:5px;height:22px;border-radius:8px;background:linear-gradient(var(--gold-hi),var(--gold-low));box-shadow:0 0 14px #f3c86b55}
+#gameArea{background:transparent;border:0;padding:0;margin:0;overflow:hidden}
+.match-board{position:relative;isolation:isolate;padding:clamp(10px,2vw,20px);border-radius:24px;border:1px solid #d5b16c66;background:linear-gradient(135deg,#392b20,#171d2b 28%,#0d1729 70%,#392b20);box-shadow:inset 0 0 0 3px #f5d99a18,0 18px 45px #0007;overflow:hidden}
+.match-board:before{content:"";position:absolute;inset:8px;border:1px solid #f4d79a38;border-radius:19px;pointer-events:none;z-index:-1}
+.match-board:after{content:"LAMMA • CARD CLUB";position:absolute;top:17px;left:22px;color:#f3d99a30;font:800 9px Arial,sans-serif;letter-spacing:2px;pointer-events:none}
+.match-status{position:relative;z-index:1;align-items:center;padding:11px 14px;border:1px solid #f3d18a30;border-radius:14px;background:linear-gradient(100deg,#0b1729eF,#172a3bea);box-shadow:0 7px 20px #0003;color:#eaf1ff}
+.match-status>span{display:flex;align-items:center;gap:7px}
+.match-status>span b{padding:4px 11px;border-radius:30px;color:#092b21;background:linear-gradient(135deg,#c9f7d8,#62d69b);box-shadow:0 0 15px #61d99b55}
+.opponents-grid{position:relative;z-index:1;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px;margin:15px 0}
+.opponent-seat{position:relative;border:1px solid #c7d8ef22;border-radius:15px;background:linear-gradient(145deg,#243750ee,#111e32f2);box-shadow:0 8px 18px #0004;transition:border-color .2s,transform .2s,box-shadow .2s}
+.opponent-seat.is-active{border-color:#7ce4b1;box-shadow:0 0 0 1px #7ce4b155,0 0 24px #48d79530;transform:translateY(-2px)}
+.opponent-seat.is-active:after{content:"دوره الآن";position:absolute;top:7px;left:8px;padding:2px 7px;border-radius:20px;background:#58d99a;color:#062b20;font:900 9px Cairo,sans-serif}
+.opponent-cards{min-height:58px}
+.play-surface{position:relative;z-index:1;min-height:285px;grid-template-columns:92px minmax(0,1fr);gap:clamp(8px,2vw,22px);padding:clamp(12px,2vw,22px);border:9px solid transparent;border-radius:48% / 22%;background:radial-gradient(ellipse at 50% 35%,#197653 0,#0e5a40 42%,#08412f 76%,#062e24 100%) padding-box,linear-gradient(135deg,#f8dda0,#8b5d2d 22%,#f0ca7a 50%,#6b4827 78%,#f6d995) border-box;box-shadow:inset 0 0 0 2px #f6dca044,inset 0 0 55px #001b13aa,0 16px 28px #0008}
+.play-surface:before{content:"";position:absolute;inset:13px;border:1px solid #f6dca044;border-radius:inherit;pointer-events:none}
+.play-surface:after{content:"";position:absolute;inset:0;border-radius:inherit;background:radial-gradient(ellipse at 50% 0,#ffffff12,transparent 55%);pointer-events:none}
+.deck-zone,.center-pile{position:relative;z-index:1}
+.deck-zone{gap:7px;color:#e3f2e9;text-shadow:0 2px 4px #001b12}
+.deck-stack{filter:drop-shadow(0 9px 7px #001b19aa);transition:transform .25s}
+.deck-stack:hover{transform:translateY(-5px) rotate(-2deg)}
+.deck-stack .playing-card{border:2px solid #e9d5a5}
+.deck-zone b{padding:3px 11px;border:1px solid #f4d18a66;border-radius:20px;background:#092d23;color:#ffe6a7}
+.center-pile>small{display:inline-block;padding:4px 13px;border-radius:20px;background:#062f25a8;border:1px solid #d5f3df35;color:#e0f6e9;font-weight:800}
+.center-pile .card-table{min-height:125px;margin:9px 0;padding:12px;border:1px dashed #e3d09a55;border-radius:18px;background:#052f2470;box-shadow:inset 0 0 28px #001c1455,0 5px 16px #001b1544}
+.card-table{position:relative;border:1px dashed #e3d09a66;background:radial-gradient(ellipse at 50% 35%,#176c4d,#0a3e2e);box-shadow:inset 0 0 30px #001b1455,0 8px 18px #0003}
+.card-table:empty:after{content:"منطقة تجميع الورق";color:#d5e9db88;font:700 11px Cairo,sans-serif}
+.playing-card{border:1px solid #fff;border-radius:10px;background:linear-gradient(145deg,#fff 0,#f7f8fb 58%,#dce3eb 100%);box-shadow:0 8px 16px #00110e66,0 1px 0 #fff inset;transition:transform .22s cubic-bezier(.2,.8,.2,1),box-shadow .22s;backface-visibility:hidden}
+.playing-card:before{content:"";position:absolute;inset:4px;border:1px solid #16203312;border-radius:6px;pointer-events:none}
+.playing-card.red{color:#cf1e39}.playing-card.black{color:#18243a}
+.playing-card .pip{filter:drop-shadow(0 1px 0 #0001)}
+.card-back{background:repeating-linear-gradient(45deg,#244b7b 0 4px,#17335e 4px 8px);border:3px solid #ead7a7;box-shadow:0 6px 12px #0007,inset 0 0 0 2px #ffffff20}
+.card-back:after{inset:7px;border:1px solid #e8d7a4;border-radius:5px;box-shadow:inset 0 0 0 3px #ffffff12;text-shadow:0 0 10px #f6d98a66}
+.card-hand{position:relative;padding:15px 10px 12px;min-height:128px;border-radius:15px;background:radial-gradient(ellipse at 50% 0,#1b2c46,#0a1425 76%);border:1px solid #ffffff20;box-shadow:inset 0 8px 22px #0004}
+.hand-area{position:relative;z-index:1;border:1px solid #f0d18b44;background:linear-gradient(180deg,#182a43,#0b1729);box-shadow:0 10px 25px #0005}
+.hand-title{color:#f3e5c4}
+.card-hand .playing-card:hover:not(:disabled){transform:translateY(-17px) scale(1.055) rotate(-2deg);z-index:3;box-shadow:0 17px 26px #0009,0 0 0 2px #f4d28c}
+.card-hand .playing-card:active:not(:disabled){transform:translateY(-7px) scale(.97)}
+.match-board .actions button,.match-board button:not(.playing-card){box-shadow:0 5px 13px #0004;transition:transform .18s,filter .18s,box-shadow .18s}
+.match-board .actions button:hover,.match-board button:not(.playing-card):hover{transform:translateY(-2px);filter:brightness(1.12);box-shadow:0 9px 18px #0005}
+.match-board .uno-color-tag{border:1px solid #ffffff35;background:#071d19aa;color:#fff}
+.match-board .muted{color:#c0d2df}
+.match-board .is-finished{animation:winnerAura 2.2s ease-in-out infinite alternate}
+.match-board.move-flash .card-table .playing-card{animation:cardLanding .48s cubic-bezier(.16,.8,.28,1) both}
+.match-board.move-flash .play-surface{animation:tableRipple .55s ease-out}
+.opponent-seat.is-active .opponent-cards .card-back{animation:backPulse 1.8s ease-in-out infinite alternate}
+@keyframes cardLanding{0%{opacity:0;transform:translateY(-22px) rotate(-8deg) scale(.82)}70%{opacity:1;transform:translateY(3px) rotate(2deg) scale(1.04)}100%{transform:translateY(0) rotate(0) scale(1)}}
+@keyframes tableRipple{0%{box-shadow:inset 0 0 0 0 #b4f7d455,inset 0 0 0 2px #f6dca044,0 16px 28px #0008}100%{box-shadow:inset 0 0 55px #001b13aa,inset 0 0 0 2px #f6dca044,0 16px 28px #0008}}
+@keyframes backPulse{from{filter:brightness(.88)}to{filter:brightness(1.22)}}
+@keyframes winnerAura{from{box-shadow:0 0 0 #f5d78a00}to{box-shadow:0 0 28px #f5d78a55}}
+@media(max-width:760px){.room-grid{grid-template-columns:1fr}.play-surface{min-height:225px;border-radius:28px}.opponents-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.match-board{padding:10px;border-radius:18px}.match-board:before{inset:5px;border-radius:14px}}
+@media(max-width:430px){.play-surface{grid-template-columns:66px minmax(0,1fr);gap:5px;padding:9px;border-width:6px}.deck-stack{transform:scale(.78);transform-origin:center}.deck-zone{font-size:9px}.opponents-grid{gap:6px}.opponent-seat{padding:6px}.opponent-cards .playing-card{width:27px;height:40px;margin-left:-18px}.opponent-cards .playing-card:first-child{margin-left:0}.match-status{font-size:10px;padding:9px}.center-pile .card-table{min-height:100px;padding:7px}.card-hand{justify-content:flex-start;min-height:112px}.card-hand .playing-card{margin-left:-20px}.card-hand .playing-card:first-child{margin-left:0}}
+@media(prefers-reduced-motion:reduce){.match-board *,.match-board:before,.match-board:after{animation:none!important;transition:none!important}}
 </style></head><body>
 <header class="top"><div class="brand"><b>ل</b> لَمّة · غرف الكوتشينة</div><a class="back" href="../online-games.html">← ألعاب أون لاين</a></header>
 <main class="wrap">
@@ -61,16 +119,16 @@ const playerAvatar=()=>localStorage.getItem('lammaAvatar')||'🍓';
 function status(s,bad=false){$('status').textContent=s;$('status').style.borderColor=bad?'#d45b73':'var(--line)'}
 async function api(path,method='GET',body){const headers=body?{'Content-Type':'application/json'}:{};const pathRoom=path.match(/^\/rooms\/([A-Za-z0-9_-]{3,32})(?:\/|$)/)?.[1];const sessionCode=pathRoom||code;const session=sessionCode?localStorage.getItem('lamma_room_session_'+sessionCode):null;if(session)headers['X-Room-Token']=session;const r=await fetch(API+path,{method,headers,body:body?JSON.stringify(body):undefined});let d;try{d=await r.json()}catch{throw new Error('استجابة غير مفهومة من السيرفر')}if(!r.ok||!d.ok)throw new Error(({ROOM_NOT_FOUND:'الغرفة مش موجودة.',ROOM_FULL:'الغرفة كاملة.',ROOM_EXISTS:'الكود مستخدم بالفعل.'})[d.error]||d.error||'فشل الاتصال بالسيرفر');return d}
 function render(r){room=r;const ps=Object.values(r.players||{});$('playerCount').textContent='('+ps.length+'/'+(r.maxPlayers||4)+')';$('players').innerHTML=ps.map(p=>'<div class="player"><span class="avatar">'+avatarHtml(p.avatar)+'</span><span><b>'+esc(p.name)+(p.uid===uid?' (أنت)':'')+'</b><small>'+(p.ready?'جاهز ✓':'في الانتظار')+'</small></span></div>').join('')||'<div class="muted">في انتظار اللاعبين…</div>';$('tableState').textContent=ps.filter(p=>p.ready).length+' من '+ps.length+' لاعبين جاهزين';$('readyBtn').textContent=r.players?.[uid]?.ready?'إلغاء الجاهزية':'أنا جاهز ✓';$('readyBtn').disabled=ps.length<2;$('chat').innerHTML=(r.chat||[]).map(m=>'<div class="msg"><b>'+esc(m.name)+':</b> '+esc(m.text)+'</div>').join('');$('chat').scrollTop=$('chat').scrollHeight;$('roomStatus').textContent='الغرفة متصلة بـ Cloudflare · آخر تحديث '+new Date().toLocaleTimeString('ar-EG');refreshGame()}
-let gameState=null;
+let gameState=null,lastVisualEvent=0;
 const cardLabel=c=>c.c?(c.c==="wild"?"🌈":({red:"🔴",yellow:"🟡",green:"🟢",blue:"🔵"}[c.c]||""))+" "+({skip:"منع",reverse:"عكس","+2":"+2","+4":"+4",wild:"اختيار لون"}[c.v]||c.v):c.s+c.r;
 function cardFace(c,interactive=false,disabled=false){if(!c)return '';const isUno=!!c.c;let label=isUno?({skip:'⊘',reverse:'↻','+2':'+2','+4':'+4',wild:'★'}[c.v]||c.v):c.r;let suit=isUno?'':c.s;let red=isUno?['red','yellow'].includes(c.c):['♥','♦'].includes(c.s);let cls=isUno?'playing-card uno-card'+(c.c==='wild'?' wild':''):'playing-card '+(red?'red':'black');let color=isUno?({'red':'#e83e48','yellow':'#e7b928','green':'#219b61','blue':'#286bd0'}[c.c]||'#333'):'';let body=isUno?'<span class="uno-corner">'+label+'</span><span class="uno-oval"></span><span class="uno-value">'+label+'</span><span class="uno-corner" style="align-self:flex-end;transform:rotate(180deg)">'+label+'</span>':'<span class="corner">'+c.r+'<br>'+suit+'</span><span class="pip">'+suit+'</span><span class="corner bottom">'+c.r+'<br>'+suit+'</span>';return interactive?'<button class="'+cls+'" '+(disabled?'disabled':'')+' data-card="'+esc(c.id)+'" '+(isUno?'style="--uno-color:'+color+'"':'')+'>'+body+'</button>':'<div class="'+cls+'" '+(isUno?'style="--uno-color:'+color+'"':'')+'>'+body+'</div>'}
 function cardBack(){return '<div class="playing-card card-back" aria-label="ورقة مقلوبة"></div>'}
-function opponentSeats(g,ids){return ids.filter(id=>id!==uid).map(id=>{const p=room?.players?.[id]||{},count=g.players?.[id]?.handCount||0;return '<div class="opponent-seat"><div class="opponent-info"><span class="avatar">'+avatarHtml(p.avatar)+'</span><span><b>'+esc(p.name||'لاعب')+'</b><small>'+count+' ورقة</small></span></div><div class="opponent-cards">'+Array.from({length:Math.min(count,7)},()=>cardBack()).join('')+(count>7?'<small class="more-cards">+'+(count-7)+'</small>':'')+'</div></div>'}).join('')}
+function opponentSeats(g,ids){return ids.filter(id=>id!==uid).map(id=>{const p=room?.players?.[id]||{},count=g.players?.[id]?.handCount||0;return '<div class="opponent-seat '+(g.currentPlayer===id?'is-active':'')+'"><div class="opponent-info"><span class="avatar">'+avatarHtml(p.avatar)+'</span><span><b>'+esc(p.name||'لاعب')+'</b><small>'+count+' ورقة</small></span></div><div class="opponent-cards">'+Array.from({length:Math.min(count,7)},()=>cardBack()).join('')+(count>7?'<small class="more-cards">+'+(count-7)+'</small>':'')+'</div></div>'}).join('')}
 async function refreshGame(){if(!code)return;try{const d=await api('/rooms/'+code+'/game?uid='+encodeURIComponent(uid));gameState=d.game;drawGame()}catch(e){$('gameArea').textContent=e.message}}
 function drawGame(){
  const g=gameState,area=$('gameArea');if(!g){area.innerHTML='المباراة لم تبدأ بعد.'+(room?.host===uid?' <button id="startGame">ابدأ المباراة</button>':'');const b=$('startGame');if(b)b.onclick=startGame;return}
  const ids=Object.keys(room?.players||{}),mine=g.myHand||[],finished=g.phase==='finished';
- let html='<div class="match-status"><b>الحالة:</b> '+(finished?'انتهت المباراة':g.phase==='bidding'?'المزايدات':g.phase==='chooseTrump'?'اختيار الحكم':g.phase==='draw'?'اسحب ورقة':'اللعب')+' <span>الدور الحالي: <b>'+esc(g.currentName||'—')+'</b></span></div>';
+ const latestEvent=g.log?.at(-1)?.at||0;const animateMove=latestEvent>0&&latestEvent!==lastVisualEvent;if(animateMove)lastVisualEvent=latestEvent;let html='<div class="match-board '+(animateMove?'move-flash ':'')+(finished?'is-finished':'')+' game-'+gameId+'"><div class="match-status"><b>الحالة:</b> '+(finished?'انتهت المباراة':g.phase==='bidding'?'المزايدات':g.phase==='chooseTrump'?'اختيار الحكم':g.phase==='draw'?'اسحب ورقة':g.phase==='discard'?'اختار ورقة ترميها':'اللعب')+' <span>الدور الحالي: <b>'+esc(g.currentName||'—')+'</b></span></div>';
  html+='<div class="opponents-grid">'+opponentSeats(g,ids)+'</div>';
  html+='<div class="play-surface"><div class="deck-zone"><div class="deck-stack"><div class="playing-card card-back"></div><div class="playing-card card-back"></div></div><small>رزمة السحب</small><b>'+((g.stockCount??g.deck?.length)??'—')+'</b></div><div class="center-pile"><small>آخر ورقة / منطقة اللعب</small><div class="card-table">'+(g.discardTop?cardFace(g.discardTop,false):'<span class="muted">لم يتم لعب ورق بعد</span>')+'</div>'+(g.color?'<div class="uno-color-tag">اللون الحالي: '+esc(g.color)+'</div>':'')+'</div></div>';
  if(gameId==='uno'&&!finished&&g.currentPlayer===uid&&!g.drawn)html+='<button id="unoDraw">اسحب ورقة</button>';if(gameId==='uno'&&!finished&&g.currentPlayer===uid&&g.drawn)html+='<button id="unoPass">إنهاء دوري</button>';
@@ -85,7 +143,7 @@ function drawGame(){
  if(gameId==='konkan'&&g.phase==='discard'&&g.currentPlayer===uid)html+='<p>اختار ورقة من يدك للتخلص منها.</p>';
  if(gameId==='basra')html+='<p>اضغط على ورقة من يدك للعبها؛ الولد يلمّ كل الورق، والورقة المطابقة تلمّ مثيلتها.</p>';
  if(gameId==='estimation'||ids.length!==4)html+='<div class="muted" style="margin-top:10px">النقاط الفردية: '+ids.map(id=>esc(room.players[id]?.name||'لاعب')+' '+(g.players[id]?.score||0)).join(' · ')+'</div>';else html+='<div class="muted" style="margin-top:10px">نقاط الفرق: '+(g.teamScores?g.teamScores.join(' - '):'—')+'</div>';
- area.innerHTML=html;
+ html+='</div>';area.innerHTML=html;
  area.querySelectorAll('[data-card]').forEach(b=>b.onclick=()=>{const data={card:b.dataset.card};if(gameId==='uno'&&mine.find(c=>c.id===data.card)?.c==='wild')data.color=prompt('اختار اللون: red أو yellow أو green أو blue','red');if(gameId==='uno'&&mine.length===2)data.uno=confirm('هتعلن UNO بعد الورقة دي؟');if(gameId==='konkan')data.action='discard';sendMove(data)});
  area.querySelectorAll('[data-trump]').forEach(b=>b.onclick=()=>sendMove({trump:b.dataset.trump}));
  const ud=$('unoDraw');if(ud)ud.onclick=()=>sendMove({action:'draw'});const up=$('unoPass');if(up)up.onclick=()=>sendMove({action:'pass'});
