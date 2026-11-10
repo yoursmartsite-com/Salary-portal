@@ -27,6 +27,21 @@ a{color:inherit;text-decoration:none}.wrap{width:min(1180px,100%);margin:auto;pa
 .equip-row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.equip select{flex:1;min-width:190px;padding:11px;border-radius:11px;background:#071022;color:#fff;border:1px solid #52617b;font:700 13px Cairo}
 @media(max-width:520px){.equip{padding:12px}.equip-row{display:grid;grid-template-columns:1fr}.equip select{width:100%}}
 @media(max-width:760px){.wrap{padding:9px}.top{padding:10px}.brand{font-size:18px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.item{padding:11px}.item h2{font-size:14px}.item p{font-size:11px}.item .symbol{width:49px;height:49px;font-size:25px}.wallet{padding:12px}.hero{padding:18px}}
+
+/* Lamma store: full-page animated ocean background + translucent glass panels */
+html{background:#080b14}
+body{position:relative;isolation:isolate;background:transparent;min-height:100vh}
+body::before{content:"";position:fixed;z-index:-1;inset:-3%;pointer-events:none;background-image:linear-gradient(180deg,rgba(5,12,25,.48),rgba(5,12,25,.66)),url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=2000&q=90");background-size:cover;background-position:center;background-repeat:no-repeat;transform:scale(1.03);animation:storeOceanDrift 32s ease-in-out infinite alternate;will-change:transform}
+@keyframes storeOceanDrift{0%{transform:scale(1.03) translate3d(0,0,0)}100%{transform:scale(1.10) translate3d(-1.1%,.8%,0)}}
+.top,.hero,.wallet,.item,.equip{background:rgba(9,18,34,.48);border-color:rgba(210,225,255,.20);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 12px 32px rgba(0,0,0,.20)}
+.hero{background:linear-gradient(120deg,rgba(23,37,62,.55),rgba(10,20,37,.42))}
+.wallet{background:linear-gradient(130deg,rgba(61,48,29,.52),rgba(15,25,42,.48));border-color:rgba(221,185,104,.34)}
+.item{background:linear-gradient(145deg,rgba(26,43,67,.56),rgba(9,20,36,.48));transition:transform .22s ease,border-color .22s ease,background .22s ease}
+.item:hover{transform:translateY(-3px);border-color:rgba(153,205,255,.42);background:linear-gradient(145deg,rgba(34,57,84,.66),rgba(12,25,43,.58))}
+.equip{background:linear-gradient(135deg,rgba(25,42,66,.58),rgba(11,22,40,.48))}
+.status{background:rgba(8,17,32,.42);border-color:rgba(210,225,255,.18);border-radius:12px;backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}
+.empty{background:rgba(8,17,32,.36);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+@media(prefers-reduced-motion:reduce){body::before{animation:none}.item{transition:none}}
 </style>
 </head>
 <body><main class="wrap">
