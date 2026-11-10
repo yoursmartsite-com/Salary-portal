@@ -75,7 +75,7 @@ async function accept(target,incoming){
 }
 function init(options){
  ctx=options||null;if(!ctx||!ctx.db||!ctx.uid)return false;
- document.addEventListener('click',e=>{const el=e.target.closest('[data-lamma-player]');if(!el)return;e.preventDefault();e.stopPropagation();open(el.dataset.lammaPlayer,el.dataset.playerName||el.getAttribute('aria-label')||'لاعب',el.dataset.playerBot==='true')});
+ const activate=e=>{const el=e.target.closest('[data-lamma-player]');if(!el)return;if(e.type==='keydown'&&e.key!=='Enter'&&e.key!==' ')return;if(e.type==='keydown')e.preventDefault();e.stopPropagation();open(el.dataset.lammaPlayer,el.dataset.playerName||el.getAttribute('aria-label')||'لاعب',el.dataset.playerBot==='true')};document.addEventListener('click',activate);document.addEventListener('keydown',activate);
  return true;
 }
 window.LammaPlayerActions={init,open};
