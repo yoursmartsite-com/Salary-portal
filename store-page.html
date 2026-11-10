@@ -28,19 +28,39 @@ a{color:inherit;text-decoration:none}.wrap{width:min(1180px,100%);margin:auto;pa
 @media(max-width:520px){.equip{padding:12px}.equip-row{display:grid;grid-template-columns:1fr}.equip select{width:100%}}
 @media(max-width:760px){.wrap{padding:9px}.top{padding:10px}.brand{font-size:18px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.item{padding:11px}.item h2{font-size:14px}.item p{font-size:11px}.item .symbol{width:49px;height:49px;font-size:25px}.wallet{padding:12px}.hero{padding:18px}}
 
-/* Lamma store: full-page animated ocean background + translucent glass panels */
-html{background:#080b14}
-body{position:relative;isolation:isolate;background:transparent;min-height:100vh}
-body::before{content:"";position:fixed;z-index:-1;inset:-3%;pointer-events:none;background-image:linear-gradient(180deg,rgba(5,12,25,.48),rgba(5,12,25,.66)),url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=2000&q=90");background-size:cover;background-position:center;background-repeat:no-repeat;transform:scale(1.03);animation:storeOceanDrift 32s ease-in-out infinite alternate;will-change:transform}
-@keyframes storeOceanDrift{0%{transform:scale(1.03) translate3d(0,0,0)}100%{transform:scale(1.10) translate3d(-1.1%,.8%,0)}}
-.top,.hero,.wallet,.item,.equip{background:rgba(9,18,34,.48);border-color:rgba(210,225,255,.20);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 12px 32px rgba(0,0,0,.20)}
-.hero{background:linear-gradient(120deg,rgba(23,37,62,.55),rgba(10,20,37,.42))}
-.wallet{background:linear-gradient(130deg,rgba(61,48,29,.52),rgba(15,25,42,.48));border-color:rgba(221,185,104,.34)}
-.item{background:linear-gradient(145deg,rgba(26,43,67,.56),rgba(9,20,36,.48));transition:transform .22s ease,border-color .22s ease,background .22s ease}
-.item:hover{transform:translateY(-3px);border-color:rgba(153,205,255,.42);background:linear-gradient(145deg,rgba(34,57,84,.66),rgba(12,25,43,.58))}
-.equip{background:linear-gradient(135deg,rgba(25,42,66,.58),rgba(11,22,40,.48))}
-.status{background:rgba(8,17,32,.42);border-color:rgba(210,225,255,.18);border-radius:12px;backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}
-.empty{background:rgba(8,17,32,.36);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+/* Lamma store: premium neon arcade atmosphere (separate from room/beach themes) */
+html{background:#080713}
+body{position:relative;isolation:isolate;background:transparent;min-height:100vh;overflow-x:hidden}
+body::before{content:"";position:fixed;z-index:-2;inset:-5%;pointer-events:none;background:
+ radial-gradient(ellipse at 78% 12%,rgba(139,70,255,.30),transparent 31%),
+ radial-gradient(ellipse at 14% 36%,rgba(36,91,211,.23),transparent 34%),
+ radial-gradient(ellipse at 68% 83%,rgba(185,119,35,.16),transparent 28%),
+ radial-gradient(ellipse at 50% 50%,#17102b 0%,#0b0a19 54%,#070812 100%);
+ background-size:130% 130%;animation:storeAura 24s ease-in-out infinite alternate;will-change:background-position}
+body::after{content:"";position:fixed;z-index:-1;inset:0;pointer-events:none;opacity:.52;background:
+ radial-gradient(circle at 9% 18%,rgba(255,204,105,.28) 0 1px,transparent 2px),
+ radial-gradient(circle at 83% 28%,rgba(180,139,255,.34) 0 1px,transparent 2px),
+ radial-gradient(circle at 28% 76%,rgba(111,190,255,.28) 0 1.5px,transparent 2.5px),
+ radial-gradient(circle at 92% 82%,rgba(255,205,120,.24) 0 1px,transparent 2px);
+ background-size:190px 190px,240px 240px,270px 270px,220px 220px}
+@keyframes storeAura{0%{background-position:0% 0%}100%{background-position:100% 70%}}
+.top,.hero,.wallet,.item,.equip{background:rgba(13,12,31,.64);border-color:rgba(190,164,255,.22);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);box-shadow:0 14px 38px rgba(0,0,0,.32),inset 0 1px rgba(255,255,255,.035)}
+.top{border-color:rgba(190,164,255,.30);box-shadow:0 10px 30px #0005,0 0 24px rgba(120,74,220,.10)}
+.brand b{background:linear-gradient(135deg,#a879ff,#5733a9 58%,#e2b75c);box-shadow:0 0 22px rgba(156,105,255,.35)}
+.btn{background:linear-gradient(110deg,#7545d8,#3b4fc1);box-shadow:0 5px 18px rgba(100,66,211,.22)}
+.hero{position:relative;overflow:hidden;background:linear-gradient(115deg,rgba(53,31,91,.66),rgba(17,19,48,.68));border-color:rgba(177,140,255,.30)}
+.hero:after{content:"";position:absolute;left:-38px;top:-85px;width:220px;height:220px;border-radius:50%;border:1px solid rgba(239,198,112,.22);box-shadow:0 0 0 15px rgba(239,198,112,.025),0 0 65px rgba(150,91,255,.17);pointer-events:none}
+.hero h1{background:linear-gradient(90deg,#fff 12%,#e1c4ff 54%,#f4d58e);-webkit-background-clip:text;background-clip:text;color:transparent}
+.wallet{background:linear-gradient(125deg,rgba(76,48,30,.66),rgba(31,22,52,.74));border-color:rgba(235,190,98,.42);box-shadow:0 0 28px rgba(204,151,61,.08),inset 0 1px rgba(255,255,255,.06)}
+.wallet strong{color:#ffe1a0;text-shadow:0 0 18px rgba(255,205,110,.25)}
+.item{position:relative;overflow:hidden;background:linear-gradient(145deg,rgba(36,27,67,.78),rgba(13,17,39,.78));border-color:rgba(174,145,239,.22);transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}
+.item:before{content:"";position:absolute;inset:0 0 auto;height:2px;background:linear-gradient(90deg,transparent,rgba(240,199,115,.75),rgba(172,125,255,.65),transparent);opacity:.7}
+.item:hover{transform:translateY(-4px);border-color:rgba(215,184,255,.55);box-shadow:0 18px 38px #0006,0 0 24px rgba(135,85,235,.14)}
+.item .symbol{background:linear-gradient(145deg,#fff0c8,#d6a64e 58%,#8d5a24);box-shadow:inset 0 2px 3px #fff9,0 6px 18px #0006,0 0 20px rgba(236,184,82,.12)}
+.item button{background:linear-gradient(110deg,#d6a849,#ffe2a0);box-shadow:0 5px 16px rgba(213,166,73,.16)}
+.equip{background:linear-gradient(135deg,rgba(42,30,76,.76),rgba(15,19,43,.78));border-color:rgba(161,129,235,.34)}
+.status{padding:7px 11px;background:rgba(12,11,28,.62);border:1px solid rgba(190,164,255,.16);border-radius:12px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.empty{background:rgba(12,11,28,.54);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 @media(prefers-reduced-motion:reduce){body::before{animation:none}.item{transition:none}}
 </style>
 </head>
