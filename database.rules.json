@@ -127,7 +127,7 @@
         ".read": "auth != null && (auth.uid === $toUid || (auth.uid === '91N0rI5SCDN1aKBXJkowj5KcUOz1' || auth.token.email === 'fibrahem865@gmail.com'))",
         "$fromUid": {
           ".read": "auth != null && (auth.uid === $toUid || auth.uid === $fromUid || (auth.uid === '91N0rI5SCDN1aKBXJkowj5KcUOz1' || auth.token.email === 'fibrahem865@gmail.com'))",
-          ".write": "auth != null && ((auth.uid === $fromUid && !data.exists() && newData.child('fromUid').val() === auth.uid && newData.child('status').val() === 'pending') || (auth.uid === $toUid && data.exists() && newData.child('fromUid').val() === $fromUid && (newData.child('status').val() === 'accepted' || newData.child('status').val() === 'rejected')) || (auth.uid === '91N0rI5SCDN1aKBXJkowj5KcUOz1' || auth.token.email === 'fibrahem865@gmail.com'))"
+          ".write": "auth != null && ((auth.uid === $fromUid && (!data.exists() || data.child('status').val() === 'rejected') && newData.child('fromUid').val() === auth.uid && newData.child('status').val() === 'pending') || (auth.uid === $toUid && data.exists() && newData.child('fromUid').val() === $fromUid && (newData.child('status').val() === 'accepted' || newData.child('status').val() === 'rejected')) || (auth.uid === '91N0rI5SCDN1aKBXJkowj5KcUOz1' || auth.token.email === 'fibrahem865@gmail.com'))"
         }
       }
     },

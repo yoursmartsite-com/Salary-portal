@@ -4,6 +4,7 @@
   "name": "lamma-rooms",
   "main": "src/index.js",
   "compatibility_date": "2026-11-08",
+  "previews": {},
   "durable_objects": {
     "bindings": [
       {
