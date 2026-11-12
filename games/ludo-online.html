@@ -161,7 +161,7 @@ button:active{transform:translateY(1px)}
  <div class="chat-box"><div id="ludoChatMessages" class="chat-messages" aria-live="polite"><div class="chat-empty">رسائل الغرفة هتظهر هنا.</div></div>
  <form id="ludoChatForm" class="chat-form"><input id="ludoChatInput" maxlength="250" autocomplete="off" placeholder="اكتب رسالة..." aria-label="رسالة الشات"><button type="submit">إرسال</button></form></div>
  <div class="comms-note">الصوت مباشر بين اللاعبين. اسمح باستخدام المايك من المتصفح؛ قد لا يعمل الاتصال الصوتي على بعض الشبكات دون خادم TURN.</div>
-</section><section class="boardbox"><h1>ليدو أونلاين</h1><div class="board-area"><canvas id="board" class="board" width="600" height="600" aria-label="لوحة لعبة ليدو"></canvas></div><div class="dice-dock"><div class="dice-control"><div class="dice dice-cube" id="dice" data-value="5" aria-label="النرد"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><button id="roll" disabled>🎲 ارمِ النرد</button></div><span class="dice-hint">ارمِ النرد وحرّك قطعتك</span></div><div class="status turn-status" id="turn">أنشئ غرفة أو ادخل بكود لبدء اللعب.</div><div class="note rules-note">تحتاج إلى 6 لإخراج القطعة من البيت. ارمِ النرد ثم اضغط على قطعة من لونك لتحريكها.</div></section></main>
+</section><section class="boardbox"><h1>ليدو أونلاين</h1><div class="board-area"><canvas id="board" class="board" width="600" height="600" aria-label="لوحة لعبة ليدو"></canvas><div class="dice-dock"><div class="dice-control"><div class="dice dice-cube" id="dice" data-value="5" aria-label="النرد"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><button id="roll" disabled>🎲 ارمِ النرد</button></div><span class="dice-hint">ارمِ النرد وحرّك قطعتك</span></div></div><div class="status turn-status" id="turn">أنشئ غرفة أو ادخل بكود لبدء اللعب.</div><div class="note rules-note">تحتاج إلى 6 لإخراج القطعة من البيت. ارمِ النرد ثم اضغط على قطعة من لونك لتحريكها.</div></section></main>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script><script src="../assets/lamma-player-actions.js"></script>
 <div id="diceEffectOverlay" class="dice-effect-overlay" aria-hidden="true"></div>
 <script>
@@ -834,4 +834,46 @@ body{background:radial-gradient(ellipse at 50% 0%,#243d70 0,#111b35 48%,#070d1b 
 .board-area>.dice-effect-overlay.fx-dice_fire.show{position:absolute;inset:-7px;z-index:8;pointer-events:none;overflow:visible}
 .board-area>.dice-effect-overlay.fx-dice_fire:before{content:"";position:absolute;inset:-2px;width:auto;height:auto;border-radius:0;opacity:1;background:radial-gradient(ellipse 18px 76px at 50% 100%,#fff6a5 0 9%,#ffd34c 20%,#ff7a18 48%,#e52b0b 68%,transparent 100%) 0 0/46px 122px repeat-x,radial-gradient(ellipse 15px 58px at 50% 100%,#fff0a0 0 8%,#ffb52e 24%,#ff4a12 58%,transparent 100%) 19px 0/37px 96px repeat-x,radial-gradient(ellipse 76px 18px at 100% 50%,#fff6a5 0 9%,#ffd34c 20%,#ff7a18 48%,#e52b0b 68%,transparent 100%) 0 0/122px 46px repeat-y,radial-gradient(ellipse 58px 15px at 100% 50%,#fff0a0 0 8%,#ffb52e 24%,#ff4a12 58%,transparent 100%) 0 19px/96px 37px repeat-y,radial-gradient(ellipse 18px 76px at 50% 0%,#fff6a5 0 9%,#ffd34c 20%,#ff7a18 48%,#e52b0b 68%,transparent 100%) 0 0/46px 122px repeat-x,radial-gradient(ellipse 15px 58px at 50% 0%,#fff0a0 0 8%,#ffb52e 24%,#ff4a12 58%,transparent 100%) 19px 0/37px 96px repeat-x,radial-gradient(ellipse 76px 18px at 0% 50%,#fff6a5 0 9%,#ffd34c 20%,#ff7a18 48%,#e52b0b 68%,transparent 100%) 0 0/122px 46px repeat-y,radial-gradient(ellipse 58px 15px at 0% 50%,#fff0a0 0 8%,#ffb52e 24%,#ff4a12 58%,transparent 100%) 0 19px/96px 37px repeat-y;filter:drop-shadow(0 0 7px #ff4b0d);animation:lammaRealFlames .48s ease-in-out 6 alternate}
 .board-area>.dice-effect-overlay.fx-dice_fire:after{content:"";position:absolute;inset:0;width:auto;height:auto;border-radius:0;opacity:1;background:radial-gradient(circle,#fff3a0 0 1px,transparent 2px) 0 0/29px 31px,radial-gradient(circle,#ffb52e 0 1.5px,transparent 2.5px) 11px 17px/43px 47px,radial-gradient(circle,#ff4b12 0 2px,transparent 3px) 23px 9px/61px 53px;mask:linear-gradient(#000,transparent 18%,transparent 82%,#000);animation:lammaFireSparks .75s linear 4 both}
+</style>
+
+<style>
+/* Lamma Ludo: larger board with dice dock inside the play area */
+.board-area{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 112px;
+  align-items:center;
+  gap:12px;
+  width:min(100%,1120px)!important;
+  max-width:1120px!important;
+  margin:12px auto!important;
+  padding:10px!important;
+}
+.board-area>.board{width:100%!important;min-width:0;aspect-ratio:1}
+.board-area>.dice-dock{
+  width:100%!important;max-width:none!important;
+  margin:0!important;padding:10px 7px!important;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:9px;border-radius:16px;min-width:0;
+}
+.board-area .dice-control{
+  width:100%;min-width:0!important;
+  display:flex;flex-direction:column;align-items:center;
+  gap:9px;padding:9px 5px!important;
+}
+.board-area .dice-control .dice{min-width:0;font-size:38px}
+.board-area .dice-control button{white-space:normal;width:100%;font-size:11px;padding:8px 4px}
+.board-area .dice-hint{text-align:center;font-size:10px;line-height:1.7}
+@media(max-width:760px){
+ .board-area{grid-template-columns:minmax(0,1fr) 76px;gap:7px;padding:5px!important;margin:7px auto!important}
+ .board-area>.dice-dock{padding:6px 4px!important;gap:6px;border-radius:12px}
+ .board-area .dice-control{padding:6px 3px!important;gap:7px;border-radius:10px}
+ .board-area .dice-control .dice{font-size:29px}
+ .board-area .dice-control button{font-size:9px;padding:6px 2px}
+ .board-area .dice-hint{font-size:9px}
+}
+@media(max-width:360px){
+ .board-area{grid-template-columns:minmax(0,1fr) 66px;gap:5px}
+ .board-area .dice-control .dice{font-size:25px}
+ .board-area .dice-control button{font-size:8px}
+}
 </style>
