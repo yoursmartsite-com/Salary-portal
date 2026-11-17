@@ -152,7 +152,119 @@ button:active{transform:translateY(1px)}
 .ludo-comms{width:min(100%,900px);margin:0 auto 10px;padding:14px;border:1px solid #5bc9df66;border-radius:17px;background:linear-gradient(145deg,#182d4b,#0a172c);box-shadow:0 9px 25px #0005}
 .ludo-comms[hidden]{display:none!important}.comms-head{display:flex;justify-content:space-between;align-items:center;gap:8px;color:#e8f5ff;margin-bottom:10px}.comms-head span{font-size:11px;color:#9fe8cf}.comms-actions{display:flex;align-items:center;flex-wrap:wrap;gap:10px}.comms-actions button{min-height:40px}.comms-actions button.mic-on{background:linear-gradient(135deg,#159b70,#08734f)}.comms-actions button.mic-off{background:linear-gradient(135deg,#52617a,#29384f)}.mute-label{font-size:12px;color:#d5e3f7}.remote-audios{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.remote-audios audio{width:1px;height:1px;opacity:.01}.chat-box{margin-top:12px;padding:9px;border-radius:12px;background:#071326;border:1px solid #ffffff18}.chat-messages{height:145px;overflow:auto;display:flex;flex-direction:column;gap:6px}.chat-msg{max-width:90%;padding:6px 9px;border-radius:10px;background:#1a2c48;color:#eef5ff;font-size:12px;overflow-wrap:anywhere}.chat-msg.mine{align-self:flex-start;background:#174c50}.chat-msg b{display:block;color:#ffd98b;font-size:10px;margin-bottom:2px}.chat-empty{font-size:11px;color:#8298b8;padding:8px}.chat-form{display:flex;gap:7px;margin-top:8px}.chat-form input{flex:1;min-width:0;padding:9px;border:1px solid #344765;border-radius:10px;background:#0c1b31;color:white}.chat-form button{padding:8px 13px}.comms-note{font-size:10px;color:#8ea6c8;margin-top:8px;line-height:1.7}
 @media(max-width:520px){.ludo-comms{padding:10px}.comms-head{font-size:13px}.chat-messages{height:125px}.comms-actions button{font-size:11px;padding:8px}.chat-form button{font-size:11px}}
-</style></head><body><header class="top"><div class="brand">🎲 <span>لَمّة</span> | ليدو أونلاين</div><button class="back" id="back">↩ رجوع للموقع</button></header>
+</style>
+<style id="lamma-beach-ludo-v1">
+/* LAMMA BEACH LUDO — presentation layer only; gameplay canvas and Firebase logic untouched */
+:root{--sea:#087f91;--deep:#073b50;--sand:#f2d49a;--gold:#f7c85b;--wood:#51301c}
+html{background:#063b50}
+body{
+ color:#fff;background:
+ radial-gradient(ellipse at 50% 104%,#f4d49a 0 18%,transparent 48%),
+ radial-gradient(ellipse at 4% 45%,#18a8b4 0 12%,transparent 40%),
+ radial-gradient(ellipse at 96% 44%,#18a8b4 0 12%,transparent 40%),
+ linear-gradient(180deg,#087eae 0%,#11a6b4 34%,#f4d49a 100%) fixed!important;
+ min-height:100vh;overflow-x:hidden
+}
+body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.38;background:
+ radial-gradient(ellipse at 0% 0%,#075b32 0 8%,transparent 22%),
+ radial-gradient(ellipse at 100% 0%,#075b32 0 8%,transparent 22%),
+ repeating-linear-gradient(165deg,transparent 0 48px,#ffffff0a 49px 51px)}
+.top{position:relative;top:auto;min-height:78px;padding:12px clamp(12px,3vw,34px);
+ background:linear-gradient(180deg,#07304beF,#07304bcf)!important;
+ border-bottom:3px solid #e7bd61;box-shadow:0 7px 24px #00253677}
+.brand{font-size:clamp(19px,3vw,27px)!important;color:#fff!important;text-shadow:0 2px 4px #001a2b}
+.brand:before{content:"♛ ";color:#ffd35b;text-shadow:0 0 12px #ffdb74}
+.brand span{color:#ffd35b!important}
+.top .back{background:linear-gradient(145deg,#176f7c,#073d59)!important;border:1px solid #ffe09a!important;border-radius:14px}
+.lobby{max-width:1200px;margin:14px auto 10px;padding:13px 16px;
+ background:linear-gradient(145deg,#073e52ed,#075b68ed)!important;
+ border:2px solid #e8c36d!important;border-radius:18px!important;
+ box-shadow:0 10px 24px #00344866!important}
+.lobby-head{color:#fff}.lobby-head b{font-size:clamp(14px,2vw,18px);color:#ffe6a4}
+.lobby-head #status{color:#a8ffdc!important}
+.lobby-controls .input{background:#062f42!important;border:1px solid #e8c36d66!important;color:#fff!important}
+.lobby-controls button{background:linear-gradient(145deg,#f6cf68,#b77b24)!important;color:#39240d!important;border:1px solid #fff0b7!important}
+.lobby .note{color:#d6edf0!important}
+.wrap{max-width:1200px!important;padding:8px 12px 28px!important}
+.boardbox{position:relative;width:100%;padding:clamp(9px,2vw,18px)!important;
+ background:linear-gradient(145deg,#0b5965ed,#073d51f2)!important;
+ border:3px solid #e7c16b!important;border-radius:25px!important;
+ box-shadow:0 18px 40px #002b3d88,inset 0 0 0 2px #ffffff24!important}
+.boardbox h1{color:#ffe5a2!important;text-align:center;font-size:clamp(18px,2.5vw,26px)!important;margin-bottom:4px!important}
+.boardbox>p{color:#d4edf0!important}
+.board-area{
+ display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+ grid-template-rows:auto auto auto auto!important;gap:9px 12px!important;
+ align-items:center!important;width:min(100%,1000px)!important;max-width:1000px!important;
+ margin:12px auto!important;padding:10px!important;border-radius:25px!important;
+ background:linear-gradient(145deg,#e9c77a,#94642d 45%,#f9e6ae)!important;
+ border:3px solid #fff0bd!important;
+ box-shadow:0 15px 35px #002c3c99,0 0 0 5px #087c8c, inset 0 0 0 2px #fff9!important}
+.board-area>.player-strip{display:contents!important}
+.board-area .player-strip-head{display:contents!important}
+.board-area .player-strip-head h3{display:none!important}
+.board-area #players{display:contents!important}
+.board-area #players>.pl{
+ min-width:0;min-height:60px;padding:8px 10px!important;display:flex!important;align-items:center;gap:8px;
+ border-radius:15px!important;background:linear-gradient(145deg,#0c4254,#092b40)!important;
+ border:2px solid color-mix(in srgb,var(--seat-color,#fff) 75%,#fff)!important;
+ box-shadow:0 6px 14px #00253877,inset 0 1px #ffffff25!important}
+.board-area #players>.pl:nth-child(1){grid-column:1;grid-row:1;--seat-color:#ff5555}
+.board-area #players>.pl:nth-child(2){grid-column:2;grid-row:1;--seat-color:#45e19a}
+.board-area #players>.pl:nth-child(3){grid-column:2;grid-row:3;--seat-color:#ffd04d}
+.board-area #players>.pl:nth-child(4){grid-column:1;grid-row:3;--seat-color:#55aaff}
+.board-area #players>.pl.is-active{border-color:#fff2a6!important;box-shadow:0 0 0 2px var(--seat-color),0 0 18px var(--seat-color)!important}
+.board-area #players>.pl .player-avatar{order:0;flex:0 0 42px;width:42px;height:42px;border:2px solid var(--seat-color)!important}
+.board-area #players>.pl .player-die{order:1;flex:0 0 38px;width:38px;height:38px}
+.board-area #players>.pl .player-identity{order:2;flex:1;min-width:0}
+.board-area #players>.pl .player-identity b{color:#fff!important}
+.board-area #players>.pl .player-identity small{color:#b8dce5!important}
+.board-area #players>.pl .player-turn{order:3;background:#ffffff18;color:#fff}
+.board-area #addBot{position:absolute;top:8px;left:8px;z-index:4;background:linear-gradient(145deg,#f8d46c,#bb7b22)!important;color:#38240c!important}
+.board-area>#board{grid-column:1/-1;grid-row:2;width:100%!important;max-width:100%!important;min-width:0;
+ border:5px solid #f7e7bc!important;border-radius:17px!important;
+ box-shadow:0 8px 22px #143b2b55,inset 0 0 0 2px #ffffffaa!important}
+.board-area>.dice-dock{grid-column:1/-1;grid-row:4;justify-self:center;margin:2px auto!important;
+ background:linear-gradient(145deg,#075b85,#06324f)!important;border:2px solid #f4cf70!important;
+ border-radius:24px!important;padding:9px 18px!important;box-shadow:0 8px 22px #00283e99!important}
+.board-area .dice-control{background:linear-gradient(145deg,#137bb4,#063b70)!important;border:2px solid #f9d66f!important;
+ border-radius:18px!important;box-shadow:0 0 0 3px #ffffff22,0 0 20px #3abaff77!important}
+.board-area .dice-control .dice{color:#fff!important;text-shadow:0 2px 10px #001a38!important}
+.board-area .dice-control button{background:linear-gradient(145deg,#ffe28a,#d18b27)!important;color:#38220a!important;border:1px solid #fff1b8!important}
+.board-area .dice-hint{color:#fff0c5!important}
+.turn-status{background:linear-gradient(145deg,#073d52,#075d68)!important;border:1px solid #e9c66f!important;color:#fff!important}
+.rules-note{color:#d9f1ee!important}
+.ludo-reactions,.ludo-comms{background:linear-gradient(145deg,#075263,#07364d)!important;border:1px solid #e8c36d!important}
+.panel{background:#07394feF!important;border-color:#e7c16b55!important}
+.dice-effect-overlay{z-index:30}
+@media(max-width:760px){
+ .top{min-height:58px;padding:8px 10px}
+ .lobby{margin:8px 7px;padding:9px}
+ .wrap{padding:5px 6px 18px!important}
+ .boardbox{padding:7px!important;border-radius:17px!important}
+ .board-area{width:100%!important;gap:6px 7px!important;padding:6px!important;border-radius:17px!important;margin:8px auto!important}
+ .board-area #players>.pl{min-height:49px;padding:4px 5px!important;gap:4px;border-radius:10px!important}
+ .board-area #players>.pl .player-avatar{width:29px;height:29px;flex-basis:29px}
+ .board-area #players>.pl .player-die{width:27px;height:27px;min-width:27px;flex-basis:27px;padding:2px}
+ .board-area #players>.pl .player-identity b{font-size:9px}
+ .board-area #players>.pl .player-identity small{font-size:8px}
+ .board-area #players>.pl .player-turn{font-size:7px;padding:2px 3px}
+ .board-area>#board{border-width:3px!important;border-radius:11px!important}
+ .board-area>.dice-dock{padding:5px 10px!important;border-radius:17px!important}
+ .board-area .dice-control{gap:7px;padding:5px 9px!important}
+ .board-area .dice-control .dice{font-size:29px}
+ .board-area .dice-control button{font-size:10px;padding:6px 10px}
+ .board-area .dice-hint{font-size:9px}
+ .turn-status{font-size:11px;padding:8px}
+}
+@media(max-width:370px){
+ .board-area{gap:5px 5px!important;padding:4px!important}
+ .board-area #players>.pl .player-avatar{width:25px;height:25px;flex-basis:25px}
+ .board-area #players>.pl .player-die{width:24px;height:24px;min-width:24px;flex-basis:24px}
+ .board-area #players>.pl .player-identity b{font-size:8px}
+}
+</style>
+</head><body><header class="top"><div class="brand">🎲 <span>لَمّة</span> | ليدو أونلاين</div><button class="back" id="back">↩ رجوع للموقع</button></header>
 <section class="lobby"><div class="lobby-head"><b>🌐 جهّز غرفة اللعب</b><span id="status">جاري الاتصال…</span></div><div class="lobby-controls"><input class="input" id="name" maxlength="16" placeholder="اسمك في اللعبة"><select class="input" id="ludoBoardSkin" aria-label="لوحة ليدو"><option value="classic">اللوحة الأصلية</option></select><select class="input" id="ludoPieceSkin" aria-label="قطع ليدو"><option value="classic">القطع الأصلية</option></select><select class="input" id="diceSkin" aria-label="اختيار النرد"><option value="classic">الكلاسيكي</option></select><select class="input" id="movementEffect" aria-label="تأثير الحركة"><option value="none">بدون تأثير حركة</option></select><select class="input" id="maxPlayers" aria-label="عدد اللاعبين"><option value="2">👥 لاعبان</option><option value="3">👥 3 لاعبين</option><option value="4" selected>👥 4 لاعبين</option></select><button id="create">➕ إنشاء غرفة</button><label class="input" style="display:flex;align-items:center;gap:6px;margin:0"><input type="checkbox" id="botOn"> 🤖 العب ضد بوت</label><input class="input" id="code" maxlength="6" placeholder="كود الغرفة" style="text-transform:uppercase"><button id="join">دخول بالكود</button></div><div class="note">شارك كود الغرفة مع أصحابك — إنشاء الغرفة والدخول من هنا قبل اللعب.</div></section>
 <main class="wrap"><section class="ludo-reactions" id="ludoReactions" hidden><div class="reaction-head"><b>💬 عبّر عن نفسك</b><label><input type="checkbox" id="reactionSound" checked> 🔊 أصوات التعبيرات</label></div><div class="reaction-buttons"><button type="button" class="reaction-btn" data-reaction="😂" aria-label="إرسال 😂">😂</button><button type="button" class="reaction-btn" data-reaction="❤️" aria-label="إرسال ❤️">❤️</button><button type="button" class="reaction-btn" data-reaction="😡" aria-label="إرسال 😡">😡</button><button type="button" class="reaction-btn" data-reaction="😮" aria-label="إرسال 😮">😮</button><button type="button" class="reaction-btn" data-reaction="👏" aria-label="إرسال 👏">👏</button><button type="button" class="reaction-btn" data-reaction="🔥" aria-label="إرسال 🔥">🔥</button><button type="button" class="reaction-btn" data-reaction="🎉" aria-label="إرسال 🎉">🎉</button><button type="button" class="reaction-btn" data-reaction="😭" aria-label="إرسال 😭">😭</button><button type="button" class="reaction-btn" data-reaction="🤔" aria-label="إرسال 🤔">🤔</button><button type="button" class="reaction-btn" data-reaction="💪" aria-label="إرسال 💪">💪</button></div><div class="reaction-hint">اضغط على أي تعبير ليظهر متحركًا عند كل اللاعبين</div></section><section class="ludo-comms" id="ludoComms" hidden>
  <div class="comms-head"><b>🎙️ صوت وشات الغرفة</b><span id="voiceStatus">الميكروفون مغلق</span></div>
