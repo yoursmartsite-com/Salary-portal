@@ -1,4 +1,4 @@
-const CACHE_NAME = "lamma-pwa-v9";
+const CACHE_NAME = "lamma-pwa-v10";
 const APP_SHELL = "./";
 
 self.addEventListener("install", event => {
