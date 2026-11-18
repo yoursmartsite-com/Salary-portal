@@ -1,5 +1,9 @@
 const CATALOG = {
   dice_gold: { name: "النرد الذهبي", price: 30, type: "dice" },
+  dice_crystal: { name: "نرد الكريستال", price: 40, type: "dice" },
+  dice_fire: { name: "نرد اللهب الأسطوري", price: 50, type: "dice" },
+  dice_lightning: { name: "نرد البرق", price: 60, type: "dice" },
+  dice_galaxy: { name: "نرد المجرة", price: 70, type: "dice" },
   piece_crystal: { name: "قطع كريستال", price: 50, type: "piece" },
   piece_fire: { name: "قطع نار", price: 50, type: "piece" },
   piece_lightning: { name: "قطع برق", price: 50, type: "piece" },
@@ -9,8 +13,6 @@ const CATALOG = {
   board_space: { name: "لوحة المجرة الفضائية", price: 100, type: "board" },
   board_ice: { name: "لوحة الغابة المسحورة", price: 100, type: "board" },
   board_royal: { name: "لوحة البركان المتوهج", price: 100, type: "board" },
-  profile_frame: { name: "إطار صورة شخصية", price: 40, type: "frame" },
-  victory_effect: { name: "مؤثر فوز", price: 60, type: "effect" },
   move_lightning: { name: "مسار البرق", price: 100, type: "movementEffect" },
   move_fire: { name: "مسار اللهب", price: 150, type: "movementEffect" },
   move_ghost: { name: "مسار الشبح", price: 80, type: "movementEffect" },
