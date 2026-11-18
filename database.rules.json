@@ -241,6 +241,28 @@
           "$uid": {
             ".write": "auth != null && root.child('ludoRooms').child($roomId).child('players').child($uid).exists() && (auth.uid === $uid || (root.child('ludoRooms').child($roomId).child('players').child($uid).child('bot').val() === true && root.child('ludoRooms').child($roomId).child('hostUid').val() === auth.uid)) && newData.isNumber() && newData.val() >= 1 && newData.val() <= 6"
           }
+        },
+        "chat": {
+          ".read": "auth != null && root.child('ludoRooms').child($roomId).child('players').child(auth.uid).exists()",
+          "$messageId": {
+            ".write": "auth != null && root.child('ludoRooms').child($roomId).child('players').child(auth.uid).exists() && !data.exists() && newData.child('uid').val() === auth.uid",
+            ".validate": "newData.hasChildren(['uid','name','text','at']) && newData.child('uid').val() === auth.uid && newData.child('name').isString() && newData.child('name').val().length <= 32 && newData.child('text').isString() && newData.child('text').val().length > 0 && newData.child('text').val().length <= 250 && newData.child('at').isNumber()"
+          }
+        },
+        "voiceOnline": {
+          ".read": "auth != null && root.child('ludoRooms').child($roomId).child('players').child(auth.uid).exists()",
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid && root.child('ludoRooms').child($roomId).child('players').child($uid).exists()"
+          }
+        },
+        "signals": {
+          "$targetUid": {
+            ".read": "auth != null && auth.uid === $targetUid && root.child('ludoRooms').child($roomId).child('players').child($targetUid).exists()",
+            "$messageId": {
+              ".write": "auth != null && ((auth.uid === $targetUid && !newData.exists()) || (!data.exists() && root.child('ludoRooms').child($roomId).child('players').child(auth.uid).exists() && root.child('ludoRooms').child($roomId).child('players').child($targetUid).exists() && newData.child('from').val() === auth.uid))",
+              ".validate": "newData.hasChildren(['from','type','payload','at']) && newData.child('from').val() === auth.uid && (newData.child('type').val() === 'offer' || newData.child('type').val() === 'answer' || newData.child('type').val() === 'ice' || newData.child('type').val() === 'left') && newData.child('payload').exists() && newData.child('at').isNumber()"
+            }
+          }
         }
       }
     },
