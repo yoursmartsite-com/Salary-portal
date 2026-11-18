@@ -59,4 +59,5 @@ const search=document.getElementById('search');
 search.addEventListener('input',()=>{const q=search.value.trim().toLowerCase();document.querySelectorAll('.game').forEach(g=>{g.style.display=(!q||g.dataset.name?.toLowerCase().includes(q)||g.innerText.toLowerCase().includes(q))?'':'none'})});
 document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active')}));
 </script>
+<script src="/Salary-portal/assets/lamma-update.js" defer></script>
 </body></html>
