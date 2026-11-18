@@ -80,4 +80,5 @@ window.addEventListener('error',e=>{showLoadError('حصل خطأ أثناء تش
 window.addEventListener('unhandledrejection',e=>{showLoadError('تعذر تحميل أحد مكونات اللعبة. اتأكد إن الإنترنت شغال وجرب تاني.');});
 (async()=>{try{await Promise.race([modelPromise,new Promise(r=>setTimeout(r,5500))]);loading.classList.add('hidden');hud.style.display='block';resetGame();animate(performance.now())}catch(err){console.error(err);showLoadError('اللعبة وقفت أثناء التجهيز. جرّب إعادة التحميل، ولو استمرت المشكلة ابعت صورة للرسالة.')}})();
 </script>
+<script src="/Salary-portal/assets/lamma-update.js" defer></script>
 </body></html>
