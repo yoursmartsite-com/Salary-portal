@@ -630,12 +630,12 @@ function startLudoChat(){
  if(!roomId||!uid||!roomRef)return;const box=$('ludoChatMessages');if(box)box.innerHTML='';
  if(ludoChatRef&&ludoChatListener)ludoChatRef.off('child_added',ludoChatListener);
  ludoChatRef=roomRef.child('chat').limitToLast(80);ludoChatListener=snap=>renderLudoChatMessage(snap.val());
- ludoChatRef.on('child_added',ludoChatListener,error=>chatNotice('تعذر تحميل رسائل الغرفة: '+error.message,true));chatNotice('شات الغرفة متصل بفايربيز.')
+ ludoChatRef.on('child_added',ludoChatListener,error=>chatNotice('تعذر تحميل رسائل الغرفة ('+(error.code||'Firebase')+'): '+error.message,true));chatNotice('الشات جاهز — ابعت أول رسالة.')
 }
 async function sendLudoChat(textValue){
  const text=String(textValue||'').trim();if(!text||text.length>250||!roomId||!uid)return false;const player=room?.players?.[uid];
  if(!player){chatNotice('مش قادرين نحدد وجودك في الغرفة. اخرج وادخل بكود الغرفة تاني.',true);return false}
- try{await roomRef.child('chat').push({uid,name:player.name||'لاعب',text,at:firebase.database.ServerValue.TIMESTAMP});return true}catch(e){chatNotice('تعذر إرسال الرسالة: '+e.message,true);return false}
+ try{await roomRef.child('chat').push({uid,name:player.name||'لاعب',text,at:Date.now()});return true}catch(e){chatNotice('فشل إرسال الرسالة ('+(e.code||'Firebase')+'): '+e.message,true);return false}
 }
 function sendVoiceSignal(message){
  if(!roomRef||!uid||!room?.players?.[uid]||!message?.type)return false;const body={...message},target=body.to;delete body.to;
