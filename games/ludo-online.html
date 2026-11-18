@@ -613,7 +613,7 @@ async function sendRoomReaction(emoji){
  catch(e){status('تعذر إرسال التعبير: '+e.message)}
 }
 function setupReactionControls(){
- const sound=$('reactionSound');if(sound){sound.checked=localStorage.getItem('ludoReactionSound')!=='off';sound.onchange=()=>localStorage.setItem('ludoReactionSound',sound.checked?'on':'off')}
+ const sound=$('reactionSound');if(sound){sound.checked=localStorage.getItem('ludoReactionSound')!=='off';sound.onchange=()=>localStorage.setItem('ludoReactionSound',sound.checked?'on':'off')}const gameSound=$('gameSound');if(gameSound){gameSound.checked=localStorage.getItem('ludoGameSound')!=='off';gameSound.onchange=()=>localStorage.setItem('ludoGameSound',gameSound.checked?'on':'off')}
  document.querySelectorAll('.reaction-btn').forEach(btn=>btn.addEventListener('click',()=>sendRoomReaction(btn.dataset.reaction)));
 }
 
@@ -637,10 +637,11 @@ async function sendLudoChat(textValue){
  if(!player){chatNotice('مش قادرين نحدد وجودك في الغرفة. اخرج وادخل بكود الغرفة تاني.',true);return false}
  try{await roomRef.child('chat').push({uid,name:player.name||'لاعب',text,at:Date.now()});return true}catch(e){chatNotice('فشل إرسال الرسالة ('+(e.code||'Firebase')+'): '+e.message,true);return false}
 }
-function sendVoiceSignal(message){
+async function sendVoiceSignal(message){
  if(!roomRef||!uid||!room?.players?.[uid]||!message?.type)return false;const body={...message},target=body.to;delete body.to;
  const targets=target==='*'?Object.keys(room.players||{}).filter(id=>id!==uid):[target];
- targets.forEach(to=>{if(!to||to===uid||!room.players?.[to])return;roomRef.child('signals/'+to).push({from:uid,type:body.type,payload:body,at:firebase.database.ServerValue.TIMESTAMP}).catch(e=>{console.warn('Firebase voice signal failed:',e);voiceStatus('تعذر إرسال بيانات اتصال الصوت إلى فايربيز')})});return true
+ try{await Promise.all(targets.filter(to=>to&&to!==uid&&room.players?.[to]).map(to=>roomRef.child('signals/'+to).push({from:uid,type:body.type,payload:body,at:Date.now()})));return true}
+ catch(e){console.warn('Firebase voice signal failed:',e);voiceStatus('فشل إرسال إشارات الصوت ('+(e.code||'Firebase')+'): '+e.message);return false}
 }
 async function flushLudoIce(peerUid,pc){const pending=ludoPendingIce.get(peerUid)||[];ludoPendingIce.delete(peerUid);for(const candidate of pending){try{await pc.addIceCandidate(new RTCIceCandidate(candidate))}catch(e){console.warn('Queued ICE candidate rejected:',e)}}}
 async function makeLudoPeer(peerUid){
