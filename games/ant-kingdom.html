@@ -15,17 +15,17 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}.page{max-width:900px;
 <header class="top"><a class="back" href="../">← لَمّة</a><div class="level"><small>مملكة النمل · مرحلة</small><strong id="level">01</strong></div><div class="tools"><button class="tool" id="pause">Ⅱ</button><button class="tool" id="speed">1×</button></div></header>
 <section class="board-shell"><div class="board-inner"><canvas id="board" class="board" width="696" height="600" aria-label="لوحة المربعات"></canvas></div><div class="ground"><div><div class="home-label">جحور المستعمرات</div></div><div class="burrow"></div><div class="home-label" id="collected">0 / 0</div></div></section>
 <div class="progress"><span>تنظيف الرسمة</span><div class="bar"><i id="bar"></i></div><span id="percent">0%</span></div>
-<p class="hint">اختار لون المستعمرة، والنمل هيلمّ المربعات المطابقة ويرجع بيها للجحر.</p>
+<p class="hint">كل مربع لون هو مفتاح؛ كل مكعب يتجمع يكشف جزءًا من اللون التالي في نفس العمود.</p>
 <section class="colonies" id="colonies"></section>
 <div class="actions"><button class="action gold" id="dispatch">🐜 ابعت النمل يجمع</button><button class="action" id="restart">↻ إعادة المرحلة</button></div>
-<div class="message" id="message" aria-live="polite">اختار لون وابدأ جمع المربعات!</div>
+<div class="message" id="message" aria-live="polite">اختار مفتاح اللون وابدأ تكشف الألوان!</div>
 <section class="win" id="win"><h2>🎉 الرسمة اتنضفت!</h2><p>كل المربعات رجعت للجحر. جاهز للمرحلة اللي بعدها؟</p><button class="action gold" id="next">المرحلة التالية ←</button></section>
 </main>
 <script>
 (()=> {
 const cv=document.getElementById('board'),c=cv.getContext('2d'),$=id=>document.getElementById(id);
 const C=[['سماوي','#16c9e8','#0787b0'],['برتقالي','#ff9d18','#d56b05'],['أخضر','#37c86a','#14864b'],['وردي','#f34e75','#b92750'],['أبيض','#fff7e8','#c7bba7'],['بنفسجي','#55415f','#30253b']];
-const COLS=22,ROWS=16,W=696/COLS,H=600/ROWS,BATCH=10;
+const COLS=22,ROWS=16,W=696/COLS,H=600/ROWS;
 let tiles=[],ants=[],groups=[],sparks=[],level=1,done=0,total=0,paused=false,speed=1,last=0,bad=0,failed=false,busy=false,activeGroup=null;
 function colorFor(x,y){
  const nx=(x-10.5)/8.1,ny=(y-8)/6.5;
@@ -65,7 +65,7 @@ function build(){
  $('win').querySelector('h2').textContent='🎉 الرسمة اتنضفت!';
  $('win').querySelector('p').textContent='كل مكعبات الرسمة اتجمعت. جاهز للمرحلة اللي بعدها؟';
  $('next').textContent='المرحلة التالية ←';$('next').onclick=()=>{level++;build()};
- $('message').textContent='اختار لون من المربعات تحت. النمل هيجمع مكعبات اللون ده من الأطراف.';
+ $('message').textContent='اختار مفتاح اللون المفتوح. كل مكعب يأكله النمل يكشف اللون اللي بعده تدريجيًا.';
  makeGroups();renderControls();ui();draw();
 }
 function makeGroups(){
@@ -140,18 +140,16 @@ function dispatch(group,button,colIndex){
   draw();return;
  }
  busy=true;activeGroup=group;
- $('message').textContent='مجموعة '+group.remaining+' مكعب من اللون المختار...';
+ $('message').textContent='النمل بيجمع مكعبات اللون المفتاح...';
  const col=C[color][1],homeX=348,homeY=574;
- targets.forEach((t,i)=>ants.push({x:homeX+(i%5-2)*10,y:homeY,color:col,target:t,phase:0,tx:t.x*W+W/2,ty:t.y*H+H/2}));
- group.remaining-=targets.length;
- if(group.remaining===0)groups[colIndex].shift();
- renderControls();draw();
+ targets.forEach((t,i)=>ants.push({x:homeX+(i%5-2)*10,y:homeY,color:col,target:t,group,colIndex,phase:0,tx:t.x*W+W/2,ty:t.y*H+H/2}));
+ draw();
 }
 function tick(ts){
  const dt=Math.min(.04,(ts-last)/1000||0);last=ts;
  if(!paused)for(let i=ants.length-1;i>=0;i--){
   const a=ants[i],tx=a.phase===0?a.tx:348,ty=a.phase===0?a.ty:574,dx=tx-a.x,dy=ty-a.y,d=Math.hypot(dx,dy),v=220*speed*dt;
-  if(d<v+2){a.x=tx;a.y=ty;if(a.phase===0){sparkle(a.x,a.y);a.target.alive=false;done++;a.phase=1;ui()}else ants.splice(i,1)}
+  if(d<v+2){a.x=tx;a.y=ty;if(a.phase===0){sparkle(a.x,a.y);a.target.alive=false;done++;a.group.remaining--;if(a.group.remaining===0)groups[a.colIndex].shift();renderControls();a.phase=1;ui()}else ants.splice(i,1)}
   else{a.x+=dx/d*v;a.y+=dy/d*v}
  }
  if(busy&&ants.length===0){busy=false;activeGroup=null;renderControls();if(done>=total){$('win').classList.add('show');$('message').textContent='عاش! خلصت الرسمة كلها.'}else $('message').textContent='النمل رجع بالمكعبات. اختار لون تاني.'}
