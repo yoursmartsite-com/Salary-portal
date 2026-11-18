@@ -22,18 +22,124 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}.page{max-width:900px;
 <section class="win" id="win"><h2>🎉 الرسمة اتنضفت!</h2><p>كل المربعات رجعت للجحر. جاهز للمرحلة اللي بعدها؟</p><button class="action gold" id="next">المرحلة التالية ←</button></section>
 </main>
 <script>
-(()=>{const cv=document.getElementById('board'),c=cv.getContext('2d'),$=x=>document.getElementById(x),C=[['cyan','#10c5dc','#087c9b'],['orange','#ff9d16','#c96b0c'],['green','#35c86d','#16884c'],['pink','#ef5575','#a92f58'],['lime','#a7dc42','#638e27'],['white','#fff5df','#c8bda9']],N=6,M=5,W=116,H=112,K=10;let tiles=[],ants=[],level=1,done=0,total=0,paused=false,speed=1,last=0,bad=0,failed=false;
-function shape(x,y){let a=(x-2.5)/2.9,b=(y-2)/2.55;switch((level-1)%5){case 0:return a*a+b*b<1.12;case 1:return Math.abs(a)<.98&&Math.abs(b)<.96&&!(Math.abs(a)>.68&&Math.abs(b)>.65);case 2:return a*a/1.05+b*b/.72<1.1;case 3:return Math.abs(a)+Math.abs(b)<1.45;default:return(Math.abs(a)<.95&&Math.abs(b)<.82)||(Math.abs(a)<.35&&b<-.65)}}
-function near(t){return tiles.filter(q=>Math.abs(q.x-t.x)+Math.abs(q.y-t.y)===1)}
+(()=> {
+const cv=document.getElementById('board'),c=cv.getContext('2d'),$=id=>document.getElementById(id);
+const C=[['cyan','#10c5dc','#087c9b'],['orange','#ff9d16','#c96b0c'],['green','#35c86d','#16884c'],['pink','#ef5575','#a92f58'],['lime','#a7dc42','#638e27'],['white','#fff5df','#c8bda9']];
+const N=10,M=8,W=69.6,H=75,K=10;
+let tiles=[],ants=[],level=1,done=0,total=0,paused=false,speed=1,last=0,bad=0,failed=false,busy=false;
+function shape(x,y){
+ const a=(x-4.5)/5,b=(y-3.5)/4;
+ switch((level-1)%5){
+ case 0:return a*a+b*b<1.08;
+ case 1:return Math.abs(a)<.98&&Math.abs(b)<.96&&!(Math.abs(a)>.7&&Math.abs(b)>.62);
+ case 2:return a*a/1.08+b*b/.72<1.08;
+ case 3:return Math.abs(a)+Math.abs(b)<1.55;
+ default:return (Math.abs(a)<.96&&Math.abs(b)<.78)||(Math.abs(a)<.34&&b<-.65);
+ }
+}
+function neighbors(t){return [[1,0],[-1,0],[0,1],[0,-1]].map(([dx,dy])=>tiles.find(q=>q.x===t.x+dx&&q.y===t.y+dy)).filter(Boolean)}
 function exposed(t){return [[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>{const q=tiles.find(q=>q.x===t.x+dx&&q.y===t.y+dy);return !q||!q.alive})}
-function build(){tiles=[];ants=[];done=0;bad=0;failed=false;paused=false;for(let y=0;y<M;y++)for(let x=0;x<N;x++)if(shape(x,y))tiles.push({x,y,alive:true,color:0,remaining:K});let bag=tiles.map((_,i)=>i%C.length);for(let i=bag.length-1;i>0;i--){let j=Math.random()*(i+1)|0;[bag[i],bag[j]]=[bag[j],bag[i]]}tiles.forEach((t,i)=>{let opts=C.map((_,j)=>j).filter(j=>!near(t).some(q=>q.color===j));t.color=opts.includes(bag[i])?bag[i]:opts[Math.random()*opts.length|0];});total=tiles.length*K;$('level').textContent=String(level).padStart(2,'0');$('win').classList.remove('show');$('win').querySelector('h2').textContent='🎉 الرسمة اتنضفت!';$('win').querySelector('p').textContent='كل النمل رجع للجحر.';$('next').textContent='المرحلة التالية ←';$('next').onclick=()=>{level++;build()};$('message').textContent='كل مربع فيه ١٠ نمل. ابدأ من المربعات الخارجية.';ui();draw()}
-function ui(){let p=total?Math.floor(done/total*100):0;$('bar').style.width=p+'%';$('percent').textContent=p+'%';$('collected').textContent=done+' / '+total}
-function rr(x,y,w,h,r){c.beginPath();c.roundRect(x,y,w,h,r)}
-function ant(x,y,col,scale=1){c.save();c.translate(x,y);c.scale(scale,scale);c.fillStyle='#39251f';c.beginPath();c.arc(-4,0,3,0,7);c.arc(1,0,2.5,0,7);c.fill();c.fillStyle=col;c.beginPath();c.arc(6,-1,3,0,7);c.fill();c.strokeStyle='#39251f';c.lineWidth=1;for(let z=-1;z<=1;z++){c.beginPath();c.moveTo(-1,z);c.lineTo(-5,z*4-2);c.moveTo(2,z);c.lineTo(5,z*4+2);c.stroke()}c.restore()}
-function drawTile(t){let x=t.x*W+4,y=t.y*H+4,col=C[t.color],g=c.createLinearGradient(x,y,x+W,y+H);g.addColorStop(0,'#fff');g.addColorStop(.18,col[1]);g.addColorStop(1,col[2]);c.save();c.shadowColor='#51352b66';c.shadowBlur=8;c.shadowOffsetY=4;c.fillStyle=g;rr(x,y,W-8,H-8,12);c.fill();c.shadowColor='transparent';c.strokeStyle='#ffffffaa';c.lineWidth=2;rr(x+2,y+2,W-12,H-12,10);c.stroke();c.restore();for(let i=0;i<t.remaining;i++)ant(x+19+(i%5)*17,y+28+(i/5|0)*29,col[1],.85);c.fillStyle='#fff';c.font='900 14px Cairo';c.textAlign='center';c.fillText(t.remaining+' نمل',x+W/2,y+H-10)}
-function draw(){c.clearRect(0,0,696,600);let g=c.createLinearGradient(0,0,0,600);g.addColorStop(0,'#e4f8f7');g.addColorStop(1,'#b8e5e2');c.fillStyle=g;c.fillRect(0,0,696,600);tiles.forEach(t=>{if(t.alive)drawTile(t)});ants.forEach(a=>ant(a.x,a.y,a.color,1.05));if(paused){c.fillStyle='#201a29a8';c.fillRect(0,0,696,600);c.fillStyle='white';c.font='900 32px Cairo';c.textAlign='center';c.fillText(failed?'المرحلة مقفولة':'متوقف مؤقتًا',348,300)}}
-function choose(t){if(paused||failed||!t.alive)return;if(!exposed(t)){bad++;$('message').textContent='المربع محاصر، خلّص اللي حواليه الأول! '+bad+'/3';if(bad>=3){failed=true;paused=true;$('win').classList.add('show');$('win').querySelector('h2').textContent='🔒 المرحلة اتقفلت';$('win').querySelector('p').textContent='ثلاث اختيارات غلط. أعد المرحلة وحاول تبدأ من الحواف.';$('next').textContent='إعادة المحاولة';$('next').onclick=build}draw();return}let col=C[t.color][1];$('message').textContent='النمل بيخرج من المربع المختار ورايح للجحر.';for(let i=0;i<K;i++)ants.push({x:t.x*W+19+(i%5)*17,y:t.y*H+28+(i/5|0)*29,color:col});t.remaining=0;t.alive=false;done+=K;ui();if(done===total){$('win').classList.add('show');$('message').textContent='عاش! خلصت كل المربعات.'}draw()}
-cv.addEventListener('pointerdown',e=>{let r=cv.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*696,y=(e.clientY-r.top)/r.height*600,t=tiles.find(q=>q.alive&&x>=q.x*W&&x<(q.x+1)*W&&y>=q.y*H&&y<(q.y+1)*H);if(t)choose(t)});
-function tick(t){let dt=Math.min(.04,(t-last)/1000||0);last=t;if(!paused)for(let i=ants.length-1;i>=0;i--){let a=ants[i],dx=348-a.x,dy=574-a.y,d=Math.hypot(dx,dy),v=190*speed*dt;if(d<v+2)ants.splice(i,1);else{a.x+=dx/d*v;a.y+=dy/d*v}}draw();requestAnimationFrame(tick)}
-$('pause').onclick=()=>{paused=!paused;$('pause').textContent=paused?'▶':'Ⅱ'};$('speed').onclick=()=>{speed=speed===1?2:1;$('speed').textContent=speed+'×'};$('restart').onclick=build;$('dispatch').onclick=()=>$('message').textContent='اضغط على المربع نفسه ليخرج منه النمل.';$('colonies').innerHTML=C.map((v,i)=>'<button class="colony" aria-label="لون '+v[0]+'"><span class="cube-swatch" style="--cube:'+v[1]+';--cube-light:'+v[1]+';--cube-dark:'+v[2]+'"></span></button>').join('');build();requestAnimationFrame(tick)})();
+function build(){
+ tiles=[];ants=[];done=0;bad=0;failed=false;paused=false;busy=false;
+ for(let y=0;y<M;y++)for(let x=0;x<N;x++)if(shape(x,y))tiles.push({x,y,alive:true,color:0});
+ tiles.splice(Math.floor(tiles.length/10)*10);
+ const groups=tiles.length/10,bag=[];
+ for(let col=0;col<C.length&&bag.length<tiles.length;col++)for(let j=0;j<10&&bag.length<tiles.length;j++)bag.push(col);
+ for(let attempt=0;attempt<150;attempt++){
+  for(let i=bag.length-1;i>0;i--){let j=Math.random()*(i+1)|0;[bag[i],bag[j]]=[bag[j],bag[i]]}
+  let ok=true;tiles.forEach((t,i)=>{t.color=bag[i]});
+  for(const t of tiles)if(neighbors(t).some(q=>q.color===t.color)){ok=false;break}
+  if(ok)break;
+ }
+ total=tiles.length;
+ $('level').textContent=String(level).padStart(2,'0');
+ $('win').classList.remove('show');
+ $('win').querySelector('h2').textContent='🎉 الرسمة اتنضفت!';
+ $('win').querySelector('p').textContent='كل قطع الرسمة اتجمعت. جاهز للمرحلة اللي بعدها؟';
+ $('next').textContent='المرحلة التالية ←';
+ $('next').onclick=()=>{level++;build()};
+ $('message').textContent='اختار مربع المستعمرة من تحت. كل مربع فيه ١٠ نمل.';
+ renderColonies();ui();draw();
+}
+function renderColonies(){
+ const root=$('colonies');root.innerHTML='';
+ const counts=C.map((_,i)=>tiles.filter(t=>t.color===i&&t.alive).length);
+ counts.forEach((count,i)=>{
+  for(let n=0;n<count/K;n++){
+   const b=document.createElement('button');b.className='colony';b.type='button';
+   b.setAttribute('aria-label','مستعمرة '+C[i][0]+' بها ١٠ نمل');
+   b.innerHTML='<span class="cube-swatch" style="--cube:'+C[i][1]+';--cube-light:'+C[i][1]+';--cube-dark:'+C[i][2]+'"></span><span class="ant-pack">'+Array.from({length:10},()=>'<i></i>').join('')+'</span>';
+   b.addEventListener('click',()=>dispatch(i,b));root.appendChild(b);
+  }
+ });
+}
+function ui(){
+ const p=total?Math.floor(done/total*100):0;
+ $('bar').style.width=p+'%';$('percent').textContent=p+'%';$('collected').textContent=done+' / '+total;
+}
+function rounded(x,y,w,h,r){c.beginPath();c.roundRect(x,y,w,h,r)}
+function ant(x,y,col,s=1){
+ c.save();c.translate(x,y);c.scale(s,s);c.fillStyle='#30221d';
+ c.beginPath();c.arc(-5,0,3.2,0,7);c.arc(0,0,2.6,0,7);c.fill();
+ c.fillStyle=col;c.beginPath();c.arc(6,-1,3.2,0,7);c.fill();
+ c.strokeStyle='#30221d';c.lineWidth=1.2;
+ for(let z=-1;z<=1;z++){c.beginPath();c.moveTo(-1,z);c.lineTo(-6,z*4-2);c.moveTo(2,z);c.lineTo(6,z*4+2);c.stroke()}
+ c.restore();
+}
+function drawTile(t){
+ const x=t.x*W+3,y=t.y*H+3,col=C[t.color];
+ const g=c.createLinearGradient(x,y,x+W,y+H);g.addColorStop(0,'#fff');g.addColorStop(.2,col[1]);g.addColorStop(1,col[2]);
+ c.save();c.shadowColor='#34504b66';c.shadowBlur=6;c.shadowOffsetY=3;c.fillStyle=g;
+ rounded(x,y,W-6,H-6,8);c.fill();c.shadowColor='transparent';
+ c.strokeStyle='#ffffffb8';c.lineWidth=1.5;rounded(x+2,y+2,W-10,H-10,7);c.stroke();c.restore();
+ c.fillStyle='#ffffff99';c.beginPath();c.moveTo(x+8,y+9);c.lineTo(x+W-17,y+9);c.stroke();
+}
+function draw(){
+ c.clearRect(0,0,696,600);
+ const g=c.createLinearGradient(0,0,0,600);g.addColorStop(0,'#e4f8f7');g.addColorStop(1,'#b8e5e2');c.fillStyle=g;c.fillRect(0,0,696,600);
+ tiles.forEach(t=>{if(t.alive)drawTile(t)});
+ ants.forEach(a=>ant(a.x,a.y,a.color,1));
+ if(paused){c.fillStyle='#201a29a8';c.fillRect(0,0,696,600);c.fillStyle='white';c.font='900 30px Cairo';c.textAlign='center';c.fillText(failed?'المرحلة مقفولة':'متوقف مؤقتًا',348,300)}
+}
+function dispatch(color,button){
+ if(paused||failed||busy||button.disabled)return;
+ const targets=tiles.filter(t=>t.alive&&t.color===color&&exposed(t)).slice(0,K);
+ if(targets.length<K){
+  bad++;$('message').textContent=targets.length?'اللون ده مكشوف منه '+targets.length+' قطع بس. افتح الطريق الأول!':'مفيش قطع من اللون ده على الحواف. اختار لون مكشوف تاني.'; 
+  if(bad>=3){failed=true;paused=true;$('win').classList.add('show');$('win').querySelector('h2').textContent='🔒 المرحلة اتقفلت';$('win').querySelector('p').textContent='٣ اختيارات غلط. أعد المرحلة وحاول تفتح الطبقة الخارجية الأول.';$('next').textContent='إعادة المحاولة';$('next').onclick=build}
+  draw();return;
+ }
+ busy=true;button.disabled=true;
+ $('message').textContent='١٠ نمل خرجوا من المستعمرة وبيجمعوا مكعبات لونهم...';
+ const col=C[color][1],startX=348,startY=574;
+ targets.forEach((t,i)=>{
+  const tx=t.x*W+W/2,ty=t.y*H+H/2;
+  ants.push({x:startX+(i%5-2)*5,y:startY,color:col,tx,ty,phase:0,target:t});
+ });
+ targets.forEach(t=>t.alive=false);
+ done+=targets.length;ui();renderColonies();draw();
+ setTimeout(()=>{
+  ants=ants.filter(a=>!targets.includes(a.target));
+  busy=false;
+  if(done>=total){$('win').classList.add('show');$('message').textContent='عاش! الرسمة اتجمعت كلها.'}
+  else $('message').textContent='رجع النمل بالجواهر! اختار مستعمرة تانية.';
+  draw();
+ },1400/speed);
+}
+cv.addEventListener('pointerdown',()=>{$('message').textContent='اختار مربع النمل من تحت؛ المكعبات اللي فوق هي الأكل.'});
+function tick(ts){
+ const dt=Math.min(.04,(ts-last)/1000||0);last=ts;
+ if(!paused)ants.forEach(a=>{
+  const tx=a.phase===0?a.tx:348,ty=a.phase===0?a.ty:574,dx=tx-a.x,dy=ty-a.y,d=Math.hypot(dx,dy),v=230*speed*dt;
+  if(d<v+2){a.x=tx;a.y=ty;if(a.phase===0)a.phase=1}
+  else{a.x+=dx/d*v;a.y+=dy/d*v}
+ });
+ draw();requestAnimationFrame(tick);
+}
+$('pause').onclick=()=>{paused=!paused;$('pause').textContent=paused?'▶':'Ⅱ'};
+$('speed').onclick=()=>{speed=speed===1?2:1;$('speed').textContent=speed+'×'};
+$('restart').onclick=build;
+$('dispatch').onclick=()=>$('message').textContent='اضغط على أحد مربعات المستعمرات أسفل الرسمة.';
+build();requestAnimationFrame(tick);
+})();
 </script></body></html>
