@@ -88,7 +88,7 @@ function makeGroups(){
 function renderSlots(){
  const root=$('launchSlots');root.innerHTML='';
  activeSlots.forEach((group,col)=>{
-  const slot=document.createElement('div');slot.className='launch-slot'+(group?' filled':'')+(group&&busy&&activeGroup===group?' running':'');
+  const slot=document.createElement('div');slot.className='launch-slot'+(group?' filled':'')+(group&&(group.inFlight||0)>0?' running':'');
   if(group){const v=C[group.color];slot.style.setProperty('--slot-color',v[1]);slot.style.setProperty('--slot-dark',v[2]);slot.innerHTML='<span class="slot-cube"></span><strong class="slot-count">'+group.remaining+'</strong><span>نمل في البيت / شغال</span>'}
   else slot.innerHTML='<span class="slot-empty">＋</span><span>مكان فارغ</span>';
   root.appendChild(slot);
@@ -254,15 +254,16 @@ function tick(ts){
   }
  }
  // حرر مكان التشغيل فقط بعد رجوع كل نمل هذا المربع؛ باقي الأسراب لا تتوقف.
+ let slotChanged=false;
  activeSlots.forEach((g,col)=>{
-  if(g&&g.remaining<=0&&(g.inFlight||0)===0){groups[col].shift();activeSlots[col]=null}
+  if(g&&g.remaining<=0&&(g.inFlight||0)===0){groups[col].shift();activeSlots[col]=null;slotChanged=true}
  });
  if(done>=total&&ants.length===0){
   $('win').classList.add('show');$('message').textContent='عاش! خلصت الرسمة كلها.';
  }else{
   launchNext();
  }
- renderSlots();renderControls();
+ if(slotChanged){renderSlots();renderControls()}
  drawSparks(dt);draw();requestAnimationFrame(tick);
 }
 $('pause').onclick=()=>{paused=!paused;$('pause').textContent=paused?'▶':'Ⅱ'};
