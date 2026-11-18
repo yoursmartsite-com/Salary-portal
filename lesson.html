@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0b1020"><title>الدرس | لَمّة</title><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b1020;--panel:#131d32;--line:#293b5b;--muted:#b5c3d9;--white:#f5f8ff;--accent:#82c8ff}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -10%,#285b8738,transparent 48%),var(--bg);color:var(--white);font-family:Cairo,Arial,sans-serif}.wrap{width:min(900px,calc(100% - 28px));margin:auto}header{display:flex;justify-content:space-between;align-items:center;padding:17px 0;border-bottom:1px solid var(--line)}.brand{font-size:22px;font-weight:900}.brand b{color:var(--accent)}a,.back{color:inherit;text-decoration:none}.back{border:1px solid var(--line);background:#17243a;border-radius:10px;padding:9px 14px;font:700 12px Cairo}.crumb{color:var(--accent);font-size:12px;font-weight:800;margin-top:25px}.hero{padding:12px 0 20px}.hero h1{font-size:clamp(27px,5vw,42px);line-height:1.5;margin:6px 0}.desc{color:var(--muted);line-height:2;margin:0}.photo{width:100%;height:clamp(190px,38vw,330px);object-fit:cover;border-radius:18px;border:1px solid var(--line);margin:8px 0 22px;background:#17243a}.content,.extra,.source,.quiz{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;margin:14px 0;line-height:2}.content p{margin:0 0 15px;white-space:pre-line}.content p:last-child{margin:0}.extra{border-color:#345b75;background:#11263a}.source{color:#c6d7ea;font-size:13px}.quiz button{font:700 14px Cairo;border:1px solid #3c587e;background:#1a2b46;color:white;border-radius:10px;padding:10px 15px;margin:5px;cursor:pointer}.quiz button:active{transform:scale(.98)}#feedback{color:#aee6c3;font-weight:800;margin-top:10px}.foot{color:#8fa3c0;text-align:center;font-size:12px;padding:30px 0}
+</style></head><body><div class="wrap"><header><div class="brand">لَمّة <b>· تعلّم واكتشف</b></div><a class="back" id="back" href="/Salary-portal/">رجوع للقسم ←</a></header><div class="crumb" id="cat"></div><section class="hero"><h1 id="title"></h1><p class="desc" id="desc"></p></section><img class="photo" id="photo" alt="صورة توضيحية للدرس"><section class="content" id="body"></section><section class="extra" id="extra" hidden></section><section class="source" id="source" hidden></section><section class="quiz" id="quiz" hidden><h3 id="question"></h3><div id="answers"></div><div id="feedback"></div></section><div class="foot">لَمّة · المعرفة خطوة بخطوة</div></div>
+<script>
+const p=new URLSearchParams(location.search),section=p.get('section')||'awareness',title=p.get('title')||'الدرس',cat=p.get('cat')||'';
+const backMap={religion:'religion.html',awareness:'kids-awareness.html',learning:'kids-learning.html'};
+document.getElementById('back').href='/Salary-portal/'+(backMap[section]||'');
+document.getElementById('cat').textContent=cat;
+document.getElementById('title').textContent=title;
+document.getElementById('desc').textContent=p.get('desc')||'';
+const body=(p.get('body')||'').split(/\n+/).filter(Boolean);
+document.getElementById('body').innerHTML=body.map(t=>'<p></p>').join('');
+document.querySelectorAll('#body p').forEach((el,i)=>el.textContent=body[i]);
+const extra=p.get('extra'),extraEl=document.getElementById('extra');
+if(extra){extraEl.hidden=false;extraEl.textContent=extra}
+const source=p.get('source'),sourceEl=document.getElementById('source');
+if(source){sourceEl.hidden=false;sourceEl.textContent='المصدر والمراجع: '+source}
+const images={
+ religion:'https://images.unsplash.com/photo-1509316785289-025f5b846b35?auto=format&fit=crop&w=1400&q=85',
+ awareness:'https://images.unsplash.com/photo-1472162072942-cd5147eb3902?auto=format&fit=crop&w=1400&q=85',
+ learning:'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1400&q=85'
+};
+document.getElementById('photo').src=images[section]||images.learning;
+if(section==='learning'&&p.get('question')){
+ const quiz=document.getElementById('quiz');quiz.hidden=false;
+ document.getElementById('question').textContent='اختبر نفسك: '+p.get('question');
+ let opts=[];try{opts=JSON.parse(p.get('opts')||'[]')}catch(e){}
+ const correct=Number(p.get('correct'));
+ const answers=document.getElementById('answers');
+ opts.forEach((o,i)=>{const b=document.createElement('button');b.textContent=o;b.onclick=()=>{document.getElementById('feedback').textContent=(i===correct?'إجابة صحيحة! ممتاز 👏 ':'حاول مرة تانية. ')+(p.get('why')||'');};answers.appendChild(b)});
+}
+</script><script src="/Salary-portal/assets/lamma-update.js" defer></script></body></html>
