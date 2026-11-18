@@ -95,4 +95,5 @@ $('backBtn').onclick=()=>{stopListen();location.href='../index.html'};
 window.addEventListener('resize',resize);
 try{if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);db=firebase.database();firebase.auth().signInAnonymously().then(cred=>{uid=cred.user.uid;setStatus('متصل — اختار ساحة واعمل غرفة');}).catch(e=>setStatus('تعذر الاتصال: '+(e.code||e.message)))}catch(e){setStatus('تعذر تهيئة الاتصال: '+e.message)}
 resize();animate();const queryRoom=new URLSearchParams(location.search).get('room');if(queryRoom){$('roomCode').value=queryRoom.toUpperCase();setTimeout(joinRoom,500)}
-})();</script></body></html>
+})();</script><script src="/Salary-portal/assets/lamma-update.js" defer></script>
+</body></html>
