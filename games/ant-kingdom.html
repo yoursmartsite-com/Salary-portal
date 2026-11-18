@@ -164,9 +164,9 @@ function launchNext(){
   const available=Math.max(0,group.remaining-(group.inFlight||0));
   const count=available;
   if(!count)return;
-  // اختار أقرب مكعب مكشوف للجحر أولاً بدل ترتيب المربعات في اللوحة.
+  // اختار المكعبات عشوائياً من كل الأماكن المكشوفة للون ده.
   const targets=tiles.filter(t=>t.alive&&!t.reserved&&t.color===group.color&&exposed(t))
-   .sort((a,b)=>(Math.abs(a.x-11)+Math.abs(a.y-15))-(Math.abs(b.x-11)+Math.abs(b.y-15)));
+   .sort(()=>Math.random()-.5);
   if(!targets.length)return;
   targets.slice(0,count).forEach((target,index)=>{
    target.reserved=true;group.inFlight=(group.inFlight||0)+1;
