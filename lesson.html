@@ -17,12 +17,21 @@ const extra=p.get('extra'),extraEl=document.getElementById('extra');
 if(extra){extraEl.hidden=false;extraEl.textContent=extra}
 const source=p.get('source'),sourceEl=document.getElementById('source');
 if(source){sourceEl.hidden=false;sourceEl.textContent='المصدر والمراجع: '+source}
-const images={
- religion:'https://images.unsplash.com/photo-1509316785289-025f5b846b35?auto=format&fit=crop&w=1400&q=85',
- awareness:'https://images.unsplash.com/photo-1472162072942-cd5147eb3902?auto=format&fit=crop&w=1400&q=85',
- learning:'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1400&q=85'
+const photoUrl=(id)=>'https://images.unsplash.com/'+id+'?auto=format&fit=crop&w=1400&q=85';
+const generalImages={
+ religion:photoUrl('photo-1509316785289-025f5b846b35'),
+ awareness:photoUrl('photo-1472162072942-cd5147eb3902'),
+ learning:photoUrl('photo-1509062522246-3755977927d7')
 };
-document.getElementById('photo').src=images[section]||images.learning;
+const storyImages={
+ 'آدم عليه السلام':photoUrl('photo-1448375240586-882707db888b'),
+ 'نوح عليه السلام':photoUrl('photo-1500375592092-40eb2168fd21'),
+ 'إبراهيم عليه السلام':photoUrl('photo-1509316785289-025f5b846b35'),
+ 'يوسف عليه السلام':photoUrl('photo-1519608487953-e999c86e7455'),
+ 'موسى عليه السلام':photoUrl('photo-1500375592092-40eb2168fd21')
+};
+document.getElementById('photo').src=storyImages[title]||generalImages[section]||generalImages.learning;
+document.getElementById('photo').alt='صورة توضيحية: '+title+'، دون تجسيد للأنبياء';
 if(section==='learning'&&p.get('question')){
  const quiz=document.getElementById('quiz');quiz.hidden=false;
  document.getElementById('question').textContent='اختبر نفسك: '+p.get('question');
