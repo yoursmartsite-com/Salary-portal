@@ -119,13 +119,18 @@ export default{async fetch(req,env){
 const u=new URL(req.url),h=cors(req);if(req.method==="OPTIONS")return new Response(null,{status:204,headers:h});if(u.pathname==="/"||u.pathname==="/health")return out({ok:true,service:"lamma-rooms-worker",version:4},200,h);
  if(u.pathname==="/voice/ice-config"&&req.method==="POST"){
   try{
-   if(!env.TURN_KEY_ID||!env.TURN_KEY_SECRET)return out({ok:false,error:"TURN_NOT_CONFIGURED"},503,h);
-   const b=await req.json();if(!b||typeof b.uid!=="string"||!/^[A-Za-z0-9_-]{3,128}$/.test(b.uid))return out({ok:false,error:"INVALID_PLAYER"},400,h);
-   const r=await fetch("https://rtc.live.cloudflare.com/v1/turn/keys/"+encodeURIComponent(env.TURN_KEY_ID)+"/credentials/generate",{method:"POST",headers:{"Authorization":"Bearer "+env.TURN_KEY_SECRET,"Content-Type":"application/json"},body:JSON.stringify({ttl:3600})});
-   const data=await r.json().catch(()=>({}));
-   if(!r.ok||!data.iceServers?.username||!data.iceServers?.credential||!Array.isArray(data.iceServers?.urls))return out({ok:false,error:"TURN_CREDENTIALS_FAILED"},502,h);
-   const urls=data.iceServers.urls.filter(x=>typeof x==="string"&&!/:(53)(?:\\?|$)/.test(x));
-   return out({ok:true,iceServers:[{urls:"stun:stun.cloudflare.com:3478"},{urls,username:data.iceServers.username,credential:data.iceServers.credential}],expiresIn:3600},200,h);
+   const b=await req.json();
+   if(!b||typeof b.uid!=="string"||!/^[A-Za-z0-9_-]{3,128}$/.test(b.uid))return out({ok:false,error:"INVALID_PLAYER"},400,h);
+   if(!env.METERED_TURN_USERNAME||!env.METERED_TURN_CREDENTIAL)return out({ok:false,error:"METERED_TURN_NOT_CONFIGURED"},503,h);
+   const username=env.METERED_TURN_USERNAME,credential=env.METERED_TURN_CREDENTIAL;
+   const iceServers=[
+    {urls:"stun:stun.relay.metered.ca:80"},
+    {urls:"turn:global.relay.metered.ca:80",username,credential},
+    {urls:"turn:global.relay.metered.ca:80?transport=tcp",username,credential},
+    {urls:"turn:global.relay.metered.ca:443",username,credential},
+    {urls:"turns:global.relay.metered.ca:443?transport=tcp",username,credential}
+   ];
+   return out({ok:true,iceServers,provider:"metered"},200,h);
   }catch(e){return out({ok:false,error:"TURN_SERVICE_ERROR"},502,h)}
  }
  if(u.pathname==="/discover")return env.ROOMS.get(env.ROOMS.idFromName("__directory__")).fetch(req);const m=u.pathname.match(/^\/rooms\/([A-Za-z0-9_-]{3,32})(?:\/.*)?$/);if(!m)return out({ok:false,error:"ROOM_CODE_REQUIRED"},400,h);return env.ROOMS.get(env.ROOMS.idFromName(m[1])).fetch(req)}};
