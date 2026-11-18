@@ -123,10 +123,34 @@ function selectGroup(group,colIndex){
  launchNext();
 }
 function antPath(target){
- const home={x:348,y:590},startCol=11,startRow=15,path=[home,{x:(startCol+.5)*W,y:(startRow+.5)*H}];
- let x=startCol,y=startRow;
- while(x!==target.x){x+=target.x>x?1:-1;path.push({x:(x+.5)*W,y:(y+.5)*H})}
- while(y!==target.y){y+=target.y>y?1:-1;path.push({x:(x+.5)*W,y:(y+.5)*H})}
+ // ممر النمل يلف من خارج اللوحة، ويدخل فقط من الخانات التي أُزيلت مكعباتها.
+ const home={x:348,y:590},start={x:11,y:16},key=(x,y)=>x+','+y;
+ const byPos=new Map(tiles.map(t=>[key(t.x,t.y),t]));
+ const queue=[start],prev=new Map([[key(start.x,start.y),null]]);
+ let end=null;
+ for(let qi=0;qi<queue.length&&!end;qi++){
+  const p=queue[qi];
+  for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){
+   const x=p.x+dx,y=p.y+dy,k=key(x,y);
+   if(x< -1||x>COLS||y< -1||y>ROWS||prev.has(k))continue;
+   if(x===target.x&&y===target.y){end=p;break}
+   const cell=byPos.get(k);
+   if(cell&&cell.alive)continue;
+   prev.set(k,p);queue.push({x,y});
+  }
+ }
+ const route=[];
+ if(end){
+  let p=end;
+  while(p){route.push(p);p=prev.get(key(p.x,p.y))}
+  route.reverse();
+ }
+ const point=(x,y)=>({
+  x:x<0?2:x>=COLS?694:(x+.5)*W,
+  y:y<0?2:y>=ROWS?598:(y+.5)*H
+ });
+ const path=[home];
+ route.forEach(p=>{const q=point(p.x,p.y),last=path[path.length-1];if(Math.hypot(q.x-last.x,q.y-last.y)>2)path.push(q)});
  path.push({x:target.x*W+W/2,y:target.y*H+H/2});
  return path;
 }
