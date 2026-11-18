@@ -559,7 +559,15 @@ function setupReactionControls(){
 
 let ludoVoiceSocket=null,ludoLocalStream=null,ludoPeers=new Map(),ludoVoiceActive=false,ludoChatListener=null,ludoChatRef=null,ludoVoiceOutbox=[],ludoPendingIce=new Map(),ludoChatOutbox=[];
 const LAMMA_VOICE_URL='wss://lamma-rooms.fibrahem865.workers.dev/rooms/';
-const LAMMA_ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
+let LAMMA_ICE={iceServers:[{urls:'stun:stun.cloudflare.com:3478'},{urls:'stun:stun.l.google.com:19302'}]};
+async function loadLammaTurnConfig(){
+ try{
+  const response=await fetch('https://lamma-rooms.fibrahem865.workers.dev/voice/ice-config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({uid})});
+  const data=await response.json();
+  if(!response.ok||!data.ok||!Array.isArray(data.iceServers))throw new Error(data.error||'TURN_UNAVAILABLE');
+  LAMMA_ICE={iceServers:data.iceServers};voiceStatus('تم تجهيز اتصال الصوت عبر Cloudflare TURN');return true;
+ }catch(error){console.warn('Cloudflare TURN config unavailable:',error);LAMMA_ICE={iceServers:[{urls:'stun:stun.cloudflare.com:3478'},{urls:'stun:stun.l.google.com:19302'}]};voiceStatus('خدمة TURN غير مفعلة بعد — الصوت قد لا يعمل على بعض الشبكات');return false}
+}
 function voiceStatus(t){const el=$('voiceStatus');if(el)el.textContent=t}
 function chatNotice(message,isError=false){
  const box=$('ludoChatMessages');if(!box)return;
@@ -631,6 +639,7 @@ async function offerLudoPeer(peerUid){
 async function connectLudoVoice(){
  if(!roomId||!uid)return;
  if(ludoVoiceSocket){try{ludoVoiceSocket.close()}catch(e){}}
+ await loadLammaTurnConfig();
  const ws=new WebSocket(LAMMA_VOICE_URL+encodeURIComponent(roomId)+'/voice?uid='+encodeURIComponent(uid));
  ludoVoiceSocket=ws;voiceStatus('جاري الاتصال بخدمة الصوت…');
  ws.onopen=()=>{flushLudoVoiceOutbox(ws);flushLudoChatOutbox(ws);voiceStatus(ludoVoiceActive?'المايك شغال — جاري ربط اللاعبين':'خدمة الصوت جاهزة — شغّل المايك')};
