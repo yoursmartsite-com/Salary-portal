@@ -40,4 +40,5 @@ for(const e of enemies){if(!e.alive)continue;let d=Math.hypot(player.x-e.x,playe
 if(kills===enemies.length&&phase==='combat'){setPhase('win');msg('فزت! قضيت على كل الأعداء.')}if(ammo===0&&phase==='combat'&&kills<enemies.length&&Math.random()<.004)msg('خلصت الذخيرة — حاول تقترب وتكمل الاشتباك!')}}
 function frame(now){let dt=Math.min(.04,(now-last)/1000||0);last=now;update(dt);requestAnimationFrame(frame)}setPhase('lobby');draw();requestAnimationFrame(frame);
 })();
-</script></body></html>
+</script><script src="/Salary-portal/assets/lamma-update.js" defer></script>
+</body></html>
