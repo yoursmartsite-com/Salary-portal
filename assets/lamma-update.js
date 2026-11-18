@@ -1,5 +1,5 @@
 (() => {
-  const BASE = './';
+  const BASE = new URL('/Salary-portal/', location.origin).href;
   const VERSION_KEY = 'lamma_seen_app_version';
   let updateRegistration = null;
   let reloading = false;
@@ -26,7 +26,7 @@
   document.body.appendChild(overlay);
 
   function showNotice(info, waitingWorker) {
-    const force = info.force === true;
+    const force = info.force !== false;
     document.getElementById('luMessage').textContent = info.message || 'في تحديث جديد للَمّة. حدّث عشان توصلك آخر التحسينات والإصلاحات.';
     document.getElementById('luVersion').textContent = info.version ? 'الإصدار ' + info.version : '';
     const later = document.getElementById('lammaUpdateLater');
