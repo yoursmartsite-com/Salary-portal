@@ -60,6 +60,11 @@
       const info = await response.json();
       if (!info || !info.version) return;
       const seen = localStorage.getItem(VERSION_KEY);
+      if (!seen) {
+        if (navigator.serviceWorker && navigator.serviceWorker.controller) showNotice(info, updateRegistration && updateRegistration.waiting);
+        else localStorage.setItem(VERSION_KEY, info.version);
+        return;
+      }
       if (seen !== info.version) showNotice(info, updateRegistration && updateRegistration.waiting);
     } catch (error) {
       console.warn('Lamma update check unavailable:', error);
