@@ -22,6 +22,8 @@ export class Room extends DurableObject{
    const id=u.searchParams.get("uid")||"",room=u.pathname.split("/").filter(Boolean)[1];if(!uidOk(id))return out({ok:false,error:"INVALID_PLAYER"},400,h);
    const pair=new WebSocketPair(),client=pair[0],server=pair[1];this.ctx.acceptWebSocket(server,[room]);server.serializeAttachment({room,uid:id});
    for(const peer of this.ctx.getWebSockets(room)){const a=peer.deserializeAttachment();if(a?.uid){server.send(JSON.stringify({type:"peer",uid:a.uid}));try{peer.send(JSON.stringify({type:"peer",uid:id}))}catch{}}}
+   const history=await this.ctx.storage.get("ludoChat")||[];
+   try{server.send(JSON.stringify({type:"chat-history",messages:history.slice(-80)}))}catch{}
    return new Response(null,{status:101,webSocket:client});
   }
   const parts=u.pathname.split("/").filter(Boolean),roomCode=parts[1],action=parts[2]||"",target=parts[3];let state=await this.ctx.storage.get("room");
@@ -46,7 +48,21 @@ export class Room extends DurableObject{
    return out({ok:false,error:"NOT_FOUND"},404,h)
   }catch(e){return out({ok:false,error:"SERVER_ERROR",message:e.message},500,h)}
  }
- async webSocketMessage(ws,message){const a=ws.deserializeAttachment()||{};let d;try{d=JSON.parse(message)}catch{return}if(!["offer","answer","ice","left"].includes(d.type)||typeof d.to!=="string"||d.to.length>128)return;const msg=JSON.stringify({...d,from:a.uid});for(const p of this.ctx.getWebSockets(a.room)){if(p.deserializeAttachment()?.uid===d.to)try{p.send(msg)}catch{}}}
+ async webSocketMessage(ws,message){
+  const a=ws.deserializeAttachment()||{};let d;try{d=JSON.parse(message)}catch{return}
+  if(d.type==="chat"){
+   const text=typeof d.text==="string"?d.text.trim():"",name=typeof d.name==="string"?d.name.trim().slice(0,24):"لاعب";
+   if(!uidOk(a.uid)||!text||text.length>250)return;
+   const messages=await this.ctx.storage.get("ludoChat")||[];
+   const item={uid:a.uid,name:name||"لاعب",text,at:Date.now()};
+   messages.push(item);await this.ctx.storage.put("ludoChat",messages.slice(-80));
+   const payload=JSON.stringify({type:"chat",message:item});
+   for(const p of this.ctx.getWebSockets(a.room))try{p.send(payload)}catch{}
+   return;
+  }
+  if(!["offer","answer","ice","left"].includes(d.type)||typeof d.to!=="string"||d.to.length>128)return;
+  const msg=JSON.stringify({...d,from:a.uid});for(const p of this.ctx.getWebSockets(a.room)){if(p.deserializeAttachment()?.uid===d.to)try{p.send(msg)}catch{}}
+ }
  async webSocketClose(ws){const a=ws.deserializeAttachment()||{},m=JSON.stringify({type:"left",from:a.uid});for(const p of this.ctx.getWebSockets(a.room))try{p.send(m)}catch{}}
  async webSocketError(ws){try{ws.close(1011,"voice signaling error")}catch{}}
 }
