@@ -14,13 +14,13 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}.page{max-width:900px;
 </head>
 <body><main class="page">
 <header class="top"><a class="back" href="../">← لَمّة</a><div class="level"><small>مملكة النمل · مرحلة</small><strong id="level">01</strong></div><div class="tools"><button class="tool" id="pause">Ⅱ</button><button class="tool" id="speed">1×</button></div></header>
-<section class="board-shell"><div class="board-inner"><canvas id="board" class="board" width="696" height="600" aria-label="لوحة المربعات"></canvas></div><div class="ground"><div><div class="home-label">جحور المستعمرات</div></div><div class="burrow"></div><div class="home-label" id="collected">0 / 0</div></div></section>
+<section class="board-shell"><div class="board-inner"><canvas id="board" class="board" width="696" height="600" aria-label="لوحة المربعات"></canvas></div><div class="ground"><div class="home-label">بيت النمل · مدخل الجحر</div><div class="home-label" id="collected">0 / 0</div></div></section>
 <div class="progress"><span>تنظيف الرسمة</span><div class="bar"><i id="bar"></i></div><span id="percent">0%</span></div>
-<p class="hint">كل مربع صغير فيه حتى 10 نملات من لونه. اختار مربع لون؛ هيتنقل لمكان فاضي فوق، والنمل هيطلع تلقائيًا يجمع مكعبًا مكعبًا.</p>
+<p class="hint">كل مربع صغير فيه حتى 10 نملات من لونه. اختار مربع لون؛ النمل اللي عليه دور يطلع من الجحر ويمشي للمكعب ويرجع، والباقي يستنى جوه.</p>
 <section class="launch-slots" id="launchSlots" aria-label="أماكن تشغيل النمل"></section>
 <section class="colonies" id="colonies"></section>
 <div class="actions"><button class="action gold" id="dispatch">🐜 ابعت النمل يجمع</button><button class="action" id="restart">↻ إعادة المرحلة</button></div>
-<div class="message" id="message" aria-live="polite">اختار مربع اللون المفتوح وابعت النمل واحدة واحدة!</div>
+<div class="message" id="message" aria-live="polite">اختار لونًا؛ النمل يمشي من الجحر للمكعب ويرجع به.</div>
 <section class="win" id="win"><h2>🎉 الرسمة اتنضفت!</h2><p>كل المربعات رجعت للجحر. جاهز للمرحلة اللي بعدها؟</p><button class="action gold" id="next">المرحلة التالية ←</button></section>
 </main>
 <script>
@@ -28,7 +28,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}.page{max-width:900px;
 const cv=document.getElementById('board'),c=cv.getContext('2d'),$=id=>document.getElementById(id);
 const C=[['سماوي','#16c9e8','#0787b0'],['برتقالي','#ff9d18','#d56b05'],['أخضر','#37c86a','#14864b'],['وردي','#f34e75','#b92750'],['أبيض','#fff7e8','#c7bba7'],['بنفسجي','#55415f','#30253b']];
 const COLS=22,ROWS=16,W=696/COLS,H=600/ROWS;
-let tiles=[],ants=[],groups=[],sparks=[],activeSlots=[null,null,null,null],level=1,done=0,total=0,paused=false,speed=1,last=0,bad=0,failed=false,busy=false,activeGroup=null;
+let tiles=[],ants=[],groups=[],sparks=[],activeSlots=[null,null,null,null],level=1,done=0,total=0,paused=false,speed=1,last=0,bad=0,failed=false,busy=false,activeGroup=null,schedulerCursor=0;
 function colorFor(x,y){
  const nx=(x-10.5)/8.1,ny=(y-8)/6.5;
  const leaf=((x>=7&&x<=17&&y>=1&&y<=5&&((x-12)/5)**2+((y-3)/2.5)**2<1));
@@ -59,7 +59,7 @@ function shapeColor(x,y){
 function neighbors(t){return [[1,0],[-1,0],[0,1],[0,-1]].map(([dx,dy])=>tiles.find(q=>q.x===t.x+dx&&q.y===t.y+dy)).filter(Boolean)}
 function exposed(t){return [[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>{const q=tiles.find(q=>q.x===t.x+dx&&q.y===t.y+dy);return !q||!q.alive})}
 function build(){
- tiles=[];ants=[];sparks=[];activeSlots=[null,null,null,null];done=0;bad=0;failed=false;paused=false;busy=false;activeGroup=null;
+ tiles=[];ants=[];sparks=[];activeSlots=[null,null,null,null];done=0;bad=0;failed=false;paused=false;busy=false;activeGroup=null;schedulerCursor=0;
  for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++)tiles.push({x,y,alive:true,color:shapeColor(x,y)});
  total=tiles.length;
  $('level').textContent=String(level).padStart(2,'0');
@@ -89,7 +89,7 @@ function renderSlots(){
  const root=$('launchSlots');root.innerHTML='';
  activeSlots.forEach((group,col)=>{
   const slot=document.createElement('div');slot.className='launch-slot'+(group?' filled':'')+(group&&busy&&activeGroup===group?' running':'');
-  if(group){const v=C[group.color];slot.style.setProperty('--slot-color',v[1]);slot.style.setProperty('--slot-dark',v[2]);slot.innerHTML='<span class="slot-cube"></span><strong class="slot-count">'+group.remaining+'</strong><span>النمل شغال</span>'}
+  if(group){const v=C[group.color];slot.style.setProperty('--slot-color',v[1]);slot.style.setProperty('--slot-dark',v[2]);slot.innerHTML='<span class="slot-cube"></span><strong class="slot-count">'+group.remaining+'</strong><span>نمل في البيت / شغال</span>'}
   else slot.innerHTML='<span class="slot-empty">＋</span><span>مكان فارغ</span>';
   root.appendChild(slot);
  });
@@ -119,33 +119,56 @@ function selectGroup(group,colIndex){
  if(paused||failed||activeSlots[colIndex])return;
  activeSlots[colIndex]=group;
  renderSlots();renderControls();
- $('message').textContent='المربع اترفع لمكان التشغيل. النمل هيخرج تلقائيًا نملة نملة لحد ما يخلص.';
+ $('message').textContent='المربع اترفع لمكان التشغيل. النمل اللي يلاقي مكعبًا مكشوفًا من لونه هيطلع يمشي له، والباقي يفضل في الجحر.';
  launchNext();
+}
+function antPath(target){
+ const home={x:348,y:590},startCol=11,startRow=15,path=[home,{x:(startCol+.5)*W,y:(startRow+.5)*H}];
+ let x=startCol,y=startRow;
+ while(x!==target.x){x+=target.x>x?1:-1;path.push({x:(x+.5)*W,y:(y+.5)*H})}
+ while(y!==target.y){y+=target.y>y?1:-1;path.push({x:(x+.5)*W,y:(y+.5)*H})}
+ path.push({x:target.x*W+W/2,y:target.y*H+H/2});
+ return path;
 }
 function launchNext(){
  if(paused||failed||busy||ants.length)return;
- let colIndex=activeSlots.findIndex(g=>g&&g.remaining>0);
- if(colIndex<0)return;
- const group=activeSlots[colIndex],color=group.color;
- const target=tiles.find(t=>t.alive&&t.color===color&&exposed(t));
- if(!target){
-  activeSlots[colIndex]=null;renderSlots();renderControls();
-  $('message').textContent='لون المربع ده لسه مش مكشوف من الأطراف. افتح الطريق الأول.';
+ // النمل اللي لونه مكشوف بس هو اللي يطلع؛ الباقي يفضل جوه الجحر.
+ for(let step=0;step<4;step++){
+  const colIndex=(schedulerCursor+step)%4,group=activeSlots[colIndex];
+  if(!group||group.remaining<=0)continue;
+  const targets=tiles.filter(t=>t.alive&&!t.reserved&&t.color===group.color&&exposed(t));
+  if(!targets.length)continue;
+  const chosen=targets.slice(0,Math.min(3,group.remaining));
+  schedulerCursor=(colIndex+1)%4;
+  busy=true;activeGroup=group;
+  chosen.forEach((target,index)=>{
+   target.reserved=true;
+   const path=antPath(target);
+   ants.push({x:348,y:590,color:C[group.color][1],target,group,colIndex,phase:0,path,pathIndex:0,carrying:false,walk:Math.random()*6.28,delay:index*.16,angle:0});
+  });
+  $('message').textContent='النمل اللي لاقى مكعب من لونه خرج يمشي له. الباقي مستني دوره جوه الجحر.';
+  renderSlots();renderControls();draw();
   return;
  }
- busy=true;activeGroup=group;
- const col=C[color][1];
- ants.push({x:348,y:574,color:col,target,group,colIndex,phase:0,tx:target.x*W+W/2,ty:target.y*H+H/2});
- renderSlots();renderControls();draw();
+ busy=false;activeGroup=null;renderSlots();
+ if(activeSlots.some(Boolean))$('message').textContent='النمل مستني لحد ما مكعب من لونه يتكشف. اختار لونًا مكشوفًا من المربعات المتاحة.';
 }
 function ui(){const p=total?Math.floor(done/total*100):0;$('bar').style.width=p+'%';$('percent').textContent=p+'%';$('collected').textContent=done+' / '+total}
 function round(x,y,w,h,r){c.beginPath();c.roundRect(x,y,w,h,r)}
-function ant(x,y,col,scale=1){
- c.save();c.translate(x,y);c.scale(scale,scale);c.fillStyle='#38251f';
- c.beginPath();c.arc(-5,0,4,0,7);c.arc(0,0,3,0,7);c.fill();
- c.fillStyle=col;c.beginPath();c.arc(7,-1,4,0,7);c.fill();
- c.strokeStyle='#38251f';c.lineWidth=1.5;
- for(let z=-1;z<=1;z++){c.beginPath();c.moveTo(-1,z);c.lineTo(-7,z*4-3);c.moveTo(2,z);c.lineTo(7,z*4+3);c.stroke()}
+function ant(x,y,col,scale=1,walk=0,angle=0,carrying=false){
+ c.save();c.translate(x,y+Math.sin(walk*2)*1.3);c.rotate(angle);c.scale(scale,scale);
+ c.fillStyle='#241713';c.globalAlpha=.28;c.beginPath();c.ellipse(0,7,10,3,0,0,Math.PI*2);c.fill();c.globalAlpha=1;
+ c.strokeStyle='#38251f';c.lineWidth=1.6;c.lineCap='round';
+ for(let side of [-1,1])for(let z=0;z<3;z++){
+  const phase=walk+(z%2)*Math.PI;
+  const hip=-3+z*4,step=Math.sin(phase)*2.4;
+  c.beginPath();c.moveTo(hip,side*1);c.lineTo(hip-2+step,side*(5+z*.7));c.lineTo(hip-5+step,side*(8+z*.7));c.stroke();
+ }
+ c.fillStyle='#38251f';c.beginPath();c.ellipse(-5,0,4.2,3.5,-.2,0,Math.PI*2);c.ellipse(0,0,3.2,3,0,0,Math.PI*2);c.fill();
+ c.fillStyle=col;c.beginPath();c.ellipse(6,0,4.5,3.8,0,0,Math.PI*2);c.fill();
+ c.strokeStyle='#38251f';c.lineWidth=1.1;
+ c.beginPath();c.moveTo(8,-2);c.quadraticCurveTo(12,-8,15,-6);c.moveTo(8,2);c.quadraticCurveTo(12,8,15,6);c.stroke();
+ if(carrying){c.fillStyle=col;c.strokeStyle='#fff4d8';c.lineWidth=.7;round(4,-7,6,5,1);c.fill();c.stroke()}
  c.restore();
 }
 function drawTile(t){
@@ -165,37 +188,56 @@ function drawSparks(dt){
   c.beginPath();c.arc(p.x,p.y,p.size,0,Math.PI*2);c.fill();c.restore();
  }
 }
+function drawBurrow(){
+ c.save();
+ c.fillStyle='#b9855d';c.beginPath();c.ellipse(348,590,35,10,0,Math.PI,Math.PI*2);c.fill();
+ c.fillStyle='#4c3024';c.beginPath();c.ellipse(348,590,24,7,0,0,Math.PI*2);c.fill();
+ c.fillStyle='#160e0c';c.beginPath();c.ellipse(348,591,17,4.5,0,0,Math.PI*2);c.fill();
+ c.restore();
+}
 function draw(){
  c.clearRect(0,0,696,600);c.fillStyle='#fff1dc';c.fillRect(0,0,696,600);
  tiles.forEach(t=>{if(t.alive)drawTile(t)});
- ants.forEach(a=>{c.save();c.globalAlpha=.16;c.fillStyle=a.color;c.shadowColor=a.color;c.shadowBlur=12;c.beginPath();c.arc(a.x,a.y,9,0,Math.PI*2);c.fill();c.restore();ant(a.x,a.y,a.color,1)});
+ drawBurrow();
+ ants.forEach(a=>{c.save();c.globalAlpha=.18;c.fillStyle=a.color;c.shadowColor=a.color;c.shadowBlur=9;c.beginPath();c.arc(a.x,a.y,8,0,Math.PI*2);c.fill();c.restore();ant(a.x,a.y,a.color,.88,a.walk||0,a.angle||0,a.carrying)});
  if(paused){c.fillStyle='#201a29a8';c.fillRect(0,0,696,600);c.fillStyle='white';c.font='900 30px Cairo';c.textAlign='center';c.fillText(failed?'المرحلة مقفولة':'متوقف مؤقتًا',348,300)}
 }
 function tick(ts){
  const dt=Math.min(.04,(ts-last)/1000||0);last=ts;
- if(!paused)for(let i=ants.length-1;i>=0;i--){
-  const a=ants[i],tx=a.phase===0?a.tx:348,ty=a.phase===0?a.ty:574,dx=tx-a.x,dy=ty-a.y,d=Math.hypot(dx,dy),v=220*speed*dt;
-  if(d<v+2){
-   a.x=tx;a.y=ty;
-   if(a.phase===0){
-    sparkle(a.x,a.y);a.target.alive=false;done++;a.group.remaining--;
-    if(a.group.remaining===0){groups[a.colIndex].shift();activeSlots[a.colIndex]=null}
-    renderControls();renderSlots();a.phase=1;ui();
-   }else ants.splice(i,1);
-  }else{a.x+=dx/d*v;a.y+=dy/d*v}
+ if(!paused){
+  for(let i=ants.length-1;i>=0;i--){
+   const a=ants[i];a.walk=(a.walk||0)+dt*13;
+   if(a.delay>0){a.delay-=dt;continue}
+   const point=a.path[a.pathIndex]||a.path[a.path.length-1],dx=point.x-a.x,dy=point.y-a.y,d=Math.hypot(dx,dy),v=82*speed*dt;
+   if(d<v+1.5){
+    a.x=point.x;a.y=point.y;
+    if(a.pathIndex<a.path.length-1){a.pathIndex++;const next=a.path[a.pathIndex];a.angle=Math.atan2(next.y-a.y,next.x-a.x)}
+    else if(a.phase===0){
+     sparkle(a.x,a.y);a.target.alive=false;a.target.reserved=false;done++;a.group.remaining--;a.carrying=true;a.phase=1;
+     a.path=a.path.slice().reverse();a.pathIndex=0;
+     const next=a.path[1]||{x:348,y:590};a.angle=Math.atan2(next.y-a.y,next.x-a.x);
+     renderControls();renderSlots();ui();
+    }else{
+     sparkle(348,588);ants.splice(i,1);
+    }
+   }else{
+    a.x+=dx/d*v;a.y+=dy/d*v;a.angle=Math.atan2(dy,dx);
+   }
+  }
  }
  if(busy&&ants.length===0){
-  busy=false;activeGroup=null;renderSlots();renderControls();
+  busy=false;activeGroup=null;
+  activeSlots.forEach((g,col)=>{if(g&&g.remaining<=0){groups[col].shift();activeSlots[col]=null}});
+  renderSlots();renderControls();
   if(done>=total){$('win').classList.add('show');$('message').textContent='عاش! خلصت الرسمة كلها.'}
-  else if(activeSlots.some(Boolean)){launchNext()}
-  else $('message').textContent='اختار مربع لون جديد عشان تشغل النمل.';
+  else launchNext();
  }
  drawSparks(dt);draw();requestAnimationFrame(tick);
 }
 $('pause').onclick=()=>{paused=!paused;$('pause').textContent=paused?'▶':'Ⅱ'};
 $('speed').onclick=()=>{speed=speed===1?2:1;$('speed').textContent=speed+'×'};
 $('restart').onclick=build;
-$('dispatch').onclick=()=>{const col=activeSlots.findIndex(g=>g);if(col>=0)launchNext();else $('message').textContent='اختار مربع لون عشان ينتقل لمكان التشغيل.'};
+$('dispatch').onclick=()=>{if(activeSlots.some(Boolean))launchNext();else $('message').textContent='اختار مربع لون عشان يبدأ النمل.'};
 build();requestAnimationFrame(tick);
 })();
 </script></body></html>
