@@ -15,10 +15,10 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}.page{max-width:900px;
 <header class="top"><a class="back" href="../">← لَمّة</a><div class="level"><small>مملكة النمل · مرحلة</small><strong id="level">01</strong></div><div class="tools"><button class="tool" id="pause">Ⅱ</button><button class="tool" id="speed">1×</button></div></header>
 <section class="board-shell"><div class="board-inner"><canvas id="board" class="board" width="696" height="600" aria-label="لوحة المربعات"></canvas></div><div class="ground"><div><div class="home-label">جحور المستعمرات</div></div><div class="burrow"></div><div class="home-label" id="collected">0 / 0</div></div></section>
 <div class="progress"><span>تنظيف الرسمة</span><div class="bar"><i id="bar"></i></div><span id="percent">0%</span></div>
-<p class="hint">كل مربع لون هو مفتاح؛ كل مكعب يتجمع يكشف جزءًا من اللون التالي في نفس العمود.</p>
+<p class="hint">كل مربع صغير فيه حتى 10 نملات من لونه. كل ضغطة ترسل نملة واحدة لتجمع مكعبًا واحدًا.</p>
 <section class="colonies" id="colonies"></section>
 <div class="actions"><button class="action gold" id="dispatch">🐜 ابعت النمل يجمع</button><button class="action" id="restart">↻ إعادة المرحلة</button></div>
-<div class="message" id="message" aria-live="polite">اختار مفتاح اللون وابدأ تكشف الألوان!</div>
+<div class="message" id="message" aria-live="polite">اختار مربع اللون المفتوح وابعت النمل واحدة واحدة!</div>
 <section class="win" id="win"><h2>🎉 الرسمة اتنضفت!</h2><p>كل المربعات رجعت للجحر. جاهز للمرحلة اللي بعدها؟</p><button class="action gold" id="next">المرحلة التالية ←</button></section>
 </main>
 <script>
@@ -72,9 +72,14 @@ function makeGroups(){
  groups=[[],[],[],[]];
  const pool=[];
  C.forEach((v,color)=>{
-  const count=tiles.filter(t=>t.alive&&t.color===color).length;
-  if(count>0)pool.push({color,total:count,remaining:count});
+  let count=tiles.filter(t=>t.alive&&t.color===color).length;
+  while(count>0){
+   const amount=Math.min(10,count);
+   pool.push({color,total:amount,remaining:amount});
+   count-=amount;
+  }
  });
+ // Shuffle every small 10-ant square, then distribute them independently across columns.
  for(let i=pool.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[pool[i],pool[j]]=[pool[j],pool[i]]}
  pool.forEach((g,i)=>groups[i%groups.length].push(g));
 }
@@ -84,11 +89,11 @@ function renderControls(){
   const stack=document.createElement('div');stack.className='colony-column';
   column.forEach((group,index)=>{
    const v=C[group.color],b=document.createElement('button');b.className='colony';b.type='button';
-   b.setAttribute('aria-label','عمود '+(colIndex+1)+'، مفتاح لون '+v[0]);
+   b.setAttribute('aria-label','عمود '+(colIndex+1)+'، مربع '+v[0]+'، متبقي '+group.remaining+' نملات');
    const previous=index>0?column[index-1]:null;
    const reveal=previous?Math.round((previous.total-previous.remaining)/previous.total*100):100;
    const swatch='<span class="cube-swatch" style="--cube:'+v[1]+';--cube-light:'+v[1]+';--cube-dark:'+v[2]+'"><i class="cube-face"></i>'+(index!==0?'<i class="cube-reveal" style="--reveal:'+reveal+'%"><i class="cube-face"></i></i>':'')+'</span>';
-   b.innerHTML=swatch+'<strong class="ant-count">'+group.remaining+' نملة</strong><span class="key-label">'+(index===0?'اضغط لإرسال نملة':'اللون التالي')+'</span>'+(index!==0?'<span class="lock-mark" aria-hidden="true">🔒</span>':'');
+   b.innerHTML=swatch+'<strong class="ant-count">'+group.remaining+'</strong><span class="key-label">'+(index===0?'نملة في كل ضغطة':'مربع مقفول')+'</span>'+(index!==0?'<span class="lock-mark" aria-hidden="true">🔒</span>':'');
    b.disabled=index!==0;
    if(index!==0)b.classList.add('waiting');
    b.addEventListener('click',()=>{if(index===0)dispatch(group,b,colIndex)});
