@@ -74,4 +74,5 @@ $('showGames').onclick=()=>$('gamesBox').classList.toggle('hide');$('suggestGame
 window.addEventListener('beforeunload',()=>{if(code)fetch(API+'/rooms/'+code+'/players/'+uid,{method:'DELETE',keepalive:true})});
 (async()=>{try{await api('/health');say('متصل بخدمة غرف Cloudflare.');await loadRooms();const c=new URLSearchParams(location.search).get('room');if(c)joinRoom(c,localStorage.getItem('lammaName')||'ضيف')}catch(e){say('تعذر الاتصال بخدمة Cloudflare: '+e.message,true)}})();
 })();
-</script></body></html>
+</script><script src="/Salary-portal/assets/lamma-update.js" defer></script>
+</body></html>
