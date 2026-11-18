@@ -35,6 +35,7 @@
     document.getElementById('lammaUpdateNow').onclick = () => {
       const btn = document.getElementById('lammaUpdateNow');
       btn.disabled = true;
+      localStorage.setItem(VERSION_KEY, info.version || 'updated');
       btn.textContent = 'جاري تجهيز التحديث...';
       if (waitingWorker) {
         waitingWorker.postMessage({ type: 'SKIP_WAITING' });
