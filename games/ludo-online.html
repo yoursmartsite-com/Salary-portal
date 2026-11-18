@@ -594,7 +594,7 @@ async function connectLudoVoice(){
  ws.onmessage=async event=>{
   let m;try{m=JSON.parse(event.data)}catch(e){return}
   try{
-   if(m.type==='peer'){if(String(uid)<String(m.uid))await offerLudoPeer(m.uid);return}
+   if(m.type==='peer'){await makeLudoPeer(m.uid);if(ludoVoiceActive&&String(uid)<String(m.uid))await offerLudoPeer(m.uid);return}
    if(m.type==='offer'){
     const pc=await makeLudoPeer(m.from);if(!pc)return;
     await pc.setRemoteDescription(new RTCSessionDescription(m.sdp));await flushLudoIce(m.from,pc);
@@ -623,7 +623,7 @@ async function toggleLudoMic(){
   ludoLocalStream.getAudioTracks().forEach(t=>t.enabled=true);ludoPeers.forEach(pc=>{const hasAudio=pc.getSenders().some(sender=>sender.track?.kind==='audio');if(!hasAudio)ludoLocalStream.getAudioTracks().forEach(track=>pc.addTrack(track,ludoLocalStream))});
   ludoVoiceActive=true;btn.textContent='🔴 إيقاف المايك';btn.classList.remove('mic-off');btn.classList.add('mic-on');voiceStatus('الميكروفون شغال عندك — جاري توصيله باللاعبين');
   if(!ludoVoiceSocket||ludoVoiceSocket.readyState!==WebSocket.OPEN)connectLudoVoice();
-  for(const peerUid of ludoPeers.keys()){const pc=ludoPeers.get(peerUid);if(pc.signalingState==='stable'&&ludoLocalStream.getAudioTracks().length)await offerLudoPeer(peerUid)}
+  for(const peerUid of ludoPeers.keys()){const pc=ludoPeers.get(peerUid);if(String(uid)<String(peerUid)&&pc.signalingState==='stable'&&ludoLocalStream.getAudioTracks().length)await offerLudoPeer(peerUid)}
  }catch(e){voiceStatus('لم نقدر نشغّل المايك: '+e.message);status('اسمح للمتصفح باستخدام المايك، وتأكد أنك فاتح الموقع عبر HTTPS.')}
 }
 $('micToggle').addEventListener('click',toggleLudoMic);
