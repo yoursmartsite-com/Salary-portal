@@ -116,4 +116,16 @@ export default{async fetch(req,env){
    return out({ok:true,url:data.secure_url,publicId:data.public_id,width:data.width,height:data.height,bytes:data.bytes},200,h);
   }catch(e){const status=e.message==="AUTH_REQUIRED"||e.message==="INVALID_TOKEN"?401:500;return out({ok:false,error:e.message||"UPLOAD_FAILED"},status,h)}
  }
-const u=new URL(req.url),h=cors(req);if(req.method==="OPTIONS")return new Response(null,{status:204,headers:h});if(u.pathname==="/"||u.pathname==="/health")return out({ok:true,service:"lamma-rooms-worker",version:3},200,h);if(u.pathname==="/discover")return env.ROOMS.get(env.ROOMS.idFromName("__directory__")).fetch(req);const m=u.pathname.match(/^\/rooms\/([A-Za-z0-9_-]{3,32})(?:\/.*)?$/);if(!m)return out({ok:false,error:"ROOM_CODE_REQUIRED"},400,h);return env.ROOMS.get(env.ROOMS.idFromName(m[1])).fetch(req)}};
+const u=new URL(req.url),h=cors(req);if(req.method==="OPTIONS")return new Response(null,{status:204,headers:h});if(u.pathname==="/"||u.pathname==="/health")return out({ok:true,service:"lamma-rooms-worker",version:4},200,h);
+ if(u.pathname==="/voice/ice-config"&&req.method==="POST"){
+  try{
+   if(!env.TURN_KEY_ID||!env.TURN_KEY_SECRET)return out({ok:false,error:"TURN_NOT_CONFIGURED"},503,h);
+   const b=await req.json();if(!b||typeof b.uid!=="string"||!/^[A-Za-z0-9_-]{3,128}$/.test(b.uid))return out({ok:false,error:"INVALID_PLAYER"},400,h);
+   const r=await fetch("https://rtc.live.cloudflare.com/v1/turn/keys/"+encodeURIComponent(env.TURN_KEY_ID)+"/credentials/generate",{method:"POST",headers:{"Authorization":"Bearer "+env.TURN_KEY_SECRET,"Content-Type":"application/json"},body:JSON.stringify({ttl:3600})});
+   const data=await r.json().catch(()=>({}));
+   if(!r.ok||!data.iceServers?.username||!data.iceServers?.credential||!Array.isArray(data.iceServers?.urls))return out({ok:false,error:"TURN_CREDENTIALS_FAILED"},502,h);
+   const urls=data.iceServers.urls.filter(x=>typeof x==="string"&&!/:(53)(?:\\?|$)/.test(x));
+   return out({ok:true,iceServers:[{urls:"stun:stun.cloudflare.com:3478"},{urls,username:data.iceServers.username,credential:data.iceServers.credential}],expiresIn:3600},200,h);
+  }catch(e){return out({ok:false,error:"TURN_SERVICE_ERROR"},502,h)}
+ }
+ if(u.pathname==="/discover")return env.ROOMS.get(env.ROOMS.idFromName("__directory__")).fetch(req);const m=u.pathname.match(/^\/rooms\/([A-Za-z0-9_-]{3,32})(?:\/.*)?$/);if(!m)return out({ok:false,error:"ROOM_CODE_REQUIRED"},400,h);return env.ROOMS.get(env.ROOMS.idFromName(m[1])).fetch(req)}};
