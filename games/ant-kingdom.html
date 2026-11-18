@@ -102,15 +102,16 @@ function renderControls(){
    const v=C[group.color],b=document.createElement('button');b.className='colony';b.type='button';
    b.setAttribute('aria-label','عمود '+(colIndex+1)+'، مربع '+v[0]+'، متبقي '+group.remaining+' نملات');
    const previous=index>0?column[index-1]:null;
-   const reveal=previous?Math.round((previous.total-previous.remaining)/previous.total*100):100;
+   // بمجرد رفع المربع السابق ينكشف التالي بالكامل، حتى لو النمل لسه بيشتغل.
+   const reveal=previous?(previous.raised?100:Math.round((previous.total-previous.remaining)/previous.total*100)):100;
    const swatch='<span class="cube-swatch" style="--cube:'+v[1]+';--cube-light:'+v[1]+';--cube-dark:'+v[2]+'"><i class="cube-face"></i>'+(index!==0?'<i class="cube-reveal" style="--reveal:'+reveal+'%"><i class="cube-face"></i></i>':'')+'</span>';
    const selected=activeSlots.includes(group);
-   const unlocked=column.slice(0,index).every(g=>g.raised)&&!group.raised;
+   const unlocked=(index===0||column[index-1].raised)&&!group.raised;
    b.innerHTML=swatch+'<strong class="ant-count">'+group.remaining+'</strong><span class="key-label">'+(selected?'اتنقل لمكان التشغيل':unlocked?'اختار لتشغيل النمل':'مربع مقفول')+'</span>'+(index>0&&!unlocked?'<span class="lock-mark" aria-hidden="true">🔒</span>':'');
    b.disabled=!unlocked;
    if(!unlocked)b.classList.add('waiting');
    if(selected)b.classList.add('selected');
-   b.addEventListener('click',()=>{if(unlocked)selectGroup(group,colIndex)});
+   b.addEventListener('click',()=>{const canRaise=(index===0||column[index-1].raised)&&!group.raised;if(canRaise)selectGroup(group,colIndex)});
    stack.appendChild(b);
   });
   root.appendChild(stack);
