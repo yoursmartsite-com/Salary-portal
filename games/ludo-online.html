@@ -515,7 +515,7 @@ function setupReactionControls(){
  document.querySelectorAll('.reaction-btn').forEach(btn=>btn.addEventListener('click',()=>sendRoomReaction(btn.dataset.reaction)));
 }
 
-let ludoVoiceSocket=null,ludoLocalStream=null,ludoPeers=new Map(),ludoVoiceActive=false,ludoChatListener=null,ludoChatRef=null,ludoVoiceOutbox=[],ludoPendingIce=new Map();
+let ludoVoiceSocket=null,ludoLocalStream=null,ludoPeers=new Map(),ludoVoiceActive=false,ludoChatListener=null,ludoChatRef=null,ludoVoiceOutbox=[],ludoPendingIce=new Map(),ludoChatOutbox=[];
 const LAMMA_VOICE_URL='wss://lamma-rooms.fibrahem865.workers.dev/rooms/';
 const LAMMA_ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
 function voiceStatus(t){const el=$('voiceStatus');if(el)el.textContent=t}
@@ -523,32 +523,33 @@ function chatNotice(message,isError=false){
  const box=$('ludoChatMessages');if(!box)return;
  const item=document.createElement('div');item.className='chat-empty'+(isError?' chat-error':'');item.textContent=message;box.appendChild(item);box.scrollTop=box.scrollHeight;
 }
+function renderLudoChatMessage(m){
+ if(!m||typeof m.text!=='string')return;
+ const box=$('ludoChatMessages');if(!box)return;
+ box.querySelectorAll('.chat-empty').forEach(x=>x.remove());
+ const item=document.createElement('div');item.className='chat-msg'+(m.uid===uid?' mine':'');
+ const who=document.createElement('b');who.textContent=m.name||'لاعب';
+ const msg=document.createElement('span');msg.textContent=m.text;
+ item.append(who,msg);box.appendChild(item);box.scrollTop=box.scrollHeight;
+}
 function startLudoChat(){
- if(!roomRef||!uid)return;
+ if(!roomId||!uid)return;
  const box=$('ludoChatMessages');if(box)box.innerHTML='';
- if(ludoChatRef&&ludoChatListener)ludoChatRef.off('child_added',ludoChatListener);
- ludoChatRef=roomRef.child('chat').limitToLast(80);
- ludoChatListener=ludoChatRef.on('child_added',snap=>{
-  const m=snap.val();if(!m||typeof m.text!=='string')return;
-  box?.querySelectorAll('.chat-empty').forEach(x=>x.remove());
-  const item=document.createElement('div');item.className='chat-msg'+(m.uid===uid?' mine':'');
-  const who=document.createElement('b');who.textContent=m.name||'لاعب';
-  const msg=document.createElement('span');msg.textContent=m.text;
-  item.append(who,msg);box?.appendChild(item);if(box)box.scrollTop=box.scrollHeight;
- },error=>{
-  console.error('Ludo chat listener:',error);
-  chatNotice('الشات غير متصل: '+(error?.message||'صلاحيات Firebase تمنع قراءة الرسائل'),true);
- });
+ chatNotice('جاري توصيل شات الغرفة عبر Cloudflare…');
 }
 async function sendLudoChat(textValue){
- const text=String(textValue||'').trim();if(!text||text.length>250||!roomRef||!uid)return false;
- try{
-  let player=room?.players?.[uid];
-  if(!player){const snap=await roomRef.child('players/'+uid).get();player=snap.val()}
-  if(!player){chatNotice('مش قادرين نحدد وجودك في الغرفة. اخرج وادخل بكود الغرفة تاني.',true);return false}
-  await roomRef.child('chat').push({uid,name:player.name||localStorage.getItem('lammaName')||'لاعب',text,at:firebase.database.ServerValue.TIMESTAMP});
-  return true;
- }catch(e){console.error('Ludo chat send:',e);chatNotice('فشل إرسال الرسالة: '+(e?.message||'راجع صلاحيات Firebase لمسار ludoRooms/chat'),true);return false}
+ const text=String(textValue||'').trim();if(!text||text.length>250||!roomId||!uid)return false;
+ const player=room?.players?.[uid];
+ if(!player){chatNotice('مش قادرين نحدد وجودك في الغرفة. اخرج وادخل بكود الغرفة تاني.',true);return false}
+ const payload=JSON.stringify({type:'chat',name:player.name||localStorage.getItem('lammaName')||'لاعب',text});
+ if(ludoVoiceSocket?.readyState===WebSocket.OPEN){ludoVoiceSocket.send(payload);return true}
+ ludoChatOutbox.push(payload);if(ludoChatOutbox.length>20)ludoChatOutbox.shift();
+ chatNotice('الرسالة هتتبعت أول ما اتصال الغرفة يكتمل.');
+ return true;
+}
+function flushLudoChatOutbox(ws){
+ if(ludoVoiceSocket!==ws||ws.readyState!==WebSocket.OPEN)return;
+ const pending=ludoChatOutbox.splice(0);for(const data of pending){if(ws.readyState!==WebSocket.OPEN){ludoChatOutbox.unshift(data);break}ws.send(data)}
 }
 function sendVoiceSignal(payload){
  const data=JSON.stringify(payload);
@@ -590,9 +591,11 @@ async function connectLudoVoice(){
  if(ludoVoiceSocket){try{ludoVoiceSocket.close()}catch(e){}}
  const ws=new WebSocket(LAMMA_VOICE_URL+encodeURIComponent(roomId)+'/voice?uid='+encodeURIComponent(uid));
  ludoVoiceSocket=ws;voiceStatus('جاري الاتصال بخدمة الصوت…');
- ws.onopen=()=>{flushLudoVoiceOutbox(ws);voiceStatus(ludoVoiceActive?'المايك شغال — جاري ربط اللاعبين':'خدمة الصوت جاهزة — شغّل المايك')};
+ ws.onopen=()=>{flushLudoVoiceOutbox(ws);flushLudoChatOutbox(ws);voiceStatus(ludoVoiceActive?'المايك شغال — جاري ربط اللاعبين':'خدمة الصوت جاهزة — شغّل المايك')};
  ws.onmessage=async event=>{
   let m;try{m=JSON.parse(event.data)}catch(e){return}
+  if(m.type==='chat-history'){const box=$('ludoChatMessages');if(box)box.innerHTML='';(m.messages||[]).forEach(renderLudoChatMessage);return}
+  if(m.type==='chat'){renderLudoChatMessage(m.message);return}
   try{
    if(m.type==='peer'){await makeLudoPeer(m.uid);if(ludoVoiceActive&&String(uid)<String(m.uid))await offerLudoPeer(m.uid);return}
    if(m.type==='offer'){
