@@ -223,4 +223,5 @@ function showProperties(){const list=Object.keys(owners).filter(k=>owners[k]===c
 function redeemMortgage(){const p=players[current],keys=Object.keys(mortgages).filter(k=>mortgages[k]&&owners[k]===current);if(!keys.length){showModal('🏦','لا يوجد رهن','ما عندكش عقارات مرهونة.',[{label:'حسنًا',action:()=>{}}]);return}showModal('🔓','فك الرهن','ادفع 110٪ من قيمة العقار لاستعادة الإيجار.',keys.map(k=>({label:spaces[k][0]+' · '+money(Math.ceil(spaces[k][3]*1.1)),action:()=>{const cost=Math.ceil(spaces[k][3]*1.1);if(p.cash<cost){showModal('💸','رصيد غير كافٍ','مش معاك المبلغ المطلوب.',[{label:'حسنًا',action:()=>{}}]);return}p.cash-=cost;delete mortgages[k];log(esc(p.name)+' فك رهن '+spaces[k][0]);renderBoard();renderPlayers()}})).concat([{label:'إغلاق',action:()=>{}}]))}
 $('bankCreateRoom').onclick=bankCreate;$('bankJoinRoom').onclick=bankJoin;$('bankStartOnline').onclick=bankStartOnline;
 $('count').onchange=()=>{for(let i=2;i<4;i++)$('f'+i).classList.toggle('hidden',i>=+$('count').value)};$('start').onclick=startGame;$('roll').onclick=rollDice;$('endTurn').onclick=()=>{if(!rolled)return;nextTurn()};$('properties').onclick=showProperties;
-</script></body></html>
+</script><script src="/Salary-portal/assets/lamma-update.js" defer></script>
+</body></html>
