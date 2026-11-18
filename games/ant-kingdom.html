@@ -7,8 +7,8 @@
 <style>
 :root{color-scheme:dark;--ink:#fff4df;--muted:#c5b9a8;--gold:#ffca72}
 *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -15%,#ffca8b 0,#e99b68 38%,#a85f4b 100%);font-family:Cairo,Arial,sans-serif;color:var(--ink);padding:14px}
-button{font:inherit;color:inherit;border:0;cursor:pointer}.page{max-width:900px;margin:auto}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 auto 12px}.back,.tool{background:#573e3c;border:2px solid #ffdcaa;border-radius:14px;padding:9px 14px;box-shadow:0 4px 0 #7b493d;font-weight:900;text-decoration:none}.level{text-align:center;text-shadow:0 3px 0 #a75d3f}.level small{display:block;font-size:11px;color:#fff1d5}.level strong{font-size:clamp(23px,5vw,34px)}.tools{display:flex;gap:8px}.board-shell{position:relative;background:linear-gradient(145deg,#fff0d8,#dfb998);border:5px solid #f6d7b8;border-radius:34px;padding:clamp(12px,3vw,26px);box-shadow:0 12px 30px #6f352c55,inset 0 0 0 2px #dba985}.board-inner{position:relative;background:#fff8eb;border-radius:14px;padding:8px;box-shadow:inset 0 2px 8px #a77b5d55}.board{width:100%;display:block;aspect-ratio:1.16/1;touch-action:manipulation}.ground{height:104px;position:relative;display:flex;align-items:center;justify-content:space-around}.burrow{width:92px;height:34px;border-radius:50%;background:radial-gradient(ellipse,#1b100d 0 45%,#59372a 62%,#d9a276 70%);box-shadow:0 8px 10px #85523b66;position:relative}.burrow:after{content:"";position:absolute;width:42px;height:10px;border-radius:50%;background:#21130f;left:25px;top:10px}.home-label{font-size:11px;color:#70483a;font-weight:900}.progress{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:14px 2px 8px;color:#fff8e9;font-weight:800}.bar{height:10px;background:#754a45;border:1px solid #f9c99c;border-radius:20px;overflow:hidden;flex:1}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ffe08d,#fff3c1);transition:width .3s}.hint{text-align:center;color:#fff1df;font-size:12px;margin:8px 0 12px}.colonies{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}.colony{min-width:0;aspect-ratio:1;background:linear-gradient(145deg,#fff1df,#d6ad8b);border:3px solid #f9d7b3;border-radius:16px;padding:7px;box-shadow:0 5px 0 #985e4d;display:grid;place-items:center;transition:.15s}.cube-swatch{width:min(100%,48px);aspect-ratio:1;border-radius:9px;background:linear-gradient(145deg,var(--cube-light),var(--cube) 55%,var(--cube-dark));box-shadow:inset 3px 3px 5px #ffffff88,inset -4px -5px 7px #0003,0 3px 5px #52352b66;transform:rotate(-5deg);border:1px solid #ffffff88}.colony.active{transform:translateY(-4px) scale(1.04);border-color:#fff;box-shadow:0 8px 0 #985e4d,0 0 0 3px #fff8}.colony:disabled{opacity:.35;filter:grayscale(1)}.actions{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:18px 0}.action{padding:10px 16px;border-radius:12px;background:linear-gradient(145deg,#6041a0,#37265e);border:2px solid #c7a8ff;box-shadow:0 4px 0 #241a42;font-weight:900}.action.gold{background:linear-gradient(145deg,#ffce75,#c87937);border-color:#ffe8ae;color:#49291d;box-shadow:0 4px 0 #854c32}.message{text-align:center;min-height:26px;color:#fff4dc;font-weight:800}.win{display:none;text-align:center;padding:18px;border-radius:18px;background:#513b35;border:2px solid #ffdb9e;margin:12px 0}.win.show{display:block}.win h2{margin:0 0 5px}.win p{margin:0 0 12px;color:#f6ddc5}.ant{filter:drop-shadow(0 2px 1px #51342d66)}
-@media(max-width:560px){body{padding:8px}.top{margin-bottom:10px}.board-shell{border-radius:24px;padding:10px}.ground{height:75px}.colonies{gap:5px}.colony{border-radius:12px;padding:7px 2px}.colony small{font-size:8px}.actions{margin:14px 0}.back,.tool{padding:7px 10px;font-size:11px}}
+button{font:inherit;color:inherit;border:0;cursor:pointer}.page{max-width:900px;margin:auto}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 auto 12px}.back,.tool{background:#573e3c;border:2px solid #ffdcaa;border-radius:14px;padding:9px 14px;box-shadow:0 4px 0 #7b493d;font-weight:900;text-decoration:none}.level{text-align:center;text-shadow:0 3px 0 #a75d3f}.level small{display:block;font-size:11px;color:#fff1d5}.level strong{font-size:clamp(23px,5vw,34px)}.tools{display:flex;gap:8px}.board-shell{position:relative;background:linear-gradient(145deg,#fff0d8,#dfb998);border:5px solid #f6d7b8;border-radius:34px;padding:clamp(12px,3vw,26px);box-shadow:0 12px 30px #6f352c55,inset 0 0 0 2px #dba985}.board-inner{position:relative;background:#fff8eb;border-radius:14px;padding:8px;box-shadow:inset 0 2px 8px #a77b5d55}.board{width:100%;display:block;aspect-ratio:1.16/1;touch-action:manipulation}.ground{height:104px;position:relative;display:flex;align-items:center;justify-content:space-around}.burrow{width:92px;height:34px;border-radius:50%;background:radial-gradient(ellipse,#1b100d 0 45%,#59372a 62%,#d9a276 70%);box-shadow:0 8px 10px #85523b66;position:relative}.burrow:after{content:"";position:absolute;width:42px;height:10px;border-radius:50%;background:#21130f;left:25px;top:10px}.home-label{font-size:11px;color:#70483a;font-weight:900}.progress{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:14px 2px 8px;color:#fff8e9;font-weight:800}.bar{height:10px;background:#754a45;border:1px solid #f9c99c;border-radius:20px;overflow:hidden;flex:1}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ffe08d,#fff3c1);transition:width .3s}.hint{text-align:center;color:#fff1df;font-size:12px;margin:8px 0 12px}.colonies{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.colony{min-width:0;min-height:72px;background:linear-gradient(145deg,#fff1df,#d6ad8b);border:3px solid #f9d7b3;border-radius:16px;padding:7px;box-shadow:0 5px 0 #985e4d;display:grid;place-items:center;transition:.15s}.cube-swatch{width:min(100%,38px);aspect-ratio:1;border-radius:9px;background:linear-gradient(145deg,var(--cube-light),var(--cube) 55%,var(--cube-dark));box-shadow:inset 3px 3px 5px #ffffff88,inset -4px -5px 7px #0003,0 3px 5px #52352b66;transform:rotate(-5deg);border:1px solid #ffffff88}.count{font-size:clamp(20px,4vw,30px);font-weight:900;color:#fff;text-shadow:2px 3px 0 #342b35}.colony.active{transform:translateY(-4px) scale(1.04);border-color:#fff;box-shadow:0 8px 0 #985e4d,0 0 0 3px #fff8}.colony:disabled{opacity:.35;filter:grayscale(1)}.actions{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:18px 0}.action{padding:10px 16px;border-radius:12px;background:linear-gradient(145deg,#6041a0,#37265e);border:2px solid #c7a8ff;box-shadow:0 4px 0 #241a42;font-weight:900}.action.gold{background:linear-gradient(145deg,#ffce75,#c87937);border-color:#ffe8ae;color:#49291d;box-shadow:0 4px 0 #854c32}.message{text-align:center;min-height:26px;color:#fff4dc;font-weight:800}.win{display:none;text-align:center;padding:18px;border-radius:18px;background:#513b35;border:2px solid #ffdb9e;margin:12px 0}.win.show{display:block}.win h2{margin:0 0 5px}.win p{margin:0 0 12px;color:#f6ddc5}.ant{filter:drop-shadow(0 2px 1px #51342d66)}
+@media(max-width:560px){body{padding:8px}.top{margin-bottom:10px}.board-shell{border-radius:24px;padding:10px}.ground{height:75px}.colonies{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.colony{min-height:64px;border-radius:12px;padding:6px 2px;display:flex;align-items:center;justify-content:space-evenly}.colony small{font-size:8px}.actions{margin:14px 0}.back,.tool{padding:7px 10px;font-size:11px}}
 </style>
 </head>
 <body><main class="page">
@@ -24,123 +24,110 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}.page{max-width:900px;
 <script>
 (()=> {
 const cv=document.getElementById('board'),c=cv.getContext('2d'),$=id=>document.getElementById(id);
-const C=[['cyan','#10c5dc','#087c9b'],['orange','#ff9d16','#c96b0c'],['green','#35c86d','#16884c'],['pink','#ef5575','#a92f58'],['lime','#a7dc42','#638e27'],['white','#fff5df','#c8bda9']];
-const N=10,M=8,W=69.6,H=75,K=10;
+const C=[['سماوي','#16c9e8','#0787b0'],['برتقالي','#ff9d18','#d56b05'],['أخضر','#37c86a','#14864b'],['وردي','#f34e75','#b92750'],['أبيض','#fff7e8','#c7bba7'],['بنفسجي','#55415f','#30253b']];
+const COLS=22,ROWS=16,W=696/COLS,H=600/ROWS,BATCH=10;
 let tiles=[],ants=[],level=1,done=0,total=0,paused=false,speed=1,last=0,bad=0,failed=false,busy=false;
-function shape(x,y){
- const a=(x-4.5)/5,b=(y-3.5)/4;
- switch((level-1)%5){
- case 0:return a*a+b*b<1.08;
- case 1:return Math.abs(a)<.98&&Math.abs(b)<.96&&!(Math.abs(a)>.7&&Math.abs(b)>.62);
- case 2:return a*a/1.08+b*b/.72<1.08;
- case 3:return Math.abs(a)+Math.abs(b)<1.55;
- default:return (Math.abs(a)<.96&&Math.abs(b)<.78)||(Math.abs(a)<.34&&b<-.65);
- }
+function colorFor(x,y){
+ const nx=(x-10.5)/8.1,ny=(y-8)/6.5;
+ const leaf=((x>=7&&x<=17&&y>=1&&y<=5&&((x-12)/5)**2+((y-3)/2.5)**2<1));
+ const fruit=(nx*nx+ny*ny<.88);
+ const outline=(nx*nx+ny*ny<1.05)&&!fruit;
+ const rind=(nx*nx+ny*ny<.98&&nx*nx+ny*ny>.84);
+ const red=(fruit&&y>11);
+ const white=(fruit&&((x<5&&y>5&&y<11)||(y===5&&x>6&&x<15)));
+ if(leaf)return 2;
+ if(outline)return 5;
+ if(rind||white)return 4;
+ if(red)return 3;
+ if(fruit)return 1;
+ // subtle non-uniform level backgrounds, while keeping the outer frame removable
+ return 0;
+}
+function shapeColor(x,y){
+ const mode=(level-1)%5;
+ if(mode===0)return colorFor(x,y);
+ const nx=(x-10.5)/8.2,ny=(y-8)/6.5;
+ if(mode===1){if(nx*nx+ny*ny<.88)return (y>11?3:1);if(nx*nx+ny*ny<1.05)return 5;if(y<5&&x>6&&x<17)return 2;return 0}
+ if(mode===2){if(Math.abs(nx)+Math.abs(ny)<.92)return 1;if(Math.abs(nx)+Math.abs(ny)<1.08)return 5;if(y<5&&x>7&&x<15)return 2;return 0}
+ if(mode===3){if(nx*nx/1.1+ny*ny/.72<.86)return 3;if(nx*nx/1.1+ny*ny/.72<1.04)return 5;if(y<5&&x>7&&x<15)return 2;return 0}
+ if(Math.abs(nx)<.72&&Math.abs(ny)<.75)return 1;
+ if(Math.abs(nx)<.9&&Math.abs(ny)<.92)return 5;
+ return 0;
 }
 function neighbors(t){return [[1,0],[-1,0],[0,1],[0,-1]].map(([dx,dy])=>tiles.find(q=>q.x===t.x+dx&&q.y===t.y+dy)).filter(Boolean)}
 function exposed(t){return [[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>{const q=tiles.find(q=>q.x===t.x+dx&&q.y===t.y+dy);return !q||!q.alive})}
 function build(){
  tiles=[];ants=[];done=0;bad=0;failed=false;paused=false;busy=false;
- for(let y=0;y<M;y++)for(let x=0;x<N;x++)if(shape(x,y))tiles.push({x,y,alive:true,color:0});
- tiles.splice(Math.floor(tiles.length/10)*10);
- const groups=tiles.length/10,bag=[];
- for(let col=0;col<C.length&&bag.length<tiles.length;col++)for(let j=0;j<10&&bag.length<tiles.length;j++)bag.push(col);
- for(let attempt=0;attempt<150;attempt++){
-  for(let i=bag.length-1;i>0;i--){let j=Math.random()*(i+1)|0;[bag[i],bag[j]]=[bag[j],bag[i]]}
-  let ok=true;tiles.forEach((t,i)=>{t.color=bag[i]});
-  for(const t of tiles)if(neighbors(t).some(q=>q.color===t.color)){ok=false;break}
-  if(ok)break;
- }
+ for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++)tiles.push({x,y,alive:true,color:shapeColor(x,y)});
  total=tiles.length;
  $('level').textContent=String(level).padStart(2,'0');
  $('win').classList.remove('show');
  $('win').querySelector('h2').textContent='🎉 الرسمة اتنضفت!';
- $('win').querySelector('p').textContent='كل قطع الرسمة اتجمعت. جاهز للمرحلة اللي بعدها؟';
- $('next').textContent='المرحلة التالية ←';
- $('next').onclick=()=>{level++;build()};
- $('message').textContent='اختار مربع المستعمرة من تحت. كل مربع فيه ١٠ نمل.';
- renderColonies();ui();draw();
+ $('win').querySelector('p').textContent='كل مكعبات الرسمة اتجمعت. جاهز للمرحلة اللي بعدها؟';
+ $('next').textContent='المرحلة التالية ←';$('next').onclick=()=>{level++;build()};
+ $('message').textContent='اختار لون من المربعات تحت. النمل هيجمع مكعبات اللون ده من الأطراف.';
+ renderControls();ui();draw();
 }
-function renderColonies(){
+function renderControls(){
  const root=$('colonies');root.innerHTML='';
- const counts=C.map((_,i)=>tiles.filter(t=>t.color===i&&t.alive).length);
- counts.forEach((count,i)=>{
-  for(let n=0;n<Math.ceil(count/K);n++){
-   const amount=Math.min(K,count-n*K);
-   const b=document.createElement('button');b.className='colony';b.type='button';
-   b.setAttribute('aria-label','مستعمرة '+C[i][0]+' بها '+amount+' نمل');
-   b.innerHTML='<span class="cube-swatch" style="--cube:'+C[i][1]+';--cube-light:'+C[i][1]+';--cube-dark:'+C[i][2]+'"></span><span class="ant-pack">'+Array.from({length:amount},()=>'<i></i>').join('')+'</span>';
-   b.addEventListener('click',()=>dispatch(i,b));root.appendChild(b);
-  }
+ C.forEach((v,i)=>{
+  const count=tiles.filter(t=>t.alive&&t.color===i).length;
+  const b=document.createElement('button');b.className='colony';b.type='button';
+  b.setAttribute('aria-label','اختيار '+v[0]+'، '+count+' مكعب');
+  b.innerHTML='<span class="cube-swatch" style="--cube:'+v[1]+';--cube-light:'+v[1]+';--cube-dark:'+v[2]+'"></span><strong class="count">'+count+'</strong>';
+  b.disabled=count===0;b.addEventListener('click',()=>dispatch(i,b));root.appendChild(b);
  });
 }
-function ui(){
- const p=total?Math.floor(done/total*100):0;
- $('bar').style.width=p+'%';$('percent').textContent=p+'%';$('collected').textContent=done+' / '+total;
-}
-function rounded(x,y,w,h,r){c.beginPath();c.roundRect(x,y,w,h,r)}
-function ant(x,y,col,s=1){
- c.save();c.translate(x,y);c.scale(s,s);c.fillStyle='#30221d';
- c.beginPath();c.arc(-5,0,3.2,0,7);c.arc(0,0,2.6,0,7);c.fill();
- c.fillStyle=col;c.beginPath();c.arc(6,-1,3.2,0,7);c.fill();
- c.strokeStyle='#30221d';c.lineWidth=1.2;
- for(let z=-1;z<=1;z++){c.beginPath();c.moveTo(-1,z);c.lineTo(-6,z*4-2);c.moveTo(2,z);c.lineTo(6,z*4+2);c.stroke()}
+function ui(){const p=total?Math.floor(done/total*100):0;$('bar').style.width=p+'%';$('percent').textContent=p+'%';$('collected').textContent=done+' / '+total}
+function round(x,y,w,h,r){c.beginPath();c.roundRect(x,y,w,h,r)}
+function ant(x,y,col,scale=1){
+ c.save();c.translate(x,y);c.scale(scale,scale);c.fillStyle='#38251f';
+ c.beginPath();c.arc(-5,0,4,0,7);c.arc(0,0,3,0,7);c.fill();
+ c.fillStyle=col;c.beginPath();c.arc(7,-1,4,0,7);c.fill();
+ c.strokeStyle='#38251f';c.lineWidth=1.5;
+ for(let z=-1;z<=1;z++){c.beginPath();c.moveTo(-1,z);c.lineTo(-7,z*4-3);c.moveTo(2,z);c.lineTo(7,z*4+3);c.stroke()}
  c.restore();
 }
 function drawTile(t){
- const x=t.x*W+3,y=t.y*H+3,col=C[t.color];
- const g=c.createLinearGradient(x,y,x+W,y+H);g.addColorStop(0,'#fff');g.addColorStop(.2,col[1]);g.addColorStop(1,col[2]);
- c.save();c.shadowColor='#34504b66';c.shadowBlur=6;c.shadowOffsetY=3;c.fillStyle=g;
- rounded(x,y,W-6,H-6,8);c.fill();c.shadowColor='transparent';
- c.strokeStyle='#ffffffb8';c.lineWidth=1.5;rounded(x+2,y+2,W-10,H-10,7);c.stroke();c.restore();
- c.fillStyle='#ffffff99';c.beginPath();c.moveTo(x+8,y+9);c.lineTo(x+W-17,y+9);c.stroke();
+ const x=t.x*W+1,y=t.y*H+1,col=C[t.color],g=c.createLinearGradient(x,y,x+W,y+H);
+ g.addColorStop(0,'#ffffff');g.addColorStop(.2,col[1]);g.addColorStop(1,col[2]);
+ c.save();c.shadowColor='#24404a55';c.shadowBlur=2;c.shadowOffsetY=1;c.fillStyle=g;round(x,y,W-2,H-2,2);c.fill();
+ c.shadowColor='transparent';c.strokeStyle='#ffffff55';c.lineWidth=.7;round(x+1,y+1,W-4,H-4,2);c.stroke();c.restore();
 }
 function draw(){
- c.clearRect(0,0,696,600);
- const g=c.createLinearGradient(0,0,0,600);g.addColorStop(0,'#e4f8f7');g.addColorStop(1,'#b8e5e2');c.fillStyle=g;c.fillRect(0,0,696,600);
+ c.clearRect(0,0,696,600);c.fillStyle='#fff1dc';c.fillRect(0,0,696,600);
  tiles.forEach(t=>{if(t.alive)drawTile(t)});
  ants.forEach(a=>ant(a.x,a.y,a.color,1));
  if(paused){c.fillStyle='#201a29a8';c.fillRect(0,0,696,600);c.fillStyle='white';c.font='900 30px Cairo';c.textAlign='center';c.fillText(failed?'المرحلة مقفولة':'متوقف مؤقتًا',348,300)}
 }
 function dispatch(color,button){
  if(paused||failed||busy||button.disabled)return;
- const targets=tiles.filter(t=>t.alive&&t.color===color&&exposed(t)).slice(0,K);
+ const targets=tiles.filter(t=>t.alive&&t.color===color&&exposed(t)).slice(0,BATCH);
  if(!targets.length){
-  bad++;$('message').textContent='اللون ده لسه مش ظاهر على الأطراف. اختار لون مكشوف الأول.'; 
-  if(bad>=3){failed=true;paused=true;$('win').classList.add('show');$('win').querySelector('h2').textContent='🔒 المرحلة اتقفلت';$('win').querySelector('p').textContent='٣ اختيارات غلط. أعد المرحلة وحاول تفتح الطبقة الخارجية الأول.';$('next').textContent='إعادة المحاولة';$('next').onclick=build}
+  bad++;$('message').textContent='اللون ده مش ظاهر على الأطراف. اختار لون مكشوف الأول ('+bad+'/3).';
+  if(bad>=3){failed=true;paused=true;$('win').classList.add('show');$('win').querySelector('h2').textContent='🔒 المرحلة اتقفلت';$('win').querySelector('p').textContent='٣ اختيارات غلط. أعد المرحلة وحاول تختار لون من الحواف.';$('next').textContent='إعادة المحاولة';$('next').onclick=build}
   draw();return;
  }
- busy=true;button.disabled=true;
- $('message').textContent='١٠ نمل خرجوا من المستعمرة وبيجمعوا مكعبات لونهم...';
- const col=C[color][1],startX=348,startY=574;
- targets.forEach((t,i)=>{
-  const tx=t.x*W+W/2,ty=t.y*H+H/2;
-  ants.push({x:startX+(i%5-2)*5,y:startY,color:col,tx,ty,phase:0,target:t});
- });
- targets.forEach(t=>t.alive=false);
- done+=targets.length;ui();renderColonies();draw();
- setTimeout(()=>{
-  ants=ants.filter(a=>!targets.includes(a.target));
-  busy=false;
-  if(done>=total){$('win').classList.add('show');$('message').textContent='عاش! الرسمة اتجمعت كلها.'}
-  else $('message').textContent='رجع النمل بالجواهر! اختار مستعمرة تانية.';
-  draw();
- },1400/speed);
+ busy=true;
+ $('message').textContent='النمل بيطلع يجمع مكعبات اللون المختار...';
+ const col=C[color][1],homeX=348,homeY=574;
+ targets.forEach((t,i)=>ants.push({x:homeX+(i%5-2)*10,y:homeY,color:col,target:t,phase:0,tx:t.x*W+W/2,ty:t.y*H+H/2}));
+ renderControls();draw();
 }
-cv.addEventListener('pointerdown',()=>{$('message').textContent='اختار مربع النمل من تحت؛ المكعبات اللي فوق هي الأكل.'});
 function tick(ts){
  const dt=Math.min(.04,(ts-last)/1000||0);last=ts;
- if(!paused)ants.forEach(a=>{
-  const tx=a.phase===0?a.tx:348,ty=a.phase===0?a.ty:574,dx=tx-a.x,dy=ty-a.y,d=Math.hypot(dx,dy),v=230*speed*dt;
-  if(d<v+2){a.x=tx;a.y=ty;if(a.phase===0)a.phase=1}
+ if(!paused)for(let i=ants.length-1;i>=0;i--){
+  const a=ants[i],tx=a.phase===0?a.tx:348,ty=a.phase===0?a.ty:574,dx=tx-a.x,dy=ty-a.y,d=Math.hypot(dx,dy),v=220*speed*dt;
+  if(d<v+2){a.x=tx;a.y=ty;if(a.phase===0){a.target.alive=false;done++;a.phase=1;ui()}else ants.splice(i,1)}
   else{a.x+=dx/d*v;a.y+=dy/d*v}
- });
+ }
+ if(busy&&ants.length===0){busy=false;renderControls();if(done>=total){$('win').classList.add('show');$('message').textContent='عاش! خلصت الرسمة كلها.'}else $('message').textContent='النمل رجع بالمكعبات. اختار لون تاني.'}
  draw();requestAnimationFrame(tick);
 }
 $('pause').onclick=()=>{paused=!paused;$('pause').textContent=paused?'▶':'Ⅱ'};
 $('speed').onclick=()=>{speed=speed===1?2:1;$('speed').textContent=speed+'×'};
 $('restart').onclick=build;
-$('dispatch').onclick=()=>$('message').textContent='اضغط على أحد مربعات المستعمرات أسفل الرسمة.';
+$('dispatch').onclick=()=>$('message').textContent='اختار مربع اللون اللي تحت عشان تبعت النمل.';
 build();requestAnimationFrame(tick);
 })();
 </script></body></html>
