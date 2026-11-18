@@ -160,16 +160,16 @@ function launchNext(){
  // كل بيت تشغيل له سرب مستقل؛ السرب الذي لا يجد مكعبًا مكشوفًا ينتظر وحده.
  activeSlots.forEach((group,colIndex)=>{
   if(!group||group.remaining<=0)return;
-  const room=Math.max(0,3-(group.inFlight||0));
+  // أخرج كل النمل المتاح من السرب مرة واحدة، بدون حد 3 نملات.
   const available=Math.max(0,group.remaining-(group.inFlight||0));
-  const count=Math.min(room,available);
+  const count=available;
   if(!count)return;
   const targets=tiles.filter(t=>t.alive&&!t.reserved&&t.color===group.color&&exposed(t));
   if(!targets.length)return;
   targets.slice(0,count).forEach((target,index)=>{
    target.reserved=true;group.inFlight=(group.inFlight||0)+1;
    const path=antPath(target);
-   ants.push({x:348,y:590,color:C[group.color][1],target,group,colIndex,phase:0,path,pathIndex:0,carrying:false,walk:Math.random()*6.28,delay:index*.12,angle:0});
+   ants.push({x:348,y:590,color:C[group.color][1],target,group,colIndex,phase:0,path,pathIndex:0,carrying:false,walk:Math.random()*6.28,delay:index*.025,angle:0});
   });
   launched=true;
  });
