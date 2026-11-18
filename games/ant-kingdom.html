@@ -65,10 +65,11 @@ function renderColonies(){
  const root=$('colonies');root.innerHTML='';
  const counts=C.map((_,i)=>tiles.filter(t=>t.color===i&&t.alive).length);
  counts.forEach((count,i)=>{
-  for(let n=0;n<count/K;n++){
+  for(let n=0;n<Math.ceil(count/K);n++){
+   const amount=Math.min(K,count-n*K);
    const b=document.createElement('button');b.className='colony';b.type='button';
-   b.setAttribute('aria-label','مستعمرة '+C[i][0]+' بها ١٠ نمل');
-   b.innerHTML='<span class="cube-swatch" style="--cube:'+C[i][1]+';--cube-light:'+C[i][1]+';--cube-dark:'+C[i][2]+'"></span><span class="ant-pack">'+Array.from({length:10},()=>'<i></i>').join('')+'</span>';
+   b.setAttribute('aria-label','مستعمرة '+C[i][0]+' بها '+amount+' نمل');
+   b.innerHTML='<span class="cube-swatch" style="--cube:'+C[i][1]+';--cube-light:'+C[i][1]+';--cube-dark:'+C[i][2]+'"></span><span class="ant-pack">'+Array.from({length:amount},()=>'<i></i>').join('')+'</span>';
    b.addEventListener('click',()=>dispatch(i,b));root.appendChild(b);
   }
  });
@@ -104,8 +105,8 @@ function draw(){
 function dispatch(color,button){
  if(paused||failed||busy||button.disabled)return;
  const targets=tiles.filter(t=>t.alive&&t.color===color&&exposed(t)).slice(0,K);
- if(targets.length<K){
-  bad++;$('message').textContent=targets.length?'اللون ده مكشوف منه '+targets.length+' قطع بس. افتح الطريق الأول!':'مفيش قطع من اللون ده على الحواف. اختار لون مكشوف تاني.'; 
+ if(!targets.length){
+  bad++;$('message').textContent='اللون ده لسه مش ظاهر على الأطراف. اختار لون مكشوف الأول.'; 
   if(bad>=3){failed=true;paused=true;$('win').classList.add('show');$('win').querySelector('h2').textContent='🔒 المرحلة اتقفلت';$('win').querySelector('p').textContent='٣ اختيارات غلط. أعد المرحلة وحاول تفتح الطبقة الخارجية الأول.';$('next').textContent='إعادة المحاولة';$('next').onclick=build}
   draw();return;
  }
