@@ -2,7 +2,32 @@
 <html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0b1020"><title>الدرس | لَمّة</title><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#0b1020;--panel:#131d32;--line:#293b5b;--muted:#b5c3d9;--white:#f5f8ff;--accent:#82c8ff}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -10%,#285b8738,transparent 48%),var(--bg);color:var(--white);font-family:Cairo,Arial,sans-serif}.wrap{width:min(900px,calc(100% - 28px));margin:auto}header{display:flex;justify-content:space-between;align-items:center;padding:17px 0;border-bottom:1px solid var(--line)}.brand{font-size:22px;font-weight:900}.brand b{color:var(--accent)}a,.back{color:inherit;text-decoration:none}.back{border:1px solid var(--line);background:#17243a;border-radius:10px;padding:9px 14px;font:700 12px Cairo}.crumb{color:var(--accent);font-size:12px;font-weight:800;margin-top:25px}.hero{padding:12px 0 20px}.hero h1{font-size:clamp(27px,5vw,42px);line-height:1.5;margin:6px 0}.desc{color:var(--muted);line-height:2;margin:0}.photo{width:100%;height:clamp(190px,38vw,330px);object-fit:cover;border-radius:18px;border:1px solid var(--line);margin:8px 0 22px;background:#17243a}.content,.extra,.source,.quiz{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;margin:14px 0;line-height:2}.content p{margin:0 0 15px;white-space:pre-line}.content p:last-child{margin:0}.extra{border-color:#345b75;background:#11263a}.source{color:#c6d7ea;font-size:13px}.quiz button{font:700 14px Cairo;border:1px solid #3c587e;background:#1a2b46;color:white;border-radius:10px;padding:10px 15px;margin:5px;cursor:pointer}.quiz button:active{transform:scale(.98)}#feedback{color:#aee6c3;font-weight:800;margin-top:10px}.foot{color:#8fa3c0;text-align:center;font-size:12px;padding:30px 0}
-</style></head><body><div class="wrap"><header><div class="brand">لَمّة <b>· تعلّم واكتشف</b></div><a class="back" id="back" href="/Salary-portal/">رجوع للقسم ←</a></header><div class="crumb" id="cat"></div><section class="hero"><h1 id="title"></h1><p class="desc" id="desc"></p></section><img class="photo" id="photo" alt="صورة توضيحية للدرس"><section class="content" id="body"></section><section class="extra" id="extra" hidden></section><section class="source" id="source" hidden></section><section class="quiz" id="quiz" hidden><h3 id="question"></h3><div id="answers"></div><div id="feedback"></div></section><div class="foot">لَمّة · المعرفة خطوة بخطوة</div></div>
+
+/* Lamma animated awareness story */
+.storybox{display:none;background:linear-gradient(145deg,#162d48,#101b30);border:1px solid #426184;border-radius:20px;padding:14px;margin:8px 0 22px;overflow:hidden}
+.storybox.active{display:block}.storyhead{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}.storyhead b{font-size:14px}.storyhead span{font-size:10px;color:#b7d5f5}
+.cartoonstage{height:clamp(220px,48vw,330px);position:relative;overflow:hidden;border-radius:15px;background:linear-gradient(#7bc9ed 0 60%,#75b96d 60%);border:2px solid #ffffff25;isolation:isolate}
+.cartoonstage:before{content:"";position:absolute;width:110px;height:110px;border-radius:50%;background:#ffe78a;top:18px;left:10%;box-shadow:0 0 35px #ffe78a88;z-index:-1}
+.cartoonstage:after{content:"";position:absolute;left:-5%;right:-5%;height:65px;bottom:0;background:repeating-linear-gradient(90deg,#64a85d 0 42px,#70b96b 42px 85px);border-radius:50% 50% 0 0;z-index:-1}
+.scene-cloud{position:absolute;top:36px;right:12%;font-size:42px;opacity:.85;filter:drop-shadow(0 3px 1px #28628b55)}
+.scene-prop{position:absolute;bottom:42px;left:50%;transform:translateX(-50%);font-size:clamp(42px,10vw,70px);filter:drop-shadow(0 5px 2px #18334b55);animation:propBob 2.4s ease-in-out infinite}
+.cartoonchar{position:absolute;bottom:25px;width:90px;height:155px;animation:charBob 2.3s ease-in-out infinite;transform-origin:bottom center}
+.cartoonchar.one{left:16%}.cartoonchar.two{right:16%;animation-delay:.4s}
+.charhead{position:absolute;top:0;left:22px;width:48px;height:48px;border-radius:50%;background:#f3bd91;border:3px solid #684832;box-shadow:inset -5px -4px #d9956c}
+.charhead:before{content:"";position:absolute;width:40px;height:20px;top:-5px;left:1px;background:#50382b;border-radius:60% 60% 25% 25%}
+.charhead:after{content:"•  •";position:absolute;top:14px;left:10px;color:#38251d;font-size:15px;letter-spacing:5px;white-space:nowrap}
+.charbody{position:absolute;top:48px;left:13px;width:66px;height:75px;border-radius:22px 22px 12px 12px;background:#3979d2;border:3px solid #234a80}
+.cartoonchar.two .charbody{background:#ef9c45;border-color:#9b5b25}
+.charbody:after{content:"";position:absolute;bottom:-27px;left:8px;width:44px;height:28px;border-left:10px solid #39445b;border-right:10px solid #39445b;border-radius:0 0 8px 8px}
+.chararm{position:absolute;top:61px;left:2px;width:24px;height:12px;background:#f3bd91;border-radius:12px;transform:rotate(28deg)}
+.cartoonchar.two .chararm{left:64px;transform:rotate(-35deg)}
+.speechbubble{position:absolute;top:12px;left:50%;transform:translateX(-50%);max-width:82%;background:#fff;color:#23334b;border:2px solid #426184;border-radius:14px;padding:9px 13px;font-size:clamp(11px,2.8vw,14px);font-weight:900;text-align:center;box-shadow:0 5px 0 #23405c;z-index:4}
+.storycaption{color:#e5f1ff;line-height:1.9;font-size:13px;padding:12px 4px 5px;min-height:55px}
+.storycontrols{display:flex;gap:8px;flex-wrap:wrap}.storycontrols button{border:1px solid #5478a4;background:#203b5d;color:#fff;border-radius:10px;padding:9px 14px;font:700 12px Cairo;cursor:pointer}.storycontrols button.primary{background:#2869a9;border-color:#75b9f2}
+.storyprogress{height:5px;background:#263b58;border-radius:9px;overflow:hidden;margin:9px 0}.storyprogress i{display:block;height:100%;width:0;background:#80caff;transition:width .3s}
+@keyframes charBob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-7px) rotate(2deg)}}@keyframes propBob{0%,100%{transform:translate(-50%,0) rotate(-3deg)}50%{transform:translate(-50%,-9px) rotate(3deg)}}
+@media(max-width:480px){.cartoonchar{transform:scale(.82);transform-origin:bottom center}.cartoonchar.one{left:7%}.cartoonchar.two{right:7%}.speechbubble{top:8px}}
+</style></head><body><div class="wrap"><header><div class="brand">لَمّة <b>· تعلّم واكتشف</b></div><a class="back" id="back" href="/Salary-portal/">رجوع للقسم ←</a></header><div class="crumb" id="cat"></div><section class="hero"><h1 id="title"></h1><p class="desc" id="desc"></p></section><img class="photo" id="photo" alt="صورة توضيحية للدرس"><section class="storybox" id="awarenessStory" aria-label="قصة كرتونية متحركة"><div class="storyhead"><b>🎬 حكاية لَمّة المتحركة</b><span>شاهد واتعلّم خطوة بخطوة</span></div><div class="cartoonstage" id="cartoonStage"><div class="scene-cloud">☁️</div><div class="speechbubble" id="storyBubble">يلا نشوف الموقف ونتعلم نتصرف إزاي!</div><div class="cartoonchar one"><div class="charhead"></div><div class="charbody"></div><div class="chararm"></div></div><div class="cartoonchar two"><div class="charhead"></div><div class="charbody"></div><div class="chararm"></div></div><div class="scene-prop" id="storyProp">🏡</div></div><div class="storycaption" id="storyCaption">اضغط تشغيل عشان تبدأ الحكاية.</div><div class="storyprogress"><i id="storyProgress"></i></div><div class="storycontrols"><button class="primary" id="storyPlay">▶ شغّل الحكاية</button><button id="storyNext">المشهد التالي ←</button><button id="storyVoice">🔊 اسمع الحكاية</button></div></section><section class="content" id="body"></section><section class="extra" id="extra" hidden></section><section class="source" id="source" hidden></section><section class="quiz" id="quiz" hidden><h3 id="question"></h3><div id="answers"></div><div id="feedback"></div></section><div class="foot">لَمّة · المعرفة خطوة بخطوة</div></div>
 <script>
 const p=new URLSearchParams(location.search),section=p.get('section')||'awareness',title=p.get('title')||'الدرس',cat=p.get('cat')||'';
 const backMap={religion:'religion.html',awareness:'kids-awareness.html',learning:'kids-learning.html'};
@@ -32,6 +57,36 @@ const storyImages={
 };
 document.getElementById('photo').src=storyImages[title]||generalImages[section]||generalImages.learning;
 document.getElementById('photo').alt='صورة توضيحية: '+title+'، دون تجسيد للأنبياء';
+
+const storyBox=document.getElementById('awarenessStory');
+if(section==='awareness'&&storyBox){
+ storyBox.classList.add('active');
+ const storyData={
+ 'جسمي ملكي وحدودي مهمة':{prop:'🧸',steps:[['أنا جسمي ملكي، ومن حقي أحس بالأمان.','الطفل يتعلم إن جسمه له خصوصية.'],['لو حاجة ضايقتني، أقول: لأ!','من حقك ترفض أي تصرف يضايقك أو يخوفك.'],['أبعد وأحكي لشخص كبير أثق فيه.','طلب المساعدة شجاعة، ومش غلطتك أبدًا.']]},
+ 'لو حد غريب طلب مني أروح معاه':{prop:'🍬',steps:[['تعالى معايا، عندي ليك مفاجأة!','في القصة شخص غريب بيحاول ياخد الطفل معاه.'],['لأ، مش هروح مع حد من غير إذن أهلي!','الطفل يرفض الهدية ومايمشيش معاه.'],['هروح لمكان آمن وأطلب مساعدة شخص كبير.','خليك في مكان آمن واطلب مساعدة شخص موثوق.']]},
+ 'لو ضعت في مكان عام':{prop:'🏬',steps:[['مش شايف ماما وبابا… أعمل إيه؟','الطفل يكتشف إنه بعيد عن أسرته في مكان عام.'],['هقف في مكان آمن ومش هخرج للشارع.','ما تجريش تدور عليهم لوحدك.'],['هطلب مساعدة موظف أمن أو خدمة العملاء.','اطلب مساعدة موظف مسؤول، وما تروحش مع غريب.']]},
+ 'عبور الشارع بأمان':{prop:'🚦',steps:[['عايز أعدّي بسرعة!','الشارع محتاج تركيز ومش بنجري فيه.'],['هقف على الرصيف وأبص يمين وشمال.','اختار مكان عبور آمن واسمع حركة المرور.'],['همسك إيد شخص كبير وأعدّي بهدوء.','اعبر مع شخص بالغ ومن المكان المخصص.']]},
+ 'الكهرباء والأجهزة':{prop:'🔌',steps:[['السلك ده شكله غريب… ألمسه؟','الطفل يلاحظ سلكًا تالفًا.'],['لأ! مش هلمس سلك أو مقبس.','ابعد عن الكهرباء، خصوصًا وإيدك مبلولة.'],['هقول لشخص كبير يصلحه بأمان.','الكبير يستعين بمختص لإصلاح العطل.']]},
+ 'الحريق أو رائحة الغاز':{prop:'🔥',steps:[['في ريحة غاز أو نار!','الطفل يلاحظ علامة خطر في البيت.'],['هخرج لمكان مفتوح ومش هشغل أي مفتاح.','ما تستخدمش نار أو مفاتيح كهرباء قرب رائحة الغاز.'],['هنبّه الكبار ونتصل بالطوارئ من مكان آمن.','ما ترجعش للمكان إلا بعد موافقة المختصين.']]},
+ 'كلمة السر سرّك':{prop:'🔐',steps:[['حد بيسألني عن كلمة السر!','رسالة غريبة تطلب كلمة مرور.'],['كلمة السر ورمز التحقق مش لأي حد.','ما تشاركش بيانات الدخول حتى لو الشخص ادعى إنه مسؤول.'],['هسأل ولي أمري قبل ما أضغط على أي رابط.','راجع الرسائل المشبوهة مع شخص بالغ.']]},
+ 'الغريب على اللعبة أو الدردشة':{prop:'🎮',steps:[['شخص في اللعبة عايز يعرف عنواني!','شخص مجهول يبدأ يسأل عن معلومات شخصية.'],['مش هبعت عنواني أو صوري أو رقم تليفوني.','ما تشاركش بياناتك أو تقابل شخصًا تعرفت عليه أونلاين.'],['هوقف الكلام وأحكي لولي أمري.','اطلب مساعدة شخص بالغ فورًا لو حصل تهديد أو طلب مزعج.']]},
+ 'قبل ما أنشر صورة':{prop:'📷',steps:[['هشارك الصورة دي مع أصحابي!','قبل النشر لازم نفكر في الخصوصية.'],['هل فيها عنواني أو مدرستي أو حد مش موافق؟','راجع التفاصيل وخد موافقة كل من يظهر بالصورة.'],['هستأذن ولي أمري الأول.','بعد النشر ممكن يصعب التحكم في الصورة.']]},
+ 'التنمر مش هزار':{prop:'🛡️',steps:[['حد بيضايقني كل يوم…','التنمر المتكرر مش هزار ومش ذنب الطفل.'],['هبتعد ومش هرد بعنف.','اختار مكان آمن وما تدخلش في خناقة.'],['هحكي لمعلم أو لحد كبير أثق فيه.','طلب المساعدة حقك، ولو شفت تنمر ساند صاحبك.']]},
+ 'مشاعري من حقي':{prop:'💗',steps:[['أنا زعلان أو غضبان…','كل المشاعر طبيعية ومسموح نحس بيها.'],['هاخد نفس وأسمي الشعور اللي جوايا.','التوقف والتنفس يساعداننا نفكر بهدوء.'],['هحكي لحد أثق فيه عن اللي مضايقني.','التعبير عن المشاعر وطلب المساعدة شجاعة.']]},
+ 'النظافة والعادات الصحية':{prop:'🧼',steps:[['يلا نجهز نفسنا ليوم صحي!','عادات صغيرة بتساعدنا نحافظ على صحتنا.'],['هغسل إيدي وأنضف سناني.','اغسل يديك بالصابون ونظف أسنانك بانتظام.'],['هشرب مياه وأنام كويس وألعب.','المياه والنوم والحركة جزء من يوم صحي.']]}
+ };
+ const data=storyData[title]||{prop:'⭐',steps:[['يلا نفهم الموقف سوا!','كل موقف له تصرف آمن نتعلمه.'],['نفكر قبل ما نتصرف.','خد وقتك وفكر في الاختيار الآمن.'],['نطلب مساعدة شخص كبير موثوق.','لو محتار أو خايف، احكي لشخص بالغ تثق به.']]};
+ let step=0,timer=null;const bubble=document.getElementById('storyBubble'),caption=document.getElementById('storyCaption'),prop=document.getElementById('storyProp'),progress=document.getElementById('storyProgress'),play=document.getElementById('storyPlay');
+ prop.textContent=data.prop;
+ function showStep(){const s=data.steps[step];bubble.textContent=s[0];caption.textContent=s[1];progress.style.width=((step+1)/data.steps.length*100)+'%';play.textContent=step===data.steps.length-1?'↻ أعد الحكاية':'▶ شغّل الحكاية';}
+ function stop(){if(timer){clearInterval(timer);timer=null}play.textContent='▶ شغّل الحكاية'}
+ function next(){step=(step+1)%data.steps.length;showStep()}
+ function start(){if(timer){stop();return}if(step===data.steps.length-1)step=0;showStep();play.textContent='⏸ إيقاف مؤقت';timer=setInterval(()=>{if(step<data.steps.length-1){step++;showStep()}else stop()},4300)}
+ play.addEventListener('click',start);document.getElementById('storyNext').addEventListener('click',()=>{stop();next()});
+ document.getElementById('storyVoice').addEventListener('click',()=>{if(!('speechSynthesis'in window)){caption.textContent+=' (الصوت غير مدعوم في المتصفح)';return}speechSynthesis.cancel();const utter=new SpeechSynthesisUtterance(data.steps.map(s=>s[0]+' '+s[1]).join('. '));utter.lang='ar-EG';utter.rate=.9;speechSynthesis.speak(utter)});
+ showStep();
+}
+
 if(section==='learning'&&p.get('question')){
  const quiz=document.getElementById('quiz');quiz.hidden=false;
  document.getElementById('question').textContent='اختبر نفسك: '+p.get('question');
