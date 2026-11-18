@@ -83,7 +83,7 @@ function makeGroups(){
  });
  // Shuffle every small 10-ant square, then distribute them independently across columns.
  for(let i=pool.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[pool[i],pool[j]]=[pool[j],pool[i]]}
- pool.forEach((g,i)=>groups[i%groups.length].push(g));
+ pool.forEach((g,i)=>{g.column=i%groups.length;g.raised=false;groups[g.column].push(g)});
 }
 function renderSlots(){
  const root=$('launchSlots');root.innerHTML='';
@@ -104,20 +104,24 @@ function renderControls(){
    const previous=index>0?column[index-1]:null;
    const reveal=previous?Math.round((previous.total-previous.remaining)/previous.total*100):100;
    const swatch='<span class="cube-swatch" style="--cube:'+v[1]+';--cube-light:'+v[1]+';--cube-dark:'+v[2]+'"><i class="cube-face"></i>'+(index!==0?'<i class="cube-reveal" style="--reveal:'+reveal+'%"><i class="cube-face"></i></i>':'')+'</span>';
-   const selected=activeSlots[colIndex]===group;
-   b.innerHTML=swatch+'<strong class="ant-count">'+group.remaining+'</strong><span class="key-label">'+(selected?'اتنقل لمكان التشغيل':index===0?'اختار لتشغيل النمل':'مربع مقفول')+'</span>'+(index!==0?'<span class="lock-mark" aria-hidden="true">🔒</span>':'');
-   b.disabled=index!==0||selected||!!activeSlots[colIndex];
-   if(index!==0)b.classList.add('waiting');
+   const selected=activeSlots.includes(group);
+   const unlocked=column.slice(0,index).every(g=>g.raised)&&!group.raised;
+   b.innerHTML=swatch+'<strong class="ant-count">'+group.remaining+'</strong><span class="key-label">'+(selected?'اتنقل لمكان التشغيل':unlocked?'اختار لتشغيل النمل':'مربع مقفول')+'</span>'+(index>0&&!unlocked?'<span class="lock-mark" aria-hidden="true">🔒</span>':'');
+   b.disabled=!unlocked;
+   if(!unlocked)b.classList.add('waiting');
    if(selected)b.classList.add('selected');
-   b.addEventListener('click',()=>{if(index===0&&!activeSlots[colIndex])selectGroup(group,colIndex)});
+   b.addEventListener('click',()=>{if(unlocked)selectGroup(group,colIndex)});
    stack.appendChild(b);
   });
   root.appendChild(stack);
  });
 }
 function selectGroup(group,colIndex){
- if(paused||failed||activeSlots[colIndex])return;
- activeSlots[colIndex]=group;
+ if(paused||failed||group.raised)return;
+ const slotIndex=activeSlots.findIndex(slot=>!slot);
+ if(slotIndex<0){$('message').textContent='أماكن التشغيل الأربعة مليانة؛ استنى مكان يفضى.';return}
+ group.raised=true;
+ activeSlots[slotIndex]=group;
  renderSlots();renderControls();
  $('message').textContent='المربع اترفع لمكان التشغيل. النمل اللي يلاقي مكعبًا مكشوفًا من لونه هيطلع يمشي له، والباقي يفضل في الجحر.';
  launchNext();
@@ -257,8 +261,13 @@ function tick(ts){
  }
  // حرر مكان التشغيل فقط بعد رجوع كل نمل هذا المربع؛ باقي الأسراب لا تتوقف.
  let slotChanged=false;
- activeSlots.forEach((g,col)=>{
-  if(g&&g.remaining<=0&&(g.inFlight||0)===0){groups[col].shift();activeSlots[col]=null;slotChanged=true}
+ activeSlots.forEach((g,slotIndex)=>{
+  if(g&&g.remaining<=0&&(g.inFlight||0)===0){
+   const source=groups[g.column];
+   const at=source?source.indexOf(g):-1;
+   if(at>=0)source.splice(at,1);
+   activeSlots[slotIndex]=null;slotChanged=true;
+  }
  });
  if(done>=total&&ants.length===0){
   $('win').classList.add('show');$('message').textContent='عاش! خلصت الرسمة كلها.';
