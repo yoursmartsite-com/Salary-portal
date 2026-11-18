@@ -259,4 +259,5 @@ $("refreshTeams").onclick=async()=>{teams=(await get(ref(db,"teams"))).val()||{}
 
 $("reportForm").addEventListener("submit",async e=>{e.preventDefault();try{const r=push(ref(db,"playerReports/"+me.uid));await set(r,{type:$("reportType").value,target:$("reportTarget").value.trim(),details:$("reportDetails").value.trim(),createdAt:Date.now(),status:"new"});$("reportForm").reset();$("reportStatus").textContent="وصل البلاغ لسجل الإدارة. شكرًا لمساعدتنا.";say("تم إرسال البلاغ بنجاح.","ok")}catch(e){$("reportStatus").textContent="تعذر إرسال البلاغ: "+e.message;say("تعذر إرسال البلاغ.","error")}});
 onAuthStateChanged(auth,user=>{if(!user||user.isAnonymous){say("لازم تسجل دخولك بحساب لَمّة من الصفحة الرئيسية أولًا، وبعدها افتح ميدان الأبطال.","error");$("connection").textContent="مطلوب تسجيل الدخول";$("playerName").textContent="ضيف";return}start(user).catch(e=>say("تعذر تحميل حسابك: "+e.message,"error"))});
-</script></body></html>
+</script><script src="/Salary-portal/assets/lamma-update.js" defer></script>
+</body></html>
