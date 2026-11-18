@@ -263,6 +263,13 @@
               ".validate": "newData.hasChildren(['from','type','payload','at']) && newData.child('from').val() === auth.uid && (newData.child('type').val() === 'offer' || newData.child('type').val() === 'answer' || newData.child('type').val() === 'ice' || newData.child('type').val() === 'left') && newData.child('payload').exists() && newData.child('at').isNumber()"
             }
           }
+        },
+        "reactions": {
+          ".read": "auth != null && root.child('ludoRooms').child($roomId).child('players').child(auth.uid).exists()",
+          "$reactionId": {
+            ".write": "auth != null && root.child('ludoRooms').child($roomId).child('players').child(auth.uid).exists() && !data.exists() && newData.child('uid').val() === auth.uid",
+            ".validate": "newData.hasChildren(['uid','name','emoji','at']) && newData.child('uid').val() === auth.uid && newData.child('name').isString() && newData.child('name').val().length <= 32 && newData.child('emoji').isString() && newData.child('emoji').val().length > 0 && newData.child('emoji').val().length <= 8 && newData.child('at').isNumber()"
+          }
         }
       }
     },
