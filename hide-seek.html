@@ -103,4 +103,5 @@ if(target){
  }catch(err){say('ظهر تأثير الطلقة لكن Firebase رفض تحديث الصحة: '+err.message)}
 }else{mark.style.display='none';hit.style.display='block';setTimeout(()=>{hit.style.display='none'},180);say('الطلقة اتضربت. وجّه علامة التصويب الحمراء ناحية لاعب عشان تصيبه.')}
 };setConnection(false,'في انتظار Firebase');if(!firebaseConfig?.apiKey||firebaseConfig.apiKey.includes('YOUR_')){setConnection(false,'إعداد Firebase غير مكتمل');say('ملف Firebase غير مضبوط. الاتصال الأونلاين مش متاح قبل إصلاح الإعدادات.')}
-</script></body></html>
+</script><script src="/Salary-portal/assets/lamma-update.js" defer></script>
+</body></html>
