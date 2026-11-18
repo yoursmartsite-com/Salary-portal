@@ -132,4 +132,5 @@ document.getElementById('again').onclick=()=>launch(type,title);window.gameTimer
 }
 function check4(b,row,col,p){for(const [dr,dc] of [[0,1],[1,0],[1,1],[1,-1]]){let n=1;for(const s of [-1,1]){let r=row+dr*s,c=col+dc*s;while(r>=0&&r<6&&c>=0&&c<7&&b[r*7+c]===p){n++;r+=dr*s;c+=dc*s}}if(n>=4)return true}return false}
 function winner(b){for(let [a,c,d] of [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]])if(b[a]&&b[a]===b[c]&&b[c]===b[d])return b[a];return ''}
-</script></body></html>
+</script><script src="/Salary-portal/assets/lamma-update.js" defer></script>
+</body></html>
