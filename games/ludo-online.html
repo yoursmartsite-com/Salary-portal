@@ -606,116 +606,60 @@ function setupReactionControls(){
  document.querySelectorAll('.reaction-btn').forEach(btn=>btn.addEventListener('click',()=>sendRoomReaction(btn.dataset.reaction)));
 }
 
-let ludoVoiceSocket=null,ludoLocalStream=null,ludoPeers=new Map(),ludoVoiceActive=false,ludoChatListener=null,ludoChatRef=null,ludoVoiceOutbox=[],ludoPendingIce=new Map(),ludoChatOutbox=[];
-const LAMMA_VOICE_URL='wss://lamma-rooms.fibrahem865.workers.dev/rooms/';
+let ludoLocalStream=null,ludoPeers=new Map(),ludoVoiceActive=false,ludoChatRef=null,ludoChatListener=null,ludoSignalRef=null,ludoSignalListener=null,ludoPlayersRef=null,ludoPlayersListener=null,ludoVoiceOnlineRef=null,ludoVoiceOnlineListener=null,ludoPendingIce=new Map(),ludoOfferedPeers=new Set();
 let LAMMA_ICE={iceServers:[{urls:'stun:stun.cloudflare.com:3478'},{urls:'stun:stun.l.google.com:19302'}]};
 async function loadLammaTurnConfig(){
- try{
-  const response=await fetch('https://lamma-rooms.fibrahem865.workers.dev/voice/ice-config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({uid})});
-  const data=await response.json();
-  if(!response.ok||!data.ok||!Array.isArray(data.iceServers))throw new Error(data.error||'TURN_UNAVAILABLE');
-  LAMMA_ICE={iceServers:data.iceServers};voiceStatus('تم تجهيز اتصال الصوت عبر Cloudflare TURN');return true;
- }catch(error){console.warn('Cloudflare TURN config unavailable:',error);LAMMA_ICE={iceServers:[{urls:'stun:stun.cloudflare.com:3478'},{urls:'stun:stun.l.google.com:19302'}]};voiceStatus('خدمة TURN غير مفعلة بعد — الصوت قد لا يعمل على بعض الشبكات');return false}
+ try{const response=await fetch('https://lamma-rooms.fibrahem865.workers.dev/voice/ice-config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({uid})});const data=await response.json();if(!response.ok||!data.ok||!Array.isArray(data.iceServers))throw new Error(data.error||'TURN_UNAVAILABLE');LAMMA_ICE={iceServers:data.iceServers};voiceStatus('تم تجهيز خوادم TURN للصوت');return true}
+ catch(error){console.warn('TURN config unavailable:',error);LAMMA_ICE={iceServers:[{urls:'stun:stun.cloudflare.com:3478'},{urls:'stun:stun.l.google.com:19302'}]};voiceStatus('خادم TURN غير متاح — قد يتعذر الصوت على بعض الشبكات');return false}
 }
 function voiceStatus(t){const el=$('voiceStatus');if(el)el.textContent=t}
-function chatNotice(message,isError=false){
- const box=$('ludoChatMessages');if(!box)return;
- const item=document.createElement('div');item.className='chat-empty'+(isError?' chat-error':'');item.textContent=message;box.appendChild(item);box.scrollTop=box.scrollHeight;
-}
-function renderLudoChatMessage(m){
- if(!m||typeof m.text!=='string')return;
- const box=$('ludoChatMessages');if(!box)return;
- box.querySelectorAll('.chat-empty').forEach(x=>x.remove());
- const item=document.createElement('div');item.className='chat-msg'+(m.uid===uid?' mine':'');
- const who=document.createElement('b');who.textContent=m.name||'لاعب';
- const msg=document.createElement('span');msg.textContent=m.text;
- item.append(who,msg);box.appendChild(item);box.scrollTop=box.scrollHeight;
-}
+function chatNotice(message,isError=false){const box=$('ludoChatMessages');if(!box)return;const item=document.createElement('div');item.className='chat-empty'+(isError?' chat-error':'');item.textContent=message;box.appendChild(item);box.scrollTop=box.scrollHeight}
+function renderLudoChatMessage(m){if(!m||typeof m.text!=='string')return;const box=$('ludoChatMessages');if(!box)return;box.querySelectorAll('.chat-empty').forEach(x=>x.remove());const item=document.createElement('div');item.className='chat-msg'+(m.uid===uid?' mine':'');const who=document.createElement('b');who.textContent=m.name||'لاعب';const msg=document.createElement('span');msg.textContent=m.text;item.append(who,msg);box.appendChild(item);box.scrollTop=box.scrollHeight}
 function startLudoChat(){
- if(!roomId||!uid)return;
- const box=$('ludoChatMessages');if(box)box.innerHTML='';
- chatNotice('جاري توصيل شات الغرفة عبر Cloudflare…');
+ if(!roomId||!uid||!roomRef)return;const box=$('ludoChatMessages');if(box)box.innerHTML='';
+ if(ludoChatRef&&ludoChatListener)ludoChatRef.off('child_added',ludoChatListener);
+ ludoChatRef=roomRef.child('chat').limitToLast(80);ludoChatListener=snap=>renderLudoChatMessage(snap.val());
+ ludoChatRef.on('child_added',ludoChatListener,error=>chatNotice('تعذر تحميل رسائل الغرفة: '+error.message,true));chatNotice('شات الغرفة متصل بفايربيز.')
 }
 async function sendLudoChat(textValue){
- const text=String(textValue||'').trim();if(!text||text.length>250||!roomId||!uid)return false;
- const player=room?.players?.[uid];
+ const text=String(textValue||'').trim();if(!text||text.length>250||!roomId||!uid)return false;const player=room?.players?.[uid];
  if(!player){chatNotice('مش قادرين نحدد وجودك في الغرفة. اخرج وادخل بكود الغرفة تاني.',true);return false}
- const payload=JSON.stringify({type:'chat',name:player.name||localStorage.getItem('lammaName')||'لاعب',text});
- if(ludoVoiceSocket?.readyState===WebSocket.OPEN){ludoVoiceSocket.send(payload);return true}
- ludoChatOutbox.push(payload);if(ludoChatOutbox.length>20)ludoChatOutbox.shift();
- chatNotice('الرسالة هتتبعت أول ما اتصال الغرفة يكتمل.');
- return true;
+ try{await roomRef.child('chat').push({uid,name:player.name||'لاعب',text,at:firebase.database.ServerValue.TIMESTAMP});return true}catch(e){chatNotice('تعذر إرسال الرسالة: '+e.message,true);return false}
 }
-function flushLudoChatOutbox(ws){
- if(ludoVoiceSocket!==ws||ws.readyState!==WebSocket.OPEN)return;
- const pending=ludoChatOutbox.splice(0);for(const data of pending){if(ws.readyState!==WebSocket.OPEN){ludoChatOutbox.unshift(data);break}ws.send(data)}
+function sendVoiceSignal(message){
+ if(!roomRef||!uid||!room?.players?.[uid]||!message?.type)return false;const body={...message},target=body.to;delete body.to;
+ const targets=target==='*'?Object.keys(room.players||{}).filter(id=>id!==uid):[target];
+ targets.forEach(to=>{if(!to||to===uid||!room.players?.[to])return;roomRef.child('signals/'+to).push({from:uid,type:body.type,payload:body,at:firebase.database.ServerValue.TIMESTAMP}).catch(e=>{console.warn('Firebase voice signal failed:',e);voiceStatus('تعذر إرسال بيانات اتصال الصوت إلى فايربيز')})});return true
 }
-function sendVoiceSignal(payload){
- const data=JSON.stringify(payload);
- if(ludoVoiceSocket?.readyState===WebSocket.OPEN){ludoVoiceSocket.send(data);return true}
- ludoVoiceOutbox.push(data);if(ludoVoiceOutbox.length>100)ludoVoiceOutbox.shift();return false;
-}
-async function flushLudoVoiceOutbox(ws){
- if(ludoVoiceSocket!==ws||ws.readyState!==WebSocket.OPEN)return;
- const pending=ludoVoiceOutbox.splice(0);for(const data of pending){if(ws.readyState!==WebSocket.OPEN){ludoVoiceOutbox.unshift(data);break}ws.send(data)}
-}
-async function flushLudoIce(peerUid,pc){
- const pending=ludoPendingIce.get(peerUid)||[];ludoPendingIce.delete(peerUid);
- for(const candidate of pending){try{await pc.addIceCandidate(new RTCIceCandidate(candidate))}catch(e){console.warn('Queued ICE candidate rejected:',e)}}
-}
+async function flushLudoIce(peerUid,pc){const pending=ludoPendingIce.get(peerUid)||[];ludoPendingIce.delete(peerUid);for(const candidate of pending){try{await pc.addIceCandidate(new RTCIceCandidate(candidate))}catch(e){console.warn('Queued ICE candidate rejected:',e)}}}
 async function makeLudoPeer(peerUid){
- if(!peerUid||peerUid===uid||ludoPeers.has(peerUid))return ludoPeers.get(peerUid);
- const pc=new RTCPeerConnection(LAMMA_ICE);ludoPeers.set(peerUid,pc);
- if(ludoLocalStream)ludoLocalStream.getAudioTracks().forEach(track=>pc.addTrack(track,ludoLocalStream));
- pc.onicecandidate=e=>{if(e.candidate)sendVoiceSignal({type:'ice',to:peerUid,candidate:e.candidate})};
- pc.ontrack=e=>{
-  let audio=document.getElementById('remote-audio-'+peerUid);
-  if(!audio){audio=document.createElement('audio');audio.id='remote-audio-'+peerUid;audio.autoplay=true;audio.playsInline=true;$('remoteAudios')?.appendChild(audio)}
-  audio.srcObject=e.streams?.[0]||new MediaStream([e.track]);audio.muted=!!$('muteOthers')?.checked;
-  if(!audio.muted)audio.play().then(()=>voiceStatus('صوت لاعب متصل')).catch(()=>voiceStatus('الصوت وصل؛ اضغط على الصفحة لتشغيل صوت اللاعبين'));
- };
- pc.onconnectionstatechange=()=>{
-  if(pc.connectionState==='connected')voiceStatus('اتصال الصوت تم — أنت متصل باللاعبين');
-  else if(pc.connectionState==='failed')voiceStatus('الاتصال المباشر فشل؛ الشبكة تحتاج TURN للصوت');
-  else if(pc.connectionState==='disconnected')voiceStatus('صوت لاعب انقطع مؤقتًا — بنحاول نرجّع الاتصال');
- };
- return pc;
+ if(!peerUid||peerUid===uid)return null;if(ludoPeers.has(peerUid))return ludoPeers.get(peerUid);
+ const pc=new RTCPeerConnection(LAMMA_ICE);ludoPeers.set(peerUid,pc);if(ludoLocalStream)ludoLocalStream.getAudioTracks().forEach(track=>pc.addTrack(track,ludoLocalStream));
+ pc.onicecandidate=e=>{if(e.candidate)sendVoiceSignal({type:'ice',to:peerUid,candidate:e.candidate.toJSON?e.candidate.toJSON():e.candidate})};
+ pc.ontrack=e=>{let audio=document.getElementById('remote-audio-'+peerUid);if(!audio){audio=document.createElement('audio');audio.id='remote-audio-'+peerUid;audio.autoplay=true;audio.playsInline=true;$('remoteAudios')?.appendChild(audio)}audio.srcObject=e.streams?.[0]||new MediaStream([e.track]);audio.muted=!!$('muteOthers')?.checked;if(!audio.muted)audio.play().then(()=>voiceStatus('صوت لاعب متصل')).catch(()=>voiceStatus('الصوت وصل؛ اضغط على الصفحة لتشغيل صوت اللاعبين'))};
+ pc.onconnectionstatechange=()=>{if(pc.connectionState==='connected')voiceStatus('اتصال الصوت تم — أنت متصل باللاعبين');else if(pc.connectionState==='failed')voiceStatus('الاتصال المباشر فشل؛ الشبكة تحتاج TURN للصوت');else if(pc.connectionState==='disconnected')voiceStatus('صوت لاعب انقطع مؤقتًا — بنحاول نرجّع الاتصال')};return pc
 }
 async function offerLudoPeer(peerUid){
- const pc=await makeLudoPeer(peerUid);if(!pc||pc.signalingState!=='stable')return;
- const offer=await pc.createOffer();await pc.setLocalDescription(offer);sendVoiceSignal({type:'offer',to:peerUid,sdp:pc.localDescription});
+ const pc=await makeLudoPeer(peerUid);if(!pc||pc.signalingState!=='stable'||ludoOfferedPeers.has(peerUid))return;ludoOfferedPeers.add(peerUid);
+ try{const offer=await pc.createOffer();await pc.setLocalDescription(offer);sendVoiceSignal({type:'offer',to:peerUid,sdp:pc.localDescription.toJSON?pc.localDescription.toJSON():pc.localDescription})}catch(e){ludoOfferedPeers.delete(peerUid);console.warn('Ludo offer failed:',e)}
+}
+async function handleLudoSignal(snap){
+ const m=snap.val();if(!m||m.from===uid)return;try{const data=m.payload||{};
+  if(m.type==='offer'){const pc=await makeLudoPeer(m.from);if(!pc)return;await pc.setRemoteDescription(new RTCSessionDescription(data.sdp));await flushLudoIce(m.from,pc);const answer=await pc.createAnswer();await pc.setLocalDescription(answer);sendVoiceSignal({type:'answer',to:m.from,sdp:pc.localDescription.toJSON?pc.localDescription.toJSON():pc.localDescription});return}
+  if(m.type==='answer'){const pc=ludoPeers.get(m.from);if(pc){await pc.setRemoteDescription(new RTCSessionDescription(data.sdp));await flushLudoIce(m.from,pc)}return}
+  if(m.type==='ice'){const pc=ludoPeers.get(m.from);if(pc&&data.candidate){if(pc.remoteDescription?.type)await pc.addIceCandidate(new RTCIceCandidate(data.candidate));else{const list=ludoPendingIce.get(m.from)||[];list.push(data.candidate);ludoPendingIce.set(m.from,list)}}return}
+  if(m.type==='left'){const pc=ludoPeers.get(m.from);if(pc)pc.close();ludoPeers.delete(m.from);ludoPendingIce.delete(m.from);ludoOfferedPeers.delete(m.from);document.getElementById('remote-audio-'+m.from)?.remove()}
+ }catch(e){console.warn('Ludo Firebase signaling:',e);voiceStatus('حصلت مشكلة في تبادل بيانات اتصال الصوت')}finally{snap.ref.remove().catch(e=>console.warn('Signal cleanup failed:',e))}
 }
 async function connectLudoVoice(){
- if(!roomId||!uid)return;
- if(ludoVoiceSocket){try{ludoVoiceSocket.close()}catch(e){}}
- await loadLammaTurnConfig();
- const ws=new WebSocket(LAMMA_VOICE_URL+encodeURIComponent(roomId)+'/voice?uid='+encodeURIComponent(uid));
- ludoVoiceSocket=ws;voiceStatus('جاري الاتصال بخدمة الصوت…');
- ws.onopen=()=>{flushLudoVoiceOutbox(ws);flushLudoChatOutbox(ws);voiceStatus(ludoVoiceActive?'المايك شغال — جاري ربط اللاعبين':'خدمة الصوت جاهزة — شغّل المايك')};
- ws.onmessage=async event=>{
-  let m;try{m=JSON.parse(event.data)}catch(e){return}
-  if(m.type==='chat-history'){const box=$('ludoChatMessages');if(box)box.innerHTML='';(m.messages||[]).forEach(renderLudoChatMessage);return}
-  if(m.type==='chat'){renderLudoChatMessage(m.message);return}
-  try{
-   if(m.type==='peer'){await makeLudoPeer(m.uid);if(ludoVoiceActive&&String(uid)<String(m.uid))await offerLudoPeer(m.uid);return}
-   if(m.type==='offer'){
-    const pc=await makeLudoPeer(m.from);if(!pc)return;
-    await pc.setRemoteDescription(new RTCSessionDescription(m.sdp));await flushLudoIce(m.from,pc);
-    const answer=await pc.createAnswer();await pc.setLocalDescription(answer);
-    sendVoiceSignal({type:'answer',to:m.from,sdp:pc.localDescription});return;
-   }
-   if(m.type==='answer'){const pc=ludoPeers.get(m.from);if(pc){await pc.setRemoteDescription(new RTCSessionDescription(m.sdp));await flushLudoIce(m.from,pc)}return}
-   if(m.type==='ice'){
-    const pc=ludoPeers.get(m.from);if(pc&&m.candidate){
-     if(pc.remoteDescription?.type)await pc.addIceCandidate(new RTCIceCandidate(m.candidate));
-     else{const list=ludoPendingIce.get(m.from)||[];list.push(m.candidate);ludoPendingIce.set(m.from,list)}
-    }return;
-   }
-   if(m.type==='left'){const pc=ludoPeers.get(m.from);if(pc)pc.close();ludoPeers.delete(m.from);ludoPendingIce.delete(m.from);document.getElementById('remote-audio-'+m.from)?.remove()}
-  }catch(e){console.warn('Ludo voice signaling:',e);voiceStatus('حصلت مشكلة في تبادل بيانات اتصال الصوت')}
- };
- ws.onerror=()=>voiceStatus('تعذر الاتصال بخدمة الصوت على Cloudflare');
- ws.onclose=()=>{if(ludoVoiceSocket===ws)voiceStatus('اتصال الصوت اتقفل — أعد فتح الغرفة لإعادة المحاولة')};
+ if(!roomId||!uid||!roomRef)return;await loadLammaTurnConfig();
+ if(ludoSignalRef&&ludoSignalListener)ludoSignalRef.off('child_added',ludoSignalListener);ludoSignalRef=roomRef.child('signals/'+uid);ludoSignalListener=snap=>handleLudoSignal(snap);ludoSignalRef.on('child_added',ludoSignalListener,error=>voiceStatus('تعذر استقبال إشارات الصوت من فايربيز: '+error.message));
+ if(ludoPlayersRef&&ludoPlayersListener)ludoPlayersRef.off('child_added',ludoPlayersListener);ludoPlayersRef=roomRef.child('players');
+ ludoPlayersListener=snap=>{const peerUid=snap.key;if(!peerUid||peerUid===uid)return;makeLudoPeer(peerUid).then(()=>{if(String(uid)<String(peerUid)&&ludoVoiceActive)offerLudoPeer(peerUid)})};ludoPlayersRef.on('child_added',ludoPlayersListener);
+ ludoVoiceOnlineRef=roomRef.child('voiceOnline/'+uid);try{await ludoVoiceOnlineRef.onDisconnect().remove();await ludoVoiceOnlineRef.set({at:firebase.database.ServerValue.TIMESTAMP})}catch(e){console.warn('Ludo voice presence failed:',e)}
+ const onlineRef=roomRef.child('voiceOnline');if(ludoVoiceOnlineListener)onlineRef.off('child_removed',ludoVoiceOnlineListener);
+ ludoVoiceOnlineListener=snap=>{const peerUid=snap.key;if(!peerUid||peerUid===uid)return;const pc=ludoPeers.get(peerUid);if(pc)pc.close();ludoPeers.delete(peerUid);ludoPendingIce.delete(peerUid);ludoOfferedPeers.delete(peerUid);document.getElementById('remote-audio-'+peerUid)?.remove()};onlineRef.on('child_removed',ludoVoiceOnlineListener);
+ voiceStatus('إشارات الصوت والشات متصلة بفايربيز — شغّل المايك')
 }
 async function toggleLudoMic(){
  const btn=$('micToggle');
@@ -725,14 +669,14 @@ async function toggleLudoMic(){
   ludoLocalStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},video:false});
   ludoLocalStream.getAudioTracks().forEach(t=>t.enabled=true);ludoPeers.forEach(pc=>{const hasAudio=pc.getSenders().some(sender=>sender.track?.kind==='audio');if(!hasAudio)ludoLocalStream.getAudioTracks().forEach(track=>pc.addTrack(track,ludoLocalStream))});
   ludoVoiceActive=true;btn.textContent='🔴 إيقاف المايك';btn.classList.remove('mic-off');btn.classList.add('mic-on');voiceStatus('الميكروفون شغال عندك — جاري توصيله باللاعبين');
-  if(!ludoVoiceSocket||ludoVoiceSocket.readyState!==WebSocket.OPEN)connectLudoVoice();
+  if(!ludoSignalRef)connectLudoVoice();
   for(const peerUid of ludoPeers.keys()){const pc=ludoPeers.get(peerUid);if(String(uid)<String(peerUid)&&pc.signalingState==='stable'&&ludoLocalStream.getAudioTracks().length)await offerLudoPeer(peerUid)}
  }catch(e){voiceStatus('لم نقدر نشغّل المايك: '+e.message);status('اسمح للمتصفح باستخدام المايك، وتأكد أنك فاتح الموقع عبر HTTPS.')}
 }
 $('micToggle').addEventListener('click',toggleLudoMic);
 $('muteOthers').addEventListener('change',e=>document.querySelectorAll('#remoteAudios audio').forEach(a=>{a.muted=e.target.checked;if(!a.muted)a.play().catch(()=>voiceStatus('اضغط على الصفحة لتشغيل الصوت'))}));
 $('ludoChatForm').addEventListener('submit',async e=>{e.preventDefault();const input=$('ludoChatInput');const v=input.value;if(await sendLudoChat(v))input.value=''});
-window.addEventListener('pagehide',()=>{try{sendVoiceSignal({type:'left',to:'*'});ludoVoiceSocket?.close()}catch(e){};ludoLocalStream?.getTracks().forEach(t=>t.stop());ludoPeers.forEach(pc=>pc.close());if(ludoChatRef&&ludoChatListener)ludoChatRef.off('child_added',ludoChatListener)});
+window.addEventListener('pagehide',()=>{try{sendVoiceSignal({type:'left',to:'*'});ludoVoiceOnlineRef?.remove()}catch(e){};ludoLocalStream?.getTracks().forEach(t=>t.stop());ludoPeers.forEach(pc=>pc.close());if(ludoChatRef&&ludoChatListener)ludoChatRef.off('child_added',ludoChatListener);if(ludoSignalRef&&ludoSignalListener)ludoSignalRef.off('child_added',ludoSignalListener);if(ludoPlayersRef&&ludoPlayersListener)ludoPlayersRef.off('child_added',ludoPlayersListener);if(ludoVoiceOnlineListener)roomRef?.child('voiceOnline').off('child_removed',ludoVoiceOnlineListener)});
 
 function isBlocked(color,from,steps,playerId,game=room){
  if(from<0){const square=starts[color],counts={};for(const [id,p] of Object.entries(game.players||{})){for(const v of (game.pieces?.[id]||[])){if(v>=0&&v<=50&&(starts[p.color]+Number(v))%52===square)counts[id]=(counts[id]||0)+1;}}return Object.values(counts).some(n=>n>=2);}
