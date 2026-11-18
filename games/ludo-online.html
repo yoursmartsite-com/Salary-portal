@@ -790,7 +790,8 @@ $('board').onclick=async ev=>{if(!waitingMove||!room||!roomRef)return;const meP=
 async function nextTurn(){const ids=activeTurnOrder(room);if(!ids.length)return;const i=ids.indexOf(uid);if(i<0)return;await roomRef.child('turnIndex').set((i+1)%ids.length)}
 $('back').onclick=()=>location.href='../index.html';setupReactionControls();draw();ludoInitPromise=init();
 })();
-</script></body></html>
+</script><script src="/Salary-portal/assets/lamma-update.js" defer></script>
+</body></html>
 <style>
 /* Premium interactive Ludo board skin */
 body{background:radial-gradient(ellipse at 50% 0%,#243d70 0,#111b35 48%,#070d1b 100%) fixed}
