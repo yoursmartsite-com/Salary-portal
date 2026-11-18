@@ -77,7 +77,7 @@ function makeGroups(){
   let count=tiles.filter(t=>t.alive&&t.color===color).length;
   while(count>0){
    const amount=Math.min(10,count);
-   pool.push({color,total:amount,remaining:amount});
+   pool.push({color,total:amount,remaining:amount,inFlight:0});
    count-=amount;
   }
  });
@@ -155,27 +155,31 @@ function antPath(target){
  return path;
 }
 function launchNext(){
- if(paused||failed||busy||ants.length)return;
- // النمل اللي لونه مكشوف بس هو اللي يطلع؛ الباقي يفضل جوه الجحر.
- for(let step=0;step<4;step++){
-  const colIndex=(schedulerCursor+step)%4,group=activeSlots[colIndex];
-  if(!group||group.remaining<=0)continue;
+ if(paused||failed)return;
+ let launched=false;
+ // كل بيت تشغيل له سرب مستقل؛ السرب الذي لا يجد مكعبًا مكشوفًا ينتظر وحده.
+ activeSlots.forEach((group,colIndex)=>{
+  if(!group||group.remaining<=0)return;
+  const room=Math.max(0,3-(group.inFlight||0));
+  const available=Math.max(0,group.remaining-(group.inFlight||0));
+  const count=Math.min(room,available);
+  if(!count)return;
   const targets=tiles.filter(t=>t.alive&&!t.reserved&&t.color===group.color&&exposed(t));
-  if(!targets.length)continue;
-  const chosen=targets.slice(0,Math.min(3,group.remaining));
-  schedulerCursor=(colIndex+1)%4;
-  busy=true;activeGroup=group;
-  chosen.forEach((target,index)=>{
-   target.reserved=true;
+  if(!targets.length)return;
+  targets.slice(0,count).forEach((target,index)=>{
+   target.reserved=true;group.inFlight=(group.inFlight||0)+1;
    const path=antPath(target);
-   ants.push({x:348,y:590,color:C[group.color][1],target,group,colIndex,phase:0,path,pathIndex:0,carrying:false,walk:Math.random()*6.28,delay:index*.16,angle:0});
+   ants.push({x:348,y:590,color:C[group.color][1],target,group,colIndex,phase:0,path,pathIndex:0,carrying:false,walk:Math.random()*6.28,delay:index*.12,angle:0});
   });
-  $('message').textContent='النمل اللي لاقى مكعب من لونه خرج يمشي له. الباقي مستني دوره جوه الجحر.';
+  launched=true;
+ });
+ busy=ants.length>0;
+ if(launched){
+  $('message').textContent='كل سرب عنده مكعب مكشوف بيشتغل لوحده؛ اللي ملوش طريق مفتوح مستني في الجحر.';
   renderSlots();renderControls();draw();
-  return;
+ }else if(activeSlots.some(Boolean)&&!ants.length){
+  $('message').textContent='بعض الأسراب مستنية لحد ما مكعب من لونها يتكشف. أول ما يبقى له طريق هيخرج تلقائيًا.';
  }
- busy=false;activeGroup=null;renderSlots();
- if(activeSlots.some(Boolean))$('message').textContent='النمل مستني لحد ما مكعب من لونه يتكشف. اختار لونًا مكشوفًا من المربعات المتاحة.';
 }
 function ui(){const p=total?Math.floor(done/total*100):0;$('bar').style.width=p+'%';$('percent').textContent=p+'%';$('collected').textContent=done+' / '+total}
 function round(x,y,w,h,r){c.beginPath();c.roundRect(x,y,w,h,r)}
@@ -242,20 +246,23 @@ function tick(ts){
      const next=a.path[1]||{x:348,y:590};a.angle=Math.atan2(next.y-a.y,next.x-a.x);
      renderControls();renderSlots();ui();
     }else{
-     sparkle(348,588);ants.splice(i,1);
+     sparkle(348,588);a.group.inFlight=Math.max(0,(a.group.inFlight||1)-1);ants.splice(i,1);
     }
    }else{
     a.x+=dx/d*v;a.y+=dy/d*v;a.angle=Math.atan2(dy,dx);
    }
   }
  }
- if(busy&&ants.length===0){
-  busy=false;activeGroup=null;
-  activeSlots.forEach((g,col)=>{if(g&&g.remaining<=0){groups[col].shift();activeSlots[col]=null}});
-  renderSlots();renderControls();
-  if(done>=total){$('win').classList.add('show');$('message').textContent='عاش! خلصت الرسمة كلها.'}
-  else launchNext();
+ // حرر مكان التشغيل فقط بعد رجوع كل نمل هذا المربع؛ باقي الأسراب لا تتوقف.
+ activeSlots.forEach((g,col)=>{
+  if(g&&g.remaining<=0&&(g.inFlight||0)===0){groups[col].shift();activeSlots[col]=null}
+ });
+ if(done>=total&&ants.length===0){
+  $('win').classList.add('show');$('message').textContent='عاش! خلصت الرسمة كلها.';
+ }else{
+  launchNext();
  }
+ renderSlots();renderControls();
  drawSparks(dt);draw();requestAnimationFrame(tick);
 }
 $('pause').onclick=()=>{paused=!paused;$('pause').textContent=paused?'▶':'Ⅱ'};
