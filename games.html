@@ -37,4 +37,5 @@
 const filters=[...document.querySelectorAll('[data-filter]')],cards=[...document.querySelectorAll('.card[data-cats]')],count=document.getElementById('count');
 filters.forEach(btn=>btn.addEventListener('click',()=>{filters.forEach(x=>x.classList.toggle('active',x===btn));let n=0;cards.forEach(card=>{const show=btn.dataset.filter==='all'||card.dataset.cats.split(' ').includes(btn.dataset.filter);card.hidden=!show;if(show)n++});count.textContent=n+' اختيارات'}));
 </script>
+<script src="/Salary-portal/assets/lamma-update.js" defer></script>
 </body></html>
