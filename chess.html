@@ -33,4 +33,5 @@ $('resign').onclick=async()=>{if(!roomId||!room)return;if(confirm('متأكد إ
 $('leave').onclick=()=>{if(unsub)unsub();unsub=null;roomId=null;room=null;game=null;color=null;$('game').classList.add('hidden');$('lobby').classList.remove('hidden')};
 onAuthStateChanged(auth,u=>{if(u){uid=u.uid;window.LammaPlayerActions?.init({db,uid,getName:()=>profileName,modular:{ref,get,set,update,push}});$('connection').textContent='متصل بحساب ضيف'}});
 if(!auth.currentUser)signInAnonymously(auth).catch(e=>say('تعذر تسجيل الدخول أونلاين: '+e.message));
-</script></body></html>
+</script><script src="/Salary-portal/assets/lamma-update.js" defer></script>
+</body></html>
