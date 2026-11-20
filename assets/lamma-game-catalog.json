@@ -1,0 +1,303 @@
+[
+  {
+    "title": "Snake",
+    "icon": "🐍",
+    "category": "Classic",
+    "description": "كل الثعبان واجمع النقاط من غير ما تخبط في نفسك.",
+    "type": "snake"
+  },
+  {
+    "title": "مملكة النمل",
+    "icon": "🐜",
+    "category": "Arcade",
+    "description": "وجّه مستعمرات النمل لجمع مربعات الرسمة حسب اللون وإعادتها للجحر.",
+    "type": "antkingdom"
+  },
+  {
+    "title": "Tic Tac Toe",
+    "icon": "⭕",
+    "category": "Board",
+    "description": "إكس-أو ضد صديق على نفس الجهاز.",
+    "type": "ttt"
+  },
+  {
+    "title": "Memory Match",
+    "icon": "🃏",
+    "category": "Puzzle",
+    "description": "اقلب الكروت واعثر على كل الأزواج.",
+    "type": "memory"
+  },
+  {
+    "title": "2048",
+    "icon": "🔢",
+    "category": "Puzzle",
+    "description": "ادمج الأرقام حتى تصل إلى 2048.",
+    "type": "2048"
+  },
+  {
+    "title": "Breakout",
+    "icon": "🧱",
+    "category": "Arcade",
+    "description": "كسّر الطوب بالكرة والمضرب.",
+    "type": "breakout"
+  },
+  {
+    "title": "Whack-a-Mole",
+    "icon": "🔨",
+    "category": "Arcade",
+    "description": "اضغط على الخلد بسرعة قبل انتهاء الوقت.",
+    "type": "mole"
+  },
+  {
+    "title": "Paddle Duel",
+    "icon": "🏓",
+    "category": "Arcade",
+    "description": "تحدي تنس الطاولة ضد الكمبيوتر.",
+    "type": "paddle"
+  },
+  {
+    "title": "Ant Jump",
+    "icon": "🐜",
+    "category": "Arcade",
+    "description": "اقفز فوق العقبات واجمع أكبر عدد من النقاط.",
+    "type": "dino"
+  },
+  {
+    "title": "Ant Flap",
+    "icon": "🪰",
+    "category": "Arcade",
+    "description": "طِر بين العقبات بالضغط على الشاشة.",
+    "type": "flap"
+  },
+  {
+    "title": "Block Drop",
+    "icon": "🧊",
+    "category": "Puzzle",
+    "description": "رتب القطع المتساقطة وامسح الصفوف.",
+    "type": "soon"
+  },
+  {
+    "title": "Stack Tower",
+    "icon": "🏗️",
+    "category": "Arcade",
+    "description": "ابنِ برجك بطبقات متحركة واضغط في اللحظة المناسبة.",
+    "type": "stacktower"
+  },
+  {
+    "title": "Connect Four",
+    "icon": "🔴",
+    "category": "Board",
+    "description": "صف أربعة أقراص للفوز ضد لاعب تاني على نفس الجهاز.",
+    "type": "connect4"
+  },
+  {
+    "title": "Tank Battle",
+    "icon": "🛡️",
+    "category": "Action",
+    "description": "حرّك دبابتك وصوّب على دبابات العدو واجمع النقاط.",
+    "type": "tank"
+  },
+  {
+    "title": "Obstacle Race",
+    "icon": "🏃",
+    "category": "Action",
+    "description": "اقفز فوق الحواجز واجمع النجوم ووصل لأبعد مسافة.",
+    "type": "obstacles"
+  },
+  {
+    "title": "Minesweeper",
+    "icon": "💣",
+    "category": "Puzzle",
+    "description": "اكشف الخانات وتجنب الألغام.",
+    "type": "mines"
+  },
+  {
+    "title": "Star Defender",
+    "icon": "🚀",
+    "category": "Action",
+    "description": "دافع عن المجرة وتفادى المقذوفات.",
+    "type": "soon"
+  },
+  {
+    "title": "Dino Run",
+    "icon": "🦖",
+    "category": "Action",
+    "description": "اقفز فوق العقبات في جري لا نهائي.",
+    "type": "soon"
+  },
+  {
+    "title": "Piano Tap",
+    "icon": "🎹",
+    "category": "Arcade",
+    "description": "اضغط على البلاطات الصحيحة بسرعة.",
+    "type": "soon"
+  },
+  {
+    "title": "Cross Road",
+    "icon": "🐸",
+    "category": "Arcade",
+    "description": "اعبر الطريق وتجنب السيارات.",
+    "type": "soon"
+  },
+  {
+    "title": "Slide Puzzle",
+    "icon": "🧩",
+    "category": "Puzzle",
+    "description": "رتب البلاطات في أقل عدد حركات.",
+    "type": "slide"
+  },
+  {
+    "title": "Fruit Slice",
+    "icon": "🍉",
+    "category": "Action",
+    "description": "اقطع الفاكهة وتجنب القنابل.",
+    "type": "soon"
+  },
+  {
+    "title": "Bubble Shooter",
+    "icon": "🫧",
+    "category": "Arcade",
+    "description": "طابق الفقاعات من نفس اللون.",
+    "type": "soon"
+  },
+  {
+    "title": "Sudoku",
+    "icon": "🔢",
+    "category": "Puzzle",
+    "description": "املأ شبكة الأرقام من غير تكرار.",
+    "type": "soon"
+  },
+  {
+    "title": "Merge Drop",
+    "icon": "🍉",
+    "category": "Puzzle",
+    "description": "ادمج العناصر المتشابهة لتكبر.",
+    "type": "soon"
+  },
+  {
+    "title": "Water Sort",
+    "icon": "🧪",
+    "category": "Puzzle",
+    "description": "رتب السوائل في الأنابيب حسب اللون.",
+    "type": "soon"
+  },
+  {
+    "title": "Slingshot",
+    "icon": "🏹",
+    "category": "Action",
+    "description": "صوّب المقلاع نحو الهدف.",
+    "type": "soon"
+  },
+  {
+    "title": "Helix Drop",
+    "icon": "🌀",
+    "category": "Action",
+    "description": "وجّه الكرة عبر برج حلزوني.",
+    "type": "soon"
+  },
+  {
+    "title": "Chess",
+    "icon": "♟️",
+    "category": "Board",
+    "description": "شطرنج أونلاين بغرف خاصة وكود دعوة.",
+    "type": "chess"
+  },
+  {
+    "title": "بنك الحظ",
+    "icon": "🏛️",
+    "category": "Board",
+    "description": "اشترِ الشوارع وابنِ إمبراطوريتك واجمع الإيجارات في لعبة بنك الحظ الجديدة.",
+    "type": "bankhaz"
+  },
+  {
+    "title": "Carrom",
+    "icon": "⚪",
+    "category": "Board",
+    "description": "صوّب الأقراص نحو الجيوب.",
+    "type": "soon"
+  },
+  {
+    "title": "Mario-like Platformer",
+    "icon": "🍄",
+    "category": "Action",
+    "description": "مغامرة قفز ومنصات بأسلوب كلاسيكي أصلي.",
+    "type": "soon"
+  },
+  {
+    "title": "Horror Escape",
+    "icon": "👻",
+    "category": "Action",
+    "description": "فتّش الغرفة واجمع الأدلة وافتح باب الهروب قبل ما الوقت يخلص.",
+    "type": "horror"
+  },
+  {
+    "title": "Car Race",
+    "icon": "🏎️",
+    "category": "Arcade",
+    "description": "تجنب السيارات واجمع النقاط.",
+    "type": "race"
+  },
+  {
+    "title": "Basketball",
+    "icon": "🏀",
+    "category": "Sports",
+    "description": "صوّب الكرة نحو السلة.",
+    "type": "soon"
+  },
+  {
+    "title": "Football",
+    "icon": "⚽",
+    "category": "Sports",
+    "description": "تحدي كرات قدم مصغر.",
+    "type": "soon"
+  },
+  {
+    "title": "Ping Pong",
+    "icon": "🏓",
+    "category": "Sports",
+    "description": "حافظ على الكرة وردّ الضربات.",
+    "type": "soon"
+  },
+  {
+    "title": "تحدي المعلومات",
+    "icon": "🧠",
+    "category": "Puzzle",
+    "description": "20 سؤالًا ضد بوت لَمّة بمستويات صعوبة مختلفة.",
+    "type": "quizlink"
+  },
+  {
+    "title": "Wordle",
+    "icon": "🔤",
+    "category": "Puzzle",
+    "description": "خمن الكلمة من المحاولات المحدودة.",
+    "type": "wordle"
+  },
+  {
+    "title": "Pac-Man style",
+    "icon": "👾",
+    "category": "Classic",
+    "description": "اجمع النقاط وابتعد عن المطاردين.",
+    "type": "soon"
+  },
+  {
+    "title": "Bubble Pop",
+    "icon": "🫧",
+    "category": "Casual",
+    "description": "فرقع أكبر عدد من الفقاعات.",
+    "type": "soon"
+  },
+  {
+    "title": "Endless Runner",
+    "icon": "🏃",
+    "category": "Action",
+    "description": "اجري وتفادى الحواجز.",
+    "type": "soon"
+  },
+  {
+    "title": "Online Room Challenge",
+    "icon": "👥",
+    "category": "Multiplayer",
+    "description": "تحديات الأصدقاء عبر الإنترنت.",
+    "type": "soon"
+  }
+]
