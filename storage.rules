@@ -1,0 +1,12 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /story-videos/{adminUid}/{fileName} {
+      allow read: if true;
+      allow write: if request.auth != null
+        && request.auth.uid == '91N0rI5SCDN1aKBXJkowj5KcUOz1'
+        && request.resource.size < 150 * 1024 * 1024
+        && request.resource.contentType.matches('video/(mp4|webm|quicktime)');
+    }
+  }
+}
