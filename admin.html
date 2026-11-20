@@ -51,7 +51,7 @@
  <div>
   <h3 class="section-title">إدارة الألعاب</h3>
   <label class="field">اختار اللعبة<select id="contentGame" style="width:100%;padding:12px;border-radius:10px;background:#091222;color:white;border:1px solid #344562"><option value="">جاري تحميل الألعاب…</option></select></label>
-  <label class="field">مكان اللعبة<select id="contentGameCategory" style="width:100%;padding:12px;border-radius:10px;background:#091222;color:white;border:1px solid #344562"><option value="single">الألعاب الفردية</option><option value="online">ألعاب أون لاين</option><option value="cards">الكوتشينة</option></select></label>
+  <label class="field">مكان اللعبة<select id="contentGameCategory" style="width:100%;padding:12px;border-radius:10px;background:#091222;color:white;border:1px solid #344562"><option value="single">الألعاب الفردية</option><option value="online">ألعاب أون لاين</option><option value="cards">الكوتشينة</option><option value="Arcade">أركيد</option><option value="Classic">كلاسيك</option><option value="Puzzle">ألغاز</option><option value="Action">أكشن</option><option value="Sports">رياضة</option><option value="Board">ألعاب لوحية</option><option value="Casual">متنوعة</option><option value="Multiplayer">متعدد اللاعبين</option></select></label>
   <label class="field" style="display:flex;align-items:center;gap:8px"><input id="contentGameHidden" type="checkbox" style="width:auto"> إخفاء اللعبة من الموقع</label>
   <button class="btn" id="saveGameContent">حفظ تعديل اللعبة</button><div id="gameContentStatus" class="muted" style="margin-top:8px"></div>
  </div>
@@ -117,18 +117,20 @@ async function initContentManager(){
  try{
   const response=await fetch("/Salary-portal/index.html",{cache:"no-store"});if(!response.ok)throw Error("تعذر قراءة قائمة الألعاب");
   const doc=new DOMParser().parseFromString(await response.text(),"text/html");
-  gameCatalog=[...doc.querySelectorAll("a.game-link")].map(el=>{const name=el.dataset.name||el.querySelector(".game-info b")?.textContent||el.textContent.trim();const section=el.closest(".section")?.id||"single";return {id:contentSlug(name),name,category:section==="online"?"online":section==="cards"?"cards":"single"}});
+  gameCatalog=[...doc.querySelectorAll("a.game-link")].map(el=>{const name=el.dataset.name||el.querySelector(".game-info b")?.textContent||el.textContent.trim();const section=el.closest(".section")?.id||"single";return {id:"home:"+contentSlug(name),name,category:section==="online"?"online":section==="cards"?"cards":"single",scope:"home"}});
+  const libResponse=await fetch("/Salary-portal/assets/lamma-game-catalog.json",{cache:"no-store"});if(!libResponse.ok)throw Error("تعذر تحميل مكتبة الألعاب");const library=await libResponse.json();library.forEach(g=>gameCatalog.push({id:"library:"+contentSlug(g.title),name:g.title,category:g.category,scope:"library"}));
   const unique=[...new Map(gameCatalog.map(g=>[g.id,g])).values()];
-  gameSelect.innerHTML=unique.map(g=>'<option value="'+esc(g.id)+'">'+esc(g.name)+'</option>').join("")||'<option value="">لا توجد ألعاب</option>';
+  gameSelect.innerHTML=unique.map(g=>'<option value="'+esc(g.id)+'">'+(g.scope==="library"?"[المكتبة] ":"[الرئيسية] ")+esc(g.name)+'</option>').join("")||'<option value="">لا توجد ألعاب</option>';
  }catch(e){gameSelect.innerHTML='<option value="">تعذر تحميل القائمة</option>';msg("gameContentStatus",e.message)}
- const gamesRef=db.ref("siteContent/games"),storiesRef=db.ref("siteContent/storyVideos");
- let gameMap={},storyMap={};
- const syncGame=()=>{const g=gameMap[gameSelect.value]||gameCatalog.find(x=>x.id===gameSelect.value);if(!g)return;$("contentGameCategory").value=g.category||"single";$("contentGameHidden").checked=!!g.hidden};
+ const gamesRef=db.ref("siteContent/games"),libraryGamesRef=db.ref("siteContent/libraryGames"),storiesRef=db.ref("siteContent/storyVideos");
+ let gameMap={},libraryGameMap={},storyMap={};
+ const syncGame=()=>{const selected=gameSelect.value,parts=selected.split(":"),scope=parts.shift(),key=parts.join(":"),base=gameCatalog.find(x=>x.id===selected);if(!base)return;const saved=(scope==="library"?libraryGameMap:gameMap)[key]||{};$("contentGameCategory").value=saved.category||base.category||"single";$("contentGameHidden").checked=!!saved.hidden};
  gameSelect.onchange=syncGame;
  const gamesListener=gamesRef.on("value",s=>{gameMap=s.val()||{};syncGame()},e=>msg("gameContentStatus","تعذر قراءة إعدادات الألعاب: "+e.message));
+ const libraryGamesListener=libraryGamesRef.on("value",s=>{libraryGameMap=s.val()||{};syncGame()},e=>msg("gameContentStatus","تعذر قراءة إعدادات مكتبة الألعاب: "+e.message));
  const storiesListener=storiesRef.on("value",s=>{storyMap=s.val()||{};const rows=[];Object.entries(storyMap).forEach(([id,v])=>rows.push({id,...v}));$("storyVideoList").innerHTML=rows.length?rows.map(v=>'<div class="request"><div class="info"><b>'+esc(v.title||"فيديو قصة")+'</b><small>'+esc(({awareness:"توعية الأطفال",learning:"تعليم الأطفال",religion:"القسم الديني"}[v.section]||v.section||""))+'</small><small>'+esc(v.videoUrl||"")+'</small></div><div class="actions"><button class="ban" data-delete-story="'+esc(id)+'">حذف</button></div></div>').join(""):'<div class="empty">لا توجد فيديوهات مضافة.</div>';},e=>msg("storyVideoStatus","تعذر قراءة الفيديوهات: "+e.message));
  // These public content listeners stay attached across admin sign-out/sign-in; no private data is exposed.
- $("saveGameContent").onclick=async()=>{const id=gameSelect.value;if(!id)return msg("gameContentStatus","اختار لعبة الأول.");const base=gameCatalog.find(x=>x.id===id)||{};const category=$("contentGameCategory").value;try{await gamesRef.child(id).update({name:base.name||id,category,hidden:$("contentGameHidden").checked,updatedAt:Date.now(),by:auth.currentUser.uid});msg("gameContentStatus","تم حفظ التعديل. حدّث الصفحة الرئيسية لمشاهدة التغيير.");}catch(e){msg("gameContentStatus","فشل الحفظ: "+e.message)}};
+ $("saveGameContent").onclick=async()=>{const selected=gameSelect.value;if(!selected)return msg("gameContentStatus","اختار لعبة الأول.");const parts=selected.split(":"),scope=parts.shift(),id=parts.join(":"),base=gameCatalog.find(x=>x.id===selected)||{};const category=$("contentGameCategory").value;const target=scope==="library"?libraryGamesRef:gamesRef;try{await target.child(id).update({name:base.name||id,category,hidden:$("contentGameHidden").checked,updatedAt:Date.now(),by:auth.currentUser.uid});msg("gameContentStatus","تم حفظ التعديل. حدّث الصفحة التي توجد بها اللعبة لمشاهدة التغيير.");}catch(e){msg("gameContentStatus","فشل الحفظ: "+e.message)}};
  $("saveStoryVideo").onclick=async()=>{
   const section=$("storySection").value,title=$("storyTitle").value.trim(),file=$("storyVideoFile").files[0];let url=$("storyVideoUrl").value.trim();
   if(!title)return msg("storyVideoStatus","اكتب عنوان القصة الأول.");
