@@ -3,7 +3,7 @@ import { firebaseConfig } from "./firebase-config.js";
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
 const app=getApps().length?getApps()[0]:initializeApp(firebaseConfig),db=getDatabase(app);
-const slug=v=>encodeURIComponent(String(v||"").trim().toLowerCase()).replace(/\\./g,"%2E");
+const slug=v=>encodeURIComponent(String(v||"").trim().toLowerCase()).replace(/\./g,"%2E");
 onValue(ref(db,"siteContent/games"),snap=>{
  const settings=snap.val()||{},targets={single:document.querySelector("#single .games"),online:document.querySelector("#online .games"),cards:document.querySelector("#cards .games")};
  document.querySelectorAll("a.game-link").forEach(card=>{
