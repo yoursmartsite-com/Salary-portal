@@ -427,6 +427,10 @@
           ".write": "auth != null && auth.uid === $uid"
         }
       }
+    },
+    "siteContent": {
+      ".read": true,
+      ".write": "auth != null && auth.uid === '91N0rI5SCDN1aKBXJkowj5KcUOz1'"
     }
   }
 }
