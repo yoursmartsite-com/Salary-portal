@@ -110,7 +110,7 @@ function watch(){
  unsubs.push(()=>pres.off("value",p1),()=>rooms.off("value",p2),()=>directory.off("value",p3));
 }
 
-function contentSlug(v){return encodeURIComponent(String(v||"").trim().toLowerCase()).replace(/\\./g,"%2E")}
+function contentSlug(v){return encodeURIComponent(String(v||"").trim().toLowerCase()).replace(/\./g,"%2E")}
 async function initContentManager(){
  if(contentManagerReady)return;contentManagerReady=true;
  const gameSelect=$("contentGame"),status=$("gameContentStatus");
@@ -133,12 +133,12 @@ async function initContentManager(){
   const section=$("storySection").value,title=$("storyTitle").value.trim(),file=$("storyVideoFile").files[0];let url=$("storyVideoUrl").value.trim();
   if(!title)return msg("storyVideoStatus","اكتب عنوان القصة الأول.");
   if(file){
-   if(!/^video\\/(mp4|webm|quicktime)$/.test(file.type))return msg("storyVideoStatus","اختار فيديو MP4 أو WEBM أو MOV.");
+   if(!/^video\/(mp4|webm|quicktime)$/.test(file.type))return msg("storyVideoStatus","اختار فيديو MP4 أو WEBM أو MOV.");
    if(file.size>150*1024*1024)return msg("storyVideoStatus","حجم الفيديو أكبر من 150 ميجابايت.");
    try{msg("storyVideoStatus","جاري رفع الفيديو…");const safe=file.name.replace(/[^a-zA-Z0-9._-]/g,"_");const task=storage.ref("story-videos/"+auth.currentUser.uid+"/"+Date.now()+"-"+safe).put(file);await task;url=await task.snapshot.ref.getDownloadURL();}
    catch(e){return msg("storyVideoStatus","تعذر رفع الملف: "+e.message+" — قد يحتاج Firebase Storage إلى تفعيل التخزين والفوترة ونشر قواعد التخزين. يمكنك وضع رابط فيديو بدلًا منه.");}
   }
-  if(!/^https:\\/\\//i.test(url))return msg("storyVideoStatus","اختار فيديو أو اكتب رابطًا يبدأ بـ https://");
+  if(!/^https:\/\//i.test(url))return msg("storyVideoStatus","اختار فيديو أو اكتب رابطًا يبدأ بـ https://");
   const id=contentSlug(section+"-"+title);
   try{await storiesRef.child(id).set({section,title,videoUrl:url,updatedAt:Date.now(),by:auth.currentUser.uid});$("storyTitle").value="";$("storyVideoUrl").value="";$("storyVideoFile").value="";msg("storyVideoStatus","تم حفظ فيديو القصة.");}
   catch(e){msg("storyVideoStatus","فشل حفظ الفيديو: "+e.message)}
