@@ -97,7 +97,7 @@ const extraCurriculum = {
  }
 };
 for (const audienceKey of Object.keys(extraCurriculum)) {
- const track = courses[audienceKey].find(c => c.id === audienceKey || (audienceKey === "python" && c.id === "python") || (audienceKey === "web" && c.id === "web") || (audienceKey === "scratch" && c.id === "scratch") || (audienceKey === "python-kids" && c.id === "python-kids"));
+ const track = [...courses.adult, ...courses.kid].find(c => c.id === audienceKey);
  if (!track) continue;
  for (const levelKey of Object.keys(extraCurriculum[audienceKey])) track.levels[levelKey].push(...extraCurriculum[audienceKey][levelKey]);
 }
