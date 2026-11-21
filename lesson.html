@@ -130,7 +130,9 @@ import {OrbitControls} from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples
 import {GLTFLoader} from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js';
 const params=new URLSearchParams(location.search),section=params.get('section')||'awareness';
 if(section==='learning'){
- const card=document.getElementById('teacherCard');card.classList.add('active');
+ const card=document.getElementById('teacherCard');
+ let motion=null,sequenceToken=0,walking=false;
+ card.classList.add('active');
  const stage=document.getElementById('teacherStage'),hint=document.getElementById('teacherHint'),speech=document.getElementById('teacherSpeech');
  let model=null,teacherRig=null,renderer=null,scene=null,camera=null,controls=null,raf=0,gestureUntil=0;
  try{
@@ -195,8 +197,7 @@ if(section==='learning'){
  const lessonDesc=document.getElementById('desc').textContent;
  const lessonBody=[...document.querySelectorAll('#body p')].map(x=>x.textContent).join(' ');
  const lessonExtra=document.getElementById('extra').textContent;
- let motion=null,sequenceToken=0,walking=false;
- const card=document.getElementById('teacherCard');
+
  const easeWalk=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
  function moveTeacher(from,to,duration,walk=true){
   return new Promise(resolve=>{
