@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -84,6 +85,16 @@ public class MainActivity extends Activity {
         settings.setUserAgentString(settings.getUserAgentString() + " LammaAndroid/1.2");
 
         webView.setWebViewClient(new WebViewClient() {
+            @Override public void onPageStarted(WebView view, String url, android.graphics.Bitmap favicon) {
+                super.onPageStarted(view, url, favicon);
+                Uri page = Uri.parse(url);
+                boolean hubPage = SITE_HOST.equals(page.getHost())
+                    && page.getPath() != null
+                    && page.getPath().equals(SITE_PREFIX + "hub.html");
+                setRequestedOrientation(hubPage
+                    ? ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                    : ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            }
             @Override public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
                 return serveBundledSite(request.getUrl());
             }
