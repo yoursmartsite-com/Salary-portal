@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#07111b"><title>عالم لَمّة HUB</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07111b;--panel:#0b1b28;--line:#244354;--mint:#45e0b1;--gold:#ffd27a}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:#f4fbff;font-family:Cairo,Arial,sans-serif}button{font:inherit;cursor:pointer;color:inherit;border:0}.world{position:fixed;inset:0;background:radial-gradient(ellipse at 50% 40%,#173c47,#07111b 75%)}#world{position:absolute;inset:0;width:100%;height:100%;display:block}.shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,#06121bba 0%,transparent 23%,transparent 72%,#06121bdc 100%)}.top{position:absolute;top:0;right:0;left:0;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;pointer-events:none}.brand{pointer-events:auto;display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff}.logo{width:43px;height:43px;border-radius:14px;background:linear-gradient(145deg,#1fc99c,#087b78);display:grid;place-items:center;font-size:25px;box-shadow:0 8px 24px #0bb68a55}.brand b{font-size:20px;display:block;line-height:1.2}.brand small{font-size:10px;letter-spacing:2px;color:#9dc9c8}.topright{display:flex;align-items:center;gap:8px;pointer-events:auto}.pill{background:#071722d9;border:1px solid #4b778080;border-radius:12px;padding:9px 13px;font-size:11px;backdrop-filter:blur(12px)}.back{background:#0b1d2bdc;border:1px solid #416071;border-radius:11px;padding:9px 14px;text-decoration:none;color:#fff;font-size:12px}.left-panel{position:absolute;top:90px;right:18px;width:220px;padding:15px;border:1px solid #49718188;border-radius:17px;background:linear-gradient(150deg,#09202bdc,#08141fe8);backdrop-filter:blur(14px);box-shadow:0 15px 45px #0005}.eyebrow{font-size:10px;color:var(--mint);font-weight:900;letter-spacing:1px}.left-panel h1{font-size:24px;line-height:1.3;margin:5px 0 8px}.left-panel p{font-size:11px;line-height:1.9;color:#b6ced3;margin:0 0 12px}.feature{display:flex;align-items:center;gap:9px;padding:9px 0;border-top:1px solid #294452;font-size:11px;color:#d5e8eb}.feature span{width:29px;height:29px;border-radius:9px;background:#153d42;display:grid;place-items:center;font-size:16px}.right-panel{position:absolute;left:18px;top:90px;width:190px;padding:13px;border:1px solid #49718188;border-radius:16px;background:#081923d9;backdrop-filter:blur(14px)}.right-panel b{font-size:12px}.spot{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:10px;color:#c2d7dc}.spot i{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:#173b43;font-style:normal;font-size:15px}.bottom{position:absolute;bottom:17px;right:50%;transform:translateX(50%);display:flex;align-items:center;gap:9px;padding:9px;border:1px solid #4b778077;border-radius:17px;background:#071722df;backdrop-filter:blur(14px);box-shadow:0 12px 38px #0007}.action{padding:10px 16px;border-radius:11px;background:#17313d;font-size:11px;font-weight:800;white-space:nowrap}.action.primary{background:linear-gradient(110deg,#087f70,#19b98f);box-shadow:0 5px 20px #0ab98a40}.hint{position:absolute;bottom:88px;right:50%;transform:translateX(50%);font-size:10px;color:#d5e8eb;background:#06151dcc;padding:7px 13px;border-radius:20px;white-space:nowrap;border:1px solid #49718166}.joystick{display:none;position:absolute;bottom:105px;left:20px;width:112px;height:112px;border:1px solid #b9e9df66;border-radius:50%;background:#06151d77;touch-action:none}.stick{position:absolute;left:35px;top:35px;width:40px;height:40px;border-radius:50%;background:#54dfb7cc;border:2px solid #d8fff2;box-shadow:0 3px 15px #0008}.toast{position:absolute;top:78px;left:50%;transform:translateX(-50%);padding:10px 17px;border-radius:12px;background:#0a2630;border:1px solid #4bd8b4;color:#dffff6;font-size:12px;opacity:0;transition:.25s;pointer-events:none}.toast.show{opacity:1}.modal{display:none;position:absolute;inset:0;background:#020a10c9;backdrop-filter:blur(7px);align-items:center;justify-content:center;padding:18px}.modal.open{display:flex}.modal-card{width:min(440px,100%);padding:22px;border-radius:20px;border:1px solid #4a7b82;background:linear-gradient(145deg,#102d38,#091822);box-shadow:0 25px 80px #000b;text-align:center}.modal-card h2{margin:0 0 8px}.modal-card p{color:#b9d0d4;font-size:12px;line-height:1.9}.modal-card button{margin-top:12px;padding:10px 24px;border-radius:10px;background:#0ca987;font-weight:900}
+@media(max-width:760px){.top{padding:10px}.brand b{font-size:16px}.logo{width:36px;height:36px}.topright .pill{display:none}.left-panel{top:62px;right:10px;width:165px;padding:11px}.left-panel h1{font-size:18px}.left-panel p{font-size:9px}.feature{font-size:9px;padding:6px 0}.feature span{width:25px;height:25px}.right-panel{top:62px;left:10px;width:145px;padding:10px}.right-panel .spot{font-size:9px;margin-top:7px}.right-panel .spot i{width:24px;height:24px}.bottom{bottom:12px;gap:5px;padding:6px;max-width:calc(100% - 18px)}.action{padding:9px 10px;font-size:9px}.hint{bottom:70px;font-size:9px}.joystick{display:block;bottom:78px;left:13px;width:100px;height:100px}.stick{left:30px;top:30px}.right-panel{display:none}}
+@media(min-width:761px){.joystick{display:none}}
+</style>
+</head>
+<body>
+<div class="world"><canvas id="world"></canvas><div class="shade"></div></div>
+<header class="top">
+ <a class="brand" href="./index.html"><span class="logo">♛</span><span><b>عالم لَمّة</b><small>LAMMA SOCIAL HUB</small></span></a>
+ <div class="topright"><span class="pill">🌿 ساحة الترفيه</span><span class="pill">🟢 عالم تجريبي</span><a class="back" href="./index.html">← رجوع للموقع</a></div>
+</header>
+<aside class="left-panel"><div class="eyebrow">WELCOME TO LAMMA</div><h1>مكاننا.. لعبتنا.. لَمّتنا!</h1><p>اتحرك واستكشف عالم لَمّة. لف على الملاهي، جرّب الأنشطة، واكتشف أماكن جديدة في الساحة.</p><div class="feature"><span>🎡</span> منطقة الملاهي</div><div class="feature"><span>🛝</span> الزحاليق والألعاب</div><div class="feature"><span>🌴</span> ساحة التجمع</div></aside>
+<aside class="right-panel"><b>استكشف العالم</b><div class="spot"><i>🎠</i> منطقة المراجيح</div><div class="spot"><i>🎯</i> ساحة التحديات</div><div class="spot"><i>⚽</i> ملعب لَمّة</div><div class="spot"><i>☕</i> كافيه الأصدقاء</div></aside>
+<div class="hint" id="hint">W A S D أو الأسهم للحركة · اسحب الشاشة لتغيير الاتجاه</div>
+<div class="joystick" id="joystick"><div class="stick" id="stick"></div></div>
+<div class="bottom"><button class="action" id="jump">⬆ قفز</button><button class="action primary" id="explore">✨ استكشف المكان</button><button class="action" id="emote">👋 تلويح</button></div>
+<div class="toast" id="toast"></div>
+<div class="modal" id="modal"><div class="modal-card"><div style="font-size:42px">🎡</div><h2 id="modalTitle">أهلاً بيك في لَمّة</h2><p id="modalText">دي ساحتك الترفيهية. اتحرك واستكشف المكان بنفسك!</p><button id="closeModal">تمام، يلا!</button></div></div>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+const canvas=document.querySelector('#world');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false});
+renderer.setPixelRatio(Math.min(devicePixelRatio,1.8));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;
+const scene=new THREE.Scene();scene.background=new THREE.Color('#8bc6ca');scene.fog=new THREE.Fog('#8bc6ca',48,145);
+const camera=new THREE.PerspectiveCamera(58,innerWidth/innerHeight,.1,250);
+scene.add(new THREE.HemisphereLight(0xd9f7ff,0x34513d,2.0));
+const sun=new THREE.DirectionalLight(0xffedce,2.2);sun.position.set(-28,42,22);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-55;sun.shadow.camera.right=55;sun.shadow.camera.top=55;sun.shadow.camera.bottom=-55;scene.add(sun);
+const mat=(c,r=.8,m=0)=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:m});
+const grass=mat('#5b9b70'),path=mat('#d8c89b'),teal=mat('#20a99a'),coral=mat('#f28c69'),yellow=mat('#f4c65f'),blue=mat('#54a9d2'),pink=mat('#d77eae'),white=mat('#f5f1df'),dark=mat('#294451');
+function box(w,h,d,material,x,y,z,rot=0){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);o.position.set(x,y,z);o.rotation.y=rot;o.castShadow=true;o.receiveShadow=true;scene.add(o);return o}
+function cyl(rt,rb,h,material,x,y,z,seg=20){const o=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg),material);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;scene.add(o);return o}
+function sphere(r,material,x,y,z){const o=new THREE.Mesh(new THREE.SphereGeometry(r,18,14),material);o.position.set(x,y,z);o.castShadow=true;scene.add(o);return o}
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(220,220),grass);floor.rotation.x=-Math.PI/2;floor.position.y=-.12;floor.receiveShadow=true;scene.add(floor);
+// looping promenade and plaza
+const plaza=new THREE.Mesh(new THREE.CircleGeometry(19,64),path);plaza.rotation.x=-Math.PI/2;plaza.position.y=-.02;plaza.receiveShadow=true;scene.add(plaza);
+const ring=new THREE.Mesh(new THREE.RingGeometry(22,25,80),white);ring.rotation.x=-Math.PI/2;ring.position.y=.01;scene.add(ring);
+function pathStrip(x,z,w,d,rot=0){const p=box(w,.08,d,path,x,.02,z,rot);p.castShadow=false;return p}
+pathStrip(0,0,9,72);pathStrip(0,0,72,9);pathStrip(-23,0,7,48);pathStrip(23,0,7,48);pathStrip(0,-25,52,6);pathStrip(0,25,52,6);
+// little park details
+for(let i=0;i<34;i++){const a=i*Math.PI*2/34,r=32+(i%3)*2,x=Math.cos(a)*r,z=Math.sin(a)*r;cyl(.28,.42,2.1,mat('#76543b'),x,1,z);sphere(1.8, i%3===0?mat('#267c62'):mat('#34875f'),x,2.8,z);sphere(.85,mat('#4a9d6b'),x+.45,3.6,z-.3);}
+for(let i=0;i<14;i++){const x=(i%7-3)*7,z=(Math.floor(i/7)?-39:39);cyl(.12,.18,3,dark,x,1.5,z);sphere(.65,yellow,x,3.2,z);}
+// flower beds
+for(let i=0;i<22;i++){const a=i*2.399,r=16,x=Math.cos(a)*r,z=Math.sin(a)*r;const f=cyl(.65,.65,.25,mat('#bd8f61'),x,.1,z);for(let j=0;j<5;j++){const q=j*Math.PI*2/5;sphere(.18,[pink,yellow,white,coral][j%4],x+Math.cos(q)*.32,.45,z+Math.sin(q)*.32);}}
+function bench(x,z,rot=0){box(2,.18,.65,mat('#9a6847'),x,.7,z,rot);for(const dx of [-.7,.7])box(.15,.7,.15,dark,x,.35,z,rot)}
+for(let a=0;a<8;a++){const q=a*Math.PI/4;bench(Math.cos(q)*12,Math.sin(q)*12,q+Math.PI/2)}
+// giant slide, climbing tower
+const towerX=-29,towerZ=-12;box(5,5,5,blue,towerX,2.5,towerZ);box(5.8,.35,5.8,yellow,towerX,5.15,towerZ);
+for(let i=0;i<7;i++){box(2.2,.25,1.0,white,towerX+7,4.8-i*.65,towerZ+2+i*.85,-.38)}
+const slideMat=mat('#f27d65',.45);const slide=new THREE.Mesh(new THREE.BoxGeometry(3,.25,13),slideMat);slide.position.set(towerX+7,2.1,towerZ+6);slide.rotation.x=-.34;slide.rotation.z=-.18;slide.castShadow=true;scene.add(slide);
+for(const side of [-1,1]){const rail=new THREE.Mesh(new THREE.BoxGeometry(.18,.55,13),yellow);rail.position.set(towerX+7+side*1.5,2.45,towerZ+6);rail.rotation.x=-.34;rail.rotation.z=-.18;scene.add(rail)}
+// swing set
+const swingGroup=new THREE.Group();swingGroup.position.set(28,0,-17);scene.add(swingGroup);const swingFrame=mat('#e7b957');for(const x of [-3.8,3.8]){const leg=new THREE.Mesh(new THREE.CylinderGeometry(.18,.23,7,12),swingFrame);leg.position.set(x,3.5,0);leg.rotation.z=x>0?-.28:.28;swingGroup.add(leg)}const beam=new THREE.Mesh(new THREE.BoxGeometry(8,.3,.35),swingFrame);beam.position.y=7;swingGroup.add(beam);
+const swings=[];for(let x of [-2.3,0,2.3]){const g=new THREE.Group();g.position.set(x,6.8,0);swingGroup.add(g);for(let dx of [-.45,.45]){const rope=new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,2.7,8),white);rope.position.set(dx,-1.35,0);g.add(rope)}const seat=new THREE.Mesh(new THREE.BoxGeometry(1.15,.18,.55),coral);seat.position.y=-2.7;g.add(seat);swings.push(g)}
+// ferris wheel
+const ferris=new THREE.Group();ferris.position.set(0,0,-43);scene.add(ferris);const wheel=new THREE.Group();wheel.position.set(0,13,0);ferris.add(wheel);
+const tor=new THREE.Mesh(new THREE.TorusGeometry(9,.22,12,64),yellow);wheel.add(tor);const hub=sphere(.75,coral,0,0,0);wheel.add(hub);
+for(let i=0;i<12;i++){const a=i*Math.PI/6;const spoke=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,18,8),white);spoke.rotation.z=a;wheel.add(spoke);const pod=new THREE.Group();pod.position.set(Math.cos(a)*9,-Math.sin(a)*9,0);const basket=new THREE.Mesh(new THREE.BoxGeometry(1.5,1.4,1.3),[coral,blue,pink,teal][i%4]);basket.position.y=-.8;pod.add(basket);const roof=new THREE.Mesh(new THREE.ConeGeometry(1.1,.6,4),yellow);roof.position.y=.15;roof.rotation.y=Math.PI/4;pod.add(roof);wheel.add(pod)}
+for(let x of [-3.5,3.5]){const leg=new THREE.Mesh(new THREE.CylinderGeometry(.35,.5,8,12),blue);leg.position.set(x,4,0);leg.rotation.z=x>0?-.3:.3;ferris.add(leg)}wheel.rotation.z=.12;
+// mini football pitch
+box(20,.12,12,mat('#36865b'),31,.05,22);for(let z of [16,28])box(20,.05,.12,white,31,.13,z);for(let x of [21,41])box(.12,.05,12,white,x,.13,22);cyl(.08,.08,.05,white,31,.16,22);for(let z of [20,24]){box(.2,2,.3,white,21,1,z);box(.2,2,.3,white,41,1,z);}
+// cafe pavilion
+box(12,.35,8,mat('#b57b51'),-30,.2,28);for(let x of [-35,-25])for(let z of [25,31])cyl(.18,.22,5,dark,x,2.5,z);const roof=new THREE.Mesh(new THREE.ConeGeometry(8,3,4),coral);roof.position.set(-30,6,28);roof.rotation.y=Math.PI/4;roof.castShadow=true;scene.add(roof);box(7,1.3,.3,teal,-30,1.3,24);
+// fountains
+for(const [x,z] of [[-13,-7],[13,8]]){cyl(3.3,3.6,.55,blue,x,.3,z,40);cyl(2.7,2.7,.12,white,x,.65,z,40);cyl(.35,.5,2,teal,x,1.6,z);for(let i=0;i<8;i++){const a=i*Math.PI/4;const jet=cyl(.045,.045,1.6,blue,x+Math.cos(a)*1.4,1.35,z+Math.sin(a)*1.4,8);jet.rotation.z=Math.cos(a)*-.35;jet.rotation.x=Math.sin(a)*.35;}}
+// lanterns and signs
+for(const [x,z] of [[-8,-28],[8,-28],[-8,28],[8,28],[-37,0],[37,0]]){cyl(.12,.16,4,dark,x,2,z);sphere(.35,yellow,x,4.2,z)}
+function sign(text,x,z,color){const board=box(5,1.5,.3,dark,x,4,z);board.material=mat(color);const post=cyl(.12,.12,3,dark,x,1.5,z);return board}
+sign('HUB',0,-31,'#167d76');sign('PLAY',-37,-8,'#bf7950');sign('FUN',37,8,'#537eac');
+// avatar: cute stylized character
+const avatar=new THREE.Group();scene.add(avatar);const body=new THREE.Mesh(new THREE.CapsuleGeometry(.55,.85,5,10),teal);body.position.y=1.35;body.castShadow=true;avatar.add(body);const head=sphere(.53,mat('#f1bd91'),0,2.55,0);avatar.add(head);const hair=sphere(.55,mat('#26313c'),0,2.82,-.05);hair.scale.set(1,.55,1);avatar.add(hair);for(let x of [-.19,.19]){const eye=sphere(.055,mat('#18222a'),x,2.58,.47);avatar.add(eye)}const armMat=mat('#f1bd91');const arms=[];for(let x of [-.72,.72]){const a=new THREE.Mesh(new THREE.CapsuleGeometry(.16,.65,4,8),armMat);a.position.set(x,1.55,0);a.rotation.z=x>0?-.18:.18;avatar.add(a);arms.push(a)}const legs=[];for(let x of [-.25,.25]){const l=new THREE.Mesh(new THREE.CapsuleGeometry(.18,.55,4,8),mat('#253f68'));l.position.set(x,.45,0);avatar.add(l);legs.push(l)}
+avatar.position.set(0,0,4);let velocity=0,move={x:0,z:0},jumpV=0,onGround=true,walkT=0,drag=null,yaw=0;camera.position.set(0,7,14);
+const keys={};addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(e.key.toLowerCase()))e.preventDefault()});addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'){drag={x:e.clientX,y:e.clientY};canvas.setPointerCapture(e.pointerId)}});canvas.addEventListener('pointermove',e=>{if(drag){yaw-=(e.clientX-drag.x)*.006;drag={x:e.clientX,y:e.clientY}}});canvas.addEventListener('pointerup',()=>drag=null);
+const joy=document.querySelector('#joystick'),stick=document.querySelector('#stick');let joyId=null;joy.addEventListener('pointerdown',e=>{joyId=e.pointerId;joy.setPointerCapture(joyId);joyMove(e)});joy.addEventListener('pointermove',e=>{if(e.pointerId===joyId)joyMove(e)});function joyMove(e){const r=joy.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2),len=Math.min(34,Math.hypot(dx,dy)),a=Math.atan2(dy,dx);move.x=Math.cos(a)*len/34;move.z=Math.sin(a)*len/34;stick.style.transform='translate('+move.x*30+'px,'+move.z*30+'px)'}function joyEnd(){joyId=null;move.x=0;move.z=0;stick.style.transform=''}joy.addEventListener('pointerup',joyEnd);joy.addEventListener('pointercancel',joyEnd);
+function jump(){if(onGround){jumpV=7;onGround=false}}document.querySelector('#jump').onclick=jump;document.querySelector('#emote').onclick=()=>{arms[0].rotation.z=-1.5;toast('أهلاً بيك في لَمّة! 👋');setTimeout(()=>arms[0].rotation.z=-.18,900)};
+const toastEl=document.querySelector('#toast');let toastTimer;function toast(t){toastEl.textContent=t;toastEl.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toastEl.classList.remove('show'),2300)}
+document.querySelector('#explore').onclick=()=>{const places=[['منطقة المراجيح','وصلت لمنطقة المراجيح! جرّب تقرب من الألعاب وتلف في الساحة.'],['الزحاليق','منطقة الزحاليق قدامك ناحية الشمال الغربي.'],['عجلة لَمّة','عجلة لَمّة بتنور الساحة!'],['ملعب لَمّة','هنا تقدر تتخيل تحديات الكرة مع أصحابك.']];const p=places[Math.floor(Math.random()*places.length)];document.querySelector('#modalTitle').textContent=p[0];document.querySelector('#modalText').textContent=p[1];document.querySelector('#modal').classList.add('open')};
+document.querySelector('#closeModal').onclick=()=>document.querySelector('#modal').classList.remove('open');
+document.querySelector('#modal').addEventListener('click',e=>{if(e.target.id==='modal')e.currentTarget.classList.remove('open')});
+function resize(){renderer.setSize(innerWidth,innerHeight,false);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix()}addEventListener('resize',resize);resize();
+const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04),t=clock.elapsedTime;
+let ix=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0),iz=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);ix+=move.x;iz+=move.z;const mag=Math.hypot(ix,iz);if(mag>1){ix/=mag;iz/=mag}
+const forwardX=Math.sin(yaw),forwardZ=Math.cos(yaw),rightX=Math.cos(yaw),rightZ=-Math.sin(yaw);const dx=(rightX*ix+forwardX*iz),dz=(rightZ*ix+forwardZ*iz);
+if(Math.abs(dx)+Math.abs(dz)>.02){avatar.position.x+=dx*8*dt;avatar.position.z+=dz*8*dt;avatar.rotation.y=Math.atan2(dx,dz);walkT+=dt*10;legs[0].rotation.x=Math.sin(walkT)*.65;legs[1].rotation.x=-Math.sin(walkT)*.65;arms[0].rotation.x=-Math.sin(walkT)*.35;arms[1].rotation.x=Math.sin(walkT)*.35}else{legs.forEach(l=>l.rotation.x=0);arms.forEach((a,i)=>{a.rotation.x=0;if(i===1)a.rotation.z=.18})}
+jumpV-=18*dt;avatar.position.y+=jumpV*dt;if(avatar.position.y<=0){avatar.position.y=0;jumpV=0;onGround=true}
+avatar.position.x=THREE.MathUtils.clamp(avatar.position.x,-48,48);avatar.position.z=THREE.MathUtils.clamp(avatar.position.z,-53,48);
+swings.forEach((s,i)=>s.rotation.x=Math.sin(t*2.2+i*1.7)*.38);wheel.rotation.z+=dt*.12;
+const desired=new THREE.Vector3(avatar.position.x-Math.sin(yaw)*10,avatar.position.y+6,avatar.position.z-Math.cos(yaw)*10);camera.position.lerp(desired,1-Math.pow(.001,dt));camera.lookAt(avatar.position.x,avatar.position.y+1.6,avatar.position.z);
+renderer.render(scene,camera)}
+animate();document.querySelector('#modal').classList.add('open');
+</script>
+</body></html>
