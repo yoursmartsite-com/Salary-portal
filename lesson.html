@@ -40,6 +40,7 @@
 <script>
 const p=new URLSearchParams(location.search),section=p.get('section')||'awareness',title=p.get('title')||'الدرس',cat=p.get('cat')||'';
 const backMap={religion:'religion.html',awareness:'kids-awareness.html',learning:'kids-learning.html'};
+if(section==='learning'){const teacherCard=document.getElementById('teacherCard');teacherCard.classList.add('active');document.getElementById('teacherHint').textContent='جاري تحميل شخصية المدرّس ثلاثية الأبعاد…';}
 document.getElementById('back').href='/Salary-portal/'+(backMap[section]||'');
 document.getElementById('cat').textContent=cat;
 document.getElementById('title').textContent=title;
