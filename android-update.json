@@ -1,7 +1,7 @@
 {
-  "versionCode": 13,
-  "versionName": "1.3.9",
+  "versionCode": 14,
+  "versionName": "1.4.0",
   "apkUrl": "https://github.com/yoursmartsite-com/Salary-portal/releases/latest/download/lamma.apk",
   "force": false,
-  "message": "تحديث جديد: استبدال زر الانبطاح بزر نوم للشخصية في HUB."
+  "message": "تحديث جديد: إزالة زر النوم من HUB."
 }
