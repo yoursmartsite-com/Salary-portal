@@ -65,7 +65,7 @@ body.lm-space-theme{background:radial-gradient(ellipse at 20% 20%,#46308b66,tran
   <div class="lm-card"><h3>الشارات</h3><div class="lm-big" id="lm-badge-count">0/7</div><p>افتح شارات الإنجاز مع تقدمك في الرحلة.</p></div>
   <div class="lm-card"><h3>المستوى الحالي</h3><div class="lm-big" id="lm-player-level">1</div><p id="lm-player-title">مستكشف الكلمات</p></div>
  </div>
- <div class="lm-challenge"><div><h3>تحدي اليوم · مكافأة 15 XP</h3><p id="lm-challenge-prompt">اختار اللغة والمستوى عشان نجهز تحديك اليومي.</p><div class="lm-challenge-options" id="lm-challenge-options"></div><p id="lm-challenge-feedback"></p></div><button id="lm-challenge-refresh" type="button">تحديث التحدي</button></div>
+ <div class="lm-challenge"><div><h3>تحدي اليوم · 5 مهام ومكافأة 25 XP</h3><p id="lm-challenge-prompt">اختار اللغة والمستوى عشان نجهز تحديك اليومي.</p><div class="lm-challenge-options" id="lm-challenge-options"></div><p id="lm-challenge-feedback"></p></div><button id="lm-challenge-refresh" type="button">تحديث التحدي</button></div>
  <div class="lm-grid">
   <div class="lm-card" style="grid-column:span 2"><h3>خريطة رحلتك التعليمية</h3><p>كل محطة بتمثّل مستوى. اجتياز امتحان المستوى يثبت إنك جاهز للمرحلة التالية.</p><div class="lm-road" id="lm-road"></div></div>
   <div class="lm-card" style="grid-column:span 2"><h3>إنجازاتك وشاراتك</h3><p>الشارات بتتفتح تلقائيًا لما تحقق شروطها.</p><div class="lm-badges" id="lm-badges"></div></div>
@@ -289,13 +289,41 @@ function render(){
 function challenge(){
  const chosenLang=typeof lang!=="undefined"&&lang?lang:"en",chosenLevel=typeof level!=="undefined"&&level?level:"A0";
  const pool=(C[chosenLang]&&C[chosenLang].levels[chosenLevel])||C.en.levels.A0;
- const idx=dayNum()%pool.length,x=pool[idx],wi=dayNum()%x[5].length,correct=x[6][wi];
- const opts=x[6].slice();const rotate=dayNum()%opts.length;const ordered=opts.slice(rotate).concat(opts.slice(0,rotate));
- el("lm-challenge-prompt").textContent="ما معنى الكلمة: "+x[5][wi]+" ؟ · "+(chosenLang==="nl"?"الهولندية":"الإنجليزية")+" · "+chosenLevel;
- if(g.challengeDone===day()){el("lm-challenge-feedback").textContent="أحسنت! أنجزت تحدي النهارده بالفعل 🌟";el("lm-challenge-options").innerHTML="";return}
- el("lm-challenge-feedback").textContent="اختار المعنى الصحيح عشان تكسب 15 XP.";
- el("lm-challenge-options").innerHTML=ordered.map(o=>'<button type="button" data-answer="'+encodeURIComponent(o)+'">'+o+'</button>').join("");
- el("lm-challenge-options").querySelectorAll("button").forEach(b=>b.onclick=()=>{if(g.challengeDone===day())return;const ok=decodeURIComponent(b.dataset.answer)===correct;if(ok){g.challengeDone=day();award("challenge:"+day(),15,"تحدي اليوم");activateDay();el("lm-challenge-feedback").textContent="إجابة صحيحة! كسبت 15 XP 👏";el("lm-challenge-options").innerHTML='<button class="good" disabled>✓ '+correct+'</button>'}else{b.disabled=true;b.textContent+=" · حاول تاني"}});
+ const idx=dayNum()%pool.length,x=pool[idx],next=pool[(idx+1)%pool.length],wi=dayNum()%x[5].length;
+ const targetWord=x[5][wi].split(/[—·]/).pop().trim(),correctMeaning=x[6][wi];
+ if(g.challengeDone===day()){el("lm-challenge-prompt").textContent="أنجزت مهام النهارده الخمسة بالفعل.";el("lm-challenge-feedback").textContent="أحسنت! مكافأتك 25 XP اتضافت لرصيدك 🌟";el("lm-challenge-options").innerHTML="";return}
+ let stage=0,timer=null,score=0;
+ const norm=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").replace(/[^a-z0-9\\u0600-\\u06ff]/g,"").trim();
+ const mix=(arr)=>{const shift=dayNum()%arr.length;return arr.slice(shift).concat(arr.slice(0,shift))};
+ function stopTimer(){if(timer){clearInterval(timer);timer=null}}
+ function finish(){stopTimer();g.challengeDone=day();award("challenge:"+day(),25,"تحدي اليوم");activateDay();el("lm-challenge-prompt").textContent="كملت التحدي اليومي كله!";el("lm-challenge-feedback").textContent="5 من 5 مهام — بطل! كسبت 25 XP 🎉";el("lm-challenge-options").innerHTML='<button class="good" disabled>✓ التحدي مكتمل</button>'}
+ function nextTask(){score++;stage++;showTask()}
+ function buttons(arr,correct,onPick){el("lm-challenge-options").innerHTML=arr.map((v,i)=>'<button type="button" data-choice="'+i+'">'+v+'</button>').join("");el("lm-challenge-options").querySelectorAll("button").forEach(b=>b.onclick=()=>{if(String(arr[+b.dataset.choice])===String(correct)){b.classList.add("good");el("lm-challenge-feedback").textContent="إجابة صحيحة ✓";el("lm-challenge-options").querySelectorAll("button").forEach(z=>z.disabled=true);setTimeout(onPick,350)}else{b.disabled=true;el("lm-challenge-feedback").textContent="مش دي، جرّب اختيار تاني."}})}
+ function showTask(){
+  stopTimer();
+  const titles=["1/5 · مفردات","2/5 · قواعد","3/5 · ترجمة","4/5 · نطق بصوتك","5/5 · تحدي السرعة"];
+  el("lm-challenge-prompt").textContent=titles[stage]+" · "+(chosenLang==="nl"?"الهولندية":"الإنجليزية")+" · "+chosenLevel;
+  if(stage===0){el("lm-challenge-feedback").textContent="ما معنى الكلمة: "+targetWord+" ؟";buttons(mix(x[6].slice()),correctMeaning,nextTask);return}
+  if(stage===1){el("lm-challenge-feedback").textContent=x[7];buttons(x[8],x[8][x[9]],nextTask);return}
+  if(stage===2){const distract=[next[3],pool[(idx+2)%pool.length][3],x[3]];el("lm-challenge-feedback").textContent="ترجم الجملة: "+x[2];buttons(mix([...new Set(distract)]),x[3],nextTask);return}
+  if(stage===3){
+   el("lm-challenge-feedback").textContent="اسمع الكلمة وبعدها سجّل نطقك. لازم تسمح باستخدام الميكروفون.";
+   el("lm-challenge-options").innerHTML='<button type="button" id="lm-hear-word">🔊 اسمع الكلمة</button><button type="button" id="lm-record-word">🎙️ سجّل نطقك</button>';
+   el("lm-hear-word").onclick=()=>{if("speechSynthesis"in window){const u=new SpeechSynthesisUtterance(targetWord);u.lang=C[chosenLang].voice;u.rate=.78;speechSynthesis.cancel();speechSynthesis.speak(u)}};
+   el("lm-record-word").onclick=()=>{const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){el("lm-challenge-feedback").textContent="المتصفح لا يدعم تسجيل النطق. اسمع الكلمة وكررها بصوتك، ثم اضغط تدربت.";el("lm-challenge-options").innerHTML='<button type="button" id="lm-practiced">تدرّبت على النطق ✓</button>';el("lm-practiced").onclick=nextTask;return}const rec=new SR();rec.lang=C[chosenLang].voice;rec.maxAlternatives=3;rec.interimResults=false;rec.onresult=e=>{const heard=Array.from(e.results[0]).map(v=>norm(v.transcript));if(heard.some(v=>v&& (v.includes(norm(targetWord))||norm(targetWord).includes(v)))){el("lm-challenge-feedback").textContent="سمعت نطق قريب من الكلمة المطلوبة، ممتاز!";nextTask()}else{el("lm-challenge-feedback").textContent="النطق لسه مختلف. اسمعها تاني وجرّب.";}};rec.onerror=()=>{el("lm-challenge-feedback").textContent="التسجيل ما اشتغلش. راجع إذن الميكروفون وحاول تاني.";};try{rec.start();el("lm-challenge-feedback").textContent="بسمعك دلوقتي…"}catch(e){el("lm-challenge-feedback").textContent="الميكروفون مش جاهز. جرّب تاني."}};
+   return;
+  }
+  if(stage===4){
+   el("lm-challenge-feedback").textContent="معاك 12 ثانية تجاوب السؤال بسرعة: "+next[7];
+   let seconds=12;el("lm-challenge-options").innerHTML='<span id="lm-speed-time" class="lm-stat"><b>12</b> ثانية</span>';
+   const speedChoices=next[8].map((v,i)=>({v,i}));
+   const area=el("lm-challenge-options");area.insertAdjacentHTML("beforeend",speedChoices.map(o=>'<button type="button" data-speed="'+o.i+'">'+o.v+'</button>').join(""));
+   area.querySelectorAll("[data-speed]").forEach(b=>b.onclick=()=>{if(+b.dataset.speed===next[9]){el("lm-challenge-feedback").textContent="إجابة سريعة وصحيحة!";finish()}else{b.disabled=true;el("lm-challenge-feedback").textContent="مش صح، لسه عندك وقت!"}});
+   timer=setInterval(()=>{seconds--;const t=el("lm-speed-time");if(t)t.innerHTML="<b>"+seconds+"</b> ثانية";if(seconds<=0){stopTimer();el("lm-challenge-feedback").textContent="الوقت خلص. اضغط تحديث التحدي وحاول من جديد.";el("lm-challenge-options").innerHTML='<button type="button" id="lm-retry">إعادة المحاولة</button>';el("lm-retry").onclick=challenge}},1000);
+  }
+ }
+ el("lm-challenge-feedback").textContent="كمّل 5 مهام مختلفة عشان تكسب 25 XP.";
+ showTask();
 }
 document.querySelectorAll(".lang").forEach(b=>b.addEventListener("click",()=>setTimeout(challenge,0)));
 document.querySelectorAll(".level").forEach(b=>b.addEventListener("click",()=>setTimeout(challenge,0)));
