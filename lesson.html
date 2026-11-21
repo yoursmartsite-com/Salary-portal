@@ -130,7 +130,7 @@ const params=new URLSearchParams(location.search),section=params.get('section')|
 if(section==='learning'){
  const card=document.getElementById('teacherCard');card.classList.add('active');
  const stage=document.getElementById('teacherStage'),hint=document.getElementById('teacherHint'),speech=document.getElementById('teacherSpeech');
- let model=null,renderer=null,scene=null,camera=null,controls=null,raf=0;
+ let model=null,teacherRig=null,renderer=null,scene=null,camera=null,controls=null,raf=0,gestureUntil=0;
  try{
   scene=new THREE.Scene();scene.background=new THREE.Color(0x0b1728);
   camera=new THREE.PerspectiveCamera(40,stage.clientWidth/stage.clientHeight,.1,100);
@@ -150,17 +150,20 @@ if(section==='learning'){
   if(!teacher)throw new Error('ملف المدرّس مش موجود في قائمة الشخصيات.');
   await new Promise((resolve,reject)=>new GLTFLoader().load('/Salary-portal/assets/lamma3d/package/'+teacher,gltf=>{
    model=gltf.scene;const box=new THREE.Box3().setFromObject(model),size=box.getSize(new THREE.Vector3()),center=box.getCenter(new THREE.Vector3()),max=Math.max(size.x,size.y,size.z)||1;
-   model.position.sub(center);model.scale.setScalar(2.25/max);model.position.y+=1.05;scene.add(model);resolve();
+   model.position.sub(center);model.scale.setScalar(2.25/max);
+   teacherRig=new THREE.Group();teacherRig.position.y=1.05;teacherRig.add(model);scene.add(teacherRig);resolve();
   },undefined,reject));
   hint.textContent='المدرّس جاهز. اسحب على الشخصية لتغيير زاوية المشاهدة.';
   const resize=new ResizeObserver(()=>{const w=stage.clientWidth,h=stage.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h)});resize.observe(stage);
-  const animate=()=>{raf=requestAnimationFrame(animate);if(model)model.rotation.y+=.002;controls.update();renderer.render(scene,camera)};animate();
+  const clock=new THREE.Clock();
+  const animate=()=>{raf=requestAnimationFrame(animate);const t=clock.getElapsedTime();if(teacherRig){teacherRig.position.y=1.05+Math.sin(t*1.7)*.035;teacherRig.rotation.y=Math.sin(t*.55)*.10;if(performance.now()<gestureUntil){const k=Math.min(1,(gestureUntil-performance.now())/900);teacherRig.rotation.z=Math.sin(t*11)*.045*k;teacherRig.rotation.x=Math.sin(t*7)*.035*k;}else{teacherRig.rotation.z*=.92;teacherRig.rotation.x*=.92;}}controls.update();renderer.render(scene,camera)};animate();
  }catch(error){console.error('Lamma 3D teacher:',error);hint.textContent='تعذر تحميل الشخصية الآن: '+(error.message||'خطأ تحميل');}
  const lessonTitle=document.getElementById('title').textContent;
  const lessonDesc=document.getElementById('desc').textContent;
  const lessonBody=[...document.querySelectorAll('#body p')].map(x=>x.textContent).join(' ');
  const lessonExtra=document.getElementById('extra').textContent;
  document.getElementById('teacherSpeak').addEventListener('click',()=>{
+  gestureUntil=performance.now()+2600;
   if(!('speechSynthesis'in window)){hint.textContent='الصوت غير مدعوم في المتصفح ده.';return;}
   speechSynthesis.cancel();
   const text='أهلاً يا بطل. درسنا النهارده '+lessonTitle+'. '+lessonDesc+'. '+lessonBody+'. '+lessonExtra;
