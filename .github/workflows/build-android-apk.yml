@@ -68,6 +68,16 @@ jobs:
           echo "ANDROID_KEY_ALIAS=$KEY_ALIAS" >> "$GITHUB_ENV"
           echo "ANDROID_KEY_PASSWORD=$KEY_PASSWORD" >> "$GITHUB_ENV"
 
+      - name: Validate signing credentials safely
+        env:
+          STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          keytool -list -keystore "$ANDROID_KEYSTORE_PATH" -storepass "$STORE_PASSWORD" >/dev/null 2>&1 || (echo "::error::STORE_PASSWORD does not open the uploaded keystore, or the Base64 secret is not the matching file."; exit 1)
+          keytool -certreq -alias "$KEY_ALIAS" -keystore "$ANDROID_KEYSTORE_PATH" -storepass "$STORE_PASSWORD" -keypass "$KEY_PASSWORD" -file "$RUNNER_TEMP/lamma-check.csr" >/dev/null 2>&1 || (echo "::error::KEY_ALIAS or KEY_PASSWORD does not match the key inside the keystore."; exit 1)
+          echo "Signing credentials validated successfully."
+
       - name: Build signed release APK
         run: /tmp/gradle-8.9/bin/gradle --no-daemon clean assembleRelease
 
