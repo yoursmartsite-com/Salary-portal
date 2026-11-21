@@ -1,7 +1,8 @@
 {
-  "versionCode": 16,
-  "versionName": "1.6.0",
+  "versionCode": 17,
+  "versionName": "1.7.0",
   "apkUrl": "https://github.com/yoursmartsite-com/Salary-portal/releases/latest/download/lamma.apk",
   "force": false,
-  "message": "تحديث HUB: أشجار أكثر واقعية ومنع مرور اللاعبين من بعضهم."
+  "message": "تحديث HUB: أشجار أكثر واقعية ومنع مرور اللاعبين من بعضهم.",
+  "releaseNotes": "سلم قابل للصعود مع تصادم الدرجات وتحسين القفز والهبوط."
 }
