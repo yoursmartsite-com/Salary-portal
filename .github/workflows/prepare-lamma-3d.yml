@@ -4,6 +4,7 @@ on:
     paths:
       - 'lamma_3d_viewer_package.zip'
       - '.github/workflows/prepare-lamma-3d.yml'
+      - 'classroom-3d.html'
   workflow_dispatch:
 permissions:
   contents: write
