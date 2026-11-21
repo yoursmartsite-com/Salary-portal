@@ -16,6 +16,7 @@ import android.os.Environment;
 import android.provider.Settings;
 import android.graphics.Color;
 import android.webkit.WebView;
+import android.webkit.DownloadListener;
 import android.webkit.WebViewClient;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -101,6 +102,16 @@ public class MainActivity extends Activity {
             @Override public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 return false;
             }
+        });
+        webView.setDownloadListener((url, userAgent, contentDisposition, mimeType, contentLength) -> {
+            if (url == null || !url.toLowerCase().contains(".apk")) {
+                new AlertDialog.Builder(MainActivity.this)
+                    .setMessage("نوع الملف ده مش مدعوم للتنزيل من داخل التطبيق.")
+                    .setPositiveButton("حسناً", null).show();
+                return;
+            }
+            pendingApkUrl = url;
+            beginUpdateDownload();
         });
         webView.setWebChromeClient(new WebChromeClient() {
             @Override public boolean onShowFileChooser(WebView view, ValueCallback<Uri[]> callback, FileChooserParams params) {
