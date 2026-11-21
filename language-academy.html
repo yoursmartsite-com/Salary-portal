@@ -234,7 +234,7 @@ $('closeReview').onclick=()=>$('reviewPanel').classList.add('hidden');
 $('showModel').onclick=()=>{$('writingFeedback').textContent='مثال من الدرس: '+data()[lessonIndex][5].join(' · ')};
 $('saveWriting').onclick=()=>{let v=$('writingInput').value.trim();if(!v){$('writingFeedback').textContent='اكتب محاولتك الأول.';return}let a=[];try{a=JSON.parse(localStorage.getItem('lamma-language-writing')||'[]')}catch(e){}a.push({language:lang,level,lesson:data()[lessonIndex][0],text:v,at:new Date().toISOString()});localStorage.setItem('lamma-language-writing',JSON.stringify(a.slice(-100)));$('writingFeedback').textContent='تم حفظ محاولتك على هذا الجهاز. التصحيح التفصيلي للكتابة سيكون بعد ربط المدرّس الذكي.'};
 
-<script>
+</script><script>
 (function(){
 "use strict";
 const STORE="lamma-language-quest-v1";
