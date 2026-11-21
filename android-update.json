@@ -1,8 +1,8 @@
 {
-  "versionCode": 18,
-  "versionName": "1.7.1",
+  "versionCode": 19,
+  "versionName": "1.8.0",
   "apkUrl": "https://github.com/yoursmartsite-com/Salary-portal/releases/latest/download/lamma.apk",
   "force": false,
-  "message": "تحديث HUB: أشجار أكثر واقعية ومنع مرور اللاعبين من بعضهم.",
-  "releaseNotes": "سلم فعلي قابل للصعود والوقوف على درجاته، مع إصلاح حركة الأرضية والقفز."
+  "message": "إصلاح زر القفز فوق درجات السلم.",
+  "releaseNotes": "إصلاح التقاط سطح الدرج قبل القفز، بحيث تقدر تقفز وأنت واقف على أي درجة."
 }
