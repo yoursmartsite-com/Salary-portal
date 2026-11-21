@@ -29,12 +29,13 @@
 @media(max-width:480px){.cartoonchar{transform:scale(.82);transform-origin:bottom center}.cartoonchar.one{left:7%}.cartoonchar.two{right:7%}.speechbubble{top:8px}}
 
 /* 3D Lamma teacher inside the lesson */
-.teacher-card{display:none;margin:10px 0 20px;padding:13px;border:1px solid #3d6687;border-radius:18px;background:linear-gradient(145deg,#172d49,#101a2d);overflow:hidden}
-.teacher-card.active{display:block}.teacher-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:9px}.teacher-head strong{font-size:14px}.teacher-head span{font-size:10px;color:#a9c8e5}
-.teacher-stage{height:clamp(230px,52vw,360px);position:relative;border-radius:13px;overflow:hidden;background:radial-gradient(ellipse at 50% 30%,#28577a,#0b1728 72%);border:1px solid #355777}
-.teacher-stage canvas{display:block;width:100%;height:100%}.teacher-speech{position:absolute;top:10px;right:10px;left:10px;z-index:2;padding:9px 12px;background:#f5fbff;color:#17304a;border-radius:12px;font-size:12px;font-weight:800;line-height:1.7;box-shadow:0 4px 15px #0003;pointer-events:none}
-.teacher-controls{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.teacher-controls button{border:1px solid #47749a;background:#1b3b59;color:#f3f9ff;border-radius:9px;padding:9px 12px;font:700 11px Cairo;cursor:pointer}.teacher-controls button.primary{background:#226b9f;border-color:#69b9ee}
-.teacher-hint{font-size:10px;color:#91abc5;margin-top:8px;line-height:1.7}
+.teacher-card{display:none;position:fixed;left:14px;top:105px;z-index:40;width:min(290px,34vw);margin:0;padding:10px;border:1px solid #3d6687;border-radius:18px;background:linear-gradient(145deg,#172d49f5,#101a2df5);box-shadow:0 18px 55px #0008;overflow:hidden;opacity:1;transform:translateX(0);transition:opacity .45s ease,transform .65s cubic-bezier(.2,.8,.2,1);pointer-events:auto}
+.teacher-card.active{display:block}.teacher-card.is-away{opacity:0;transform:translateX(-115%) scale(.82);pointer-events:none}.teacher-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}.teacher-head strong{font-size:12px}.teacher-head span{font-size:9px;color:#a9c8e5}
+.teacher-stage{height:clamp(210px,34vw,285px);position:relative;border-radius:13px;overflow:hidden;background:radial-gradient(ellipse at 50% 30%,#28577a,#0b1728 72%);border:1px solid #355777}
+.teacher-stage canvas{display:block;width:100%;height:100%}.teacher-speech{position:absolute;top:8px;right:8px;left:8px;z-index:2;padding:8px 10px;background:#f5fbff;color:#17304a;border-radius:12px;font-size:11px;font-weight:800;line-height:1.65;box-shadow:0 4px 15px #0003;pointer-events:none}
+.teacher-controls{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.teacher-controls button{border:1px solid #47749a;background:#1b3b59;color:#f3f9ff;border-radius:9px;padding:7px 9px;font:700 10px Cairo;cursor:pointer}.teacher-controls button.primary{background:#226b9f;border-color:#69b9ee}
+.teacher-hint{font-size:9px;color:#91abc5;margin-top:6px;line-height:1.6}
+@media(max-width:650px){.teacher-card{left:7px;top:82px;width:min(46vw,205px);padding:7px}.teacher-stage{height:205px}.teacher-head span{display:none}.teacher-speech{font-size:10px;padding:6px 7px}.teacher-controls button{padding:6px 7px;font-size:9px}}
 </style></head><body><div class="wrap"><header><div class="brand">لَمّة <b>· تعلّم واكتشف</b></div><a class="back" id="back" href="/Salary-portal/">رجوع للقسم ←</a></header><div class="crumb" id="cat"></div><section class="hero"><h1 id="title"></h1><p class="desc" id="desc"></p></section><section class="teacher-card" id="teacherCard"><div class="teacher-head"><strong>👨‍🏫 المدرّس لَمّة معاك في الدرس</strong><span>شخصية 3D من ملفاتك</span></div><div class="teacher-stage" id="teacherStage"><div class="teacher-speech" id="teacherSpeech">أهلاً يا بطل! يلا نفهم درسنا النهارده سوا.</div></div><div class="teacher-controls"><button class="primary" id="teacherSpeak">🔊 اسمع شرح المدرّس</button><button id="teacherAsk">🤖 اسأل المعلّم الذكي</button><button id="teacherPause">⏸ إيقاف الصوت</button></div><div class="teacher-hint" id="teacherHint">جاري تجهيز المدرّس ثلاثي الأبعاد…</div></section><img class="photo" id="photo" alt="صورة توضيحية للدرس"><section id="storyVideoPanel" style="display:none;background:#111e32;border:1px solid #293b5b;border-radius:16px;padding:12px;margin:14px 0"><h2 style="font-size:16px;margin:0 0 10px">🎬 فيديو القصة</h2><div id="storyVideoMount"></div></section><section class="storybox" id="awarenessStory" aria-label="قصة كرتونية متحركة"><div class="storyhead"><b>🎬 حكاية لَمّة المتحركة</b><span>شاهد واتعلّم خطوة بخطوة</span></div><div class="cartoonstage" id="cartoonStage"><div class="scene-cloud">☁️</div><div class="speechbubble" id="storyBubble">يلا نشوف الموقف ونتعلم نتصرف إزاي!</div><div class="cartoonchar one"><div class="charhead"></div><div class="charbody"></div><div class="chararm"></div></div><div class="cartoonchar two"><div class="charhead"></div><div class="charbody"></div><div class="chararm"></div></div><div class="scene-prop" id="storyProp">🏡</div></div><div class="storycaption" id="storyCaption">اضغط تشغيل عشان تبدأ الحكاية.</div><div class="storyprogress"><i id="storyProgress"></i></div><div class="storycontrols"><button class="primary" id="storyPlay">▶ شغّل الحكاية</button><button id="storyNext">المشهد التالي ←</button><button id="storyVoice">🔊 اسمع الحكاية</button></div></section><section class="content" id="body"></section><section class="extra" id="extra" hidden></section><section class="source" id="source" hidden></section><section class="quiz" id="quiz" hidden><h3 id="question"></h3><div id="answers"></div><div id="feedback"></div></section><div class="foot">لَمّة · المعرفة خطوة بخطوة</div></div>
 <script>
 const p=new URLSearchParams(location.search),section=p.get('section')||'awareness',title=p.get('title')||'الدرس',cat=p.get('cat')||'';
@@ -187,25 +188,66 @@ if(section==='learning'){
   hint.textContent='المدرّس جاهز. اسحب على الشخصية لتغيير زاوية المشاهدة.';
   const resize=new ResizeObserver(()=>{const w=stage.clientWidth,h=stage.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h)});resize.observe(stage);
   const clock=new THREE.Clock();
-  const animate=()=>{raf=requestAnimationFrame(animate);const t=clock.getElapsedTime();if(teacherRig){teacherRig.position.y=1.05+Math.sin(t*1.7)*.035;teacherRig.rotation.y=Math.sin(t*.55)*.10;if(performance.now()<gestureUntil){const k=Math.min(1,(gestureUntil-performance.now())/900);teacherRig.rotation.z=Math.sin(t*11)*.045*k;teacherRig.rotation.x=Math.sin(t*7)*.035*k;}else{teacherRig.rotation.z*=.92;teacherRig.rotation.x*=.92;}}controls.update();renderer.render(scene,camera)};animate();
+  const animate=()=>{raf=requestAnimationFrame(animate);const t=clock.getElapsedTime(),now=performance.now();if(teacherRig){let gait=0;if(motion){const raw=Math.min(1,(now-motion.start)/motion.duration),k=easeWalk(raw);teacherRig.position.x=THREE.MathUtils.lerp(motion.from.x,motion.to.x,k);teacherRig.position.z=THREE.MathUtils.lerp(motion.from.z,motion.to.z,k);gait=motion.walk?1-raw:0;if(raw>=1){const done=motion;motion=null;done.resolve();}}const step=motion?Math.sin(t*13):0;teacherRig.position.y=1.05+(gait?Math.abs(step)*.075:Math.sin(t*1.7)*.018);teacherRig.rotation.y=Math.sin(t*.55)*.08;teacherRig.rotation.z=gait?Math.sin(t*13)*.035:THREE.MathUtils.damp(teacherRig.rotation.z,0,5,1/60);teacherRig.rotation.x=gait?Math.abs(step)*.025:THREE.MathUtils.damp(teacherRig.rotation.x,0,5,1/60);if(performance.now()<gestureUntil){const k=Math.min(1,(gestureUntil-performance.now())/900);teacherRig.rotation.z+=Math.sin(t*11)*.025*k;}}controls.update();renderer.render(scene,camera)};animate();
  }catch(error){console.error('Lamma 3D teacher:',error);hint.textContent='تعذر تحميل الشخصية الآن: '+(error.message||'خطأ تحميل');}
  const lessonTitle=document.getElementById('title').textContent;
  const lessonDesc=document.getElementById('desc').textContent;
  const lessonBody=[...document.querySelectorAll('#body p')].map(x=>x.textContent).join(' ');
  const lessonExtra=document.getElementById('extra').textContent;
- document.getElementById('teacherSpeak').addEventListener('click',()=>{
-  gestureUntil=performance.now()+2600;
-  if(!('speechSynthesis'in window)){hint.textContent='الصوت غير مدعوم في المتصفح ده.';return;}
-  speechSynthesis.cancel();
-  const text='أهلاً يا بطل. درسنا النهارده '+lessonTitle+'. '+lessonDesc+'. '+lessonBody+'. '+lessonExtra;
-  const utter=new SpeechSynthesisUtterance(text);utter.lang='ar-EG';utter.rate=.84;utter.pitch=1;speechSynthesis.speak(utter);
-  speech.textContent='بشرحلك درس '+lessonTitle+'… ركّز معايا، وتقدر تسأل المعلّم الذكي في أي وقت.';
+ let motion=null,sequenceToken=0,walking=false;
+ const card=document.getElementById('teacherCard');
+ const easeWalk=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
+ function moveTeacher(from,to,duration,walk=true){
+  return new Promise(resolve=>{
+   if(!teacherRig){resolve();return}
+   motion={from,to,duration,start:performance.now(),walk,resolve};
+  });
+ }
+ function sayLine(line){
+  speech.textContent=line;
+  return new Promise(resolve=>{
+   if(!('speechSynthesis'in window)){setTimeout(resolve,Math.max(1800,line.length*55));return;}
+   speechSynthesis.cancel();
+   const utter=new SpeechSynthesisUtterance(line);utter.lang='ar-EG';utter.rate=.88;utter.pitch=1;
+   utter.onend=resolve;utter.onerror=resolve;speechSynthesis.speak(utter);
+   setTimeout(resolve,Math.max(5000,line.length*115));
+  });
+ }
+ async function teacherShow(){
+  const token=++sequenceToken;
+  if(!teacherRig){hint.textContent='الشخصية لسه بتحمّل.';return}
+  speechSynthesis?.cancel?.();card.classList.remove('is-away');
+  teacherRig.position.set(-2.1,1.05,.15);
+  await moveTeacher({x:-2.1,z:.15},{x:-.78,z:.15},1450,true);
+  if(token!==sequenceToken)return;
+  await sayLine('أهلاً يا بطل! أنا مدرسك في لَمّة. يلا نتعلم حاجة جديدة سوا؟');
+  if(token!==sequenceToken)return;
+  await moveTeacher({x:-.78,z:.15},{x:-2.25,z:.15},1050,true);
+  if(token!==sequenceToken)return;
+  card.classList.add('is-away');
+  await new Promise(r=>setTimeout(r,950));
+  if(token!==sequenceToken)return;
+  card.classList.remove('is-away');
+  await moveTeacher({x:-2.25,z:.75},{x:-.55,z:-.48},1750,true);
+  if(token!==sequenceToken)return;
+  const lessonLine='درسنا النهارده '+lessonTitle+'. '+lessonDesc+'. '+lessonBody+'. '+lessonExtra;
+  await sayLine(lessonLine);
+  if(token!==sequenceToken)return;
+  await moveTeacher({x:-.55,z:-.48},{x:-2.3,z:.2},1250,true);
+  if(token!==sequenceToken)return;
+  card.classList.add('is-away');hint.textContent='المدرّس خلّص الشرح. اضغط «اعرض المدرّس» لو عايز تسمعه تاني.';
+ }
+ document.getElementById('teacherSpeak').textContent='▶ اعرض المدرّس من البداية';
+ document.getElementById('teacherSpeak').addEventListener('click',teacherShow);
+ document.getElementById('teacherPause').addEventListener('click',()=>{
+  sequenceToken++;speechSynthesis?.cancel?.();motion=null;card.classList.add('is-away');hint.textContent='تم إيقاف المدرّس.';
  });
- document.getElementById('teacherPause').addEventListener('click',()=>window.speechSynthesis?.cancel());
  document.getElementById('teacherAsk').addEventListener('click',()=>{
   const toggle=document.getElementById('lamma-helper-toggle');
   if(toggle)toggle.click();else hint.textContent='المعلّم الذكي لسه بيجهز، جرّب بعد لحظة.';
  });
+ if(teacherRig){teacherRig.position.set(-2.1,1.05,.15);setTimeout(()=>teacherShow(),650)}
+
 }
 </script>
 </body></html>
