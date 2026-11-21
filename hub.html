@@ -148,7 +148,55 @@ const plaza=new THREE.Mesh(new THREE.CircleGeometry(19,64),path);plaza.rotation.
 const ring=new THREE.Mesh(new THREE.RingGeometry(22,25,80),white);ring.rotation.x=-Math.PI/2;ring.position.y=.01;scene.add(ring);
 function pathStrip(x,z,w,d,rot=0){const p=box(w,.12,d,path,x,.02,z,rot);p.castShadow=false;const curbMat=mat('#87909a',.9);for(const side of [-1,1]){const curb=box(w,.16,.18,curbMat,x,.08,z+side*(d/2-.08),rot);curb.castShadow=false;}return p}
 pathStrip(0,0,9,72);pathStrip(0,0,72,9);pathStrip(-23,0,7,48);pathStrip(23,0,7,48);pathStrip(0,-25,52,6);pathStrip(0,25,52,6);
-// Realistic park trees: tapered bark trunks, visible branches and layered irregular canopies
+
+// Natural lawn detail: soft soil/grass variation and small grass tufts.
+// These are decorative instanced meshes, so they do not affect player movement.
+const lawnPatchGeo=new THREE.CircleGeometry(1,9);
+const lawnPatchMat=new THREE.MeshStandardMaterial({color:0x31513b,roughness:1,transparent:true,opacity:.34,depthWrite:false});
+const lawnPatches=new THREE.InstancedMesh(lawnPatchGeo,lawnPatchMat,260);
+lawnPatches.receiveShadow=true;
+const lawnDummy=new THREE.Object3D();
+let patchCount=0,seed=24681357;
+const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
+function onLawn(x,z){
+ if(Math.hypot(x,z)<19.6)return false;
+ if(Math.abs(x)<5.7&&Math.abs(z)<37)return false;
+ if(Math.abs(z)<5.7&&Math.abs(x)<37)return false;
+ if(Math.abs(x+23)<4.5&&Math.abs(z)<25)return false;
+ if(Math.abs(x-23)<4.5&&Math.abs(z)<25)return false;
+ if(Math.abs(z+25)<3.8&&Math.abs(x)<27)return false;
+ if(Math.abs(z-25)<3.8&&Math.abs(x)<27)return false;
+ return true;
+}
+for(let i=0;i<2600&&patchCount<260;i++){
+ const x=(rand()-.5)*67,z=(rand()-.5)*67;
+ if(!onLawn(x,z))continue;
+ const r=.45+rand()*1.15;
+ lawnDummy.position.set(x,-.105,z);lawnDummy.rotation.set(-Math.PI/2,0,rand()*Math.PI);
+ lawnDummy.scale.set(r,r*(.55+rand()*.55),1);lawnDummy.updateMatrix();
+ lawnPatches.setMatrixAt(patchCount++,lawnDummy.matrix);
+}
+lawnPatches.count=patchCount;scene.add(lawnPatches);
+
+// Fine blades of grass in scattered clumps, kept away from the paved walkways.
+const bladeGeo=new THREE.ConeGeometry(.055,.34,4);
+const bladeMat=new THREE.MeshStandardMaterial({color:0x47734a,roughness:1});
+const grassBlades=new THREE.InstancedMesh(bladeGeo,bladeMat,900);
+const bladeDummy=new THREE.Object3D();let bladeCount=0;
+for(let i=0;i<3600&&bladeCount<900;i++){
+ const x=(rand()-.5)*67,z=(rand()-.5)*67;
+ if(!onLawn(x,z))continue;
+ const clusterX=x,clusterZ=z;
+ for(let b=0;b<2&&bladeCount<900;b++){
+  bladeDummy.position.set(clusterX+(rand()-.5)*.42,.035,clusterZ+(rand()-.5)*.42);
+  bladeDummy.rotation.set((rand()-.5)*.18,rand()*Math.PI*2,(rand()-.5)*.18);
+  const h=.55+rand()*.8;bladeDummy.scale.set(.7,h,.7);bladeDummy.updateMatrix();
+  grassBlades.setMatrixAt(bladeCount++,bladeDummy.matrix);
+ }
+}
+grassBlades.count=bladeCount;scene.add(grassBlades);
+
+// Realistic park trees: tapered bark trunks, visible branches and layered irregular canopies: tapered bark trunks, visible branches and layered irregular canopies
 const treeColliders=[];
 const barkMat=mat('#493326',.96),barkLight=mat('#62432e',.94);
 const leafMats=['#174b38','#205b40','#286747','#34764b','#3d8050'].map(c=>mat(c,.92));
