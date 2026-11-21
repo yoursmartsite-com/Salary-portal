@@ -292,7 +292,7 @@ avatar.position.set(0,0,4);let velocity=0,move={x:0,z:0},jumpV=0,onGround=true,w
 const keys={};addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(e.key.toLowerCase()))e.preventDefault()});addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
 canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'||e.pointerType==='touch'||e.pointerType==='pen'){drag={x:e.clientX,y:e.clientY};try{canvas.setPointerCapture(e.pointerId)}catch(_){}}});canvas.addEventListener('pointermove',e=>{if(drag){yaw-=(e.clientX-drag.x)*.009;drag={x:e.clientX,y:e.clientY}}});canvas.addEventListener('pointerup',()=>drag=null);canvas.addEventListener('pointercancel',()=>drag=null);
 const joy=document.querySelector('#joystick'),stick=document.querySelector('#stick');let joyId=null;joy.addEventListener('pointerdown',e=>{joyId=e.pointerId;joy.setPointerCapture(joyId);joyMove(e)});joy.addEventListener('pointermove',e=>{if(e.pointerId===joyId)joyMove(e)});function joyMove(e){const r=joy.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2),len=Math.min(34,Math.hypot(dx,dy)),a=Math.atan2(dy,dx);move.x=Math.cos(a)*len/34;move.z=Math.sin(a)*len/34;stick.style.transform='translate('+move.x*30+'px,'+move.z*30+'px)'}function joyEnd(){joyId=null;move.x=0;move.z=0;stick.style.transform=''}joy.addEventListener('pointerup',joyEnd);joy.addEventListener('pointercancel',joyEnd);
-function jump(){if(onGround){jumpV=9;onGround=false}}
+let jumpRequested=false;function jump(){jumpRequested=true}
 document.querySelector('#jumpControl').addEventListener('pointerdown',e=>{e.preventDefault();jump()});
 const lammaPanel=document.querySelector('#lammaPanel');
 const closeLammaPanel=document.querySelector('#closeLammaPanel');
@@ -391,8 +391,12 @@ if(Math.abs(dx)+Math.abs(dz)>.02){const isSprinting=sprintEnabled&&forwardInput>
  else {if(canStand(nx,avatar.position.z)){avatar.position.x=nx;const nextFloor=stairGround(nx,avatar.position.z,avatar.position.y);if(onGround&&nextFloor>avatar.position.y-.76)avatar.position.y=nextFloor;}if(canStand(avatar.position.x,nz)){avatar.position.z=nz;const nextFloor=stairGround(avatar.position.x,nz,avatar.position.y);if(onGround&&nextFloor>avatar.position.y-.76)avatar.position.y=nextFloor;}}
  avatar.rotation.y=Math.atan2(dx,dz);walkT+=dt*(isSprinting?16:10);legs[0].rotation.x=Math.sin(walkT)*.65;legs[1].rotation.x=-Math.sin(walkT)*.65;arms[0].rotation.x=-Math.sin(walkT)*.35;arms[1].rotation.x=Math.sin(walkT)*.35}else{legs.forEach(l=>l.rotation.x=0);arms.forEach(a=>{a.rotation.x=0;a.rotation.z=0})}
 const floorY=stairGround(avatar.position.x,avatar.position.z,avatar.position.y);
+// Re-acquire the stair/floor surface before consuming a jump press.
+if(avatar.position.y<=floorY+.14&&jumpV<=0){avatar.position.y=floorY;jumpV=0;onGround=true;}
+if(jumpRequested&&(onGround||avatar.position.y<=floorY+.18)){jumpV=9.5;onGround=false;jumpRequested=false;}
+else if(jumpRequested&&avatar.position.y>floorY+.18){jumpRequested=false;}
 jumpV-=18*dt;avatar.position.y+=jumpV*dt;
-if(avatar.position.y<=floorY){avatar.position.y=floorY;jumpV=0;onGround=true}else if(jumpV>0){onGround=false}
+if(avatar.position.y<=floorY){avatar.position.y=floorY;jumpV=0;onGround=true}else{onGround=false;}
 avatar.position.x=THREE.MathUtils.clamp(avatar.position.x,-48,48);avatar.position.z=THREE.MathUtils.clamp(avatar.position.z,-53,48);
 swings.forEach((s,i)=>s.rotation.x=Math.sin(t*2.2+i*1.7)*.38);wheel.rotation.z+=dt*.12;
 const desired=new THREE.Vector3(avatar.position.x-Math.sin(yaw)*10,avatar.position.y+6,avatar.position.z-Math.cos(yaw)*10);camera.position.lerp(desired,1-Math.pow(.001,dt));camera.lookAt(avatar.position.x,avatar.position.y+1.6,avatar.position.z);
