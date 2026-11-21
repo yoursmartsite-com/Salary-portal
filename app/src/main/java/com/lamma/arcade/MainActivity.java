@@ -197,6 +197,8 @@ public class MainActivity extends Activity {
         }
     }
 
+    // Live-first delivery: published site files are used whenever online.
+    // The APK-bundled copy remains a fallback so the app can still open offline.
     private WebResourceResponse serveBundledSite(Uri uri) {
         if (!SITE_HOST.equals(uri.getHost())) return null;
         String path = uri.getPath();
@@ -207,14 +209,58 @@ public class MainActivity extends Activity {
         if (relative.isEmpty()) relative = "index.html";
         if (relative.contains("..") || relative.startsWith("/"))
             return new WebResourceResponse("text/plain", "UTF-8", 403, "Forbidden", new HashMap<>(), new ByteArrayInputStream(new byte[0]));
+
+        WebResourceResponse live = fetchLiveSiteFile(uri, relative);
+        if (live != null) return live;
+
         try {
             InputStream stream = getAssets().open("Salary-portal/" + relative, android.content.res.AssetManager.ACCESS_STREAMING);
             Map<String, String> headers = new HashMap<>();
             headers.put("Access-Control-Allow-Origin", "*");
-            headers.put("Cache-Control", "public, max-age=3600");
+            headers.put("Cache-Control", "no-store");
             return new WebResourceResponse(mimeType(relative), "UTF-8", 200, "OK", headers, stream);
         } catch (IOException e) {
-            return new WebResourceResponse("text/plain", "UTF-8", 404, "Not Found", new HashMap<>(), InputStream.nullInputStream());
+            return new WebResourceResponse("text/plain", "UTF-8", 404, "Not Found", new HashMap<>(), new ByteArrayInputStream(new byte[0]));
+        }
+    }
+
+    private WebResourceResponse fetchLiveSiteFile(Uri uri, String relative) {
+        HttpURLConnection connection = null;
+        try {
+            URL requested = new URL(uri.toString());
+            connection = (HttpURLConnection) requested.openConnection();
+            connection.setConnectTimeout(4000);
+            connection.setReadTimeout(6000);
+            connection.setUseCaches(false);
+            connection.setInstanceFollowRedirects(true);
+            connection.setRequestProperty("Cache-Control", "no-cache");
+            connection.setRequestProperty("Pragma", "no-cache");
+            connection.setRequestProperty("User-Agent", "LammaAndroid-LiveContent/1.0");
+            int status = connection.getResponseCode();
+            if (status < 200 || status >= 300) return null;
+            URL finalUrl = connection.getURL();
+            if (!SITE_HOST.equals(finalUrl.getHost())) return null;
+
+            String contentType = connection.getContentType();
+            String mime = mimeType(relative);
+            String encoding = "UTF-8";
+            if (contentType != null) {
+                String[] parts = contentType.split(";");
+                if (parts.length > 0 && parts[0].contains("/")) mime = parts[0].trim();
+                for (String part : parts) {
+                    String item = part.trim();
+                    if (item.toLowerCase().startsWith("charset=")) encoding = item.substring(8).replace("\"", "").trim();
+                }
+            }
+            Map<String, String> headers = new HashMap<>();
+            headers.put("Access-Control-Allow-Origin", "*");
+            headers.put("Cache-Control", "no-store");
+            headers.put("X-Lamma-Content-Source", "live");
+            return new WebResourceResponse(mime, encoding, status, "OK", headers, connection.getInputStream());
+        } catch (Exception ignored) {
+            return null;
+        } finally {
+            if (connection != null) connection.disconnect();
         }
     }
 
