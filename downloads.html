@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#070b18"><title>تحميل تطبيق لَمّة</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#070b18;--panel:#101a30;--line:#263653;--muted:#9aa9c7;--purple:#8054ff;--green:#26d6a4}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -10%,#29215b 0,transparent 48%),var(--bg);color:#f5f7ff;font-family:Cairo,Arial,sans-serif}.wrap{width:min(980px,calc(100% - 28px));margin:auto;padding:22px 0 55px}.back{display:inline-flex;color:#c4b7ff;text-decoration:none;font-weight:700;margin-bottom:18px}.hero{border:1px solid #34416a;border-radius:24px;padding:clamp(22px,5vw,48px);background:linear-gradient(120deg,#111b35ed,#171438e8),radial-gradient(circle at 15% 20%,#633bff66,transparent 40%);box-shadow:0 25px 70px #0007}.brand{color:#b69aff;font-weight:900;letter-spacing:2px}.hero h1{font-size:clamp(29px,6vw,52px);line-height:1.25;margin:10px 0}.hero p{color:#c0cbe0;line-height:2;max-width:650px;margin:0}.status{display:inline-flex;align-items:center;gap:8px;margin-top:18px;padding:7px 12px;border:1px solid #2e735f;border-radius:30px;color:#8af0cf;background:#10362f88;font-size:12px}.dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 12px var(--green)}.download-card,.history{margin-top:18px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(145deg,#111d35,#0b1325);padding:22px}.row{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.label{color:#a995ff;font-size:12px;font-weight:800}.version{font-size:26px;font-weight:900}.meta{color:var(--muted);font-size:12px;line-height:2}.download{display:inline-flex;justify-content:center;align-items:center;gap:9px;margin-top:18px;padding:13px 22px;border-radius:12px;background:linear-gradient(100deg,#5728e9,#9254ff);color:white;text-decoration:none;font-weight:900;box-shadow:0 10px 28px #693bff55}.download.disabled{opacity:.45;pointer-events:none}.hint{color:#9eacc8;font-size:12px;line-height:2;margin-top:12px}.history h2{margin:0 0 12px;font-size:18px}.release{padding:14px 0;border-top:1px solid #24334e}.release:first-of-type{border-top:0}.release b{display:block}.release small{color:var(--muted)}.release a{color:#bba7ff;text-decoration:none;font-weight:800;margin-right:12px}.empty{color:#c5cde0;line-height:2;padding:14px 0}.foot{text-align:center;color:#7888a8;font-size:11px;margin-top:22px}
+</style></head>
+<body><main class="wrap">
+<a class="back" href="./">← الرجوع إلى لَمّة</a>
+<section class="hero"><div class="brand">LAMMA GAMING</div><h1>حمّل تطبيق لَمّة<br>وخليك دايمًا مع أصحابك</h1><p>من هنا هتلاقي أحدث إصدار رسمي من تطبيق لَمّة للأندرويد، ومعاه سجل التحديثات السابقة. كل إصدار جديد بيتضاف تلقائيًا بعد نجاح نشره.</p><span class="status"><i class="dot"></i> صفحة التحميل الرسمية</span></section>
+<section class="download-card"><div class="row"><div><div class="label">أحدث إصدار متاح</div><div class="version" id="latestVersion">جاري تحميل بيانات الإصدار…</div><div class="meta" id="latestDate"></div></div><div class="meta" id="latestSize"></div></div><a class="download disabled" id="downloadButton" href="#" rel="noopener">⬇ تحميل تطبيق لَمّة APK</a><div class="hint" id="downloadHint">بنراجع أحدث إصدار منشور…</div></section>
+<section class="history"><h2>سجل تحديثات التطبيق</h2><div id="releaseHistory" class="empty">جاري تحميل سجل الإصدارات…</div></section>
+<div class="foot">لَمّة © جميع الحقوق محفوظة</div>
+</main>
+<script>
+const API='https://api.github.com/repos/yoursmartsite-com/Salary-portal/releases?per_page=20';
+const dateText=v=>{try{return new Intl.DateTimeFormat('ar-EG',{year:'numeric',month:'long',day:'numeric'}).format(new Date(v))}catch{return ''}};
+const sizeText=n=>n?((n/1048576).toFixed(1)+' MB'):'';
+function apkAsset(release){return (release.assets||[]).find(a=>a.name.toLowerCase().endsWith('.apk'))}
+async function loadReleases(){
+ const version=document.getElementById('latestVersion'),date=document.getElementById('latestDate'),size=document.getElementById('latestSize'),button=document.getElementById('downloadButton'),hint=document.getElementById('downloadHint'),history=document.getElementById('releaseHistory');
+ try{
+  const response=await fetch(API,{headers:{Accept:'application/vnd.github+json'}});
+  if(!response.ok)throw new Error('تعذر الوصول لقائمة الإصدارات');
+  const releases=(await response.json()).filter(r=>!r.draft&&!r.prerelease);
+  const ready=releases.map(r=>({r,apk:apkAsset(r)})).filter(x=>x.apk);
+  if(!ready.length){version.textContent='لسه مفيش إصدار منشور';date.textContent='أول ما إصدار APK ينجح نشره هيظهر هنا.';hint.textContent='التحديثات اللي فشل بناؤها مش بتظهر في صفحة التحميل.';history.textContent='لا توجد إصدارات متاحة للتحميل حاليًا.';return}
+  const latest=ready[0],tag=latest.r.tag_name||latest.r.name||'أحدث إصدار';
+  version.textContent=latest.r.name||tag;date.textContent='تاريخ النشر: '+dateText(latest.r.published_at||latest.r.created_at);size.textContent=sizeText(latest.apk.size);
+  button.href=latest.apk.browser_download_url;button.classList.remove('disabled');hint.textContent='ملف رسمي مرفوع مع الإصدار المنشور على GitHub. بعد التحميل افتح الملف وثبّت التحديث.';
+  history.innerHTML=ready.map(({r,apk})=>'<article class="release"><b>'+escapeHtml(r.name||r.tag_name)+'</b><small>'+dateText(r.published_at||r.created_at)+' · '+sizeText(apk.size)+'</small><a href="'+apk.browser_download_url+'" rel="noopener">تحميل هذا الإصدار</a></article>').join('');
+ }catch(e){version.textContent='تعذر تحميل الإصدارات';date.textContent='حاول تحديث الصفحة بعد قليل.';hint.textContent='لو استمرت المشكلة، افتح صفحة الإصدارات على GitHub.';history.innerHTML='<div class="empty">تعذر جلب سجل التحديثات حاليًا. <a style="color:#bba7ff" href="https://github.com/yoursmartsite-com/Salary-portal/releases" target="_blank" rel="noopener">عرض الإصدارات على GitHub</a></div>';}
+}
+function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+loadReleases();
+</script></body></html>
