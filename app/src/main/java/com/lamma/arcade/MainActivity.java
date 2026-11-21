@@ -14,6 +14,7 @@ import android.content.res.AssetManager;
 import android.graphics.Color;
 import android.webkit.ValueCallback;
 import java.io.InputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -96,7 +97,7 @@ public class MainActivity extends Activity {
         if (relative.isEmpty()) relative = "index.html";
         if (relative.contains("..") || relative.startsWith("/")) {
             return new WebResourceResponse("text/plain", "UTF-8", 403, "Forbidden",
-                    new HashMap<>(), InputStream.nullInputStream());
+                    new HashMap<>(), new ByteArrayInputStream(new byte[0]));
         }
 
         try {
