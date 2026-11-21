@@ -148,8 +148,26 @@ const plaza=new THREE.Mesh(new THREE.CircleGeometry(19,64),path);plaza.rotation.
 const ring=new THREE.Mesh(new THREE.RingGeometry(22,25,80),white);ring.rotation.x=-Math.PI/2;ring.position.y=.01;scene.add(ring);
 function pathStrip(x,z,w,d,rot=0){const p=box(w,.12,d,path,x,.02,z,rot);p.castShadow=false;const curbMat=mat('#87909a',.9);for(const side of [-1,1]){const curb=box(w,.16,.18,curbMat,x,.08,z+side*(d/2-.08),rot);curb.castShadow=false;}return p}
 pathStrip(0,0,9,72);pathStrip(0,0,72,9);pathStrip(-23,0,7,48);pathStrip(23,0,7,48);pathStrip(0,-25,52,6);pathStrip(0,25,52,6);
-// little park details
-for(let i=0;i<34;i++){const a=i*Math.PI*2/34,r=32+(i%3)*2,x=Math.cos(a)*r,z=Math.sin(a)*r;cyl(.28,.42,2.1,mat('#76543b'),x,1,z);sphere(1.8, i%3===0?mat('#267c62'):mat('#34875f'),x,2.8,z);sphere(.85,mat('#4a9d6b'),x+.45,3.6,z-.3);}
+// Realistic park trees: tapered bark trunks, visible branches and layered irregular canopies
+const treeColliders=[];
+const barkMat=mat('#493326',.96),barkLight=mat('#62432e',.94);
+const leafMats=['#174b38','#205b40','#286747','#34764b','#3d8050'].map(c=>mat(c,.92));
+const branchMat=mat('#533a2b',.95);
+for(let i=0;i<34;i++){
+ const a=i*Math.PI*2/34,rad=32+(i%3)*2,x=Math.cos(a)*rad,z=Math.sin(a)*rad;
+ treeColliders.push({x,z,r:1.05});
+ const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.28,.48,4.3,10,2),barkMat);
+ trunk.position.set(x,2.15,z);trunk.castShadow=true;trunk.receiveShadow=true;scene.add(trunk);
+ // natural root flare
+ for(let k=0;k<4;k++){const q=k*Math.PI/2;const root=new THREE.Mesh(new THREE.CylinderGeometry(.045,.16,1.05,7),barkLight);root.position.set(x+Math.cos(q)*.32,.28,z+Math.sin(q)*.32);root.rotation.z=Math.cos(q)*-.48;root.rotation.x=Math.sin(q)*.48;root.castShadow=true;scene.add(root);}
+ // branching limbs
+ for(let k=0;k<5;k++){const q=k*2.4+i*.73,len=1.35+(k%3)*.28;const limb=new THREE.Mesh(new THREE.CylinderGeometry(.055,.13,len,7),branchMat);limb.position.set(x+Math.cos(q)*.62,3.05+(k%2)*.42,z+Math.sin(q)*.62);limb.rotation.z=Math.cos(q)*-.72;limb.rotation.x=Math.sin(q)*.72;limb.castShadow=true;scene.add(limb);}
+ // dense, overlapping foliage clusters with varied scale for a natural crown
+ for(let k=0;k<13;k++){const q=k*2.399+i*.37,ring=k<8?1.05:.55,y=4.15+(k%4)*.62;
+  const crown=new THREE.Mesh(new THREE.IcosahedronGeometry(.95+(k%3)*.13,2),leafMats[(i+k)%leafMats.length]);
+  crown.position.set(x+Math.cos(q)*ring,y,z+Math.sin(q)*ring);crown.scale.set(1.05,.88+(k%3)*.12,1.0);crown.rotation.set((k%3)*.13,q*.4,(k%4)*.08);crown.castShadow=true;crown.receiveShadow=true;scene.add(crown);
+ }
+}
 for(let i=0;i<14;i++){const x=(i%7-3)*7,z=(Math.floor(i/7)?-39:39);cyl(.12,.18,3,dark,x,1.5,z);sphere(.65,yellow,x,3.2,z);}
 // flower beds
 for(let i=0;i<22;i++){const a=i*2.399,r=16,x=Math.cos(a)*r,z=Math.sin(a)*r;const f=cyl(.65,.65,.25,mat('#bd8f61'),x,.1,z);for(let j=0;j<5;j++){const q=j*Math.PI*2/5;sphere(.18,[pink,yellow,white,coral][j%4],x+Math.cos(q)*.32,.45,z+Math.sin(q)*.32);}}
@@ -328,7 +346,13 @@ function resize(){renderer.setSize(innerWidth,innerHeight,false);camera.aspect=i
 const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04),t=clock.elapsedTime;
 let ix=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0),iz=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);ix+=move.x;iz+=move.z;const mag=Math.hypot(ix,iz);if(mag>1){ix/=mag;iz/=mag}
 const forwardX=Math.sin(yaw),forwardZ=Math.cos(yaw),rightX=-Math.cos(yaw),rightZ=Math.sin(yaw);const forwardInput=-iz,lateralInput=ix;const dx=(rightX*lateralInput+forwardX*forwardInput),dz=(rightZ*lateralInput+forwardZ*forwardInput);
-if(Math.abs(dx)+Math.abs(dz)>.02){const isSprinting=sprintEnabled&&forwardInput>.35;const moveSpeed=isSprinting?13.5:8;avatar.position.x+=dx*moveSpeed*dt;avatar.position.z+=dz*moveSpeed*dt;avatar.rotation.y=Math.atan2(dx,dz);walkT+=dt*(isSprinting?16:10);legs[0].rotation.x=Math.sin(walkT)*.65;legs[1].rotation.x=-Math.sin(walkT)*.65;arms[0].rotation.x=-Math.sin(walkT)*.35;arms[1].rotation.x=Math.sin(walkT)*.35}else{legs.forEach(l=>l.rotation.x=0);arms.forEach(a=>{a.rotation.x=0;a.rotation.z=0})}
+if(Math.abs(dx)+Math.abs(dz)>.02){const isSprinting=sprintEnabled&&forwardInput>.35;const moveSpeed=isSprinting?13.5:8;const stepX=dx*moveSpeed*dt,stepZ=dz*moveSpeed*dt;
+ // Solid collision: players and tree trunks cannot be walked through; allow sliding along edges
+ const canStand=(x,z)=>{for(const tr of treeColliders){if(Math.hypot(x-tr.x,z-tr.z)<tr.r+.48)return false;}for(const other of remotePlayers.values()){const p=other.model.position;if(Math.hypot(x-p.x,z-p.z)<1.18)return false;}return true;};
+ const nx=avatar.position.x+stepX,nz=avatar.position.z+stepZ;
+ if(canStand(nx,nz)){avatar.position.x=nx;avatar.position.z=nz;}
+ else {if(canStand(nx,avatar.position.z))avatar.position.x=nx;if(canStand(avatar.position.x,nz))avatar.position.z=nz;}
+ avatar.rotation.y=Math.atan2(dx,dz);walkT+=dt*(isSprinting?16:10);legs[0].rotation.x=Math.sin(walkT)*.65;legs[1].rotation.x=-Math.sin(walkT)*.65;arms[0].rotation.x=-Math.sin(walkT)*.35;arms[1].rotation.x=Math.sin(walkT)*.35}else{legs.forEach(l=>l.rotation.x=0);arms.forEach(a=>{a.rotation.x=0;a.rotation.z=0})}
 jumpV-=18*dt;avatar.position.y+=jumpV*dt;if(avatar.position.y<=0){avatar.position.y=0;jumpV=0;onGround=true}
 avatar.position.x=THREE.MathUtils.clamp(avatar.position.x,-48,48);avatar.position.z=THREE.MathUtils.clamp(avatar.position.z,-53,48);
 swings.forEach((s,i)=>s.rotation.x=Math.sin(t*2.2+i*1.7)*.38);wheel.rotation.z+=dt*.12;
