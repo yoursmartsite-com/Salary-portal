@@ -1,0 +1,44 @@
+name: Prepare Lamma 3D assets
+on:
+  push:
+    paths:
+      - 'lamma_3d_viewer_package.zip'
+      - '.github/workflows/prepare-lamma-3d.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  unpack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Extract 3D package and build manifest
+        run: |
+          rm -rf /tmp/lamma3d assets/lamma3d
+          mkdir -p /tmp/lamma3d assets/lamma3d/package
+          unzip -q lamma_3d_viewer_package.zip -d /tmp/lamma3d
+          cp -R /tmp/lamma3d/. assets/lamma3d/package/
+          python3 - <<'PY'
+          import os,json
+          root='assets/lamma3d/package'
+          models=[]
+          for base,dirs,files in os.walk(root):
+              for name in files:
+                  if name.lower().endswith(('.glb','.gltf')):
+                      models.append(os.path.relpath(os.path.join(base,name),root).replace(os.sep,'/'))
+          models.sort()
+          os.makedirs('assets/lamma3d',exist_ok=True)
+          with open('assets/lamma3d/manifest.json','w',encoding='utf-8') as f:
+              json.dump({'models':models},f,ensure_ascii=False,indent=2)
+          print('3D models found:',len(models))
+          if not models:
+              raise SystemExit('No GLB/GLTF model found in uploaded package')
+          PY
+      - name: Commit extracted models
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/lamma3d
+          if git diff --cached --quiet; then echo "No extracted asset changes"; else git commit -m "Prepare uploaded Lamma 3D assets"; git push; fi
