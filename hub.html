@@ -14,7 +14,7 @@
 <div class="world"><canvas id="world"></canvas><div class="shade"></div></div>
 <header class="top">
  <a class="brand" href="./index.html"><span class="logo">♛</span><span><b>عالم لَمّة</b><small>LAMMA SOCIAL HUB</small></span></a>
- <div class="topright"><span class="pill">🌿 ساحة الترفيه</span><span class="pill">🟢 عالم تجريبي</span><a class="back" href="./index.html">← رجوع للموقع</a></div>
+ <div class="topright"><span class="pill">🌿 ساحة الترفيه</span><span class="pill" id="hubOnlineStatus">🟡 جاري الاتصال...</span><span class="pill" id="hubPlayersCount">👥 1 لاعب</span><a class="back" href="./index.html">← رجوع للموقع</a></div>
 </header>
 <aside class="left-panel"><div class="eyebrow">WELCOME TO LAMMA</div><h1>مكاننا.. لعبتنا.. لَمّتنا!</h1><p>اتحرك واستكشف عالم لَمّة. لف على الملاهي، جرّب الأنشطة، واكتشف أماكن جديدة في الساحة.</p><div class="feature"><span>🎡</span> منطقة الملاهي</div><div class="feature"><span>🛝</span> الزحاليق والألعاب</div><div class="feature"><span>🌴</span> ساحة التجمع</div></aside>
 <aside class="right-panel"><b>استكشف العالم</b><div class="spot"><i>🎠</i> منطقة المراجيح</div><div class="spot"><i>🎯</i> ساحة التحديات</div><div class="spot"><i>⚽</i> ملعب لَمّة</div><div class="spot"><i>☕</i> كافيه الأصدقاء</div></aside>
@@ -25,6 +25,63 @@
 <div class="modal" id="modal"><div class="modal-card"><div style="font-size:42px">🎡</div><h2 id="modalTitle">أهلاً بيك في لَمّة</h2><p id="modalText">دي ساحتك الترفيهية. اتحرك واستكشف المكان بنفسك!</p><button id="closeModal">تمام، يلا!</button></div></div>
 <script type="module">
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+import { firebaseConfig } from './firebase-config.js';
+
+const hubStatus=document.querySelector('#hubOnlineStatus');
+const hubCount=document.querySelector('#hubPlayersCount');
+const myName=(localStorage.getItem('arcade_name')||'لاعب').trim().slice(0,22)||'لاعب';
+let hubDb=null,hubApi=null,hubUid=null,hubLastWrite=0;
+const remotePlayers=new Map();
+function hubLabel(name){
+ const cv=document.createElement('canvas');cv.width=512;cv.height=128;
+ const cx=cv.getContext('2d');cx.fillStyle='rgba(5,18,27,.84)';
+ cx.beginPath();cx.roundRect(8,8,496,112,28);cx.fill();
+ cx.strokeStyle='#53e4bd';cx.lineWidth=5;cx.stroke();
+ cx.font='bold 48px Cairo,Arial';cx.textAlign='center';cx.textBaseline='middle';cx.fillStyle='#ffffff';cx.fillText(String(name||'لاعب').slice(0,18),256,64);
+ const tex=new THREE.CanvasTexture(cv);tex.colorSpace=THREE.SRGBColorSpace;
+ const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthTest:false}));
+ sprite.scale.set(3.6,.9,1);sprite.position.y=3.75;return sprite;
+}
+async function connectHub(){
+ try{
+  const [appMod,dbMod,authMod]=await Promise.all([
+   import('https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js'),
+   import('https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js'),
+   import('https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js')
+  ]);
+  const app=appMod.initializeApp(firebaseConfig,'lamma-hub-'+Math.random().toString(36).slice(2));
+  hubDb=dbMod.getDatabase(app);hubApi=dbMod;
+  const cred=await authMod.signInAnonymously(authMod.getAuth(app));hubUid=cred.user.uid;
+  let hash=0;for(const ch of hubUid)hash=(hash*31+ch.charCodeAt(0))|0;
+  avatar.position.set((Math.abs(hash)%17)-8,0,4+(Math.abs(hash>>4)%5));
+  const myHubRef=dbMod.ref(hubDb,'presence/'+hubUid+'/hub');
+  dbMod.onValue(dbMod.ref(hubDb,'.info/connected'),async snap=>{
+   if(snap.val()!==true)return;
+   try{
+    await dbMod.onDisconnect(myHubRef).remove();
+    await dbMod.set(myHubRef,{active:true,name:myName,x:avatar.position.x,z:avatar.position.z,yaw,updatedAt:Date.now()});
+    hubStatus.textContent='🟢 متصل أونلاين';
+   }catch(e){console.error('Hub presence write',e);hubStatus.textContent='🔴 تعذر تسجيل الدخول';}
+  });
+  dbMod.onValue(dbMod.ref(hubDb,'presence'),snap=>{
+   const alive=new Set();
+   snap.forEach(child=>{
+    const p=child.val()?.hub;
+    if(child.key===hubUid||!p||p.active!==true)return;
+    alive.add(child.key);
+    let item=remotePlayers.get(child.key);
+    if(!item){
+     const model=avatar.clone(true);
+     item={model,label:hubLabel(p.name)};model.add(item.label);scene.add(model);remotePlayers.set(child.key,item);
+    }
+    item.model.position.set(Number(p.x)||0,0,Number(p.z)||0);
+    item.model.rotation.y=Number(p.yaw)||0;
+   });
+   for(const [id,item] of remotePlayers){if(!alive.has(id)){scene.remove(item.model);item.label.material.map?.dispose();remotePlayers.delete(id);}}
+   hubCount.textContent='👥 '+(1+remotePlayers.size)+' لاعب';
+  },err=>{console.error('Hub presence read',err);hubStatus.textContent='🔴 مشكلة صلاحيات';});
+ }catch(e){console.error('Hub Firebase connection failed',e);hubStatus.textContent='🔴 غير متصل';toast('تعذر الاتصال بالساحة المشتركة. راجع تسجيل الدخول وقواعد Firebase.');}
+}
 const canvas=document.querySelector('#world');
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false});
 renderer.setPixelRatio(Math.min(devicePixelRatio,1.8));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;
@@ -93,7 +150,7 @@ jumpV-=18*dt;avatar.position.y+=jumpV*dt;if(avatar.position.y<=0){avatar.positio
 avatar.position.x=THREE.MathUtils.clamp(avatar.position.x,-48,48);avatar.position.z=THREE.MathUtils.clamp(avatar.position.z,-53,48);
 swings.forEach((s,i)=>s.rotation.x=Math.sin(t*2.2+i*1.7)*.38);wheel.rotation.z+=dt*.12;
 const desired=new THREE.Vector3(avatar.position.x-Math.sin(yaw)*10,avatar.position.y+6,avatar.position.z-Math.cos(yaw)*10);camera.position.lerp(desired,1-Math.pow(.001,dt));camera.lookAt(avatar.position.x,avatar.position.y+1.6,avatar.position.z);
-renderer.render(scene,camera)}
-animate();document.querySelector('#modal').classList.add('open');
+renderer.render(scene,camera);if(hubApi&&hubUid&&t-hubLastWrite>.12){hubLastWrite=t;const p=hubApi.ref(hubDb,'presence/'+hubUid+'/hub');hubApi.update(p,{active:true,name:myName,x:Number(avatar.position.x.toFixed(2)),z:Number(avatar.position.z.toFixed(2)),yaw:Number(yaw.toFixed(3)),updatedAt:Date.now()}).catch(e=>{console.error('Hub position update',e);hubStatus.textContent='🔴 فقد الاتصال';});}}
+animate();connectHub();document.querySelector('#modal').classList.add('open');
 </script>
 </body></html>
