@@ -31,6 +31,26 @@
 @media(max-width:760px){.lm-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.lm-hero3d{grid-template-columns:1fr 125px;padding:15px}.lm-mascot-stage{transform:scale(.86);transform-origin:center}.lm-shop{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:440px){.lm-hero3d{grid-template-columns:1fr 95px;gap:2px;padding:13px}.lm-mascot-stage{transform:scale(.72);margin-right:-12px}.lm-stat{padding:6px 8px}.lm-grid{gap:7px}.lm-card{padding:11px}.lm-challenge{grid-template-columns:1fr}.lm-road{gap:4px}.lm-stop{font-size:9px;padding:8px 2px}}
 
+
+
+.lm-hero3d.lm-frame-blue{border:2px solid #62d5ff;box-shadow:0 0 0 3px #62d5ff22,0 18px 45px #0008}
+.lm-hero3d.lm-frame-gold{border:2px solid #ffd36b;box-shadow:0 0 0 3px #ffd36b25,0 18px 45px #0008}
+body.lm-space-theme{background:radial-gradient(ellipse at 20% 20%,#46308b66,transparent 35%),radial-gradient(ellipse at 80% 70%,#14617a55,transparent 40%),#080d20}
+.lm-fox,.lm-owl{width:45px;height:47px;position:relative;border-radius:45% 45% 40% 40%;transform:rotateY(-18deg) rotateX(8deg);box-shadow:inset 5px 4px 7px #ffffff99,inset -6px -7px 8px #111b36,0 8px 8px #0008;border:2px solid #ffe0b0}
+.lm-fox{background:linear-gradient(145deg,#ffd28c,#e87936 60%,#8d3e25)}
+.lm-fox:before,.lm-fox:after{content:"";position:absolute;top:-13px;width:17px;height:23px;background:linear-gradient(145deg,#ffcf88,#b84c2b);clip-path:polygon(50% 0,100% 100%,0 100%);filter:drop-shadow(0 2px 2px #0008)}
+.lm-fox:before{left:0;transform:rotate(-12deg)}.lm-fox:after{right:0;transform:rotate(12deg)}
+.lm-owl{background:linear-gradient(145deg,#d7c5ff,#8267bf 60%,#3e356e);border-color:#e5d9ff}
+.lm-owl:before{content:"";position:absolute;inset:11px 4px auto;height:19px;border-radius:50%;background:radial-gradient(circle at 28% 50%,#fff 0 6px,#242d51 7px 9px,transparent 10px),radial-gradient(circle at 72% 50%,#fff 0 6px,#242d51 7px 9px,transparent 10px)}
+.lm-owl:after{content:"";position:absolute;left:18px;top:27px;border-left:5px solid transparent;border-right:5px solid transparent;border-top:8px solid #f4b64f}
+.lm-mascot.lm-fox-equipped .lm-head{background:linear-gradient(145deg,#ffd69b,#e87936 60%,#8d3e25);border-color:#ffe0b0;border-radius:42% 42% 35% 35%}
+.lm-mascot.lm-fox-equipped .lm-ear{background:linear-gradient(145deg,#ffd18c,#a9472b);clip-path:polygon(50% 0,100% 100%,0 100%);height:35px;top:3px}
+.lm-mascot.lm-fox-equipped .lm-body{background:linear-gradient(145deg,#ffe0b4,#c75b2d 65%,#6f2d20)}
+.lm-mascot.lm-owl-equipped .lm-head{background:linear-gradient(145deg,#e2d7ff,#8067bb 60%,#3f356f);border-color:#e7ddff;border-radius:46%}
+.lm-mascot.lm-owl-equipped .lm-ear{height:24px;top:2px;border-radius:50% 50% 0 0;background:linear-gradient(145deg,#d8c9ff,#5b4a95)}
+.lm-mascot.lm-owl-equipped .lm-face{background:radial-gradient(circle at 27% 50%,#fff 0 8px,#273052 9px 11px,transparent 12px),radial-gradient(circle at 73% 50%,#fff 0 8px,#273052 9px 11px,transparent 12px),#473c75}
+.lm-mascot.lm-owl-equipped .lm-body{background:linear-gradient(145deg,#d9ccff,#7760b5 65%,#342a64)}
+
 </style></head><body><div class="wrap"><header><a class="brand" href="/Salary-portal/">لَمّة <b>· أكاديمية اللغات</b></a><a class="back" href="/Salary-portal/">الرئيسية ←</a></header>
 <section class="hero"><div class="eyebrow">LEARN STEP BY STEP</div><h1>اتعلّم لغة جديدة مع لَمّة</h1><p>اختار الإنجليزية أو الهولندية، وابدأ من A0 حتى B2. تعلّم الكلمات والقواعد والاستماع والقراءة والكتابة والمحادثة، مع شرح عربي وتدريبات واختبارات.</p></section>
 
@@ -244,7 +264,7 @@ const save=()=>localStorage.setItem(STORE,JSON.stringify(g));
 const day=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
 const dayNum=()=>Math.floor(new Date(day()+"T12:00:00").getTime()/86400000);
 const levelNames=["مستكشف الكلمات","صائد الجمل","بطل المحادثة","خبير القواعد","أسطورة اللغات"];
-const shopItems=[{id:"frame-blue",name:"إطار المحيط",cost:80,desc:"إطار أزرق لبطاقتك",kind:"إطار"},{id:"frame-gold",name:"إطار الأسطورة",cost:160,desc:"لمعة ذهبية نادرة",kind:"إطار"},{id:"title-pro",name:"لقب متحدث محترف",cost:220,desc:"لقب يظهر في رحلتك",kind:"لقب"},{id:"bot-purple",name:"درع الروبوت البنفسجي",cost:280,desc:"مظهر بنفسجي لرفيقك",kind:"مظهر"},{id:"bot-gold",name:"درع الروبوت الذهبي",cost:420,desc:"مظهر ذهبي ثلاثي الأبعاد",kind:"مظهر"},{id:"theme-space",name:"خلفية المجرة",cost:350,desc:"خلفية فضائية لرحلتك",kind:"خلفية"}];
+const shopItems=[{id:"frame-blue",name:"إطار المحيط",cost:80,desc:"إطار أزرق لبطاقتك",kind:"إطار"},{id:"frame-gold",name:"إطار الأسطورة",cost:160,desc:"لمعة ذهبية نادرة",kind:"إطار"},{id:"title-pro",name:"لقب متحدث محترف",cost:220,desc:"لقب يظهر في رحلتك",kind:"لقب"},{id:"bot-purple",name:"درع الروبوت البنفسجي",cost:280,desc:"مظهر بنفسجي لرفيقك",kind:"مظهر"},{id:"bot-gold",name:"درع الروبوت الذهبي",cost:420,desc:"مظهر ذهبي ثلاثي الأبعاد",kind:"مظهر"},{id:"fox-companion",name:"رفيق الثعلب",cost:500,desc:"شخصية ثعلب ثلاثية الأبعاد",kind:"شخصية"},{id:"owl-companion",name:"رفيق البومة",cost:600,desc:"شخصية بومة ثلاثية الأبعاد",kind:"شخصية"},{id:"theme-space",name:"خلفية المجرة",cost:350,desc:"خلفية فضائية لرحلتك",kind:"خلفية"}];
 const el=id=>document.getElementById(id);
 function award(id,n,label){if(g.earned.includes(id))return false;g.earned.push(id);g.xp+=n;g.lastReward=label;save();render();return true}
 function activateDay(){const today=day();if(g.lastActive!==today){const prev=new Date(new Date(today+"T12:00:00").getTime()-86400000).toISOString().slice(0,10);g.streak=g.lastActive===prev?g.streak+1:1;g.lastActive=today;g.xp+=5;g.earned.push("daily-active-"+today);save()}render()}
@@ -262,9 +282,9 @@ function render(){
  const names=["A0","A1","A2","B1","B2"],idx=names.indexOf(typeof level!=="undefined"?level:"");
  el("lm-road").innerHTML=names.map((n,i)=>'<div class="lm-stop '+(i===idx?"active":i<idx?"done":"")+'"><b>'+(i<idx?"✓":i===idx?"◆":"◇")+'</b>'+n+'<small style="display:block;color:#9eb4ce">'+(i<idx?"تم المرور":i===idx?"أنت هنا":"المحطة التالية")+'</small></div>').join("");
  el("lm-local-rank").textContent="على هذا الجهاز: "+g.xp+" XP · "+g.badges.length+" شارات · "+g.streak+" يوم متواصل.";
- el("lm-shop").innerHTML=shopItems.map(it=>{const bought=g.purchases.includes(it.id);return '<div class="lm-shop-item"><div class="lm-item-art"><div class="lm-mini-bot" style="'+(it.id.includes("purple")?'filter:hue-rotate(55deg) saturate(1.5)':it.id.includes("gold")?'filter:sepia(1) saturate(2) hue-rotate(350deg)':'')+'"></div></div><b>'+it.name+'</b><small>'+it.desc+' · '+it.cost+' XP</small><button type="button" data-buy="'+it.id+'" '+(bought?'disabled':'')+'>'+(bought?"تم الشراء":g.xp>=it.cost?"افتح المكافأة":"XP غير كافية")+'</button></div>'}).join("");
+ el("lm-shop").innerHTML=shopItems.map(it=>{const bought=g.purchases.includes(it.id);return '<div class="lm-shop-item"><div class="lm-item-art"><div class="'+(it.id==="fox-companion"?"lm-fox":it.id==="owl-companion"?"lm-owl":"lm-mini-bot")+'" style="'+(it.id.includes("purple")?'filter:hue-rotate(55deg) saturate(1.5)':it.id.includes("gold")?'filter:sepia(1) saturate(2) hue-rotate(350deg)':'')+'"></div></div><b>'+it.name+'</b><small>'+it.desc+' · '+it.cost+' XP</small><button type="button" data-buy="'+it.id+'" '+(bought?'disabled':'')+'>'+(bought?"تم الشراء":g.xp>=it.cost?"افتح المكافأة":"XP غير كافية")+'</button></div>'}).join("");
  el("lm-shop").querySelectorAll("[data-buy]").forEach(b=>b.onclick=()=>{const it=shopItems.find(x=>x.id===b.dataset.buy);if(!it||g.purchases.includes(it.id)||g.xp<it.cost)return;g.xp-=it.cost;g.purchases.push(it.id);g.equipped=it.id;save();render();});
- const mascot=document.querySelector(".lm-mascot");if(mascot){mascot.style.filter=g.equipped==="bot-purple"?"hue-rotate(55deg) saturate(1.6) drop-shadow(0 18px 15px #0008)":g.equipped==="bot-gold"?"sepia(.8) saturate(2) drop-shadow(0 18px 15px #0008)":"drop-shadow(0 18px 15px #0008)";}
+ const mascot=document.querySelector(".lm-mascot");if(mascot){mascot.classList.toggle("lm-fox-equipped",g.equipped==="fox-companion");mascot.classList.toggle("lm-owl-equipped",g.equipped==="owl-companion");mascot.style.filter=g.equipped==="bot-purple"?"hue-rotate(55deg) saturate(1.6) drop-shadow(0 18px 15px #0008)":g.equipped==="bot-gold"?"sepia(.8) saturate(2) drop-shadow(0 18px 15px #0008)":"drop-shadow(0 18px 15px #0008)";}const hero=document.querySelector(".lm-hero3d");if(hero){hero.classList.toggle("lm-frame-blue",g.equipped==="frame-blue");hero.classList.toggle("lm-frame-gold",g.equipped==="frame-gold");}document.body.classList.toggle("lm-space-theme",g.equipped==="theme-space");el("lm-player-title").textContent=g.purchases.includes("title-pro")?"متحدث محترف · "+levelNames[Math.min(levelNames.length-1,Math.floor((player-1)/2))]:levelNames[Math.min(levelNames.length-1,Math.floor((player-1)/2))];
 }
 function challenge(){
  const chosenLang=typeof lang!=="undefined"&&lang?lang:"en",chosenLevel=typeof level!=="undefined"&&level?level:"A0";
@@ -287,5 +307,4 @@ document.getElementById("checkDialogue").addEventListener("click",()=>{const inp
 el("lm-gamehub").addEventListener("click",e=>{const b=e.target.closest("[data-buy]");if(b){/* handled in render */}});
 render();challenge();
 })();
-</script>
 </script><script src="/Salary-portal/assets/lamma-ai-config.js" defer></script><script src="/Salary-portal/assets/lamma-assistant.js" defer></script><script src="/Salary-portal/assets/lamma-update.js" defer></script></body></html>
