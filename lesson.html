@@ -27,7 +27,15 @@
 .storyprogress{height:5px;background:#263b58;border-radius:9px;overflow:hidden;margin:9px 0}.storyprogress i{display:block;height:100%;width:0;background:#80caff;transition:width .3s}
 @keyframes charBob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-7px) rotate(2deg)}}@keyframes propBob{0%,100%{transform:translate(-50%,0) rotate(-3deg)}50%{transform:translate(-50%,-9px) rotate(3deg)}}
 @media(max-width:480px){.cartoonchar{transform:scale(.82);transform-origin:bottom center}.cartoonchar.one{left:7%}.cartoonchar.two{right:7%}.speechbubble{top:8px}}
-</style></head><body><div class="wrap"><header><div class="brand">لَمّة <b>· تعلّم واكتشف</b></div><a class="back" id="back" href="/Salary-portal/">رجوع للقسم ←</a></header><div class="crumb" id="cat"></div><section class="hero"><h1 id="title"></h1><p class="desc" id="desc"></p></section><img class="photo" id="photo" alt="صورة توضيحية للدرس"><section id="storyVideoPanel" style="display:none;background:#111e32;border:1px solid #293b5b;border-radius:16px;padding:12px;margin:14px 0"><h2 style="font-size:16px;margin:0 0 10px">🎬 فيديو القصة</h2><div id="storyVideoMount"></div></section><section class="storybox" id="awarenessStory" aria-label="قصة كرتونية متحركة"><div class="storyhead"><b>🎬 حكاية لَمّة المتحركة</b><span>شاهد واتعلّم خطوة بخطوة</span></div><div class="cartoonstage" id="cartoonStage"><div class="scene-cloud">☁️</div><div class="speechbubble" id="storyBubble">يلا نشوف الموقف ونتعلم نتصرف إزاي!</div><div class="cartoonchar one"><div class="charhead"></div><div class="charbody"></div><div class="chararm"></div></div><div class="cartoonchar two"><div class="charhead"></div><div class="charbody"></div><div class="chararm"></div></div><div class="scene-prop" id="storyProp">🏡</div></div><div class="storycaption" id="storyCaption">اضغط تشغيل عشان تبدأ الحكاية.</div><div class="storyprogress"><i id="storyProgress"></i></div><div class="storycontrols"><button class="primary" id="storyPlay">▶ شغّل الحكاية</button><button id="storyNext">المشهد التالي ←</button><button id="storyVoice">🔊 اسمع الحكاية</button></div></section><section class="content" id="body"></section><section class="extra" id="extra" hidden></section><section class="source" id="source" hidden></section><section class="quiz" id="quiz" hidden><h3 id="question"></h3><div id="answers"></div><div id="feedback"></div></section><div class="foot">لَمّة · المعرفة خطوة بخطوة</div></div>
+
+/* 3D Lamma teacher inside the lesson */
+.teacher-card{display:none;margin:10px 0 20px;padding:13px;border:1px solid #3d6687;border-radius:18px;background:linear-gradient(145deg,#172d49,#101a2d);overflow:hidden}
+.teacher-card.active{display:block}.teacher-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:9px}.teacher-head strong{font-size:14px}.teacher-head span{font-size:10px;color:#a9c8e5}
+.teacher-stage{height:clamp(230px,52vw,360px);position:relative;border-radius:13px;overflow:hidden;background:radial-gradient(ellipse at 50% 30%,#28577a,#0b1728 72%);border:1px solid #355777}
+.teacher-stage canvas{display:block;width:100%;height:100%}.teacher-speech{position:absolute;top:10px;right:10px;left:10px;z-index:2;padding:9px 12px;background:#f5fbff;color:#17304a;border-radius:12px;font-size:12px;font-weight:800;line-height:1.7;box-shadow:0 4px 15px #0003;pointer-events:none}
+.teacher-controls{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.teacher-controls button{border:1px solid #47749a;background:#1b3b59;color:#f3f9ff;border-radius:9px;padding:9px 12px;font:700 11px Cairo;cursor:pointer}.teacher-controls button.primary{background:#226b9f;border-color:#69b9ee}
+.teacher-hint{font-size:10px;color:#91abc5;margin-top:8px;line-height:1.7}
+</style></head><body><div class="wrap"><header><div class="brand">لَمّة <b>· تعلّم واكتشف</b></div><a class="back" id="back" href="/Salary-portal/">رجوع للقسم ←</a></header><div class="crumb" id="cat"></div><section class="hero"><h1 id="title"></h1><p class="desc" id="desc"></p></section><section class="teacher-card" id="teacherCard"><div class="teacher-head"><strong>👨‍🏫 المدرّس لَمّة معاك في الدرس</strong><span>شخصية 3D من ملفاتك</span></div><div class="teacher-stage" id="teacherStage"><div class="teacher-speech" id="teacherSpeech">أهلاً يا بطل! يلا نفهم درسنا النهارده سوا.</div></div><div class="teacher-controls"><button class="primary" id="teacherSpeak">🔊 اسمع شرح المدرّس</button><button id="teacherAsk">🤖 اسأل المعلّم الذكي</button><button id="teacherPause">⏸ إيقاف الصوت</button></div><div class="teacher-hint" id="teacherHint">جاري تجهيز المدرّس ثلاثي الأبعاد…</div></section><img class="photo" id="photo" alt="صورة توضيحية للدرس"><section id="storyVideoPanel" style="display:none;background:#111e32;border:1px solid #293b5b;border-radius:16px;padding:12px;margin:14px 0"><h2 style="font-size:16px;margin:0 0 10px">🎬 فيديو القصة</h2><div id="storyVideoMount"></div></section><section class="storybox" id="awarenessStory" aria-label="قصة كرتونية متحركة"><div class="storyhead"><b>🎬 حكاية لَمّة المتحركة</b><span>شاهد واتعلّم خطوة بخطوة</span></div><div class="cartoonstage" id="cartoonStage"><div class="scene-cloud">☁️</div><div class="speechbubble" id="storyBubble">يلا نشوف الموقف ونتعلم نتصرف إزاي!</div><div class="cartoonchar one"><div class="charhead"></div><div class="charbody"></div><div class="chararm"></div></div><div class="cartoonchar two"><div class="charhead"></div><div class="charbody"></div><div class="chararm"></div></div><div class="scene-prop" id="storyProp">🏡</div></div><div class="storycaption" id="storyCaption">اضغط تشغيل عشان تبدأ الحكاية.</div><div class="storyprogress"><i id="storyProgress"></i></div><div class="storycontrols"><button class="primary" id="storyPlay">▶ شغّل الحكاية</button><button id="storyNext">المشهد التالي ←</button><button id="storyVoice">🔊 اسمع الحكاية</button></div></section><section class="content" id="body"></section><section class="extra" id="extra" hidden></section><section class="source" id="source" hidden></section><section class="quiz" id="quiz" hidden><h3 id="question"></h3><div id="answers"></div><div id="feedback"></div></section><div class="foot">لَمّة · المعرفة خطوة بخطوة</div></div>
 <script>
 const p=new URLSearchParams(location.search),section=p.get('section')||'awareness',title=p.get('title')||'الدرس',cat=p.get('cat')||'';
 const backMap={religion:'religion.html',awareness:'kids-awareness.html',learning:'kids-learning.html'};
@@ -111,5 +119,58 @@ onValue(ref(db,"siteContent/storyVideos/"+key),snap=>{
  else {let id="";try{const u=new URL(url);if(u.hostname.includes("youtu.be"))id=u.pathname.slice(1);else if(u.hostname.includes("youtube.com"))id=u.searchParams.get("v")||u.pathname.split("/").filter(Boolean).pop();}catch{}if(id){node=document.createElement("iframe");node.src="https://www.youtube-nocookie.com/embed/"+encodeURIComponent(id);node.title="فيديو القصة";node.allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";node.allowFullscreen=true;}else{node=document.createElement("a");node.href=url;node.target="_blank";node.rel="noopener";node.textContent="شاهد فيديو القصة";}}
  node.style.width="100%";node.style.maxWidth="100%";node.style.aspectRatio="16/9";node.style.border="0";node.style.borderRadius="12px";mount.appendChild(node);
 });
+</script>
+
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+import {OrbitControls} from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js';
+import {GLTFLoader} from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js';
+const params=new URLSearchParams(location.search),section=params.get('section')||'awareness';
+if(section==='learning'){
+ const card=document.getElementById('teacherCard');card.classList.add('active');
+ const stage=document.getElementById('teacherStage'),hint=document.getElementById('teacherHint'),speech=document.getElementById('teacherSpeech');
+ let model=null,renderer=null,scene=null,camera=null,controls=null,raf=0;
+ try{
+  scene=new THREE.Scene();scene.background=new THREE.Color(0x0b1728);
+  camera=new THREE.PerspectiveCamera(40,stage.clientWidth/stage.clientHeight,.1,100);
+  camera.position.set(0,1.45,4.1);
+  renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.7));
+  renderer.setSize(stage.clientWidth,stage.clientHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;
+  renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1;stage.appendChild(renderer.domElement);
+  scene.add(new THREE.HemisphereLight(0xdceeff,0x26364b,2.1));
+  const key=new THREE.DirectionalLight(0xffffff,2.4);key.position.set(3,6,4);scene.add(key);
+  const floor=new THREE.Mesh(new THREE.CircleGeometry(2.5,48),new THREE.MeshStandardMaterial({color:0x193650,roughness:.8}));floor.rotation.x=-Math.PI/2;floor.position.y=-.03;scene.add(floor);
+  controls=new OrbitControls(camera,renderer.domElement);controls.target.set(0,.95,0);controls.enableDamping=true;controls.minDistance=1.5;controls.maxDistance=7;controls.maxPolarAngle=Math.PI*.49;
+  const manifestResponse=await fetch('/Salary-portal/assets/lamma3d/manifest.json',{cache:'no-store'});
+  if(!manifestResponse.ok)throw new Error('ملفات المدرّس مش ظاهرة على الموقع لسه.');
+  const manifest=await manifestResponse.json();
+  const teacher=(manifest.models||[]).find(x=>/teacher\.glb$/i.test(x));
+  if(!teacher)throw new Error('ملف المدرّس مش موجود في قائمة الشخصيات.');
+  await new Promise((resolve,reject)=>new GLTFLoader().load('/Salary-portal/assets/lamma3d/package/'+teacher,gltf=>{
+   model=gltf.scene;const box=new THREE.Box3().setFromObject(model),size=box.getSize(new THREE.Vector3()),center=box.getCenter(new THREE.Vector3()),max=Math.max(size.x,size.y,size.z)||1;
+   model.position.sub(center);model.scale.setScalar(2.25/max);model.position.y+=1.05;scene.add(model);resolve();
+  },undefined,reject));
+  hint.textContent='المدرّس جاهز. اسحب على الشخصية لتغيير زاوية المشاهدة.';
+  const resize=new ResizeObserver(()=>{const w=stage.clientWidth,h=stage.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h)});resize.observe(stage);
+  const animate=()=>{raf=requestAnimationFrame(animate);if(model)model.rotation.y+=.002;controls.update();renderer.render(scene,camera)};animate();
+ }catch(error){console.error('Lamma 3D teacher:',error);hint.textContent='تعذر تحميل الشخصية الآن: '+(error.message||'خطأ تحميل');}
+ const lessonTitle=document.getElementById('title').textContent;
+ const lessonDesc=document.getElementById('desc').textContent;
+ const lessonBody=[...document.querySelectorAll('#body p')].map(x=>x.textContent).join(' ');
+ const lessonExtra=document.getElementById('extra').textContent;
+ document.getElementById('teacherSpeak').addEventListener('click',()=>{
+  if(!('speechSynthesis'in window)){hint.textContent='الصوت غير مدعوم في المتصفح ده.';return;}
+  speechSynthesis.cancel();
+  const text='أهلاً يا بطل. درسنا النهارده '+lessonTitle+'. '+lessonDesc+'. '+lessonBody+'. '+lessonExtra;
+  const utter=new SpeechSynthesisUtterance(text);utter.lang='ar-EG';utter.rate=.84;utter.pitch=1;speechSynthesis.speak(utter);
+  speech.textContent='بشرحلك درس '+lessonTitle+'… ركّز معايا، وتقدر تسأل المعلّم الذكي في أي وقت.';
+ });
+ document.getElementById('teacherPause').addEventListener('click',()=>speechSynthesis?.cancel());
+ document.getElementById('teacherAsk').addEventListener('click',()=>{
+  const toggle=document.getElementById('lamma-helper-toggle');
+  if(toggle)toggle.click();else hint.textContent='المعلّم الذكي لسه بيجهز، جرّب بعد لحظة.';
+ });
+}
 </script>
 </body></html>
