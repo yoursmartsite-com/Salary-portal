@@ -252,11 +252,19 @@ public class MainActivity extends Activity {
                     if (item.toLowerCase().startsWith("charset=")) encoding = item.substring(8).replace("\"", "").trim();
                 }
             }
+
+            java.io.ByteArrayOutputStream bytes = new java.io.ByteArrayOutputStream();
+            try (InputStream input = connection.getInputStream()) {
+                byte[] buffer = new byte[8192];
+                int count;
+                while ((count = input.read(buffer)) != -1) bytes.write(buffer, 0, count);
+            }
             Map<String, String> headers = new HashMap<>();
             headers.put("Access-Control-Allow-Origin", "*");
             headers.put("Cache-Control", "no-store");
             headers.put("X-Lamma-Content-Source", "live");
-            return new WebResourceResponse(mime, encoding, status, "OK", headers, connection.getInputStream());
+            return new WebResourceResponse(mime, encoding, status, "OK", headers,
+                new ByteArrayInputStream(bytes.toByteArray()));
         } catch (Exception ignored) {
             return null;
         } finally {
