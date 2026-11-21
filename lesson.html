@@ -121,6 +121,7 @@ onValue(ref(db,"siteContent/storyVideos/"+key),snap=>{
 });
 </script>
 
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
 <script type="module">
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
 import {OrbitControls} from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js';
@@ -166,7 +167,7 @@ if(section==='learning'){
   const utter=new SpeechSynthesisUtterance(text);utter.lang='ar-EG';utter.rate=.84;utter.pitch=1;speechSynthesis.speak(utter);
   speech.textContent='بشرحلك درس '+lessonTitle+'… ركّز معايا، وتقدر تسأل المعلّم الذكي في أي وقت.';
  });
- document.getElementById('teacherPause').addEventListener('click',()=>speechSynthesis?.cancel());
+ document.getElementById('teacherPause').addEventListener('click',()=>window.speechSynthesis?.cancel());
  document.getElementById('teacherAsk').addEventListener('click',()=>{
   const toggle=document.getElementById('lamma-helper-toggle');
   if(toggle)toggle.click();else hint.textContent='المعلّم الذكي لسه بيجهز، جرّب بعد لحظة.';
