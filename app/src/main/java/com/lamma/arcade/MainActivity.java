@@ -143,11 +143,22 @@ public class MainActivity extends Activity {
                 JSONObject data = new JSONObject(out.toString("UTF-8"));
                 int latestCode = data.optInt("versionCode", 0);
                 if (latestCode <= BuildConfig.VERSION_CODE) return;
+
+                // Show each published version only once on this device.
+                android.content.SharedPreferences prefs =
+                    getSharedPreferences("lamma_update_state", MODE_PRIVATE);
+                int lastNotifiedCode = prefs.getInt("last_notified_version_code", 0);
+                if (latestCode <= lastNotifiedCode) return;
+
                 String apkUrl = data.optString("apkUrl", "");
                 if (apkUrl.isEmpty()) return;
                 String message = data.optString("message", "فيه تحديث جديد لتطبيق لَمّة.");
                 boolean force = data.optBoolean("force", false);
-                runOnUiThread(() -> showUpdateDialog(apkUrl, message, force));
+                runOnUiThread(() -> {
+                    if (isFinishing() || isDestroyed()) return;
+                    prefs.edit().putInt("last_notified_version_code", latestCode).apply();
+                    showUpdateDialog(apkUrl, message, force);
+                });
             } catch (Exception ignored) {
             } finally {
                 if (connection != null) connection.disconnect();
