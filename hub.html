@@ -87,7 +87,7 @@ document.querySelector('#modal').addEventListener('click',e=>{if(e.target.id==='
 function resize(){renderer.setSize(innerWidth,innerHeight,false);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix()}addEventListener('resize',resize);resize();
 const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04),t=clock.elapsedTime;
 let ix=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0),iz=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);ix+=move.x;iz+=move.z;const mag=Math.hypot(ix,iz);if(mag>1){ix/=mag;iz/=mag}
-const forwardX=Math.sin(yaw),forwardZ=Math.cos(yaw),rightX=Math.cos(yaw),rightZ=-Math.sin(yaw);const forwardInput=-iz;const dx=(rightX*ix+forwardX*forwardInput),dz=(rightZ*ix+forwardZ*forwardInput);
+const forwardX=Math.sin(yaw),forwardZ=Math.cos(yaw),rightX=Math.cos(yaw),rightZ=-Math.sin(yaw);const forwardInput=iz;const dx=(rightX*ix+forwardX*forwardInput),dz=(rightZ*ix+forwardZ*forwardInput);
 if(Math.abs(dx)+Math.abs(dz)>.02){avatar.position.x+=dx*8*dt;avatar.position.z+=dz*8*dt;avatar.rotation.y=Math.atan2(dx,dz);walkT+=dt*10;legs[0].rotation.x=Math.sin(walkT)*.65;legs[1].rotation.x=-Math.sin(walkT)*.65;arms[0].rotation.x=-Math.sin(walkT)*.35;arms[1].rotation.x=Math.sin(walkT)*.35}else{legs.forEach(l=>l.rotation.x=0);arms.forEach((a,i)=>{a.rotation.x=0;if(i===1)a.rotation.z=.18})}
 jumpV-=18*dt;avatar.position.y+=jumpV*dt;if(avatar.position.y<=0){avatar.position.y=0;jumpV=0;onGround=true}
 avatar.position.x=THREE.MathUtils.clamp(avatar.position.x,-48,48);avatar.position.z=THREE.MathUtils.clamp(avatar.position.z,-53,48);
