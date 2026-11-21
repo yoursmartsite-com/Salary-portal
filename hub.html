@@ -205,6 +205,28 @@ for(const [x,z] of [[-8,-28],[8,-28],[-8,28],[8,28],[-37,0],[37,0],[0,-17],[0,17
 }
 function sign(text,x,z,color){const board=box(5,1.5,.3,dark,x,4,z);board.material=mat(color);const post=cyl(.12,.12,3,dark,x,1.5,z);return board}
 sign('HUB',0,-31,'#167d76');sign('PLAY',-37,-8,'#bf7950');sign('FUN',37,8,'#537eac');
+// Solid world collision map: block passage through all major scenery.
+const addSolid=(x,z,r)=>treeColliders.push({x,z,r});
+// Trees have their own trunk colliders; enlarge their safety radius slightly.
+for(const c of treeColliders)c.r=Math.max(c.r,1.12);
+// Benches around the central plaza.
+for(let a=0;a<8;a++){const q=a*Math.PI/4;addSolid(Math.cos(q)*12,Math.sin(q)*12,1.35);}
+// Flower beds and fountains.
+for(let i=0;i<22;i++){const a=i*2.399;addSolid(Math.cos(a)*16,Math.sin(a)*16,1.0);}
+addSolid(-13,-7,3.85);addSolid(13,8,3.85);
+// Climbing tower, slide and side rails.
+addSolid(-29,-12,3.9);addSolid(-22,-6,2.0);
+// Swing frame and its supports.
+addSolid(28,-17,4.8);
+// Ferris wheel supports and central machinery.
+addSolid(-3.5,-43,1.0);addSolid(3.5,-43,1.0);addSolid(0,-43,1.7);
+// Football goal posts and pavilion/cafe structure.
+for(const x of [21,41])for(const z of [20,24])addSolid(x,z,.55);
+addSolid(-30,28,5.2);
+for(const x of [-35,-25])for(const z of [25,31])addSolid(x,z,.65);
+// Lamp posts: collision is around the pole, not the light above it.
+for(const [x,z] of [[-8,-28],[8,-28],[-8,28],[8,28],[-37,0],[37,0],[0,-17],[0,17],[-23,-17],[23,17]])addSolid(x,z,.62);
+// Keep the avatar inside the walkable world and out of the outer tree line.
 // Roblox-style blocky avatar: cuboid head, torso, arms and legs
 function createRobloxAvatar(seed=0){
  const palettes=[
@@ -348,7 +370,7 @@ let ix=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0),iz=(keys.s||ke
 const forwardX=Math.sin(yaw),forwardZ=Math.cos(yaw),rightX=-Math.cos(yaw),rightZ=Math.sin(yaw);const forwardInput=-iz,lateralInput=ix;const dx=(rightX*lateralInput+forwardX*forwardInput),dz=(rightZ*lateralInput+forwardZ*forwardInput);
 if(Math.abs(dx)+Math.abs(dz)>.02){const isSprinting=sprintEnabled&&forwardInput>.35;const moveSpeed=isSprinting?13.5:8;const stepX=dx*moveSpeed*dt,stepZ=dz*moveSpeed*dt;
  // Solid collision: players and tree trunks cannot be walked through; allow sliding along edges
- const canStand=(x,z)=>{for(const tr of treeColliders){if(Math.hypot(x-tr.x,z-tr.z)<tr.r+.48)return false;}for(const other of remotePlayers.values()){const p=other.model.position;if(Math.hypot(x-p.x,z-p.z)<1.18)return false;}return true;};
+ const canStand=(x,z)=>{for(const obstacle of treeColliders){if(Math.hypot(x-obstacle.x,z-obstacle.z)<obstacle.r+.48)return false;}for(const other of remotePlayers.values()){const p=other.model.position;if(Math.hypot(x-p.x,z-p.z)<1.35)return false;}return Math.abs(x)<=47&&Math.abs(z)<=52;};
  const nx=avatar.position.x+stepX,nz=avatar.position.z+stepZ;
  if(canStand(nx,nz)){avatar.position.x=nx;avatar.position.z=nz;}
  else {if(canStand(nx,avatar.position.z))avatar.position.x=nx;if(canStand(avatar.position.x,nz))avatar.position.z=nz;}
