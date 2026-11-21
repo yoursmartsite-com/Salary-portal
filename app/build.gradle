@@ -4,6 +4,9 @@ plugins {
 
 android {
     namespace 'com.lamma.arcade'
+    buildFeatures {
+        buildConfig true
+    }
     compileSdk 35
 
     defaultConfig {
