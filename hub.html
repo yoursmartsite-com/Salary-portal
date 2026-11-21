@@ -130,8 +130,53 @@ for(const [x,z] of [[-13,-7],[13,8]]){cyl(3.3,3.6,.55,blue,x,.3,z,40);cyl(2.7,2.
 for(const [x,z] of [[-8,-28],[8,-28],[-8,28],[8,28],[-37,0],[37,0]]){cyl(.12,.16,4,dark,x,2,z);sphere(.35,yellow,x,4.2,z)}
 function sign(text,x,z,color){const board=box(5,1.5,.3,dark,x,4,z);board.material=mat(color);const post=cyl(.12,.12,3,dark,x,1.5,z);return board}
 sign('HUB',0,-31,'#167d76');sign('PLAY',-37,-8,'#bf7950');sign('FUN',37,8,'#537eac');
-// avatar: cute stylized character
-const avatar=new THREE.Group();scene.add(avatar);const body=new THREE.Mesh(new THREE.CapsuleGeometry(.55,.85,5,10),teal);body.position.y=1.35;body.castShadow=true;avatar.add(body);const head=sphere(.53,mat('#f1bd91'),0,2.55,0);avatar.add(head);const hair=sphere(.55,mat('#26313c'),0,2.82,-.05);hair.scale.set(1,.55,1);avatar.add(hair);for(let x of [-.19,.19]){const eye=sphere(.055,mat('#18222a'),x,2.58,.47);avatar.add(eye)}const armMat=mat('#f1bd91');const arms=[];for(let x of [-.72,.72]){const a=new THREE.Mesh(new THREE.CapsuleGeometry(.16,.65,4,8),armMat);a.position.set(x,1.55,0);a.rotation.z=x>0?-.18:.18;avatar.add(a);arms.push(a)}const legs=[];for(let x of [-.25,.25]){const l=new THREE.Mesh(new THREE.CapsuleGeometry(.18,.55,4,8),mat('#253f68'));l.position.set(x,.45,0);avatar.add(l);legs.push(l)}
+// Roblox-style blocky avatar: cuboid head, torso, arms and legs
+function createRobloxAvatar(seed=0){
+ const palettes=[
+  {shirt:'#18a88f',pants:'#263f70',hair:'#26313c',skin:'#efbd91'},
+  {shirt:'#e06b58',pants:'#30384c',hair:'#3a2922',skin:'#d99a70'},
+  {shirt:'#548bd0',pants:'#273c56',hair:'#1e252d',skin:'#f0c49e'},
+  {shirt:'#b36cc5',pants:'#38466b',hair:'#5a3827',skin:'#e6ad83'},
+  {shirt:'#e2ad42',pants:'#334b45',hair:'#29242a',skin:'#c98762'},
+  {shirt:'#e779a8',pants:'#4a416d',hair:'#35251e',skin:'#f2c9a7'}
+ ];
+ const p=palettes[Math.abs(seed)%palettes.length];
+ const model=new THREE.Group();
+ const shirt=mat(p.shirt),pants=mat(p.pants),hairMat=mat(p.hair),skin=mat(p.skin),face=mat('#17232b');
+ function part(w,h,d,material,x,y,z,parent=model){
+  const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);
+  mesh.position.set(x,y,z);mesh.castShadow=true;mesh.receiveShadow=true;parent.add(mesh);return mesh;
+ }
+ // classic block torso and square head
+ part(1.05,1.12,.52,shirt,0,1.48,0);
+ part(.88,.88,.82,skin,0,2.52,0);
+ // blocky layered hair
+ part(.92,.22,.88,hairMat,0,3.04,-.015);
+ part(.22,.3,.82,hairMat,-.34,2.91,.015);
+ part(.22,.3,.82,hairMat,.34,2.91,.015);
+ // simple readable Roblox face
+ for(const x of [-.19,.19])part(.085,.105,.035,face,x,2.57,.426);
+ part(.22,.045,.035,mat('#8d4d45'),0,2.34,.426);
+ // shoulder-pivot arms and hip-pivot legs for blocky walking animation
+ const arms=[],legs=[];
+ for(const x of [-.7,.7]){
+  const pivot=new THREE.Group();pivot.position.set(x,1.98,0);model.add(pivot);
+  part(.38,.96,.43,skin,0,-.46,0,pivot);
+  part(.4,.2,.45,shirt,0,-.12,0,pivot);
+  arms.push(pivot);
+ }
+ for(const x of [-.26,.26]){
+  const pivot=new THREE.Group();pivot.position.set(x,.92,0);model.add(pivot);
+  part(.43,.92,.46,pants,0,-.46,0,pivot);
+  part(.45,.2,.5,dark,0,-.83,.025,pivot);
+  legs.push(pivot);
+ }
+ return {model,arms,legs};
+}
+const localSeed=(()=>{let h=0;for(const ch of myName)h=(h*31+ch.charCodeAt(0))|0;return Math.abs(h)})();
+const localAvatar=createRobloxAvatar(localSeed);
+const avatar=localAvatar.model,arms=localAvatar.arms,legs=localAvatar.legs;
+scene.add(avatar);
 avatar.position.set(0,0,4);let velocity=0,move={x:0,z:0},jumpV=0,onGround=true,walkT=0,drag=null,yaw=0;camera.position.set(0,7,-10);
 const keys={};addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(e.key.toLowerCase()))e.preventDefault()});addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
 canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'||e.pointerType==='touch'||e.pointerType==='pen'){drag={x:e.clientX,y:e.clientY};try{canvas.setPointerCapture(e.pointerId)}catch(_){}}});canvas.addEventListener('pointermove',e=>{if(drag){yaw-=(e.clientX-drag.x)*.009;drag={x:e.clientX,y:e.clientY}}});canvas.addEventListener('pointerup',()=>drag=null);canvas.addEventListener('pointercancel',()=>drag=null);
@@ -145,7 +190,7 @@ function resize(){renderer.setSize(innerWidth,innerHeight,false);camera.aspect=i
 const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04),t=clock.elapsedTime;
 let ix=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0),iz=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);ix+=move.x;iz+=move.z;const mag=Math.hypot(ix,iz);if(mag>1){ix/=mag;iz/=mag}
 const forwardX=Math.sin(yaw),forwardZ=Math.cos(yaw),rightX=-Math.cos(yaw),rightZ=Math.sin(yaw);const forwardInput=-iz,lateralInput=ix;const dx=(rightX*lateralInput+forwardX*forwardInput),dz=(rightZ*lateralInput+forwardZ*forwardInput);
-if(Math.abs(dx)+Math.abs(dz)>.02){avatar.position.x+=dx*8*dt;avatar.position.z+=dz*8*dt;avatar.rotation.y=Math.atan2(dx,dz);walkT+=dt*10;legs[0].rotation.x=Math.sin(walkT)*.65;legs[1].rotation.x=-Math.sin(walkT)*.65;arms[0].rotation.x=-Math.sin(walkT)*.35;arms[1].rotation.x=Math.sin(walkT)*.35}else{legs.forEach(l=>l.rotation.x=0);arms.forEach((a,i)=>{a.rotation.x=0;if(i===1)a.rotation.z=.18})}
+if(Math.abs(dx)+Math.abs(dz)>.02){avatar.position.x+=dx*8*dt;avatar.position.z+=dz*8*dt;avatar.rotation.y=Math.atan2(dx,dz);walkT+=dt*10;legs[0].rotation.x=Math.sin(walkT)*.65;legs[1].rotation.x=-Math.sin(walkT)*.65;arms[0].rotation.x=-Math.sin(walkT)*.35;arms[1].rotation.x=Math.sin(walkT)*.35}else{legs.forEach(l=>l.rotation.x=0);arms.forEach(a=>{a.rotation.x=0;a.rotation.z=0})}
 jumpV-=18*dt;avatar.position.y+=jumpV*dt;if(avatar.position.y<=0){avatar.position.y=0;jumpV=0;onGround=true}
 avatar.position.x=THREE.MathUtils.clamp(avatar.position.x,-48,48);avatar.position.z=THREE.MathUtils.clamp(avatar.position.z,-53,48);
 swings.forEach((s,i)=>s.rotation.x=Math.sin(t*2.2+i*1.7)*.38);wheel.rotation.z+=dt*.12;
