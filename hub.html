@@ -174,7 +174,21 @@ for(let i=0;i<22;i++){const a=i*2.399,r=16,x=Math.cos(a)*r,z=Math.sin(a)*r;const
 function bench(x,z,rot=0){box(2,.18,.65,mat('#9a6847'),x,.7,z,rot);for(const dx of [-.7,.7])box(.15,.7,.15,dark,x,.35,z,rot)}
 for(let a=0;a<8;a++){const q=a*Math.PI/4;bench(Math.cos(q)*12,Math.sin(q)*12,q+Math.PI/2)}
 // giant slide, climbing tower
-const towerX=-29,towerZ=-12;box(5,5,5,blue,towerX,2.5,towerZ);box(5.8,.35,5.8,yellow,towerX,5.15,towerZ);
+const towerX=-29,towerZ=-12;
+const stairSurfaces=[];
+for(const x of [towerX-2.15,towerX+2.15])for(const z of [towerZ-2.15,towerZ+2.15])cyl(.22,.28,5,blue,x,2.5,z,10);
+box(5.8,.4,5.8,yellow,towerX,5.15,towerZ);
+const stairMat=mat('#d8e0e8',.72),stairSide=mat('#657b8c',.8);
+for(let i=0;i<10;i++){
+ const top=(i+1)*.5,depth=.62,centerZ=towerZ+4.55-i*.57;
+ box(2.8,.16,depth,stairMat,towerX,top-.08,centerZ);
+ box(2.8,top,.12,stairSide,towerX,top/2,centerZ+depth/2-.06);
+ stairSurfaces.push({x:towerX,z:centerZ,w:2.8,d:depth+.04,y:top});
+}
+for(const side of [-1,1]){
+ const rail=cyl(.07,.07,6.1,yellow,towerX+side*1.48,2.95,towerZ+1.8,10);
+ rail.rotation.x=.72;
+}
 for(let i=0;i<7;i++){box(2.2,.25,1.0,white,towerX+7,4.8-i*.65,towerZ+2+i*.85,-.38)}
 const slideMat=mat('#f27d65',.45);const slide=new THREE.Mesh(new THREE.BoxGeometry(3,.25,13),slideMat);slide.position.set(towerX+7,2.1,towerZ+6);slide.rotation.x=-.34;slide.rotation.z=-.18;slide.castShadow=true;scene.add(slide);
 for(const side of [-1,1]){const rail=new THREE.Mesh(new THREE.BoxGeometry(.18,.55,13),yellow);rail.position.set(towerX+7+side*1.5,2.45,towerZ+6);rail.rotation.x=-.34;rail.rotation.z=-.18;scene.add(rail)}
@@ -215,7 +229,7 @@ for(let a=0;a<8;a++){const q=a*Math.PI/4;addSolid(Math.cos(q)*12,Math.sin(q)*12,
 for(let i=0;i<22;i++){const a=i*2.399;addSolid(Math.cos(a)*16,Math.sin(a)*16,1.0);}
 addSolid(-13,-7,3.85);addSolid(13,8,3.85);
 // Climbing tower, slide and side rails.
-addSolid(-29,-12,3.9);addSolid(-22,-6,2.0);
+addSolid(-22,-6,2.0);
 // Swing frame and its supports.
 addSolid(28,-17,4.8);
 // Ferris wheel supports and central machinery.
@@ -372,10 +386,13 @@ if(Math.abs(dx)+Math.abs(dz)>.02){const isSprinting=sprintEnabled&&forwardInput>
  // Solid collision: players and tree trunks cannot be walked through; allow sliding along edges
  const canStand=(x,z)=>{for(const obstacle of treeColliders){const nextDist=Math.hypot(x-obstacle.x,z-obstacle.z),currentDist=Math.hypot(avatar.position.x-obstacle.x,avatar.position.z-obstacle.z),limit=obstacle.r+.48;const jumpingOver=avatar.position.y>1.05;const movingOut=currentDist<limit&&nextDist>currentDist;if(nextDist<limit&&!jumpingOver&&!movingOut)return false;}for(const other of remotePlayers.values()){const p=other.model.position;if(Math.hypot(x-p.x,z-p.z)<1.35)return false;}return Math.abs(x)<=47&&Math.abs(z)<=52;};
  const nx=avatar.position.x+stepX,nz=avatar.position.z+stepZ;
- if(canStand(nx,nz)){avatar.position.x=nx;avatar.position.z=nz;}
- else {if(canStand(nx,avatar.position.z))avatar.position.x=nx;if(canStand(avatar.position.x,nz))avatar.position.z=nz;}
+ const stairGround=(x,z,fromY)=>{let best=0;for(const step of stairSurfaces){if(Math.abs(x-step.x)<=step.w/2&&Math.abs(z-step.z)<=step.d/2&&step.y<=fromY+.56&&step.y>best)best=step.y;}return best;};
+ if(canStand(nx,nz)){avatar.position.x=nx;avatar.position.z=nz;const nextFloor=stairGround(nx,nz,avatar.position.y);if(onGround&&nextFloor>avatar.position.y-.76){avatar.position.y=nextFloor;}}
+ else {if(canStand(nx,avatar.position.z)){avatar.position.x=nx;const nextFloor=stairGround(nx,avatar.position.z,avatar.position.y);if(onGround&&nextFloor>avatar.position.y-.76)avatar.position.y=nextFloor;}if(canStand(avatar.position.x,nz)){avatar.position.z=nz;const nextFloor=stairGround(avatar.position.x,nz,avatar.position.y);if(onGround&&nextFloor>avatar.position.y-.76)avatar.position.y=nextFloor;}}
  avatar.rotation.y=Math.atan2(dx,dz);walkT+=dt*(isSprinting?16:10);legs[0].rotation.x=Math.sin(walkT)*.65;legs[1].rotation.x=-Math.sin(walkT)*.65;arms[0].rotation.x=-Math.sin(walkT)*.35;arms[1].rotation.x=Math.sin(walkT)*.35}else{legs.forEach(l=>l.rotation.x=0);arms.forEach(a=>{a.rotation.x=0;a.rotation.z=0})}
-jumpV-=18*dt;avatar.position.y+=jumpV*dt;if(avatar.position.y<=0){avatar.position.y=0;jumpV=0;onGround=true}
+const floorY=stairGround(avatar.position.x,avatar.position.z,avatar.position.y);
+jumpV-=18*dt;avatar.position.y+=jumpV*dt;
+if(avatar.position.y<=floorY){avatar.position.y=floorY;jumpV=0;onGround=true}else if(jumpV>0){onGround=false}
 avatar.position.x=THREE.MathUtils.clamp(avatar.position.x,-48,48);avatar.position.z=THREE.MathUtils.clamp(avatar.position.z,-53,48);
 swings.forEach((s,i)=>s.rotation.x=Math.sin(t*2.2+i*1.7)*.38);wheel.rotation.z+=dt*.12;
 const desired=new THREE.Vector3(avatar.position.x-Math.sin(yaw)*10,avatar.position.y+6,avatar.position.z-Math.cos(yaw)*10);camera.position.lerp(desired,1-Math.pow(.001,dt));camera.lookAt(avatar.position.x,avatar.position.y+1.6,avatar.position.z);
