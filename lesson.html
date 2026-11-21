@@ -216,7 +216,7 @@ if(section==='learning'){
  async function teacherShow(){
   const token=++sequenceToken;
   if(!teacherRig){hint.textContent='الشخصية لسه بتحمّل.';return}
-  speechSynthesis?.cancel?.();card.classList.remove('is-away');
+  window.speechSynthesis?.cancel?.();card.classList.remove('is-away');
   teacherRig.position.set(-2.1,1.05,.15);
   await moveTeacher({x:-2.1,z:.15},{x:-.78,z:.15},1450,true);
   if(token!==sequenceToken)return;
@@ -240,7 +240,7 @@ if(section==='learning'){
  document.getElementById('teacherSpeak').textContent='▶ اعرض المدرّس من البداية';
  document.getElementById('teacherSpeak').addEventListener('click',teacherShow);
  document.getElementById('teacherPause').addEventListener('click',()=>{
-  sequenceToken++;speechSynthesis?.cancel?.();motion=null;card.classList.add('is-away');hint.textContent='تم إيقاف المدرّس.';
+  sequenceToken++;window.speechSynthesis?.cancel?.();motion=null;card.classList.add('is-away');hint.textContent='تم إيقاف المدرّس.';
  });
  document.getElementById('teacherAsk').addEventListener('click',()=>{
   const toggle=document.getElementById('lamma-helper-toggle');
