@@ -10,9 +10,8 @@
 .sprint-control small{font-size:10px;font-weight:900;line-height:1.1}
 .sprint-control.active{background:linear-gradient(145deg,#1bb98d,#08765f);border-color:#c8fff0;box-shadow:0 0 0 5px #32d9ac33,0 7px 22px #0009}
 #jumpControl{position:fixed;z-index:90;right:28px;bottom:105px}
-#sleepControl{position:fixed;z-index:90;right:28px;bottom:198px}
-#jumpControl small,#sleepControl small{font-size:10px}
-@media(max-width:760px){#jumpControl{right:16px;bottom:92px}#sleepControl{right:16px;bottom:184px}}
+#jumpControl small{font-size:10px}
+@media(max-width:760px){#jumpControl{right:16px;bottom:92px}}
 .joystick{display:block!important;position:fixed!important;z-index:999!important;bottom:105px;left:20px;width:112px;height:112px;border:2px solid #b9e9dfaa;border-radius:50%;background:#06151dcc;touch-action:none;pointer-events:auto!important;box-shadow:0 6px 24px #0008}.stick{position:absolute;left:35px;top:35px;width:40px;height:40px;border-radius:50%;background:#54dfb7cc;border:2px solid #d8fff2;box-shadow:0 3px 15px #0008}@media (pointer:coarse){.joystick{display:block!important;position:fixed!important;z-index:80!important;left:16px!important;bottom:92px!important;width:112px!important;height:112px!important;pointer-events:auto!important;touch-action:none!important}.stick{left:35px;top:35px;width:40px;height:40px}}
 .toast{position:absolute;top:78px;left:50%;transform:translateX(-50%);padding:10px 17px;border-radius:12px;background:#0a2630;border:1px solid #4bd8b4;color:#dffff6;font-size:12px;opacity:0;transition:.25s;pointer-events:none}.toast.show{opacity:1}.modal{display:none;position:absolute;inset:0;background:#020a10c9;backdrop-filter:blur(7px);align-items:center;justify-content:center;padding:18px}.modal.open{display:flex}.modal-card{width:min(440px,100%);padding:22px;border-radius:20px;border:1px solid #4a7b82;background:linear-gradient(145deg,#102d38,#091822);box-shadow:0 25px 80px #000b;text-align:center}.modal-card h2{margin:0 0 8px}.modal-card p{color:#b9d0d4;font-size:12px;line-height:1.9}.modal-card button{margin-top:12px;padding:10px 24px;border-radius:10px;background:#0ca987;font-weight:900}
 @media(max-width:760px){.top{padding:10px}.brand b{font-size:16px}.logo{width:36px;height:36px}.topright .pill{display:none}.left-panel{top:62px;right:10px;width:165px;padding:11px}.left-panel h1{font-size:18px}.left-panel p{font-size:9px}.feature{font-size:9px;padding:6px 0}.feature span{width:25px;height:25px}.right-panel{top:62px;left:10px;width:145px;padding:10px}.right-panel .spot{font-size:9px;margin-top:7px}.right-panel .spot i{width:24px;height:24px}.bottom{bottom:12px;gap:5px;padding:6px;max-width:calc(100% - 18px)}.action{padding:9px 10px;font-size:9px}.hint{bottom:70px;font-size:9px}.joystick{display:block;bottom:78px;left:13px;width:100px;height:100px}.stick{left:30px;top:30px}.right-panel{display:none!important}}
@@ -44,7 +43,6 @@ body.hud-editing [data-hud-control]{pointer-events:auto!important}
 <div class="hint" id="hint">اسحب العصاية للحركة · اسحب أي مكان فاضي لتلف الكاميرا</div>
 <button class="sprint-control" id="sprint" data-hud-control aria-pressed="false">🏃<small>ركض</small></button>
 <button class="sprint-control" id="jumpControl" data-hud-control type="button">⬆️<small>قفز</small></button>
-<button class="sprint-control" id="sleepControl" data-hud-control type="button" aria-pressed="false">😴<small>نوم</small></button>
 <div class="joystick" id="joystick" data-hud-control><div class="stick" id="stick"></div></div>
 <div class="bottom"><button class="action primary" id="explore" data-hud-control>✨ استكشف المكان</button><button class="action" id="emote" data-hud-control>👋 تلويح</button></div>
 <div class="toast" id="toast"></div>
@@ -225,11 +223,8 @@ avatar.position.set(0,0,4);let velocity=0,move={x:0,z:0},jumpV=0,onGround=true,w
 const keys={};addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(e.key.toLowerCase()))e.preventDefault()});addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
 canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'||e.pointerType==='touch'||e.pointerType==='pen'){drag={x:e.clientX,y:e.clientY};try{canvas.setPointerCapture(e.pointerId)}catch(_){}}});canvas.addEventListener('pointermove',e=>{if(drag){yaw-=(e.clientX-drag.x)*.009;drag={x:e.clientX,y:e.clientY}}});canvas.addEventListener('pointerup',()=>drag=null);canvas.addEventListener('pointercancel',()=>drag=null);
 const joy=document.querySelector('#joystick'),stick=document.querySelector('#stick');let joyId=null;joy.addEventListener('pointerdown',e=>{joyId=e.pointerId;joy.setPointerCapture(joyId);joyMove(e)});joy.addEventListener('pointermove',e=>{if(e.pointerId===joyId)joyMove(e)});function joyMove(e){const r=joy.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2),len=Math.min(34,Math.hypot(dx,dy)),a=Math.atan2(dy,dx);move.x=Math.cos(a)*len/34;move.z=Math.sin(a)*len/34;stick.style.transform='translate('+move.x*30+'px,'+move.z*30+'px)'}function joyEnd(){joyId=null;move.x=0;move.z=0;stick.style.transform=''}joy.addEventListener('pointerup',joyEnd);joy.addEventListener('pointercancel',joyEnd);
-let sleeping=false;
-function setSleeping(value){sleeping=value;avatar.rotation.x=sleeping ? Math.PI/2 : 0;avatar.position.y=sleeping ? 0.08 : 0;const b=document.querySelector('#sleepControl');b.classList.toggle('active',sleeping);b.setAttribute('aria-pressed',String(sleeping));b.innerHTML=sleeping?'😴<small>استيقاظ</small>':'😴<small>نوم</small>';if(sleeping&&sprintEnabled){sprintEnabled=false;sprintButton.classList.remove('active');sprintButton.setAttribute('aria-pressed','false');sprintButton.innerHTML='🏃<small>ركض</small>';}}
-function jump(){if(sleeping)setSleeping(false);if(onGround){jumpV=7;onGround=false}}
+function jump(){if(onGround){jumpV=7;onGround=false}}
 document.querySelector('#jumpControl').addEventListener('pointerdown',e=>{e.preventDefault();jump()});
-document.querySelector('#sleepControl').addEventListener('click',()=>setSleeping(!sleeping));
 const lammaPanel=document.querySelector('#lammaPanel');
 const closeLammaPanel=document.querySelector('#closeLammaPanel');
 const openLammaPanel=document.querySelector('#openLammaPanel');
@@ -318,7 +313,7 @@ function resize(){renderer.setSize(innerWidth,innerHeight,false);camera.aspect=i
 const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04),t=clock.elapsedTime;
 let ix=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0),iz=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);ix+=move.x;iz+=move.z;const mag=Math.hypot(ix,iz);if(mag>1){ix/=mag;iz/=mag}
 const forwardX=Math.sin(yaw),forwardZ=Math.cos(yaw),rightX=-Math.cos(yaw),rightZ=Math.sin(yaw);const forwardInput=-iz,lateralInput=ix;const dx=(rightX*lateralInput+forwardX*forwardInput),dz=(rightZ*lateralInput+forwardZ*forwardInput);
-if(!sleeping&&Math.abs(dx)+Math.abs(dz)>.02){const isSprinting=sprintEnabled&&forwardInput>.35;const moveSpeed=isSprinting?13.5:8;avatar.position.x+=dx*moveSpeed*dt;avatar.position.z+=dz*moveSpeed*dt;avatar.rotation.y=Math.atan2(dx,dz);walkT+=dt*(isSprinting?16:10);legs[0].rotation.x=Math.sin(walkT)*.65;legs[1].rotation.x=-Math.sin(walkT)*.65;arms[0].rotation.x=-Math.sin(walkT)*.35;arms[1].rotation.x=Math.sin(walkT)*.35}else{legs.forEach(l=>l.rotation.x=0);arms.forEach(a=>{a.rotation.x=0;a.rotation.z=0})}
+if(Math.abs(dx)+Math.abs(dz)>.02){const isSprinting=sprintEnabled&&forwardInput>.35;const moveSpeed=isSprinting?13.5:8;avatar.position.x+=dx*moveSpeed*dt;avatar.position.z+=dz*moveSpeed*dt;avatar.rotation.y=Math.atan2(dx,dz);walkT+=dt*(isSprinting?16:10);legs[0].rotation.x=Math.sin(walkT)*.65;legs[1].rotation.x=-Math.sin(walkT)*.65;arms[0].rotation.x=-Math.sin(walkT)*.35;arms[1].rotation.x=Math.sin(walkT)*.35}else{legs.forEach(l=>l.rotation.x=0);arms.forEach(a=>{a.rotation.x=0;a.rotation.z=0})}
 jumpV-=18*dt;avatar.position.y+=jumpV*dt;if(avatar.position.y<=0){avatar.position.y=0;jumpV=0;onGround=true}
 avatar.position.x=THREE.MathUtils.clamp(avatar.position.x,-48,48);avatar.position.z=THREE.MathUtils.clamp(avatar.position.z,-53,48);
 swings.forEach((s,i)=>s.rotation.x=Math.sin(t*2.2+i*1.7)*.38);wheel.rotation.z+=dt*.12;
