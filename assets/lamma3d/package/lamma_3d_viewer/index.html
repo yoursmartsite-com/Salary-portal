@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>لَمّة | معاينة الشخصيات ثلاثية الأبعاد</title>
+<script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+<style>
+:root{color-scheme:dark;--bg:#0b1020;--panel:#121b31;--line:#263653;--accent:#65d6a4}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% 0,#1a2b48,var(--bg) 55%);color:#f4f7ff;font-family:Tahoma,Arial,sans-serif;min-height:100vh;padding:22px}.wrap{max-width:980px;margin:auto}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.brand{font-size:24px;font-weight:800}.tag{color:var(--accent);font-size:13px}.panel{margin-top:18px;background:rgba(18,27,49,.92);border:1px solid var(--line);border-radius:22px;padding:16px;box-shadow:0 18px 60px #0005}.controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}button{border:1px solid var(--line);background:#1b2944;color:#fff;border-radius:12px;padding:11px 15px;font-size:14px;cursor:pointer}button.active{background:#174a3a;border-color:var(--accent)}model-viewer{width:100%;height:min(68vh,650px);min-height:390px;background:linear-gradient(150deg,#101a2d,#080d19);border-radius:16px;--poster-color:transparent}.hint{color:#aab8d0;font-size:13px;line-height:1.8;margin:12px 4px 0}.foot{color:#8393ad;font-size:12px;margin:16px 4px}
+</style></head>
+<body><main class="wrap"><header class="top"><div class="brand">لَمّة <span class="tag">أكاديمية المستقبل</span></div><div class="tag">معاينة مجسمات GLB</div></header>
+<section class="panel"><div class="controls"><button class="active" data-src="assets/teacher.glb">المدرّسة</button><button data-src="assets/assistant.glb">المساعد</button><button data-src="assets/classmates.glb">الشخصيتان معًا</button></div>
+<model-viewer id="viewer" src="assets/teacher.glb" camera-controls auto-rotate rotation-per-second="18deg" shadow-intensity="1" exposure="1" environment-image="neutral" interaction-prompt="auto" ar alt="مجسم شخصية ثلاثية الأبعاد"></model-viewer>
+<p class="hint">اسحب لتدوير المجسم، واستخدم إصبعين للتقريب والتبعيد. دي معاينة تفاعلية للملفات المفصولة.</p></section>
+<p class="foot">ملاحظة فنية: المجسمات الحالية ثابتة؛ لا تحتوي على هيكل عظمي أو حركات مدمجة حتى الآن.</p></main>
+<script>const v=document.getElementById('viewer');document.querySelectorAll('button[data-src]').forEach(b=>b.addEventListener('click',()=>{v.src=b.dataset.src;document.querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b));}));</script></body></html>

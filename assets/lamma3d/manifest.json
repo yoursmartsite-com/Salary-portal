@@ -1,0 +1,7 @@
+{
+  "models": [
+    "lamma_3d_viewer/assets/assistant.glb",
+    "lamma_3d_viewer/assets/classmates.glb",
+    "lamma_3d_viewer/assets/teacher.glb"
+  ]
+}
