@@ -1,41 +1,38 @@
-name: Build Lamma Android APK
+name: Build and publish Lamma Android update
 
 on:
   workflow_dispatch:
   push:
     paths:
-      - '**'
-      - '!README*'
+      - 'app/**'
+      - '.github/workflows/build-android-apk.yml'
+      - 'android-update.json'
+      - '*.html'
+      - '*.js'
+      - '*.css'
+      - 'games/**'
+      - 'assets/**'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  build:
+  build-and-release:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout complete Lamma website and Android project
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Package the full website inside the Android app
+      - name: Package website into Android app
         run: |
           mkdir -p app/src/main/assets/Salary-portal
           rsync -a ./ app/src/main/assets/Salary-portal/ \
-            --exclude='.git/' \
-            --exclude='.github/' \
-            --exclude='app/' \
-            --exclude='functions/' \
-            --exclude='cloudflare/' \
-            --exclude='README*' \
-            --exclude='*.zip' \
-            --exclude='build.gradle' \
-            --exclude='settings.gradle' \
-            --exclude='gradle.properties' \
-            --exclude='local.properties'
+            --exclude='.git/' --exclude='.github/' --exclude='app/' \
+            --exclude='functions/' --exclude='cloudflare/' \
+            --exclude='README*' --exclude='*.zip' \
+            --exclude='build.gradle' --exclude='settings.gradle' \
+            --exclude='gradle.properties' --exclude='local.properties'
           test -s app/src/main/assets/Salary-portal/index.html
-          echo "Packaged website files:"
-          find app/src/main/assets/Salary-portal -type f | wc -l
-          du -sh app/src/main/assets/Salary-portal
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -48,21 +45,37 @@ jobs:
         with:
           packages: 'platform-tools'
 
-      - name: Install required Android platform
-        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
-
-      - name: Install Gradle
+      - name: Install Android platform and Gradle
         run: |
+          sdkmanager "platforms;android-35" "build-tools;35.0.0"
           curl -L --retry 3 -o /tmp/gradle.zip https://services.gradle.org/distributions/gradle-8.9-bin.zip
           unzip -q /tmp/gradle.zip -d /tmp
 
-      - name: Build release-ready debug APK
-        run: /tmp/gradle-8.9/bin/gradle --no-daemon clean assembleDebug
+      - name: Configure persistent signing key
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          test -n "$KEYSTORE_BASE64" || (echo "::error::Add ANDROID_KEYSTORE_BASE64 in GitHub Actions secrets"; exit 1)
+          test -n "$STORE_PASSWORD" || (echo "::error::Add ANDROID_STORE_PASSWORD in GitHub Actions secrets"; exit 1)
+          test -n "$KEY_ALIAS" || (echo "::error::Add ANDROID_KEY_ALIAS in GitHub Actions secrets"; exit 1)
+          test -n "$KEY_PASSWORD" || (echo "::error::Add ANDROID_KEY_PASSWORD in GitHub Actions secrets"; exit 1)
+          echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/lamma-release.jks"
+          echo "ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/lamma-release.jks" >> "$GITHUB_ENV"
+          echo "ANDROID_STORE_PASSWORD=$STORE_PASSWORD" >> "$GITHUB_ENV"
+          echo "ANDROID_KEY_ALIAS=$KEY_ALIAS" >> "$GITHUB_ENV"
+          echo "ANDROID_KEY_PASSWORD=$KEY_PASSWORD" >> "$GITHUB_ENV"
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+      - name: Build signed release APK
+        run: /tmp/gradle-8.9/bin/gradle --no-daemon clean assembleRelease
+
+      - name: Publish permanent APK release
+        uses: softprops/action-gh-release@v2
         with:
-          name: lamma-android-debug-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
-          if-no-files-found: error
-          retention-days: 30
+          tag_name: lamma-android-${{ github.run_number }}
+          name: Lamma Android ${{ github.run_number }}
+          make_latest: true
+          files: app/build/outputs/apk/release/app-release.apk
+          name_template: lamma.apk
