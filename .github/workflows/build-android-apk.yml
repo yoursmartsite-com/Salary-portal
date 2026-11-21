@@ -71,11 +71,13 @@ jobs:
       - name: Build signed release APK
         run: /tmp/gradle-8.9/bin/gradle --no-daemon clean assembleRelease
 
+      - name: Name APK for permanent download
+        run: cp app/build/outputs/apk/release/app-release.apk lamma.apk
+
       - name: Publish permanent APK release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: lamma-android-${{ github.run_number }}
           name: Lamma Android ${{ github.run_number }}
           make_latest: true
-          files: app/build/outputs/apk/release/app-release.apk
-          name_template: lamma.apk
+          files: lamma.apk
