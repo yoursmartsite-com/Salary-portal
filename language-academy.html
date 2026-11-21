@@ -293,7 +293,7 @@ function challenge(){
  const targetWord=x[5][wi].split(/[—·]/).pop().trim(),correctMeaning=x[6][wi];
  if(g.challengeDone===day()){el("lm-challenge-prompt").textContent="أنجزت مهام النهارده الخمسة بالفعل.";el("lm-challenge-feedback").textContent="أحسنت! مكافأتك 25 XP اتضافت لرصيدك 🌟";el("lm-challenge-options").innerHTML="";return}
  let stage=0,timer=null,score=0;
- const norm=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").replace(/[^a-z0-9\\u0600-\\u06ff]/g,"").trim();
+ const norm=s=>String(s||"").toLowerCase().replace(/[^a-z0-9ء-ي]/g,"").trim();
  const mix=(arr)=>{const shift=dayNum()%arr.length;return arr.slice(shift).concat(arr.slice(0,shift))};
  function stopTimer(){if(timer){clearInterval(timer);timer=null}}
  function finish(){stopTimer();g.challengeDone=day();award("challenge:"+day(),25,"تحدي اليوم");activateDay();el("lm-challenge-prompt").textContent="كملت التحدي اليومي كله!";el("lm-challenge-feedback").textContent="5 من 5 مهام — بطل! كسبت 25 XP 🎉";el("lm-challenge-options").innerHTML='<button class="good" disabled>✓ التحدي مكتمل</button>'}
