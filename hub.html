@@ -31,8 +31,23 @@
 <div class="toast" id="toast"></div>
 <div class="modal" id="modal"><div class="modal-card"><div style="font-size:42px">🎡</div><h2 id="modalTitle">أهلاً بيك في لَمّة</h2><p id="modalText">دي ساحتك الترفيهية. اتحرك واستكشف المكان بنفسك!</p><button id="closeModal">تمام، يلا!</button></div></div>
 <script type="module">
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
-import { firebaseConfig } from './firebase-config.js';
+let THREE;
+try {
+ THREE = await import('https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js');
+} catch (firstError) {
+ try {
+  THREE = await import('https://unpkg.com/three@0.160.0/build/three.module.js');
+ } catch (secondError) {
+  document.body.innerHTML = '<div style="min-height:100vh;display:grid;place-items:center;background:#07111b;color:white;font-family:Cairo,Arial;text-align:center;padding:24px"><div><h2>تعذر تحميل عالم لَمّة</h2><p>اتأكد من اتصال الإنترنت وافتح اللعبة تاني.</p><button onclick="location.reload()" style="padding:12px 22px;border-radius:10px;background:#19b98f;color:white;border:0">إعادة المحاولة</button></div></div>';
+  throw secondError;
+ }
+}
+let firebaseConfig = null;
+try {
+ ({ firebaseConfig } = await import('./firebase-config.js'));
+} catch (configError) {
+ console.warn('Firebase config unavailable; opening HUB offline.', configError);
+}
 
 const hubStatus=document.querySelector('#hubOnlineStatus');
 const hubCount=document.querySelector('#hubPlayersCount');
@@ -51,6 +66,7 @@ function hubLabel(name){
 }
 async function connectHub(){
  try{
+  if(!firebaseConfig) throw new Error('Firebase configuration unavailable');
   const [appMod,dbMod,authMod]=await Promise.all([
    import('https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js'),
    import('https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js'),
@@ -87,7 +103,7 @@ async function connectHub(){
    for(const [id,item] of remotePlayers){if(!alive.has(id)){scene.remove(item.model);item.label.material.map?.dispose();remotePlayers.delete(id);}}
    hubCount.textContent='👥 '+(1+remotePlayers.size)+' لاعب';
   },err=>{console.error('Hub presence read',err);hubStatus.textContent='🔴 مشكلة صلاحيات';});
- }catch(e){console.error('Hub Firebase connection failed',e);hubStatus.textContent='🔴 غير متصل';toast('تعذر الاتصال بالساحة المشتركة. راجع تسجيل الدخول وقواعد Firebase.');}
+ }catch(e){console.error('Hub Firebase connection failed',e);hubStatus.textContent='🟡 وضع أوفلاين';toast('اللعبة تعمل بدون اتصال اللاعبين حالياً.');}
 }
 const canvas=document.querySelector('#world');
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false});
