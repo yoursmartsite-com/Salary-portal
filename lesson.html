@@ -149,7 +149,38 @@ if(section==='learning'){
   const teacher=(manifest.models||[]).find(x=>/teacher\.glb$/i.test(x));
   if(!teacher)throw new Error('ملف المدرّس مش موجود في قائمة الشخصيات.');
   await new Promise((resolve,reject)=>new GLTFLoader().load('/Salary-portal/assets/lamma3d/package/'+teacher,gltf=>{
-   model=gltf.scene;const box=new THREE.Box3().setFromObject(model),size=box.getSize(new THREE.Vector3()),center=box.getCenter(new THREE.Vector3()),max=Math.max(size.x,size.y,size.z)||1;
+   model=gltf.scene;
+   // Restore a friendly, non-metallic classroom look when the exported GLB appears silver.
+   const teacherPalette=[
+    {keys:/skin|face|body|hand|ear|neck/i,color:0xe8b58f},
+    {keys:/hair|brow|beard|mustache/i,color:0x49332f},
+    {keys:/shirt|top|jacket|coat|uniform|cloth/i,color:0x249b9b},
+    {keys:/pant|trouser|skirt/i,color:0x344b78},
+    {keys:/shoe|boot/i,color:0x292d3b},
+    {keys:/button|badge|trim|accessory/i,color:0xf0bd4e}
+   ];
+   const fallbackColors=[0x249b9b,0x344b78,0xe8b58f,0x49332f,0xf0bd4e,0x6d78bd,0x55a878];
+   const seenMaterials=new Map();let nextMaterial=0;
+   model.traverse(node=>{
+    if(!node.isMesh||!node.material)return;
+    const applyColor=mat=>{
+     if(!mat)return;
+     const originalName=String(mat.name||'');
+     let selected=teacherPalette.find(item=>item.keys.test(originalName));
+     if(mat.map){mat.color?.set(0xffffff);}
+     else if(selected){mat.color?.setHex(selected.color);}
+     else if(mat.metalness>0.25||!originalName){ 
+      if(!seenMaterials.has(mat.uuid)){seenMaterials.set(mat.uuid,fallbackColors[nextMaterial%fallbackColors.length]);nextMaterial++;}
+      mat.color?.setHex(seenMaterials.get(mat.uuid));
+     }
+     mat.metalness=0;
+     mat.roughness=Math.max(Number(mat.roughness)||0.0,0.78);
+     mat.envMapIntensity=0.35;
+     mat.needsUpdate=true;
+    };
+    if(Array.isArray(node.material))node.material.forEach(applyColor);else applyColor(node.material);
+   });
+   const box=new THREE.Box3().setFromObject(model),size=box.getSize(new THREE.Vector3()),center=box.getCenter(new THREE.Vector3()),max=Math.max(size.x,size.y,size.z)||1;
    model.position.sub(center);model.scale.setScalar(2.25/max);
    teacherRig=new THREE.Group();teacherRig.position.y=1.05;teacherRig.add(model);scene.add(teacherRig);resolve();
   },undefined,reject));
