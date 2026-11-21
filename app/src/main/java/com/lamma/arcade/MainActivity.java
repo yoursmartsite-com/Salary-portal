@@ -10,38 +10,27 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.net.Uri;
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.graphics.Color;
-import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.webkit.ValueCallback;
-import android.webkit.PermissionRequest;
-import androidx.webkit.WebViewAssetLoader;
-import androidx.webkit.WebViewClientCompat;
-import androidx.webkit.WebResourceErrorCompat;
-import androidx.webkit.WebResourceRequestCompat;
-import androidx.webkit.WebViewFeature;
-import java.util.Collections;
+import java.io.InputStream;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends Activity {
     private static final String SITE_HOST = "yoursmartsite-com.github.io";
-    private static final String HOME = "https://" + SITE_HOST + "/Salary-portal/index.html";
+    private static final String SITE_PREFIX = "/Salary-portal/";
+    private static final String HOME = "https://" + SITE_HOST + SITE_PREFIX + "index.html";
     private static final int FILE_CHOOSER_REQUEST = 4102;
     private WebView webView;
     private ValueCallback<Uri[]> fileCallback;
-    private WebViewAssetLoader assetLoader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setStatusBarColor(Color.rgb(11, 16, 32));
         getWindow().setNavigationBarColor(Color.rgb(7, 11, 23));
-        getWindow().getDecorView().setSystemUiVisibility(0);
-
-        assetLoader = new WebViewAssetLoader.Builder()
-            .setDomain(SITE_HOST)
-            .addPathHandler("/Salary-portal/", new WebViewAssetLoader.AssetsPathHandler(this))
-            .build();
 
         webView = new WebView(this);
         webView.setBackgroundColor(Color.rgb(7, 11, 23));
@@ -57,23 +46,16 @@ public class MainActivity extends Activity {
         settings.setAllowContentAccess(true);
         settings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
         settings.setCacheMode(WebSettings.LOAD_DEFAULT);
-        settings.setUserAgentString(settings.getUserAgentString() + " LammaAndroid/1.0");
+        settings.setUserAgentString(settings.getUserAgentString() + " LammaAndroid/1.1");
 
-        webView.setWebViewClient(new WebViewClientCompat() {
+        webView.setWebViewClient(new WebViewClient() {
             @Override
             public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-                return assetLoader.shouldInterceptRequest(request.getUrl());
+                return serveBundledSite(request.getUrl());
             }
 
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                Uri uri = request.getUrl();
-                String host = uri.getHost();
-                if (host != null && (host.equals(SITE_HOST) || host.endsWith("firebaseapp.com") ||
-                    host.endsWith("googleapis.com") || host.endsWith("gstatic.com") ||
-                    host.equals("accounts.google.com"))) {
-                    return false;
-                }
                 return false;
             }
         });
@@ -84,19 +66,13 @@ public class MainActivity extends Activity {
                     FileChooserParams params) {
                 if (fileCallback != null) fileCallback.onReceiveValue(null);
                 fileCallback = callback;
-                Intent intent = params.createIntent();
                 try {
-                    startActivityForResult(intent, FILE_CHOOSER_REQUEST);
+                    startActivityForResult(params.createIntent(), FILE_CHOOSER_REQUEST);
                     return true;
                 } catch (Exception e) {
                     fileCallback = null;
                     return false;
                 }
-            }
-
-            @Override
-            public void onPermissionRequest(PermissionRequest request) {
-                runOnUiThread(() -> request.grant(request.getResources()));
             }
         });
 
@@ -107,6 +83,56 @@ public class MainActivity extends Activity {
         } else {
             webView.loadUrl(HOME);
         }
+    }
+
+    private WebResourceResponse serveBundledSite(Uri uri) {
+        if (!SITE_HOST.equals(uri.getHost())) return null;
+        String path = uri.getPath();
+        if (path == null || path.equals("/")) path = SITE_PREFIX + "index.html";
+        if (path.equals("/Salary-portal")) path = SITE_PREFIX + "index.html";
+        if (!path.startsWith(SITE_PREFIX)) return null;
+
+        String relative = Uri.decode(path.substring(SITE_PREFIX.length()));
+        if (relative.isEmpty()) relative = "index.html";
+        if (relative.contains("..") || relative.startsWith("/")) {
+            return new WebResourceResponse("text/plain", "UTF-8", 403, "Forbidden",
+                    new HashMap<>(), InputStream.nullInputStream());
+        }
+
+        try {
+            InputStream stream = getAssets().open("Salary-portal/" + relative, AssetManager.ACCESS_STREAMING);
+            String mime = mimeType(relative);
+            Map<String, String> headers = new HashMap<>();
+            headers.put("Access-Control-Allow-Origin", "*");
+            headers.put("Cache-Control", "public, max-age=3600");
+            return new WebResourceResponse(mime, "UTF-8", 200, "OK", headers, stream);
+        } catch (IOException e) {
+            return new WebResourceResponse("text/plain", "UTF-8", 404, "Not Found",
+                    new HashMap<>(), InputStream.nullInputStream());
+        }
+    }
+
+    private String mimeType(String path) {
+        String lower = path.toLowerCase();
+        if (lower.endsWith(".html")) return "text/html";
+        if (lower.endsWith(".js") || lower.endsWith(".mjs")) return "application/javascript";
+        if (lower.endsWith(".css")) return "text/css";
+        if (lower.endsWith(".json") || lower.endsWith(".webmanifest")) return "application/json";
+        if (lower.endsWith(".svg")) return "image/svg+xml";
+        if (lower.endsWith(".glb")) return "model/gltf-binary";
+        if (lower.endsWith(".gltf")) return "model/gltf+json";
+        if (lower.endsWith(".wasm")) return "application/wasm";
+        if (lower.endsWith(".png")) return "image/png";
+        if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return "image/jpeg";
+        if (lower.endsWith(".webp")) return "image/webp";
+        if (lower.endsWith(".gif")) return "image/gif";
+        if (lower.endsWith(".mp4")) return "video/mp4";
+        if (lower.endsWith(".mp3")) return "audio/mpeg";
+        if (lower.endsWith(".woff2")) return "font/woff2";
+        if (lower.endsWith(".woff")) return "font/woff";
+        if (lower.endsWith(".ttf")) return "font/ttf";
+        if (lower.endsWith(".ico")) return "image/x-icon";
+        return "application/octet-stream";
     }
 
     @Override
