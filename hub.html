@@ -13,6 +13,18 @@
 .toast{position:absolute;top:78px;left:50%;transform:translateX(-50%);padding:10px 17px;border-radius:12px;background:#0a2630;border:1px solid #4bd8b4;color:#dffff6;font-size:12px;opacity:0;transition:.25s;pointer-events:none}.toast.show{opacity:1}.modal{display:none;position:absolute;inset:0;background:#020a10c9;backdrop-filter:blur(7px);align-items:center;justify-content:center;padding:18px}.modal.open{display:flex}.modal-card{width:min(440px,100%);padding:22px;border-radius:20px;border:1px solid #4a7b82;background:linear-gradient(145deg,#102d38,#091822);box-shadow:0 25px 80px #000b;text-align:center}.modal-card h2{margin:0 0 8px}.modal-card p{color:#b9d0d4;font-size:12px;line-height:1.9}.modal-card button{margin-top:12px;padding:10px 24px;border-radius:10px;background:#0ca987;font-weight:900}
 @media(max-width:760px){.top{padding:10px}.brand b{font-size:16px}.logo{width:36px;height:36px}.topright .pill{display:none}.left-panel{top:62px;right:10px;width:165px;padding:11px}.left-panel h1{font-size:18px}.left-panel p{font-size:9px}.feature{font-size:9px;padding:6px 0}.feature span{width:25px;height:25px}.right-panel{top:62px;left:10px;width:145px;padding:10px}.right-panel .spot{font-size:9px;margin-top:7px}.right-panel .spot i{width:24px;height:24px}.bottom{bottom:12px;gap:5px;padding:6px;max-width:calc(100% - 18px)}.action{padding:9px 10px;font-size:9px}.hint{bottom:70px;font-size:9px}.joystick{display:block;bottom:78px;left:13px;width:100px;height:100px}.stick{left:30px;top:30px}.right-panel{display:none!important}}
 @media(hover:hover) and (pointer:fine) and (min-width:761px){.joystick{display:none!important}}
+
+.hud-settings-btn{position:fixed;z-index:120;top:76px;left:14px;padding:9px 13px;border-radius:12px;border:1px solid #64dabb;background:#092632eF;color:#fff;font:800 12px Cairo,Arial;box-shadow:0 6px 22px #0008}
+.settings-overlay{display:none;position:fixed;inset:0;z-index:300;background:#020a10c9;backdrop-filter:blur(7px);align-items:center;justify-content:center;padding:16px}
+.settings-overlay.open{display:flex}.settings-card{position:relative;width:min(430px,100%);max-height:90vh;overflow:auto;padding:24px 20px 18px;border:1px solid #4a8c88;border-radius:20px;background:linear-gradient(145deg,#102d38,#091822);box-shadow:0 25px 80px #000c;text-align:right}
+.settings-card h2{margin:0 0 6px;font-size:21px}.settings-card p{margin:0 0 18px;color:#b9d0d4;font-size:12px;line-height:1.8}.settings-close{position:absolute;left:12px;top:12px;width:34px;height:34px;border-radius:10px;background:#193744;font-size:23px}
+.setting-row{display:block;margin:15px 0;color:#e8f8f5;font-size:13px}.setting-row span{display:flex;justify-content:space-between;margin-bottom:8px}.setting-row b{color:#55e0b7}.setting-row input{width:100%;accent-color:#21c69b}
+.settings-main,.settings-reset{width:100%;padding:12px;border-radius:11px;margin-top:9px;font-weight:900}.settings-main{background:linear-gradient(110deg,#087f70,#19b98f)}.settings-reset{background:#203b48;border:1px solid #496674}.settings-card small{display:block;color:#a9c7cc;font-size:10px;line-height:1.8;margin-top:12px}
+.hud-done-btn{display:none;position:fixed;z-index:220;top:14px;left:50%;transform:translateX(-50%);padding:10px 18px;border-radius:12px;background:#16a982;color:white;font:900 13px Cairo,Arial;box-shadow:0 6px 20px #0008}
+body.hud-editing [data-hud-control]{outline:2px dashed #ffe18b!important;outline-offset:3px;touch-action:none!important;cursor:move!important}
+body.hud-editing .bottom{background:transparent;border-color:transparent;box-shadow:none;pointer-events:none}
+body.hud-editing [data-hud-control]{pointer-events:auto!important}
+@media(max-width:760px){.hud-settings-btn{top:58px;left:10px;padding:8px 10px;font-size:10px}.settings-card{padding:22px 16px 15px}.hud-done-btn{top:8px}}
 </style>
 </head>
 <body>
@@ -24,11 +36,14 @@
 <aside class="left-panel" id="lammaPanel"><button class="panel-close" id="closeLammaPanel" type="button" aria-label="إغلاق القائمة">×</button><div class="eyebrow">WELCOME TO LAMMA</div><h1>مكاننا.. لعبتنا.. لَمّتنا!</h1><p>اتحرك واستكشف عالم لَمّة. لف على الملاهي، جرّب الأنشطة، واكتشف أماكن جديدة في الساحة.</p><div class="feature"><span>🎡</span> منطقة الملاهي</div><div class="feature"><span>🛝</span> الزحاليق والألعاب</div><div class="feature"><span>🌴</span> ساحة التجمع</div></aside>
 <button class="panel-reopen" id="openLammaPanel" type="button">☰ لَمّتنا</button>
 
+<button class="hud-settings-btn" id="hudSettingsBtn" type="button" aria-label="إعدادات التحكم">⚙️ إعدادات</button>
 <div class="hint" id="hint">اسحب العصاية للحركة · اسحب أي مكان فاضي لتلف الكاميرا</div>
-<button class="sprint-control" id="sprint" aria-pressed="false">🏃<small>ركض</small></button>
-<div class="joystick" id="joystick"><div class="stick" id="stick"></div></div>
-<div class="bottom"><button class="action" id="jump">⬆ قفز</button><button class="action primary" id="explore">✨ استكشف المكان</button><button class="action" id="emote">👋 تلويح</button></div>
+<button class="sprint-control" id="sprint" data-hud-control aria-pressed="false">🏃<small>ركض</small></button>
+<div class="joystick" id="joystick" data-hud-control><div class="stick" id="stick"></div></div>
+<div class="bottom"><button class="action" id="jump" data-hud-control>⬆ قفز</button><button class="action primary" id="explore" data-hud-control>✨ استكشف المكان</button><button class="action" id="emote" data-hud-control>👋 تلويح</button></div>
 <div class="toast" id="toast"></div>
+<div class="settings-overlay" id="hudSettingsOverlay" aria-hidden="true"><section class="settings-card" role="dialog" aria-modal="true" aria-labelledby="hudSettingsTitle"><button class="settings-close" id="hudSettingsClose" type="button">×</button><h2 id="hudSettingsTitle">إعدادات التحكم</h2><p>ظبط حجم وشفافية الأزرار على راحتك. تقدر كمان تحرك كل زر لمكانه.</p><label class="setting-row"><span>حجم الأزرار <b id="hudSizeValue">100%</b></span><input id="hudSize" type="range" min="70" max="150" value="100"></label><label class="setting-row"><span>شفافية الأزرار <b id="hudOpacityValue">90%</b></span><input id="hudOpacity" type="range" min="30" max="100" value="90"></label><button class="settings-main" id="hudMoveBtn" type="button">✥ تعديل أماكن الأزرار</button><button class="settings-reset" id="hudResetBtn" type="button">إعادة التوزيع الافتراضي</button><small>بعد الضغط على تعديل الأماكن، اسحب الزر للمكان المناسب ثم اضغط تم من أعلى الشاشة.</small></section></div>
+<button class="hud-done-btn" id="hudDoneBtn" type="button">تم حفظ التوزيع</button>
 <div class="modal" id="modal"><div class="modal-card"><div style="font-size:42px">🎡</div><h2 id="modalTitle">أهلاً بيك في لَمّة</h2><p id="modalText">دي ساحتك الترفيهية. اتحرك واستكشف المكان بنفسك!</p><button id="closeModal">تمام، يلا!</button></div></div>
 <script type="module">
 let THREE;
@@ -211,6 +226,80 @@ const openLammaPanel=document.querySelector('#openLammaPanel');
 closeLammaPanel.onclick=()=>{lammaPanel.style.display='none';openLammaPanel.style.display='block'};
 openLammaPanel.onclick=()=>{lammaPanel.style.display='';openLammaPanel.style.display='none'};
 const sprintButton=document.querySelector('#sprint');sprintButton.onclick=()=>{sprintEnabled=!sprintEnabled;sprintButton.classList.toggle('active',sprintEnabled);sprintButton.setAttribute('aria-pressed',String(sprintEnabled));sprintButton.innerHTML=sprintEnabled?'🏃<small>الركض شغال</small>':'🏃<small>ركض</small>';};document.querySelector('#emote').onclick=()=>{arms[0].rotation.z=-1.5;toast('أهلاً بيك في لَمّة! 👋');setTimeout(()=>arms[0].rotation.z=-.18,900)};
+
+/* Per-player HUD layout and touch-control preferences */
+const HUD_PREF_KEY='lamma_hub_hud_v1';
+const hudControls=[...document.querySelectorAll('[data-hud-control]')];
+const hudSettingsBtn=document.querySelector('#hudSettingsBtn');
+const hudSettingsOverlay=document.querySelector('#hudSettingsOverlay');
+const hudSettingsClose=document.querySelector('#hudSettingsClose');
+const hudSize=document.querySelector('#hudSize');
+const hudOpacity=document.querySelector('#hudOpacity');
+const hudSizeValue=document.querySelector('#hudSizeValue');
+const hudOpacityValue=document.querySelector('#hudOpacityValue');
+const hudMoveBtn=document.querySelector('#hudMoveBtn');
+const hudResetBtn=document.querySelector('#hudResetBtn');
+const hudDoneBtn=document.querySelector('#hudDoneBtn');
+let hudPrefs={size:100,opacity:90,positions:{}},hudEditMode=false,dragHud=null;
+try{const saved=JSON.parse(localStorage.getItem(HUD_PREF_KEY)||'{}');hudPrefs={...hudPrefs,...saved,positions:saved.positions||{}};}catch(e){}
+function applyHudPrefs(){
+ const scale=Math.max(70,Math.min(150,Number(hudPrefs.size)||100))/100;
+ const opacity=Math.max(30,Math.min(100,Number(hudPrefs.opacity)||90))/100;
+ hudControls.forEach(el=>{
+  el.style.opacity=String(opacity);
+  const id=el.id;
+  if(id==='joystick'){el.style.transform='scale('+scale+')';el.style.transformOrigin='bottom left';}
+  else {el.style.transform='scale('+scale+')';el.style.transformOrigin='center';}
+  const pos=hudPrefs.positions[id];
+  if(pos&&Number.isFinite(pos.left)&&Number.isFinite(pos.top)){
+   el.style.setProperty('position','fixed','important');
+   el.style.setProperty('left',pos.left+'px','important');
+   el.style.setProperty('top',pos.top+'px','important');
+   el.style.setProperty('right','auto','important');
+   el.style.setProperty('bottom','auto','important');
+   el.style.setProperty('margin','0','important');
+  }
+ });
+ hudSize.value=String(hudPrefs.size);hudOpacity.value=String(hudPrefs.opacity);
+ hudSizeValue.textContent=hudPrefs.size+'%';hudOpacityValue.textContent=hudPrefs.opacity+'%';
+}
+function saveHudPrefs(){localStorage.setItem(HUD_PREF_KEY,JSON.stringify(hudPrefs));}
+function closeHudSettings(){hudSettingsOverlay.classList.remove('open');hudSettingsOverlay.setAttribute('aria-hidden','true');}
+function stopHudEdit(){hudEditMode=false;document.body.classList.remove('hud-editing');hudDoneBtn.style.display='none';saveHudPrefs();toast('تم حفظ أماكن الأزرار على جهازك');}
+hudSettingsBtn.addEventListener('click',()=>{if(hudEditMode){stopHudEdit();}hudSettingsOverlay.classList.add('open');hudSettingsOverlay.setAttribute('aria-hidden','false');});
+hudSettingsClose.addEventListener('click',closeHudSettings);
+hudSettingsOverlay.addEventListener('click',e=>{if(e.target===hudSettingsOverlay)closeHudSettings();});
+hudSize.addEventListener('input',()=>{hudPrefs.size=Number(hudSize.value);applyHudPrefs();saveHudPrefs();});
+hudOpacity.addEventListener('input',()=>{hudPrefs.opacity=Number(hudOpacity.value);applyHudPrefs();saveHudPrefs();});
+hudMoveBtn.addEventListener('click',()=>{closeHudSettings();hudEditMode=true;document.body.classList.add('hud-editing');hudDoneBtn.style.display='block';toast('اسحب الأزرار لمكانها، ثم اضغط تم حفظ التوزيع');});
+hudDoneBtn.addEventListener('click',stopHudEdit);
+hudResetBtn.addEventListener('click',()=>{
+ hudPrefs={size:100,opacity:90,positions:{}};
+ hudControls.forEach(el=>{['position','left','top','right','bottom','margin'].forEach(k=>el.style.removeProperty(k));el.style.transform='';el.style.opacity='';});
+ saveHudPrefs();applyHudPrefs();stopHudEdit();toast('رجعنا أماكن وحجم الأزرار للوضع الافتراضي');
+});
+hudControls.forEach(el=>{
+ el.addEventListener('pointerdown',e=>{
+  if(!hudEditMode)return;
+  e.preventDefault();e.stopImmediatePropagation();
+  const r=el.getBoundingClientRect();dragHud={el,id:el.id,dx:e.clientX-r.left,dy:e.clientY-r.top};
+  try{el.setPointerCapture(e.pointerId)}catch(_){}
+ },true);
+ el.addEventListener('pointermove',e=>{
+  if(!hudEditMode||!dragHud||dragHud.el!==el)return;
+  e.preventDefault();e.stopImmediatePropagation();
+  const maxX=Math.max(0,innerWidth-el.offsetWidth),maxY=Math.max(0,innerHeight-el.offsetHeight);
+  const left=Math.max(0,Math.min(maxX,e.clientX-dragHud.dx));
+  const top=Math.max(0,Math.min(maxY,e.clientY-dragHud.dy));
+  el.style.setProperty('position','fixed','important');el.style.setProperty('left',left+'px','important');el.style.setProperty('top',top+'px','important');el.style.setProperty('right','auto','important');el.style.setProperty('bottom','auto','important');el.style.setProperty('margin','0','important');
+  hudPrefs.positions[el.id]={left,top};
+ },true);
+ const end=()=>{if(dragHud&&dragHud.el===el){dragHud=null;saveHudPrefs();}};
+ el.addEventListener('pointerup',end,true);el.addEventListener('pointercancel',end,true);
+ el.addEventListener('click',e=>{if(hudEditMode){e.preventDefault();e.stopImmediatePropagation();}},true);
+});
+applyHudPrefs();
+
 const toastEl=document.querySelector('#toast');let toastTimer;function toast(t){toastEl.textContent=t;toastEl.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toastEl.classList.remove('show'),2300)}
 document.querySelector('#explore').onclick=()=>{const places=[['منطقة المراجيح','وصلت لمنطقة المراجيح! جرّب تقرب من الألعاب وتلف في الساحة.'],['الزحاليق','منطقة الزحاليق قدامك ناحية الشمال الغربي.'],['عجلة لَمّة','عجلة لَمّة بتنور الساحة!'],['ملعب لَمّة','هنا تقدر تتخيل تحديات الكرة مع أصحابك.']];const p=places[Math.floor(Math.random()*places.length)];document.querySelector('#modalTitle').textContent=p[0];document.querySelector('#modalText').textContent=p[1];document.querySelector('#modal').classList.add('open')};
 async function enterLandscape(){try{if(!document.fullscreenElement&&document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen();}catch(e){}try{if(screen.orientation&&screen.orientation.lock)await screen.orientation.lock('landscape');}catch(e){document.querySelector('#hint').textContent='لف الموبايل بالعرض عشان تلعب بشكل أفضل';}}document.querySelector('#closeModal').onclick=()=>{document.querySelector('#modal').classList.remove('open');enterLandscape()};
