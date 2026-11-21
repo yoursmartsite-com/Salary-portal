@@ -278,7 +278,7 @@ avatar.position.set(0,0,4);let velocity=0,move={x:0,z:0},jumpV=0,onGround=true,w
 const keys={};addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(e.key.toLowerCase()))e.preventDefault()});addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
 canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'||e.pointerType==='touch'||e.pointerType==='pen'){drag={x:e.clientX,y:e.clientY};try{canvas.setPointerCapture(e.pointerId)}catch(_){}}});canvas.addEventListener('pointermove',e=>{if(drag){yaw-=(e.clientX-drag.x)*.009;drag={x:e.clientX,y:e.clientY}}});canvas.addEventListener('pointerup',()=>drag=null);canvas.addEventListener('pointercancel',()=>drag=null);
 const joy=document.querySelector('#joystick'),stick=document.querySelector('#stick');let joyId=null;joy.addEventListener('pointerdown',e=>{joyId=e.pointerId;joy.setPointerCapture(joyId);joyMove(e)});joy.addEventListener('pointermove',e=>{if(e.pointerId===joyId)joyMove(e)});function joyMove(e){const r=joy.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2),len=Math.min(34,Math.hypot(dx,dy)),a=Math.atan2(dy,dx);move.x=Math.cos(a)*len/34;move.z=Math.sin(a)*len/34;stick.style.transform='translate('+move.x*30+'px,'+move.z*30+'px)'}function joyEnd(){joyId=null;move.x=0;move.z=0;stick.style.transform=''}joy.addEventListener('pointerup',joyEnd);joy.addEventListener('pointercancel',joyEnd);
-function jump(){if(onGround){jumpV=7;onGround=false}}
+function jump(){if(onGround){jumpV=9;onGround=false}}
 document.querySelector('#jumpControl').addEventListener('pointerdown',e=>{e.preventDefault();jump()});
 const lammaPanel=document.querySelector('#lammaPanel');
 const closeLammaPanel=document.querySelector('#closeLammaPanel');
@@ -370,7 +370,7 @@ let ix=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0),iz=(keys.s||ke
 const forwardX=Math.sin(yaw),forwardZ=Math.cos(yaw),rightX=-Math.cos(yaw),rightZ=Math.sin(yaw);const forwardInput=-iz,lateralInput=ix;const dx=(rightX*lateralInput+forwardX*forwardInput),dz=(rightZ*lateralInput+forwardZ*forwardInput);
 if(Math.abs(dx)+Math.abs(dz)>.02){const isSprinting=sprintEnabled&&forwardInput>.35;const moveSpeed=isSprinting?13.5:8;const stepX=dx*moveSpeed*dt,stepZ=dz*moveSpeed*dt;
  // Solid collision: players and tree trunks cannot be walked through; allow sliding along edges
- const canStand=(x,z)=>{for(const obstacle of treeColliders){if(Math.hypot(x-obstacle.x,z-obstacle.z)<obstacle.r+.48)return false;}for(const other of remotePlayers.values()){const p=other.model.position;if(Math.hypot(x-p.x,z-p.z)<1.35)return false;}return Math.abs(x)<=47&&Math.abs(z)<=52;};
+ const canStand=(x,z)=>{for(const obstacle of treeColliders){const nextDist=Math.hypot(x-obstacle.x,z-obstacle.z),currentDist=Math.hypot(avatar.position.x-obstacle.x,avatar.position.z-obstacle.z),limit=obstacle.r+.48;const jumpingOver=avatar.position.y>1.05;const movingOut=currentDist<limit&&nextDist>currentDist;if(nextDist<limit&&!jumpingOver&&!movingOut)return false;}for(const other of remotePlayers.values()){const p=other.model.position;if(Math.hypot(x-p.x,z-p.z)<1.35)return false;}return Math.abs(x)<=47&&Math.abs(z)<=52;};
  const nx=avatar.position.x+stepX,nz=avatar.position.z+stepZ;
  if(canStand(nx,nz)){avatar.position.x=nx;avatar.position.z=nz;}
  else {if(canStand(nx,avatar.position.z))avatar.position.x=nx;if(canStand(avatar.position.x,nz))avatar.position.z=nz;}
