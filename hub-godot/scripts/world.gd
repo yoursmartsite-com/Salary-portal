@@ -6,7 +6,10 @@ const JUMP_VELOCITY := 5.8
 var player: CharacterBody3D
 var camera: Camera3D
 var camera_yaw := 0.0
-var camera_pitch := -0.22
+var camera_pitch := -0.14
+var camera_distance := 1.95
+var free_look_enabled := false
+var free_look_button: Button
 var active_look := false
 var active_move := false
 var move_origin := Vector2.ZERO
@@ -609,20 +612,20 @@ func _build_camera() -> void:
 	camera = Camera3D.new()
 	camera.name = "FollowCamera"
 	camera.current = true
-	# Close third-person shoulder framing: show the head and upper body, not the full avatar.
-	camera.fov = 58
+	# PUBG-like close over-the-shoulder framing: keep the avatar large and readable.
+	camera.fov = 60
 	add_child(camera)
 	_update_camera()
 
 func _update_camera(delta := 1.0) -> void:
 	if not is_instance_valid(player):
 		return
-	var target := player.global_position + Vector3(0, 1.62, 0)
-	# Stay just behind and slightly to the right of the avatar, like a third-person action game.
-	var shoulder := Vector3(cos(camera_yaw) * 0.42, 0.0, -sin(camera_yaw) * 0.42)
-	var behind := Vector3(sin(camera_yaw) * 2.55, 1.82 - camera_pitch * 0.65, cos(camera_yaw) * 2.55)
+	var target := player.global_position + Vector3(0, 1.52, 0)
+	# Orbit smoothly around the avatar, with a modest shoulder offset and tighter follow distance.
+	var shoulder := Vector3(cos(camera_yaw) * 0.34, 0.0, -sin(camera_yaw) * 0.34)
+	var behind := Vector3(sin(camera_yaw) * camera_distance, 1.42 - camera_pitch * 0.55, cos(camera_yaw) * camera_distance)
 	var desired_position := target + behind + shoulder
-	camera.global_position = camera.global_position.lerp(desired_position, 1.0 - exp(-10.0 * delta))
+	camera.global_position = camera.global_position.lerp(desired_position, 1.0 - exp(-14.0 * delta))
 	camera.look_at(target, Vector3.UP)
 
 func _build_hud() -> void:
@@ -691,6 +694,20 @@ func _build_hud() -> void:
 	settings_button.position = Vector2(-138, 18)
 	settings_button.pressed.connect(_toggle_settings)
 	ui_layer.add_child(settings_button)
+
+	# Toggle PUBG-style free-look independently from the avatar's facing direction.
+	free_look_button = Button.new()
+	free_look_button.text = "نظر حر"
+	free_look_button.custom_minimum_size = Vector2(116, 46)
+	free_look_button.anchor_left = 1
+	free_look_button.anchor_right = 1
+	free_look_button.position = Vector2(-138, 72)
+	free_look_button.toggle_mode = true
+	free_look_button.toggled.connect(func(enabled: bool):
+		free_look_enabled = enabled
+		free_look_button.text = "إيقاف النظر" if enabled else "نظر حر"
+	)
+	ui_layer.add_child(free_look_button)
 	settings_panel = PanelContainer.new()
 	settings_panel.name = "ControlSettings"
 	settings_panel.anchor_left = 1
@@ -931,6 +948,11 @@ func _physics_process(delta: float) -> void:
 		input_dir = input_dir.normalized()
 	# Camera-relative movement: joystick up always follows the camera's forward axis.
 	var direction := _camera_relative_direction(input_dir)
+	if free_look_enabled:
+		# Orbit the view without steering the avatar while free-look is active.
+		var facing_forward := Vector3(-sin(player.rotation.y), 0.0, -cos(player.rotation.y))
+		var facing_right := Vector3(-facing_forward.z, 0.0, facing_forward.x)
+		direction = (facing_right * input_dir.x - facing_forward * input_dir.y).normalized()
 	var has_input := direction.length() > 0.05
 	var max_speed := MOVE_SPEED * (1.65 if sprint_enabled else 1.0)
 	var desired_velocity := direction * max_speed if has_input else Vector3.ZERO
