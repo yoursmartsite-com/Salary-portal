@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#101326"><title>لوبي لَمّة | جهّز شخصيتك</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0b1020;color:#fff;font-family:Cairo,Arial,sans-serif}button,input{font:inherit}button{cursor:pointer;color:inherit;border:0}
+body{background:radial-gradient(ellipse at 50% 38%,#293d67 0,#151b35 36%,#090e1c 78%)}
+.bg-grid{position:fixed;inset:0;opacity:.17;background-image:linear-gradient(#8ba8e31a 1px,transparent 1px),linear-gradient(90deg,#8ba8e31a 1px,transparent 1px);background-size:48px 48px;mask-image:linear-gradient(transparent,#000 20%,#000 80%,transparent)}
+header{position:absolute;z-index:5;top:0;left:0;right:0;height:76px;padding:12px 22px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff18;background:#080d1bbd;backdrop-filter:blur(14px)}
+.brand{display:flex;align-items:center;gap:10px}.logo{width:43px;height:43px;border-radius:14px;background:linear-gradient(145deg,#31d5ad,#087d79);display:grid;place-items:center;font-size:24px;box-shadow:0 8px 24px #0bb68a55}.brand b{font-size:19px;display:block;line-height:1.2}.brand small{font-size:9px;color:#9eb4d4;letter-spacing:2px}
+.header-actions{display:flex;gap:9px}.ghost{padding:9px 14px;border-radius:11px;background:#18223b;border:1px solid #394969;font-weight:800;font-size:11px}
+main{position:relative;z-index:1;height:100%;padding:96px 24px 24px;display:grid;grid-template-columns:minmax(0,1.35fr) minmax(300px,.75fr);gap:22px;max-width:1400px;margin:auto}
+.stage{position:relative;min-height:0;border:1px solid #8ba6e044;border-radius:26px;overflow:hidden;background:radial-gradient(ellipse at 50% 60%,#4a638d88,transparent 45%),linear-gradient(145deg,#182744aa,#10172cdd);box-shadow:0 25px 80px #0006}
+.stage:before{content:"";position:absolute;inset:auto -15% -40% -15%;height:75%;border-radius:50%;background:radial-gradient(ellipse,#6f8fc72b,transparent 65%);pointer-events:none}
+#avatarCanvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+.stage-title{position:absolute;top:22px;right:24px;pointer-events:none}.stage-title small{color:#7ce7ca;font-weight:900;letter-spacing:2px;font-size:10px}.stage-title h1{margin:4px 0;font-size:clamp(24px,3vw,40px);line-height:1.2}.stage-title p{margin:6px 0;color:#c0cee6;font-size:11px}
+.stage-hint{position:absolute;bottom:17px;right:50%;transform:translateX(50%);padding:8px 14px;border-radius:20px;background:#081323bb;border:1px solid #91b2db44;color:#d9e6f8;font-size:10px;white-space:nowrap}
+.panel{min-height:0;overflow:auto;padding:22px;border:1px solid #7f9bc344;border-radius:24px;background:linear-gradient(155deg,#18243eeF,#0d1427f2);box-shadow:0 20px 60px #0006}
+.panel .eyebrow{color:#6ee4c2;font-size:10px;font-weight:900;letter-spacing:1px}.panel h2{font-size:25px;margin:4px 0 2px}.sub{font-size:11px;color:#aebed9;margin:0 0 17px;line-height:1.8}
+.field{display:block;margin:12px 0 16px;font-size:11px;color:#dce7f8}.field input{width:100%;margin-top:7px;padding:12px 13px;border-radius:12px;border:1px solid #405577;background:#0a1326;color:#fff;outline:none}
+.section-head{display:flex;justify-content:space-between;align-items:center;margin:14px 0 9px}.section-head b{font-size:12px}.section-head small{color:#94a8c9;font-size:9px}
+.styles{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.style{display:flex;align-items:center;gap:7px;padding:9px 7px;border:1px solid #3b4d6b;border-radius:12px;background:#101a30;text-align:right;font-size:10px}.style.active{border-color:#69e4c0;background:#173a3b;box-shadow:0 0 0 2px #5ce0b522}.swatch{width:25px;height:25px;border-radius:8px;flex:none;border:1px solid #ffffff55}
+.note{margin:15px 0;padding:11px 12px;border-radius:12px;background:#101d31;border:1px solid #304663;color:#b8cbe3;font-size:10px;line-height:1.8}
+.enter{width:100%;padding:14px;border-radius:13px;background:linear-gradient(100deg,#087f70,#20c99b);font-weight:900;font-size:14px;box-shadow:0 8px 26px #0bb68a44}.enter:active{transform:scale(.99)}
+.footer{display:flex;justify-content:space-between;align-items:center;margin-top:11px;color:#8fa4c5;font-size:9px}
+@media(max-width:760px){header{height:62px;padding:8px 12px}.logo{width:36px;height:36px}.brand b{font-size:15px}.brand small{font-size:8px}.ghost{padding:8px 10px;font-size:10px}main{padding:72px 10px 10px;grid-template-columns:1fr;grid-template-rows:minmax(230px,1fr) auto;gap:10px}.stage{border-radius:19px}.stage-title{top:12px;right:14px}.stage-title h1{font-size:23px}.stage-title p{font-size:9px;margin:3px 0}.panel{padding:14px;border-radius:18px;max-height:43vh}.panel h2{font-size:20px}.sub{margin-bottom:8px;font-size:10px}.field{margin:7px 0 10px}.field input{padding:9px}.section-head{margin:9px 0 7px}.styles{gap:6px}.style{padding:7px 5px;font-size:9px}.swatch{width:20px;height:20px}.note{display:none}.enter{padding:11px;font-size:12px}.footer{margin-top:7px}.stage-hint{bottom:10px;font-size:9px}}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<header><div class="brand"><span class="logo">♛</span><span><b>لوبي لَمّة</b><small>AVATAR LOBBY</small></span></div><div class="header-actions"><button class="ghost" id="backHome">رجوع للموقع</button></div></header>
+<main>
+<section class="stage"><canvas id="avatarCanvas"></canvas><div class="stage-title"><small>YOUR AVATAR</small><h1>دي شخصيتك!</h1><p>اسحب الشاشة ولف الشخصية وشوفها من كل اتجاه.</p></div><div class="stage-hint">↔ اسحب لتدوير الشخصية</div></section>
+<section class="panel"><div class="eyebrow">LAMMA CHARACTER CREATOR</div><h2>جهّز شخصيتك</h2><p class="sub">اختار الشكل اللي يعجبك، وهنحافظ عليه لما تدخل عالم لَمّة.</p>
+<label class="field">اسم اللاعب<input id="playerName" maxlength="22" autocomplete="nickname" placeholder="اكتب اسمك في لَمّة"></label>
+<div class="section-head"><b>اختار شكل الشخصية</b><small>6 أشكال متاحة</small></div>
+<div class="styles" id="styles"></div>
+<div class="note">اختيارك بيتحفظ على نفس الجهاز. لما تدخل الـHUB هتظهر شخصيتك بنفس الألوان اللي اخترتها.</div>
+<button class="enter" id="enterHub">▶ دخول عالم لَمّة HUB</button>
+<div class="footer"><span>تقدر تغير اختيارك في أي وقت</span><span>3D AVATAR</span></div></section>
+</main>
+<script type="module">
+let THREE;
+try{THREE=await import('https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js')}catch(e){THREE=await import('https://unpkg.com/three@0.160.0/build/three.module.js')}
+const palettes=[
+ {name:'الأخضر',shirt:'#18a88f',pants:'#263f70',hair:'#26313c',skin:'#efbd91'},
+ {name:'الأحمر',shirt:'#e06b58',pants:'#30384c',hair:'#3a2922',skin:'#d99a70'},
+ {name:'الأزرق',shirt:'#548bd0',pants:'#273c56',hair:'#1e252d',skin:'#f0c49e'},
+ {name:'البنفسجي',shirt:'#b36cc5',pants:'#38466b',hair:'#5a3827',skin:'#e6ad83'},
+ {name:'الذهبي',shirt:'#e2ad42',pants:'#334b45',hair:'#29242a',skin:'#c98762'},
+ {name:'الوردي',shirt:'#e779a8',pants:'#4a416d',hair:'#35251e',skin:'#f2c9a7'}
+];
+let saved={};try{saved=JSON.parse(localStorage.getItem('lamma_avatar_style_v1')||'{}')}catch(_){}
+let selected=Number.isInteger(saved.palette)&&saved.palette>=0&&saved.palette<palettes.length?saved.palette:0;
+const canvas=document.querySelector('#avatarCanvas'),renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.18;
+const scene=new THREE.Scene();const camera=new THREE.PerspectiveCamera(34,1,.1,100);camera.position.set(0,3.15,10.5);camera.lookAt(0,1.55,0);
+scene.add(new THREE.HemisphereLight(0xc8ddff,0x253047,2.0));
+const key=new THREE.DirectionalLight(0xffe5c7,3.1);key.position.set(-4,8,6);key.castShadow=true;scene.add(key);
+const rim=new THREE.DirectionalLight(0x5b9fff,2.5);rim.position.set(4,4,-5);scene.add(rim);
+const floor=new THREE.Mesh(new THREE.CircleGeometry(4.6,64),new THREE.MeshStandardMaterial({color:'#283b5b',roughness:.78,metalness:.12}));floor.rotation.x=-Math.PI/2;floor.position.y=-.06;floor.receiveShadow=true;scene.add(floor);
+const ring=new THREE.Mesh(new THREE.TorusGeometry(2.2,.035,10,96),new THREE.MeshStandardMaterial({color:'#53e3bd',emissive:'#176b5c',emissiveIntensity:.6,metalness:.6,roughness:.3}));ring.rotation.x=Math.PI/2;ring.position.y=.015;scene.add(ring);
+const stage=new THREE.Group();scene.add(stage);
+const mats={};
+function material(c,rough=.78){return new THREE.MeshStandardMaterial({color:c,roughness:rough,metalness:.03})}
+function part(parent,w,h,d,m,x,y,z){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
+let limbs=[];
+function buildAvatar(index){while(stage.children.length)stage.remove(stage.children[0]);const p=palettes[index],shirt=material(p.shirt),pants=material(p.pants),hair=material(p.hair),skin=material(p.skin),dark=material('#202a37');
+part(stage,1.08,1.14,.55,shirt,0,1.55,0);part(stage,.91,.91,.84,skin,0,2.62,0);
+part(stage,.96,.23,.9,hair,0,3.15,-.02);part(stage,.23,.32,.85,hair,-.36,3.02,.02);part(stage,.23,.32,.85,hair,.36,3.02,.02);
+for(const x of [-.2,.2])part(stage,.09,.11,.035,dark,x,2.67,.44);part(stage,.23,.045,.035,material('#8d4d45'),0,2.43,.44);
+limbs=[];for(const x of [-.72,.72]){const pivot=new THREE.Group();pivot.position.set(x,2.05,0);stage.add(pivot);part(pivot,.4,.98,.45,skin,0,-.47,0);part(pivot,.42,.2,.47,shirt,0,-.13,0);limbs.push(pivot)}
+for(const x of [-.27,.27]){const pivot=new THREE.Group();pivot.position.set(x,1.0,0);stage.add(pivot);part(pivot,.44,.98,.48,pants,0,-.48,0);part(pivot,.47,.2,.53,dark,0,-.88,.03);limbs.push(pivot)}
+}
+function renderStyles(){const root=document.querySelector('#styles');root.innerHTML='';palettes.forEach((p,i)=>{const b=document.createElement('button');b.className='style'+(i===selected?' active':'');b.innerHTML='<span class="swatch" style="background:'+p.shirt+'"></span><span>'+p.name+'</span>';b.addEventListener('click',()=>{selected=i;renderStyles();buildAvatar(selected);});root.appendChild(b)})}
+renderStyles();buildAvatar(selected);
+let rotation=0,drag=null;canvas.addEventListener('pointerdown',e=>{drag=e.clientX;canvas.setPointerCapture(e.pointerId)});canvas.addEventListener('pointermove',e=>{if(drag!==null){rotation+=(e.clientX-drag)*.012;drag=e.clientX}});canvas.addEventListener('pointerup',()=>drag=null);canvas.addEventListener('pointercancel',()=>drag=null);
+function resize(){const r=canvas.getBoundingClientRect();renderer.setSize(r.width,r.height,false);camera.aspect=r.width/r.height;camera.updateProjectionMatrix()}new ResizeObserver(resize).observe(canvas);resize();
+function animate(){requestAnimationFrame(animate);stage.rotation.y=rotation;renderer.render(scene,camera)}animate();
+document.querySelector('#playerName').value=(localStorage.getItem('arcade_name')||'').trim();
+document.querySelector('#backHome').onclick=()=>location.href='./index.html';
+document.querySelector('#enterHub').onclick=()=>{const name=document.querySelector('#playerName').value.trim().slice(0,22)||'لاعب';localStorage.setItem('arcade_name',name);localStorage.setItem('lamma_avatar_style_v1',JSON.stringify({palette:selected}));location.href='./hub.html'};
+</script>
+</body></html>
