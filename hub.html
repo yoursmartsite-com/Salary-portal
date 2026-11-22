@@ -144,8 +144,8 @@ const starGeo=new THREE.BufferGeometry();starGeo.setAttribute('position',new THR
 scene.add(new THREE.Points(starGeo,new THREE.PointsMaterial({color:0xb8d7ff,size:.22,transparent:true,opacity:.78})));
 const moonDisc=new THREE.Mesh(new THREE.SphereGeometry(3,24,18),new THREE.MeshBasicMaterial({color:0xd8e7ff}));moonDisc.position.set(-48,42,-78);scene.add(moonDisc);
 // looping promenade and plaza
-const plaza=new THREE.Mesh(new THREE.CircleGeometry(19,64),path);plaza.rotation.x=-Math.PI/2;plaza.position.y=-.02;plaza.receiveShadow=true;scene.add(plaza);
-const ring=new THREE.Mesh(new THREE.RingGeometry(22,25,80),white);ring.rotation.x=-Math.PI/2;ring.position.y=.01;scene.add(ring);
+const plaza=new THREE.Mesh(new THREE.CircleGeometry(24,64),path);plaza.rotation.x=-Math.PI/2;plaza.position.y=-.02;plaza.receiveShadow=true;scene.add(plaza);
+const ring=new THREE.Mesh(new THREE.RingGeometry(27,30,80),white);ring.rotation.x=-Math.PI/2;ring.position.y=.01;scene.add(ring);
 function pathStrip(x,z,w,d,rot=0){const p=box(w,.12,d,path,x,.02,z,rot);p.castShadow=false;const curbMat=mat('#87909a',.9);for(const side of [-1,1]){const curb=box(w,.16,.18,curbMat,x,.08,z+side*(d/2-.08),rot);curb.castShadow=false;}return p}
 pathStrip(0,0,9,72);pathStrip(0,0,72,9);pathStrip(-23,0,7,48);pathStrip(23,0,7,48);pathStrip(0,-25,52,6);pathStrip(0,25,52,6);
 
@@ -159,7 +159,7 @@ const lawnDummy=new THREE.Object3D();
 let patchCount=0,seed=24681357;
 const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
 function onLawn(x,z){
- if(Math.hypot(x,z)<19.6)return false;
+ if(Math.hypot(x,z)<24.5)return false;
  if(Math.abs(x)<5.7&&Math.abs(z)<37)return false;
  if(Math.abs(z)<5.7&&Math.abs(x)<37)return false;
  if(Math.abs(x+23)<4.5&&Math.abs(z)<25)return false;
@@ -260,6 +260,42 @@ for(const [x,z] of [[-17,-23],[17,-23],[-17,23],[17,23],[-28,-29],[28,-29],[-28,
  sphere(.19,gardenGlow,x,1.22,z);
  const glow=new THREE.PointLight(0xffc77a,1.05,7,2);glow.position.set(x,1.35,z);scene.add(glow);
 }
+
+// Expanded central gathering plaza.
+const plazaRim=new THREE.Mesh(new THREE.RingGeometry(24.2,24.55,96),mat('#c0b8a0',.9));
+plazaRim.rotation.x=-Math.PI/2;plazaRim.position.y=.035;scene.add(plazaRim);
+
+// A walkable sandy shore and a broad night sea on the eastern edge of the park.
+const shoreSand=mat('#bca77d',.98);
+const shoreBeach=new THREE.Mesh(new THREE.PlaneGeometry(20,160),shoreSand);
+shoreBeach.rotation.x=-Math.PI/2;shoreBeach.position.set(44,-.075,0);shoreBeach.receiveShadow=true;scene.add(shoreBeach);
+const seaMaterial=new THREE.MeshStandardMaterial({color:0x07566c,roughness:.24,metalness:.28,transparent:true,opacity:.96});
+const seaSurface=new THREE.Mesh(new THREE.PlaneGeometry(90,180),seaMaterial);
+seaSurface.rotation.x=-Math.PI/2;seaSurface.position.set(99,-.105,0);scene.add(seaSurface);
+// Soft turquoise foam follows a gently irregular shoreline.
+const shoreCurve=new THREE.CatmullRomCurve3(Array.from({length:17},(_,i)=>{
+ const z=-78+i*9.75;return new THREE.Vector3(54+Math.sin(z*.052)*1.05,-.055,z);
+}));
+const foamLine=new THREE.Mesh(new THREE.TubeGeometry(shoreCurve,160,.12,7,false),new THREE.MeshBasicMaterial({color:0xa9e7df,transparent:true,opacity:.72}));
+scene.add(foamLine);
+const foamLine2=new THREE.Mesh(new THREE.TubeGeometry(shoreCurve,160,.045,6,false),new THREE.MeshBasicMaterial({color:0xd5f4ec,transparent:true,opacity:.5}));
+foamLine2.position.x=.38;scene.add(foamLine2);
+// Pebbles and scattered shoreline stones add scale without blocking the beach.
+const beachRockGeo=new THREE.DodecahedronGeometry(.32,0);
+const beachRockMat=mat('#777b73',.98);
+const beachRocks=new THREE.InstancedMesh(beachRockGeo,beachRockMat,90);
+const beachRockDummy=new THREE.Object3D();let beachRockCount=0;
+for(let i=0;i<90;i++){
+ const z=-72+((i*37)%145),x=37+((i*19)%16);
+ if(Math.abs(z)<5&&x>40&&x<51)continue;
+ beachRockDummy.position.set(x,-.01,z);
+ beachRockDummy.rotation.set(i*.17,i*.61,i*.29);
+ const scale=.35+(i%5)*.12;beachRockDummy.scale.set(scale,scale*.58,scale*1.2);
+ beachRockDummy.updateMatrix();beachRocks.setMatrixAt(beachRockCount++,beachRockDummy.matrix);
+}
+beachRocks.count=beachRockCount;scene.add(beachRocks);
+// A short stone promenade leads from the park toward the beach.
+pathStrip(43,0,14,4);
 
 // Realistic park trees: tapered bark trunks, visible branches and layered irregular canopies: tapered bark trunks, visible branches and layered irregular canopies
 const treeColliders=[];
@@ -497,7 +533,7 @@ let ix=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0),iz=(keys.s||ke
 const forwardX=Math.sin(yaw),forwardZ=Math.cos(yaw),rightX=-Math.cos(yaw),rightZ=Math.sin(yaw);const forwardInput=-iz,lateralInput=ix;const dx=(rightX*lateralInput+forwardX*forwardInput),dz=(rightZ*lateralInput+forwardZ*forwardInput);
 if(Math.abs(dx)+Math.abs(dz)>.02){const isSprinting=sprintEnabled&&forwardInput>.35;const moveSpeed=isSprinting?13.5:8;const stepX=dx*moveSpeed*dt,stepZ=dz*moveSpeed*dt;
  // Solid collision: players and tree trunks cannot be walked through; allow sliding along edges
- const canStand=(x,z)=>{for(const obstacle of treeColliders){const nextDist=Math.hypot(x-obstacle.x,z-obstacle.z),currentDist=Math.hypot(avatar.position.x-obstacle.x,avatar.position.z-obstacle.z),limit=obstacle.r+.48;const jumpingOver=avatar.position.y>1.05;const movingOut=currentDist<limit&&nextDist>currentDist;if(nextDist<limit&&!jumpingOver&&!movingOut)return false;}for(const other of remotePlayers.values()){const p=other.model.position;if(Math.hypot(x-p.x,z-p.z)<1.35)return false;}return Math.abs(x)<=47&&Math.abs(z)<=52;};
+ const canStand=(x,z)=>{for(const obstacle of treeColliders){const nextDist=Math.hypot(x-obstacle.x,z-obstacle.z),currentDist=Math.hypot(avatar.position.x-obstacle.x,avatar.position.z-obstacle.z),limit=obstacle.r+.48;const jumpingOver=avatar.position.y>1.05;const movingOut=currentDist<limit&&nextDist>currentDist;if(nextDist<limit&&!jumpingOver&&!movingOut)return false;}for(const other of remotePlayers.values()){const p=other.model.position;if(Math.hypot(x-p.x,z-p.z)<1.35)return false;}return Math.abs(x)<=54&&Math.abs(z)<=60;};
  const nx=avatar.position.x+stepX,nz=avatar.position.z+stepZ;
 
  if(canStand(nx,nz)){avatar.position.x=nx;avatar.position.z=nz;const nextFloor=stairGround(nx,nz,avatar.position.y);if(onGround&&nextFloor>avatar.position.y-.76){avatar.position.y=nextFloor;}}
@@ -510,7 +546,7 @@ if(jumpRequested&&(onGround||avatar.position.y<=floorY+.18)){jumpV=9.5;onGround=
 else if(jumpRequested&&avatar.position.y>floorY+.18){jumpRequested=false;}
 jumpV-=18*dt;avatar.position.y+=jumpV*dt;
 if(avatar.position.y<=floorY){avatar.position.y=floorY;jumpV=0;onGround=true}else{onGround=false;}
-avatar.position.x=THREE.MathUtils.clamp(avatar.position.x,-48,48);avatar.position.z=THREE.MathUtils.clamp(avatar.position.z,-53,48);
+avatar.position.x=THREE.MathUtils.clamp(avatar.position.x,-54,54);avatar.position.z=THREE.MathUtils.clamp(avatar.position.z,-60,60);
 swings.forEach((s,i)=>s.rotation.x=Math.sin(t*2.2+i*1.7)*.38);wheel.rotation.z+=dt*.12;
 const desired=new THREE.Vector3(avatar.position.x-Math.sin(yaw)*10,avatar.position.y+6,avatar.position.z-Math.cos(yaw)*10);camera.position.lerp(desired,1-Math.pow(.001,dt));camera.lookAt(avatar.position.x,avatar.position.y+1.6,avatar.position.z);
 renderer.render(scene,camera);if(hubApi&&hubUid&&t-hubLastWrite>.12){hubLastWrite=t;const p=hubApi.ref(hubDb,'presence/'+hubUid+'/hub');hubApi.update(p,{active:true,name:myName,x:Number(avatar.position.x.toFixed(2)),z:Number(avatar.position.z.toFixed(2)),yaw:Number(yaw.toFixed(3)),updatedAt:Date.now()}).catch(e=>{console.error('Hub position update',e);hubStatus.textContent='🔴 فقد الاتصال';});}}
