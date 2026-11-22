@@ -19,6 +19,10 @@ var animation_clock := 0.0
 var sprint_enabled := false
 var attraction_wheels: Array[Node3D] = []
 var status_label: Label
+var run_button: Button
+var jump_button: Button
+var settings_panel: PanelContainer
+var hud_scale := 1.0
 var local_name_tag: Label3D
 var firebase_bridge
 var firebase_uid := ""
@@ -322,27 +326,29 @@ func _build_hud() -> void:
 	status_label.add_theme_font_size_override("font_size", 14)
 	status_label.add_theme_color_override("font_color", Color("#b9d8dc"))
 	ui_layer.add_child(status_label)
-	var run := Button.new()
-	run.text = "جري"
-	run.custom_minimum_size = Vector2(90, 54)
-	run.anchor_left = 1
-	run.anchor_right = 1
-	run.anchor_top = 1
-	run.anchor_bottom = 1
-	run.position = Vector2(-116, -178)
-	run.toggle_mode = true
-	run.toggled.connect(func(enabled: bool): sprint_enabled = enabled)
-	ui_layer.add_child(run)
-	var jump := Button.new()
-	jump.text = "قفز"
-	jump.custom_minimum_size = Vector2(90, 62)
-	jump.anchor_left = 1
-	jump.anchor_right = 1
-	jump.anchor_top = 1
-	jump.anchor_bottom = 1
-	jump.position = Vector2(-116, -105)
-	jump.pressed.connect(func(): jump_requested = true)
-	ui_layer.add_child(jump)
+	run_button = Button.new()
+	run_button.text = "جري"
+	run_button.custom_minimum_size = Vector2(90, 54)
+	run_button.anchor_left = 1
+	run_button.anchor_right = 1
+	run_button.anchor_top = 1
+	run_button.anchor_bottom = 1
+	run_button.position = Vector2(-116, -178)
+	run_button.pivot_offset = Vector2(45, 27)
+	run_button.toggle_mode = true
+	run_button.toggled.connect(func(enabled: bool): sprint_enabled = enabled)
+	ui_layer.add_child(run_button)
+	jump_button = Button.new()
+	jump_button.text = "قفز"
+	jump_button.custom_minimum_size = Vector2(90, 62)
+	jump_button.anchor_left = 1
+	jump_button.anchor_right = 1
+	jump_button.anchor_top = 1
+	jump_button.anchor_bottom = 1
+	jump_button.position = Vector2(-116, -105)
+	jump_button.pivot_offset = Vector2(45, 31)
+	jump_button.pressed.connect(func(): jump_requested = true)
+	ui_layer.add_child(jump_button)
 	joystick_base = ColorRect.new()
 	joystick_base.name = "TouchJoystickBase"
 	joystick_base.color = Color(0.04, 0.08, 0.13, 0.48)
@@ -357,6 +363,45 @@ func _build_hud() -> void:
 	joystick_knob.position = Vector2(42, 42)
 	joystick_knob.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	joystick_base.add_child(joystick_knob)
+
+	var settings_button := Button.new()
+	settings_button.text = "إعدادات"
+	settings_button.custom_minimum_size = Vector2(116, 46)
+	settings_button.anchor_left = 1
+	settings_button.anchor_right = 1
+	settings_button.position = Vector2(-138, 18)
+	settings_button.pressed.connect(_toggle_settings)
+	ui_layer.add_child(settings_button)
+	settings_panel = PanelContainer.new()
+	settings_panel.name = "ControlSettings"
+	settings_panel.anchor_left = 1
+	settings_panel.anchor_right = 1
+	settings_panel.position = Vector2(-292, 72)
+	settings_panel.custom_minimum_size = Vector2(270, 150)
+	settings_panel.visible = false
+	ui_layer.add_child(settings_panel)
+	var settings_content := VBoxContainer.new()
+	settings_content.add_theme_constant_override("separation", 10)
+	settings_panel.add_child(settings_content)
+	var settings_title := Label.new()
+	settings_title.text = "إعدادات التحكم"
+	settings_title.add_theme_font_size_override("font_size", 17)
+	settings_content.add_child(settings_title)
+	var scale_label := Label.new()
+	scale_label.text = "حجم أزرار الحركة والقفز"
+	settings_content.add_child(scale_label)
+	var scale_slider := HSlider.new()
+	scale_slider.min_value = 0.7
+	scale_slider.max_value = 1.4
+	scale_slider.step = 0.05
+	scale_slider.value = 1.0
+	scale_slider.custom_minimum_size = Vector2(230, 30)
+	scale_slider.value_changed.connect(_on_hud_scale_changed)
+	settings_content.add_child(scale_slider)
+	var close_settings := Button.new()
+	close_settings.text = "إغلاق"
+	close_settings.pressed.connect(func(): settings_panel.visible = false)
+	settings_content.add_child(close_settings)
 	var hint := Label.new()
 	hint.text = "حرّك العصا يسارًا · اسحب يمينًا لتحريك الكاميرا"
 	hint.anchor_left = 0.5
@@ -366,6 +411,20 @@ func _build_hud() -> void:
 	hint.position = Vector2(-130, -36)
 	hint.add_theme_font_size_override("font_size", 12)
 	ui_layer.add_child(hint)
+
+func _toggle_settings() -> void:
+	if is_instance_valid(settings_panel):
+		settings_panel.visible = not settings_panel.visible
+
+func _on_hud_scale_changed(value: float) -> void:
+	hud_scale = value
+	if is_instance_valid(joystick_base):
+		joystick_base.pivot_offset = Vector2(71, 71)
+		joystick_base.scale = Vector2.ONE * hud_scale
+	if is_instance_valid(run_button):
+		run_button.scale = Vector2.ONE * hud_scale
+	if is_instance_valid(jump_button):
+		jump_button.scale = Vector2.ONE * hud_scale
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
