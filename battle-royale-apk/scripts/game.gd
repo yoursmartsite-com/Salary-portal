@@ -129,13 +129,20 @@ func _make_cylinder(pos: Vector3, size: Vector3, color: Color, solid: bool) -> v
 func _make_building(pos: Vector3) -> void:
 	var root := StaticBody3D.new()
 	root.position = pos
+	var wall := StandardMaterial3D.new()
+	wall.albedo_color = Color(0.48,0.43,0.34)
+	wall.roughness = 0.96
+	var concrete := StandardMaterial3D.new()
+	concrete.albedo_color = Color(0.25,0.27,0.25)
+	concrete.roughness = 0.9
+	var glass := StandardMaterial3D.new()
+	glass.albedo_color = Color(0.10,0.22,0.27)
+	glass.metallic = 0.25
+	glass.roughness = 0.22
 	var body_mesh := MeshInstance3D.new()
 	var b := BoxMesh.new()
-	b.size = Vector3(12, 6, 10)
+	b.size = Vector3(12,6,10)
 	body_mesh.mesh = b
-	var wall := StandardMaterial3D.new()
-	wall.albedo_color = Color(0.49,0.46,0.38)
-	wall.roughness = 0.95
 	body_mesh.material_override = wall
 	root.add_child(body_mesh)
 	var col := CollisionShape3D.new()
@@ -143,16 +150,39 @@ func _make_building(pos: Vector3) -> void:
 	cs.size = b.size
 	col.shape = cs
 	root.add_child(col)
-	var roof := MeshInstance3D.new()
-	var rb := BoxMesh.new()
-	rb.size = Vector3(12.5,0.55,10.5)
-	roof.mesh = rb
-	roof.position.y = 3.2
-	var rm := StandardMaterial3D.new()
-	rm.albedo_color = Color(0.22,0.24,0.23)
-	roof.material_override = rm
-	root.add_child(roof)
+	# raised roof slab and perimeter trim
+	_add_detail_box(root,Vector3(12.8,0.42,10.8),Vector3(0,3.18,0),concrete)
+	_add_detail_box(root,Vector3(12.2,0.16,0.18),Vector3(0,2.55,-5.08),concrete)
+	_add_detail_box(root,Vector3(12.2,0.16,0.18),Vector3(0,2.55,5.08),concrete)
+	# front facade windows with frames
+	for x in [-3.8,0.0,3.8]:
+		_add_detail_box(root,Vector3(1.65,1.45,0.10),Vector3(x,0.75,-5.08),glass)
+		_add_detail_box(root,Vector3(1.82,0.12,0.16),Vector3(x,1.53,-5.14),concrete)
+		_add_detail_box(root,Vector3(0.12,1.58,0.16),Vector3(x-0.91,0.75,-5.14),concrete)
+		_add_detail_box(root,Vector3(0.12,1.58,0.16),Vector3(x+0.91,0.75,-5.14),concrete)
+		_add_detail_box(root,Vector3(0.08,1.42,0.18),Vector3(x,0.75,-5.17),concrete)
+	# doorway and side windows
+	_add_detail_box(root,Vector3(1.45,2.35,0.12),Vector3(0,-1.82,-5.10),_make_material(Color(0.12,0.13,0.12)))
+	for z in [-2.8,2.8]:
+		_add_detail_box(root,Vector3(0.10,1.35,1.65),Vector3(6.08,0.7,z),glass)
+	# wall base strip
+	_add_detail_box(root,Vector3(12.1,0.22,0.16),Vector3(0,-2.85,-5.1),concrete)
 	add_child(root)
+
+func _make_material(color: Color) -> StandardMaterial3D:
+	var m := StandardMaterial3D.new()
+	m.albedo_color = color
+	m.roughness = 0.88
+	return m
+
+func _add_detail_box(parent: Node3D, size: Vector3, pos: Vector3, material: Material) -> void:
+	var mesh := MeshInstance3D.new()
+	var shape := BoxMesh.new()
+	shape.size = size
+	mesh.mesh = shape
+	mesh.position = pos
+	mesh.material_override = material
+	parent.add_child(mesh)
 
 func _spawn_player() -> void:
 	player = CharacterBody3D.new()
