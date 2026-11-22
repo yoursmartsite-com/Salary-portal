@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#101326"><title>لوبي لَمّة | محرر الشخصية</title>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#101326"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><title>لوبي لَمّة | محرر الشخصية</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#090e1c;color:#fff;font-family:Cairo,Arial,sans-serif}button,input{font:inherit}button{cursor:pointer;color:inherit;border:0}
@@ -15,7 +15,42 @@ main{height:100%;padding:82px 18px 16px;display:grid;grid-template-columns:minma
 .section{display:none}.section.active{display:block}.section-head{display:flex;justify-content:space-between;align-items:center;margin:6px 0 8px}.section-head b{font-size:11px}.section-head small{font-size:9px;color:#94a8c9}.choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.choice{min-height:58px;padding:7px 5px;border:1px solid #3b4d6b;border-radius:11px;background:#101a30;text-align:center;font-size:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}.choice.active{border-color:#69e4c0;background:#173a3b;box-shadow:0 0 0 2px #5ce0b522}.chip{width:24px;height:24px;border-radius:8px;border:1px solid #ffffff55}.symbol{font-size:21px;line-height:24px}.toggle{display:flex;align-items:center;gap:8px;padding:10px;border-radius:10px;background:#101a30;border:1px solid #354967;margin:7px 0;font-size:10px}.toggle input{accent-color:#24c99b;width:17px;height:17px}
 .actions{display:flex;gap:8px;margin-top:12px}.enter{flex:1;padding:12px;border-radius:12px;background:linear-gradient(100deg,#087f70,#20c99b);font-weight:900;font-size:13px;box-shadow:0 8px 26px #0bb68a44}.reset{padding:10px 12px;border-radius:11px;background:#25334d;border:1px solid #455b7d;font-size:10px;font-weight:800}.footer{display:flex;justify-content:space-between;margin-top:8px;color:#8fa4c5;font-size:9px}
 @media(max-width:760px){header{height:58px;padding:7px 11px}.logo{width:35px;height:35px}.brand b{font-size:14px}.brand small{font-size:7px}.ghost{padding:7px 9px;font-size:9px}main{padding:66px 8px 8px;grid-template-columns:1fr;grid-template-rows:minmax(205px,1fr) auto;gap:8px}.stage{border-radius:17px}.stage-title{top:10px;right:13px}.stage-title h1{font-size:22px}.stage-title p{font-size:9px}.panel{padding:11px;border-radius:17px;max-height:51vh}.panel h2{font-size:19px}.sub{margin-bottom:7px}.field{margin:5px 0 8px}.field input{padding:8px}.tabs{gap:5px;padding-bottom:6px}.tab{padding:7px 10px;font-size:9px}.choices{gap:5px}.choice{min-height:49px;padding:5px 3px;font-size:8px}.chip{width:20px;height:20px}.symbol{font-size:18px}.actions{margin-top:8px}.enter{padding:10px;font-size:11px}.reset{font-size:9px;padding:8px}.footer{margin-top:5px}.hint{bottom:8px;font-size:9px}}
+
+/* Force a game-like landscape canvas on phones held vertically. */
+@media screen and (orientation:portrait) and (max-width:900px){
+ .app-shell{position:fixed;top:0;left:100vw;width:100vh;height:100vw;transform:rotate(90deg);transform-origin:top left;overflow:hidden;background:#090e1c}
+ .app-shell header{height:58px;padding:7px 12px}
+ .app-shell .logo{width:35px;height:35px}
+ .app-shell .brand b{font-size:14px}
+ .app-shell .brand small{font-size:7px}
+ .app-shell .ghost{padding:7px 10px;font-size:9px}
+ .app-shell main{height:100%;width:100%;max-width:none;margin:0;padding:66px 9px 9px;grid-template-columns:minmax(0,1.2fr) minmax(245px,.8fr);grid-template-rows:minmax(0,1fr);gap:9px}
+ .app-shell .stage{min-height:0;border-radius:16px}
+ .app-shell .stage-title{top:10px;right:13px}
+ .app-shell .stage-title h1{font-size:22px}
+ .app-shell .stage-title p{font-size:9px}
+ .app-shell .panel{max-height:none;min-height:0;padding:10px;border-radius:16px;overflow-y:auto}
+ .app-shell .panel h2{font-size:18px}
+ .app-shell .sub{font-size:9px;margin-bottom:5px}
+ .app-shell .field{margin:4px 0 7px;font-size:9px}
+ .app-shell .field input{padding:7px 9px}
+ .app-shell .tabs{gap:4px;padding-bottom:5px}
+ .app-shell .tab{padding:6px 8px;font-size:8px}
+ .app-shell .section-head{margin:4px 0 6px}
+ .app-shell .section-head b{font-size:10px}
+ .app-shell .choices{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+ .app-shell .choice{min-height:42px;padding:4px 3px;font-size:8px}
+ .app-shell .chip{width:18px;height:18px}
+ .app-shell .symbol{font-size:16px}
+ .app-shell .toggle{padding:6px;margin:4px 0;font-size:9px}
+ .app-shell .actions{margin-top:6px}
+ .app-shell .enter{padding:8px;font-size:10px}
+ .app-shell .reset{padding:7px;font-size:8px}
+ .app-shell .footer{font-size:8px;margin-top:4px}
+ .app-shell .hint{bottom:7px;font-size:8px}
+}
 </style></head><body>
+<div class="app-shell">
 <header><div class="brand"><span class="logo">♛</span><span><b>لوبي لَمّة</b><small>AVATAR STUDIO</small></span></div><button class="ghost" id="backHome">رجوع للموقع</button></header>
 <main><section class="stage"><canvas id="avatarCanvas"></canvas><div class="stage-title"><small>YOUR AVATAR</small><h1>اصنع شخصيتك</h1><p>لفّ المجسم بالسحب وشوف كل تفصيلة.</p></div><div class="hint">↔ اسحب لتدوير الشخصية</div></section>
 <section class="panel"><div class="eyebrow">LAMMA CHARACTER CREATOR</div><h2>محرر الشخصية</h2><p class="sub">غيّر مظهرك واحفظه قبل دخول عالم لَمّة.</p>
@@ -27,6 +62,7 @@ main{height:100%;padding:82px 18px 16px;display:grid;grid-template-columns:minma
 <div class="section" id="face"><div class="section-head"><b>شكل الوجه</b><small>تعبير الشخصية</small></div><div class="choices" id="faces"></div></div>
 <div class="section" id="accessories"><div class="section-head"><b>الإكسسوارات</b><small>تقدر تجمع أكتر من قطعة</small></div><label class="toggle"><input type="checkbox" id="hat"> قبعة كاجوال</label><label class="toggle"><input type="checkbox" id="glasses"> نظارة</label><label class="toggle"><input type="checkbox" id="backpack"> شنطة ظهر</label><label class="toggle"><input type="checkbox" id="necklace"> سلسلة</label></div>
 <div class="actions"><button class="enter" id="enterHub">▶ حفظ ودخول عالم لَمّة</button><button class="reset" id="reset">إعادة ضبط</button></div><div class="footer"><span>اختياراتك محفوظة على الجهاز</span><span>3D AVATAR</span></div></section></main>
+</div>
 <script type="module">
 let THREE;try{THREE=await import('https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js')}catch(e){THREE=await import('https://unpkg.com/three@0.160.0/build/three.module.js')}
 const defaults={shirt:'#18a88f',pants:'#263f70',skin:'#efbd91',hair:'#26313c',hairStyle:'short',face:'smile',build:'classic',hat:false,glasses:false,backpack:false,necklace:false};
