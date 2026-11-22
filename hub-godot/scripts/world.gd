@@ -67,6 +67,14 @@ func _build_environment() -> void:
 	e.ambient_light_energy = 0.65
 	e.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	e.glow_enabled = true
+	e.fog_enabled = true
+	e.fog_light_color = Color(0.16, 0.24, 0.34)
+	e.fog_density = 0.006
+	e.fog_sun_scatter = 0.12
+	e.adjustment_enabled = true
+	e.adjustment_brightness = 1.04
+	e.adjustment_contrast = 1.12
+	e.adjustment_saturation = 1.08
 	env.environment = e
 	add_child(env)
 
@@ -82,6 +90,7 @@ func _build_environment() -> void:
 	_make_box("Central plaza", Vector3(0, 0.08, -8), Vector3(24, 0.18, 17), Color(0.57, 0.55, 0.49))
 	_make_box("Beach sand", Vector3(0, -0.05, 25), Vector3(70, 0.2, 12), Color(0.72, 0.62, 0.42))
 	_make_ocean()
+	_make_landscape_details()
 
 	for x in [-5.0, 5.0]:
 		for z in [-20.0, -12.0, -4.0, 4.0, 12.0]:
@@ -243,6 +252,36 @@ func _make_ocean() -> void:
 	water.material_override = water_material
 	add_child(water)
 
+func _make_landscape_details() -> void:
+	for side in [-1.0, 1.0]:
+		_make_box("Promenade stone border", Vector3(side * 6.15, 0.105, 0), Vector3(0.28, 0.16, 34), Color("#263746"), 0.42)
+		_make_box("Warm path inset", Vector3(side * 5.82, 0.112, 0), Vector3(0.055, 0.025, 33), Color("#b49a70"), 0.38)
+		for z in [-15.0, -9.0, -3.0, 3.0, 9.0, 15.0]:
+			_make_box("Ground guide light", Vector3(side * 5.55, 0.16, z), Vector3(0.12, 0.035, 0.65), Color("#8bd9d0"), 0.25)
+			var glow := OmniLight3D.new()
+			glow.position = Vector3(side * 5.55, 0.42, z)
+			glow.light_color = Color("#69cfc8")
+			glow.light_energy = 0.22
+			glow.omni_range = 2.4
+			add_child(glow)
+	for x in [-9.0, -3.0, 3.0, 9.0]:
+		_make_box("Plaza stone seam", Vector3(x, 0.176, -8), Vector3(0.035, 0.012, 16.2), Color("#777b7d"), 0.9)
+	for z in [-14.0, -8.0, -2.0]:
+		_make_box("Plaza stone seam", Vector3(0, 0.176, z), Vector3(23.5, 0.012, 0.035), Color("#777b7d"), 0.9)
+	for side in [-1.0, 1.0]:
+		for z in [-16.0, -7.0, 2.0, 11.0]:
+			_make_box("Landscape planter", Vector3(side * 13.0, 0.32, z), Vector3(2.0, 0.62, 3.2), Color("#263b3a"), 0.78)
+			_make_box("Planter soil", Vector3(side * 13.0, 0.65, z), Vector3(1.72, 0.08, 2.92), Color("#30291f"), 1.0)
+			for i in range(3):
+				var shrub := MeshInstance3D.new()
+				var shrub_mesh := SphereMesh.new()
+				shrub_mesh.radius = 0.48
+				shrub_mesh.height = 0.82
+				shrub.mesh = shrub_mesh
+				shrub.position = Vector3(side * 13.0 + (float(i) - 1.0) * 0.52, 1.0, z + (float(i % 2) - 0.5) * 0.6)
+				shrub.material_override = _make_material(Color("#174a35"), 0.95)
+				add_child(shrub)
+
 func _make_tree(pos: Vector3) -> void:
 	var trunk := MeshInstance3D.new()
 	var trunk_mesh := CylinderMesh.new()
@@ -255,12 +294,23 @@ func _make_tree(pos: Vector3) -> void:
 	add_child(trunk)
 	var crown := MeshInstance3D.new()
 	var crown_mesh := SphereMesh.new()
-	crown_mesh.radius = 1.15
-	crown_mesh.height = 2.2
+	crown_mesh.radius = 0.9
+	crown_mesh.height = 1.8
 	crown.mesh = crown_mesh
-	crown.position = pos + Vector3(0, 2.8, 0)
-	crown.material_override = _make_material(Color(0.08, 0.29, 0.19))
+	crown.position = pos + Vector3(0, 2.65, 0)
+	crown.scale = Vector3(1.0, 1.15, 1.0)
+	crown.material_override = _make_material(Color(0.035, 0.19, 0.13), 0.92)
 	add_child(crown)
+	for cluster in range(4):
+		var leaf := MeshInstance3D.new()
+		var leaf_mesh := SphereMesh.new()
+		leaf_mesh.radius = 0.58
+		leaf_mesh.height = 1.12
+		leaf.mesh = leaf_mesh
+		var angle := TAU * float(cluster) / 4.0
+		leaf.position = pos + Vector3(cos(angle) * 0.62, 2.85 + float(cluster % 2) * 0.24, sin(angle) * 0.62)
+		leaf.material_override = _make_material(Color("#123d2b") if cluster % 2 == 0 else Color("#19543a"), 0.95)
+		add_child(leaf)
 	var body := StaticBody3D.new()
 	body.position = pos + Vector3(0, 1.2, 0)
 	var collision := CollisionShape3D.new()
@@ -502,7 +552,7 @@ func _build_camera() -> void:
 	camera = Camera3D.new()
 	camera.name = "FollowCamera"
 	camera.current = true
-	camera.fov = 62
+	camera.fov = 70
 	add_child(camera)
 	_update_camera()
 
