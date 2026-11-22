@@ -237,17 +237,32 @@ func _build_girl_model(root: Node3D) -> void:
 	_sphere(body, "Hair back", Vector3(0, 1.82, -0.25), Vector3(0.62, 1.0, 0.38), hair)
 	_sphere(body, "Hair left", Vector3(-0.38, 1.98, -0.02), Vector3(0.2, 0.78, 0.28), hair)
 	_sphere(body, "Hair right", Vector3(0.38, 1.98, -0.02), Vector3(0.2, 0.78, 0.28), hair)
+	_sphere(body, "Side fringe", Vector3(-0.22, 2.23, 0.36), Vector3(0.28, 0.24, 0.2), hair)
 	_sphere(body, "Eye left", Vector3(-0.16, 2.08, 0.48), Vector3(0.075, 0.105, 0.045), Color("#38243b"))
 	_sphere(body, "Eye right", Vector3(0.16, 2.08, 0.48), Vector3(0.075, 0.105, 0.045), Color("#38243b"))
+	_sphere(body, "Eye shine left", Vector3(-0.18, 2.12, 0.52), Vector3(0.025, 0.03, 0.018), white)
+	_sphere(body, "Eye shine right", Vector3(0.14, 2.12, 0.52), Vector3(0.025, 0.03, 0.018), white)
+	_sphere(body, "Blush left", Vector3(-0.27, 1.96, 0.43), Vector3(0.11, 0.055, 0.025), Color("#e99a9b"))
+	_sphere(body, "Blush right", Vector3(0.27, 1.96, 0.43), Vector3(0.11, 0.055, 0.025), Color("#e99a9b"))
 	_sphere(body, "Smile", Vector3(0, 1.91, 0.49), Vector3(0.09, 0.035, 0.025), Color("#b65d6e"))
 	_sphere(body, "Skirt", Vector3(0, 0.77, 0), Vector3(0.76, 0.56, 0.48), Color("#a9a1ec"))
+	var ponytail := _sphere(body, "Long ponytail", Vector3(0, 1.72, -0.48), Vector3(0.3, 0.85, 0.32), hair)
+	ponytail.rotation.x = -0.22
 	for side in [-1.0, 1.0]:
-		var arm := _sphere(body, "Upper arm", Vector3(side * 0.43, 1.32, 0), Vector3(0.23, 0.58, 0.24), dress)
-		animated_arms.append(arm)
-		_sphere(body, "Hand", Vector3(side * 0.46, 0.98, 0.02), Vector3(0.2, 0.22, 0.2), skin)
-		var leg := _sphere(body, "Leg", Vector3(side * 0.2, 0.34, 0), Vector3(0.23, 0.62, 0.24), skin)
-		animated_legs.append(leg)
-		_sphere(body, "Shoe", Vector3(side * 0.2, 0.08, 0.09), Vector3(0.3, 0.16, 0.43), white)
+		var arm_pivot := Node3D.new()
+		arm_pivot.name = "ArmPivot"
+		arm_pivot.position = Vector3(side * 0.43, 1.48, 0)
+		body.add_child(arm_pivot)
+		_sphere(arm_pivot, "Upper arm", Vector3(0, -0.25, 0), Vector3(0.23, 0.58, 0.24), dress)
+		_sphere(arm_pivot, "Hand", Vector3(0, -0.55, 0.02), Vector3(0.2, 0.22, 0.2), skin)
+		animated_arms.append(arm_pivot)
+		var leg_pivot := Node3D.new()
+		leg_pivot.name = "LegPivot"
+		leg_pivot.position = Vector3(side * 0.2, 0.57, 0)
+		body.add_child(leg_pivot)
+		_sphere(leg_pivot, "Leg", Vector3(0, -0.25, 0), Vector3(0.23, 0.62, 0.24), skin)
+		_sphere(leg_pivot, "Shoe", Vector3(0, -0.54, 0.09), Vector3(0.3, 0.16, 0.43), white)
+		animated_legs.append(leg_pivot)
 
 func _build_camera() -> void:
 	camera = Camera3D.new()
