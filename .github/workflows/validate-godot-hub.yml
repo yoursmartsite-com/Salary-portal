@@ -54,10 +54,10 @@ jobs:
         run: |
           "$GODOT_BIN" --headless --path hub-godot --quit-after 5
 
-      - name: Test remote player creation and interpolation (non-blocking)
-        timeout-minutes: 3
-        continue-on-error: true
+      - name: Test remote player creation, movement, and portal UI
+        timeout-minutes: 1
         run: |
+          set -euo pipefail
           "$GODOT_BIN" --headless --path hub-godot --script res://tests/remote_avatar_smoke.gd
 
       - name: Export Web build
@@ -68,20 +68,30 @@ jobs:
       - name: Publish isolated HUB preview without replacing the current hub
         run: |
           set -euo pipefail
-          mkdir -p hub-preview
-          rsync -a --delete hub-web/ hub-preview/
-          touch hub-preview/.nojekyll
           git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add hub-preview
-          if git diff --cached --quiet; then
-            echo "Preview is already up to date"
-          else
-            git commit -m "Publish isolated Lamma HUB web preview"
+          git config user.email "41898282+users.noreply.github.com"
+          # Start each publish attempt from the latest main revision. This avoids
+          # rebasing newly exported binary PCK files over another preview commit.
+          for attempt in 1 2 3; do
             git fetch origin main
-            git rebase FETCH_HEAD
-            git push origin HEAD:main
-          fi
+            git reset --hard FETCH_HEAD
+            mkdir -p hub-preview
+            rsync -a --delete hub-web/ hub-preview/
+            touch hub-preview/.nojekyll
+            git add hub-preview
+            if git diff --cached --quiet; then
+              echo "Preview is already up to date"
+              exit 0
+            fi
+            git commit -m "Publish isolated Lamma HUB web preview"
+            if git push origin HEAD:main; then
+              echo "Published isolated HUB preview"
+              exit 0
+            fi
+            echo "Push raced with another main update; retrying from latest main (attempt $attempt)"
+          done
+          echo "Could not publish preview after 3 attempts"
+          exit 1
 
       - name: Upload Web build artifact
         uses: actions/upload-artifact@v4
