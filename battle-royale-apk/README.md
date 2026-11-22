@@ -13,3 +13,5 @@ Prototype features:
 
 This is an early offline gameplay prototype, not a PUBG-scale multiplayer release.
 The Android APK is built by GitHub Actions and uploaded as a workflow artifact.
+
+Build pipeline now uses explicit Android SDK packages; see workflow run for APK validation.
