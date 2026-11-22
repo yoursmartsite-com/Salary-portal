@@ -238,7 +238,7 @@ func _sphere(parent: Node3D, part_name: String, pos: Vector3, size: Vector3, col
 	mesh.height = 1.0
 	return _part(parent, part_name, mesh, pos, color, size)
 
-func _build_girl_model(root: Node3D) -> void:
+func _build_girl_model(root: Node3D, track_local_animation := true) -> void:
 	var skin := Color("#f3c6a9")
 	var hair := Color("#39233b")
 	var dress := Color("#7c75d8")
@@ -271,14 +271,16 @@ func _build_girl_model(root: Node3D) -> void:
 		body.add_child(arm_pivot)
 		_sphere(arm_pivot, "Upper arm", Vector3(0, -0.25, 0), Vector3(0.23, 0.58, 0.24), dress)
 		_sphere(arm_pivot, "Hand", Vector3(0, -0.55, 0.02), Vector3(0.2, 0.22, 0.2), skin)
-		animated_arms.append(arm_pivot)
+		if track_local_animation:
+			animated_arms.append(arm_pivot)
 		var leg_pivot := Node3D.new()
 		leg_pivot.name = "LegPivot"
 		leg_pivot.position = Vector3(side * 0.2, 0.57, 0)
 		body.add_child(leg_pivot)
 		_sphere(leg_pivot, "Leg", Vector3(0, -0.25, 0), Vector3(0.23, 0.62, 0.24), skin)
 		_sphere(leg_pivot, "Shoe", Vector3(0, -0.54, 0.09), Vector3(0.3, 0.16, 0.43), white)
-		animated_legs.append(leg_pivot)
+		if track_local_animation:
+			animated_legs.append(leg_pivot)
 
 func _build_camera() -> void:
 	camera = Camera3D.new()
@@ -484,7 +486,7 @@ func _create_remote_avatar(uid: String, player_name: String) -> void:
 	collision.position.y = 1.25
 	collider_body.add_child(collision)
 	remote.add_child(collider_body)
-	_build_girl_model(remote)
+	_build_girl_model(remote, false)
 	var name_tag := Label3D.new()
 	name_tag.name = "PlayerName"
 	name_tag.text = player_name
