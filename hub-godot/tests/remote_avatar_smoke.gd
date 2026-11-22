@@ -11,6 +11,24 @@ func _run_remote_avatar_test() -> void:
 
 	var forward: Vector3 = world.call("_camera_relative_direction", Vector2(0, -1))
 	var backward: Vector3 = world.call("_camera_relative_direction", Vector2(0, 1))
+	var right: Vector3 = world.call("_camera_relative_direction", Vector2(1, 0))
+	var left: Vector3 = world.call("_camera_relative_direction", Vector2(-1, 0))
+	if right.distance_to(Vector3(1, 0, 0)) > 0.001:
+		push_error("Joystick right must move the avatar toward +X")
+		quit(1)
+		return
+	if left.distance_to(Vector3(-1, 0, 0)) > 0.001:
+		push_error("Joystick left must move the avatar toward -X")
+		quit(1)
+		return
+	if absf(float(world.call("_yaw_for_direction", right)) + PI / 2.0) > 0.001:
+		push_error("Right travel must face toward +X")
+		quit(1)
+		return
+	if absf(float(world.call("_yaw_for_direction", left)) - PI / 2.0) > 0.001:
+		push_error("Left travel must face toward -X")
+		quit(1)
+		return
 	if forward.distance_to(Vector3(0, 0, -1)) > 0.001:
 		push_error("Joystick up must move the avatar forward (-Z)")
 		quit(1)
