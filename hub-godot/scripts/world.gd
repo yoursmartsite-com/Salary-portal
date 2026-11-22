@@ -509,7 +509,7 @@ func _apply_professional_avatar(target: Node3D) -> void:
 		old_avatar.queue_free()
 	var model := avatar_scene.instantiate()
 	model.name = "ProfessionalGirlAvatar"
-	model.rotation.y = PI
+	model.rotation.y = 0.0
 	model.scale = Vector3.ONE
 	target.add_child(model)
 	_play_avatar_animation(model, "idle")
