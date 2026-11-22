@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#061521">
+<title>بحر لَمّة — Ocean V2</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#020b16;color:#fff;font-family:Arial,sans-serif}
+#renderCanvas{width:100%;height:100%;display:block;touch-action:none;outline:0}
+.hud{position:fixed;inset:0;pointer-events:none;background:linear-gradient(180deg,#03101fc2,transparent 24%,transparent 78%,#020b16b8)}
+.top{position:absolute;top:18px;right:20px;left:20px;display:flex;justify-content:space-between;align-items:flex-start}
+.title{font-size:21px;font-weight:900;text-shadow:0 2px 18px #000}.sub{font-size:11px;color:#b8dce7;margin-top:6px}
+.pill{border:1px solid #9bdedb99;background:#062631c9;border-radius:20px;padding:9px 13px;font-size:10px}
+.back{pointer-events:auto;position:absolute;top:78px;right:20px;text-decoration:none;color:#eaffff;background:#06232ddd;border:1px solid #ffffff55;border-radius:10px;padding:10px 14px;font-size:11px}
+.bottom{position:absolute;bottom:17px;left:50%;transform:translateX(-50%);background:#061b25dc;border:1px solid #83d8d077;border-radius:14px;padding:10px 15px;font-size:11px;white-space:nowrap;text-align:center}
+@media(max-width:600px){.top{top:12px;left:12px;right:12px}.title{font-size:17px}.pill{font-size:9px;padding:7px 9px}.back{top:67px;right:12px}.bottom{bottom:12px;font-size:10px;max-width:calc(100% - 24px);white-space:normal}}
+</style>
+</head>
+<body>
+<canvas id="renderCanvas"></canvas>
+<div class="hud">
+ <div class="top"><div><div class="title">🌊 بحر لَمّة — إصدار جديد</div><div class="sub">موج هندسي متحرك · رغوة ساحلية · إضاءة قمرية</div></div><div class="pill">OCEAN V2 · BABYLON 3D</div></div>
+ <a class="back" href="./hub.html">العودة إلى عالم لَمّة</a>
+ <div class="bottom">اسحب لتحريك الكاميرا · قرّب بإصبعين أو بعجلة الماوس</div>
+</div>
+<script src="https://cdn.babylonjs.com/babylon.js"></script>
+<script>
+(()=> {
+ const canvas=document.getElementById('renderCanvas');
+ if(!window.BABYLON){document.querySelector('.title').textContent='تعذر تحميل محرك العرض';return;}
+ const B=BABYLON;
+ const engine=new B.Engine(canvas,true,{antialias:true,stencil:false,preserveDrawingBuffer:false});
+ engine.setHardwareScalingLevel(Math.min(1.5,Math.max(1,window.devicePixelRatio||1)));
+ const scene=new B.Scene(engine);
+ scene.clearColor=new B.Color4(.006,.018,.038,1);
+ scene.fogMode=B.Scene.FOGMODE_EXP2;scene.fogColor=new B.Color3(.006,.018,.038);scene.fogDensity=.00072;
+ const camera=new B.ArcRotateCamera('ocean-camera',Math.PI/2,1.31,112,new B.Vector3(74,0,0),scene);
+ camera.lowerRadiusLimit=48;camera.upperRadiusLimit=175;camera.lowerBetaLimit=.88;camera.upperBetaLimit=1.52;camera.wheelPrecision=45;camera.panningSensibility=0;camera.attachControl(canvas,true);
+ const hemi=new B.HemisphericLight('ambient-sky',new B.Vector3(0,1,0),scene);hemi.intensity=.48;hemi.diffuse=new B.Color3(.42,.59,.82);hemi.groundColor=new B.Color3(.025,.045,.06);
+ const moonLight=new B.DirectionalLight('moonlight',new B.Vector3(-.32,-1,.12),scene);moonLight.position=new B.Vector3(18,55,-38);moonLight.intensity=1.05;moonLight.diffuse=new B.Color3(.66,.79,1);
+ // A custom sky dome gives a real horizon gradient without a heavy environment texture.
+ const skyV=`
+ precision highp float;attribute vec3 position;uniform mat4 world;uniform mat4 viewProjection;varying vec3 vDir;
+ void main(){vec4 w=world*vec4(position,1.0);vDir=normalize(position);gl_Position=viewProjection*w;}`;
+ const skyF=`
+ precision highp float;varying vec3 vDir;
+ void main(){float h=clamp(normalize(vDir).y*.5+.5,0.0,1.0);vec3 low=vec3(.025,.075,.12);vec3 mid=vec3(.012,.035,.075);vec3 high=vec3(.002,.008,.025);vec3 c=mix(low,mid,smoothstep(.12,.52,h));c=mix(c,high,smoothstep(.5,1.0,h));gl_FragColor=vec4(c,1.0);}`;
+ const sky=B.MeshBuilder.CreateSphere('night-sky',{diameter:900,segments:24},scene);sky.infiniteDistance=true;
+ const skyMat=new B.ShaderMaterial('night-sky-mat',scene,{vertexSource:skyV,fragmentSource:skyF},{attributes:['position'],uniforms:['world','viewProjection']});skyMat.backFaceCulling=false;sky.material=skyMat;
+ // Beach and wet shoreline.
+ const beach=B.MeshBuilder.CreateGround('wide-beach',{width:92,height:230,subdivisions:2},scene);beach.position.set(-28,-.34,0);
+ const sandMat=new B.PBRMaterial('dry-sand',scene);sandMat.albedoColor=new B.Color3(.31,.265,.19);sandMat.roughness=.96;beach.material=sandMat;
+ const wet=B.MeshBuilder.CreateGround('wet-sand',{width:19,height:230,subdivisions:2},scene);wet.position.set(17.5,-.23,0);
+ const wetMat=new B.PBRMaterial('wet-sand-mat',scene);wetMat.albedoColor=new B.Color3(.075,.13,.14);wetMat.roughness=.2;wetMat.metallic=.04;wet.material=wetMat;
+ // Gerstner-like multi-directional wave displacement, evaluated on the GPU.
+ const waterV=`
+ precision highp float;
+ attribute vec3 position;
+ uniform mat4 world;uniform mat4 viewProjection;uniform float uTime;
+ varying vec3 vWorld;varying float vCrest;varying vec2 vSlope;varying float vFoam;
+ void wave(inout vec3 p,vec2 dir,float steep,float wavelength,float speed,inout vec2 slope,inout float crest){
+  float k=6.2831853/wavelength;float f=k*dot(dir,p.xz)-uTime*speed;
+  float a=steep/k;float sn=sin(f);float cs=cos(f);
+  p.xz+=dir*(a*cs);p.y+=a*sn;
+  slope+=dir*(steep*cs);crest+=steep*sn;
+ }
+ void main(){
+  vec3 p=position;vec2 slope=vec2(0.0);float crest=0.0;
+  wave(p,normalize(vec2(1.0,.18)),.34,23.0,1.18,slope,crest);
+  wave(p,normalize(vec2(.62,-.78)),.25,15.0,.92,slope,crest);
+  wave(p,normalize(vec2(-.35,.94)),.17,10.0,1.38,slope,crest);
+  wave(p,normalize(vec2(.92,.4)),.10,6.5,1.72,slope,crest);
+  wave(p,normalize(vec2(-.8,-.55)),.055,3.8,1.95,slope,crest);
+  float chop=sin(p.x*.31+p.z*.19+uTime*1.9)*.055+sin(p.x*.47-p.z*.37-uTime*1.6)*.025;
+  p.y+=chop;
+  slope+=vec2(cos(p.x*.31+p.z*.19+uTime*1.9)*.017,cos(p.x*.31+p.z*.19+uTime*1.9)*.010);
+  vec4 w=world*vec4(p,1.0);vWorld=w.xyz;vSlope=slope;vCrest=crest;
+  vFoam=clamp(crest*.75+chop*2.0,0.0,1.0);
+  gl_Position=viewProjection*w;
+ }`;
+ const waterF=`
+ precision highp float;
+ uniform float uTime;uniform vec3 cameraPosition;
+ varying vec3 vWorld;varying float vCrest;varying vec2 vSlope;varying float vFoam;
+ float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+ float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);return mix(mix(hash(i),hash(i+vec2(1.,0.)),f.x),mix(hash(i+vec2(0.,1.)),hash(i+vec2(1.,1.)),f.x),f.y);}
+ void main(){
+  float shoreDist=vWorld.x;
+  float shallow=1.0-smoothstep(19.0,92.0,shoreDist);
+  vec3 col=mix(vec3(.002,.018,.043),vec3(.006,.09,.14),shallow);
+  col=mix(col,vec3(.012,.20,.20),shallow*.42);
+  vec3 N=normalize(vec3(-vSlope.x,1.0,-vSlope.y));vec3 V=normalize(cameraPosition-vWorld);
+  vec3 L=normalize(vec3(-.32,.86,-.22));vec3 H=normalize(L+V);
+  float spec=pow(max(dot(N,H),0.0),100.0);
+  float broadSpec=pow(max(dot(N,H),0.0),22.0);
+  float fres=pow(1.0-max(dot(N,V),0.0),3.0);
+  float moonTrack=exp(-pow((vWorld.z+vWorld.x*.105+sin(vWorld.x*.035+uTime*.15)*4.0)*.036,2.0));
+  float sparkle=noise(vWorld.xz*.22+vec2(uTime*.10,-uTime*.13));
+  float glint=pow(max(0.0,sin(vWorld.x*.17+vWorld.z*.13+uTime*.75)*sin(vWorld.z*.25-uTime*.62)),12.0);
+  float crestFoam=smoothstep(.32,.78,vFoam+sparkle*.23);
+  float shoreWave=sin(vWorld.z*.13+uTime*1.05)+sin(vWorld.z*.29-uTime*.72)*.35;
+  float shoreNoise=noise(vWorld.xz*.31+vec2(uTime*.12,-uTime*.16));
+  float shoreline=(1.0-smoothstep(18.0,27.0,shoreDist+shoreWave*1.9+shoreNoise*2.0))*smoothstep(.30,.72,shoreNoise+shoreWave*.12);
+  col+=vec3(.25,.42,.58)*spec*(.45+moonTrack);
+  col+=vec3(.12,.25,.38)*broadSpec*.25;
+  col+=vec3(.18,.34,.48)*moonTrack*glint*.85;
+  col+=vec3(.08,.23,.28)*fres*.55;
+  col+=vec3(.25,.43,.47)*crestFoam*.24;
+  col=mix(col,vec3(.66,.82,.82),shoreline*.92);
+  gl_FragColor=vec4(col,1.0);
+ }`;
+ const ocean=B.MeshBuilder.CreateGround('deep-ocean',{width:280,height:240,subdivisions:240},scene);ocean.position.set(154,-.12,0);
+ const oceanMat=new B.ShaderMaterial('gerstner-ocean',scene,{vertexSource:waterV,fragmentSource:waterF},{attributes:['position'],uniforms:['world','viewProjection','uTime','cameraPosition']});
+ oceanMat.backFaceCulling=false;ocean.material=oceanMat;
+ // Low rocky outcrops at the edge of the sand.
+ const rockMat=new B.PBRMaterial('dark-wet-rock',scene);rockMat.albedoColor=new B.Color3(.075,.105,.12);rockMat.roughness=.64;
+ for(let i=0;i<68;i++){
+  const z=-112+(i*37%220);if(Math.abs(z)<8)continue;
+  const x=7+(i*17%19);const rock=B.MeshBuilder.CreatePolyhedron('shore-rock',{type:i%5,size:.55+(i%5)*.20},scene);
+  rock.position.set(x,-.03,z);rock.scaling.set(1.2+(i%4)*.38,.42+(i%4)*.15,.8+(i%3)*.35);rock.rotation.set(i*.21,i*.71,i*.29);rock.material=rockMat;
+ }
+ // Moon and halo.
+ const moon=B.MeshBuilder.CreateSphere('moon',{diameter:7.2,segments:32},scene);moon.position.set(39,42,-91);
+ const moonMat=new B.StandardMaterial('moon-glow',scene);moonMat.emissiveColor=new B.Color3(.78,.86,1);moon.material=moonMat;
+ const halo=B.MeshBuilder.CreateSphere('moon-halo',{diameter:15,segments:24},scene);halo.position.copyFrom(moon.position);
+ const haloMat=new B.StandardMaterial('halo-glow',scene);haloMat.emissiveColor=new B.Color3(.12,.22,.4);haloMat.alpha=.12;haloMat.disableLighting=true;halo.material=haloMat;
+ const starMat=new B.StandardMaterial('stars-mat',scene);starMat.emissiveColor=new B.Color3(.55,.68,.9);starMat.disableLighting=true;
+ for(let i=0;i<170;i++){const s=B.MeshBuilder.CreateSphere('star',{diameter:.07+(i%3)*.035,segments:4},scene);const a=i*2.399,r=75+(i%17)*3;s.position.set(Math.cos(a)*r,27+(i%11)*3.6,Math.sin(a)*r-24);s.material=starMat;}
+ let t=0;
+ engine.runRenderLoop(()=>{t+=Math.min(engine.getDeltaTime()/1000,.04);oceanMat.setFloat('uTime',t);oceanMat.setVector3('cameraPosition',camera.position);scene.render();});
+ window.addEventListener('resize',()=>engine.resize());
+})();
+</script>
+</body>
+</html>
