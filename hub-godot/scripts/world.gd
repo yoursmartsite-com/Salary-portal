@@ -7,6 +7,9 @@ var camera: Camera3D
 var camera_yaw := 0.0
 var camera_pitch := -0.22
 var active_look := false
+var active_move := false
+var move_origin := Vector2.ZERO
+var move_touch := Vector2.ZERO
 var jump_requested := false
 var ui_layer: CanvasLayer
 
@@ -183,13 +186,13 @@ func _make_sign(pos: Vector3, label: String) -> void:
 func _build_player() -> void:
 	player = CharacterBody3D.new()
 	player.name = "LammaGirl"
-	player.position = Vector3(0, 1.1, 5)
+	player.position = Vector3(0, 0.1, 5)
 	var capsule := CollisionShape3D.new()
 	var cap := CapsuleShape3D.new()
 	cap.radius = 0.34
-	cap.height = 1.65
+	cap.height = 2.5
 	capsule.shape = cap
-	capsule.position.y = 0.82
+	capsule.position.y = 1.25
 	player.add_child(capsule)
 	_build_girl_model(player)
 	add_child(player)
@@ -277,7 +280,7 @@ func _build_hud() -> void:
 	jump.pressed.connect(func(): jump_requested = true)
 	ui_layer.add_child(jump)
 	var hint := Label.new()
-	hint.text = "اسحب يمين الشاشة لتدوير الكاميرا"
+	hint.text = "حرّك بإبهامك يسار الشاشة · اسحب يمينًا لتحريك الكاميرا"
 	hint.anchor_left = 0.5
 	hint.anchor_right = 0.5
 	hint.anchor_top = 1
@@ -291,13 +294,25 @@ func _unhandled_input(event: InputEvent) -> void:
 		camera_yaw -= event.relative.x * 0.006
 		camera_pitch = clampf(camera_pitch + event.relative.y * 0.004, -0.65, 0.25)
 	elif event is InputEventScreenTouch:
-		if event.pressed and event.position.x > get_viewport().size.x * 0.45:
-			active_look = true
-		elif not event.pressed:
-			active_look = false
-	elif event is InputEventScreenDrag and active_look:
-		camera_yaw -= event.relative.x * 0.006
-		camera_pitch = clampf(camera_pitch + event.relative.y * 0.004, -0.65, 0.25)
+		if event.pressed:
+			if event.position.x < get_viewport().size.x * 0.42:
+				active_move = true
+				move_origin = event.position
+				move_touch = Vector2.ZERO
+			elif event.position.x > get_viewport().size.x * 0.55:
+				active_look = true
+		else:
+			if event.position.x < get_viewport().size.x * 0.48:
+				active_move = false
+				move_touch = Vector2.ZERO
+			else:
+				active_look = false
+	elif event is InputEventScreenDrag:
+		if active_move:
+			move_touch = ((event.position - move_origin) / 65.0).limit_length(1.0)
+		elif active_look:
+			camera_yaw -= event.relative.x * 0.006
+			camera_pitch = clampf(camera_pitch + event.relative.y * 0.004, -0.65, 0.25)
 
 func _process(_delta: float) -> void:
 	_update_camera()
@@ -305,7 +320,7 @@ func _process(_delta: float) -> void:
 func _physics_process(delta: float) -> void:
 	if not is_instance_valid(player):
 		return
-	var input_dir := Vector2(
+	var input_dir := move_touch if active_move else Vector2(
 		Input.get_action_strength("ui_right") - Input.get_action_strength("ui_left"),
 		Input.get_action_strength("ui_down") - Input.get_action_strength("ui_up")
 	)
