@@ -8,6 +8,7 @@ run/main_scene="res://scenes/world.tscn"
 window/size/viewport_width=1280
 window/size/viewport_height=720
 window/stretch/mode="canvas_items"
+window/handheld/orientation=1
 
 [rendering]
 renderer/rendering_method="gl_compatibility"
