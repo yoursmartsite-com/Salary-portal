@@ -36,8 +36,12 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
-        with:
-          packages: 'platform-tools,platforms;android-35,build-tools;35.0.0'
+
+      - name: Install required Android packages
+        shell: bash
+        run: |
+          yes | sdkmanager --licenses >/dev/null
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
       - name: Configure Android export preset
         working-directory: battle-royale-apk
