@@ -18,6 +18,13 @@ var move_vector := Vector2.ZERO
 var last_look := Vector2.ZERO
 var fire_cooldown := 0.0
 var reloading := false
+var visual_root: Node3D
+var left_leg: Node3D
+var right_leg: Node3D
+var left_arm: Node3D
+var right_arm: Node3D
+var walk_time := 0.0
+var muzzle: MeshInstance3D
 
 func setup(owner_game) -> void:
 	game = owner_game
@@ -25,52 +32,101 @@ func setup(owner_game) -> void:
 	_build_camera()
 	set_process_input(true)
 
+func _mat(color: Color, metal := 0.0, rough := 0.8) -> StandardMaterial3D:
+	var m := StandardMaterial3D.new()
+	m.albedo_color = color
+	m.metallic = metal
+	m.roughness = rough
+	return m
+
+func _part(parent: Node3D, mesh: Mesh, pos: Vector3, material: Material, rot := Vector3.ZERO) -> MeshInstance3D:
+	var node := MeshInstance3D.new()
+	node.mesh = mesh
+	node.position = pos
+	node.rotation_degrees = rot
+	node.material_override = material
+	parent.add_child(node)
+	return node
+
+func _box(size: Vector3) -> BoxMesh:
+	var m := BoxMesh.new()
+	m.size = size
+	return m
+
+func _sphere(radius: float, height: float) -> SphereMesh:
+	var m := SphereMesh.new()
+	m.radius = radius
+	m.height = height
+	return m
+
 func _build_character() -> void:
-	var capsule := CapsuleMesh.new()
-	capsule.radius = 0.42
-	capsule.height = 1.65
-	var torso := MeshInstance3D.new()
-	torso.mesh = capsule
-	torso.position.y = 0.95
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = Color(0.19,0.24,0.22)
-	mat.metallic = 0.05
-	torso.material_override = mat
-	add_child(torso)
-	var head := MeshInstance3D.new()
-	var hm := SphereMesh.new()
-	hm.radius = 0.24
-	hm.height = 0.48
-	head.mesh = hm
-	head.position.y = 2.0
-	var skin := StandardMaterial3D.new()
-	skin.albedo_color = Color(0.72,0.55,0.42)
-	head.material_override = skin
-	add_child(head)
-	var helmet := MeshInstance3D.new()
-	var hmesh := SphereMesh.new()
-	hmesh.radius = 0.27
-	hmesh.height = 0.28
-	helmet.mesh = hmesh
-	helmet.position = Vector3(0,2.13,0)
-	var hmatt := StandardMaterial3D.new()
-	hmatt.albedo_color = Color(0.17,0.21,0.19)
-	helmet.material_override = hmatt
-	add_child(helmet)
-	var gun := MeshInstance3D.new()
-	var gm := BoxMesh.new()
-	gm.size = Vector3(0.12,0.13,0.9)
-	gun.mesh = gm
-	gun.position = Vector3(0.38,1.38,-0.48)
-	var gmat := StandardMaterial3D.new()
-	gmat.albedo_color = Color(0.07,0.08,0.075)
-	gun.material_override = gmat
-	add_child(gun)
+	visual_root = Node3D.new()
+	add_child(visual_root)
+	var cloth := _mat(Color(0.20,0.27,0.22))
+	var dark := _mat(Color(0.075,0.095,0.085),0.18)
+	var armor := _mat(Color(0.29,0.34,0.28),0.12)
+	var skin := _mat(Color(0.66,0.46,0.33))
+	var metal := _mat(Color(0.045,0.055,0.052),0.55,0.38)
+	# torso, tactical vest and equipment
+	_part(visual_root, _box(Vector3(0.78,0.82,0.40)), Vector3(0,1.22,0), cloth)
+	_part(visual_root, _box(Vector3(0.66,0.62,0.16)), Vector3(0,1.25,-0.245), armor)
+	_part(visual_root, _box(Vector3(0.18,0.25,0.19)), Vector3(-0.20,1.04,-0.34), dark)
+	_part(visual_root, _box(Vector3(0.18,0.25,0.19)), Vector3(0.20,1.04,-0.34), dark)
+	_part(visual_root, _box(Vector3(0.50,0.13,0.43)), Vector3(0,0.78,0), dark)
+	# neck and head
+	_part(visual_root, _sphere(0.14,0.25), Vector3(0,1.72,0), skin)
+	_part(visual_root, _sphere(0.235,0.43), Vector3(0,1.94,0), skin)
+	_part(visual_root, _sphere(0.255,0.25), Vector3(0,2.10,0), armor)
+	_part(visual_root, _box(Vector3(0.55,0.10,0.34)), Vector3(0,2.00,-0.02), dark)
+	_part(visual_root, _box(Vector3(0.19,0.09,0.08)), Vector3(-0.12,2.01,-0.205), metal)
+	_part(visual_root, _box(Vector3(0.19,0.09,0.08)), Vector3(0.12,2.01,-0.205), metal)
+	# backpack
+	_part(visual_root, _box(Vector3(0.48,0.60,0.22)), Vector3(0,1.30,0.31), dark)
+	_part(visual_root, _box(Vector3(0.30,0.18,0.25)), Vector3(0,1.10,0.44), armor)
+	# articulated arms
+	left_arm = Node3D.new()
+	left_arm.position = Vector3(-0.48,1.52,0)
+	visual_root.add_child(left_arm)
+	_part(left_arm,_sphere(0.19,0.40),Vector3(0,-0.17,0),cloth,Vector3(0,0,12))
+	_part(left_arm,_sphere(0.14,0.38),Vector3(0,-0.48,-0.10),armor)
+	_part(left_arm,_sphere(0.13,0.18),Vector3(0,-0.68,-0.16),dark)
+	right_arm = Node3D.new()
+	right_arm.position = Vector3(0.48,1.52,0)
+	visual_root.add_child(right_arm)
+	_part(right_arm,_sphere(0.19,0.40),Vector3(0,-0.17,0),cloth,Vector3(0,0,-12))
+	_part(right_arm,_sphere(0.14,0.38),Vector3(0,-0.48,-0.10),armor)
+	_part(right_arm,_sphere(0.13,0.18),Vector3(0,-0.68,-0.16),dark)
+	# articulated legs and boots
+	left_leg = Node3D.new()
+	left_leg.position = Vector3(-0.22,0.78,0)
+	visual_root.add_child(left_leg)
+	_part(left_leg,_sphere(0.19,0.55),Vector3(0,-0.24,0),cloth)
+	_part(left_leg,_sphere(0.15,0.40),Vector3(0,-0.58,-0.015),armor)
+	_part(left_leg,_box(Vector3(0.27,0.16,0.42)),Vector3(0,-0.78,-0.09),dark)
+	right_leg = Node3D.new()
+	right_leg.position = Vector3(0.22,0.78,0)
+	visual_root.add_child(right_leg)
+	_part(right_leg,_sphere(0.19,0.55),Vector3(0,-0.24,0),cloth)
+	_part(right_leg,_sphere(0.15,0.40),Vector3(0,-0.58,-0.015),armor)
+	_part(right_leg,_box(Vector3(0.27,0.16,0.42)),Vector3(0,-0.78,-0.09),dark)
+	# detailed rifle held across the chest
+	var rifle := Node3D.new()
+	rifle.position = Vector3(0.36,1.28,-0.43)
+	rifle.rotation_degrees = Vector3(0,0,-5)
+	visual_root.add_child(rifle)
+	_part(rifle,_box(Vector3(0.13,0.13,0.82)),Vector3(0,0,-0.18),metal)
+	_part(rifle,_box(Vector3(0.17,0.18,0.28)),Vector3(0,0.02,0.08),dark)
+	_part(rifle,_box(Vector3(0.12,0.25,0.16)),Vector3(0,-0.16,0.14),dark,Vector3(-15,0,0))
+	_part(rifle,_box(Vector3(0.055,0.055,0.42)),Vector3(0,0.10,-0.62),metal)
+	_part(rifle,_box(Vector3(0.20,0.07,0.20)),Vector3(0,0.10,-0.48),dark)
+	muzzle = _part(rifle,_sphere(0.055,0.08),Vector3(0,0,-0.86),_mat(Color(1.0,0.48,0.12),0.0,0.3))
+	muzzle.visible = false
 	var col := CollisionShape3D.new()
 	var shape := CapsuleShape3D.new()
-	shape.radius = 0.42
-	shape.height = 2.1
+	shape.radius = 0.38
+	shape.height = 2.0
 	col.shape = shape
+	col.position.y = 1.0
 	add_child(col)
 
 func _build_camera() -> void:
@@ -78,10 +134,10 @@ func _build_camera() -> void:
 	camera_pivot.position = Vector3(0,1.65,0)
 	add_child(camera_pivot)
 	camera = Camera3D.new()
-	camera.position = Vector3(0,1.0,5.8)
+	camera.position = Vector3(0,0.9,5.2)
 	camera.rotation_degrees.x = -8
 	camera.current = true
-	camera.fov = 72
+	camera.fov = 68
 	camera_pivot.add_child(camera)
 
 func _physics_process(delta: float) -> void:
@@ -101,6 +157,15 @@ func _physics_process(delta: float) -> void:
 	camera_pivot.rotation.x = pitch
 	if Input.is_action_just_pressed("jump"):
 		jump_now()
+	if dir.length() > 0.1 and is_on_floor():
+		walk_time += delta * 9.0
+		left_leg.rotation.x = sin(walk_time) * 0.48
+		right_leg.rotation.x = -sin(walk_time) * 0.48
+		left_arm.rotation.x = -sin(walk_time) * 0.20
+	else:
+		left_leg.rotation.x = lerpf(left_leg.rotation.x,0.0,delta*8.0)
+		right_leg.rotation.x = lerpf(right_leg.rotation.x,0.0,delta*8.0)
+		left_arm.rotation.x = lerpf(left_arm.rotation.x,0.0,delta*8.0)
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventScreenTouch:
@@ -121,8 +186,7 @@ func _input(event: InputEvent) -> void:
 				look_touch = -1
 	elif event is InputEventScreenDrag:
 		if event.index == move_touch:
-			move_vector = (event.position - move_origin) / 85.0
-			move_vector = move_vector.limit_length(1.0)
+			move_vector = ((event.position - move_origin) / 85.0).limit_length(1.0)
 		elif event.index == look_touch:
 			var diff: Vector2 = event.position - last_look
 			yaw -= diff.x * look_sensitivity
@@ -137,10 +201,15 @@ func jump_now() -> void:
 		velocity.y = 8.5
 
 func fire() -> void:
-	if fire_cooldown > 0 or reloading or ammo <= 0:
+	if fire_cooldown > 0.0 or reloading or ammo <= 0:
 		return
 	ammo -= 1
 	fire_cooldown = 0.16
+	if muzzle:
+		muzzle.visible = true
+		await get_tree().create_timer(0.055).timeout
+		if is_instance_valid(muzzle):
+			muzzle.visible = false
 	var from := camera.global_position
 	var to := from + -camera.global_transform.basis.z * 180.0
 	var query := PhysicsRayQueryParameters3D.create(from, to)
