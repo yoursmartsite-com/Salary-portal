@@ -401,14 +401,72 @@ for(const side of [-1,1]){
 for(let i=0;i<7;i++){box(2.2,.25,1.0,white,towerX+7,4.8-i*.65,towerZ+2+i*.85,-.38)}
 const slideMat=mat('#f27d65',.45);const slide=new THREE.Mesh(new THREE.BoxGeometry(3,.25,13),slideMat);slide.position.set(towerX+7,2.1,towerZ+6);slide.rotation.x=-.34;slide.rotation.z=-.18;slide.castShadow=true;scene.add(slide);
 for(const side of [-1,1]){const rail=new THREE.Mesh(new THREE.BoxGeometry(.18,.55,13),yellow);rail.position.set(towerX+7+side*1.5,2.45,towerZ+6);rail.rotation.x=-.34;rail.rotation.z=-.18;scene.add(rail)}
-// swing set
-const swingGroup=new THREE.Group();swingGroup.position.set(28,0,-17);scene.add(swingGroup);const swingFrame=mat('#e7b957');for(const x of [-3.8,3.8]){const leg=new THREE.Mesh(new THREE.CylinderGeometry(.18,.23,7,12),swingFrame);leg.position.set(x,3.5,0);leg.rotation.z=x>0?-.28:.28;swingGroup.add(leg)}const beam=new THREE.Mesh(new THREE.BoxGeometry(8,.3,.35),swingFrame);beam.position.y=7;swingGroup.add(beam);
-const swings=[];for(let x of [-2.3,0,2.3]){const g=new THREE.Group();g.position.set(x,6.8,0);swingGroup.add(g);for(let dx of [-.45,.45]){const rope=new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,2.7,8),white);rope.position.set(dx,-1.35,0);g.add(rope)}const seat=new THREE.Mesh(new THREE.BoxGeometry(1.15,.18,.55),coral);seat.position.y=-2.7;g.add(seat);swings.push(g)}
-// ferris wheel
-const ferris=new THREE.Group();ferris.position.set(0,0,-43);scene.add(ferris);const wheel=new THREE.Group();wheel.position.set(0,13,0);ferris.add(wheel);
-const tor=new THREE.Mesh(new THREE.TorusGeometry(9,.22,12,64),yellow);wheel.add(tor);const hub=sphere(.75,coral,0,0,0);wheel.add(hub);
-const wheelPods=[];for(let i=0;i<12;i++){const a=i*Math.PI/6;const spoke=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,18,8),white);spoke.rotation.z=a;wheel.add(spoke);const pod=new THREE.Group();pod.position.set(Math.cos(a)*9,-Math.sin(a)*9,0);wheelPods.push(pod);const basket=new THREE.Mesh(new THREE.BoxGeometry(1.5,1.4,1.3),[coral,blue,pink,teal][i%4]);basket.position.y=-.8;pod.add(basket);const roof=new THREE.Mesh(new THREE.ConeGeometry(1.1,.6,4),yellow);roof.position.y=.15;roof.rotation.y=Math.PI/4;pod.add(roof);wheel.add(pod)}
-for(let x of [-3.5,3.5]){const leg=new THREE.Mesh(new THREE.CylinderGeometry(.35,.5,8,12),blue);leg.position.set(x,4,0);leg.rotation.z=x>0?-.3:.3;ferris.add(leg)}wheel.rotation.z=.12;
+// Premium playground swing set
+const swingGroup=new THREE.Group();swingGroup.position.set(28,0,-17);scene.add(swingGroup);
+const swingFrame=mat('#263b4a',.38),swingMetal=mat('#aebdc7',.32),swingSeatMat=mat('#d94f64',.32),swingRubber=mat('#202a34',.9);
+for(const x of [-3.65,3.65]){
+ const leg=new THREE.Mesh(new THREE.CylinderGeometry(.16,.24,7.2,18),swingFrame);
+ leg.position.set(x,3.55,0);leg.rotation.z=x>0?-.30:.30;leg.castShadow=true;leg.receiveShadow=true;swingGroup.add(leg);
+ const foot=new THREE.Mesh(new THREE.CylinderGeometry(.42,.48,.22,20),swingMetal);foot.position.set(x, .12,0);foot.castShadow=true;swingGroup.add(foot);
+ const brace=new THREE.Mesh(new THREE.CylinderGeometry(.075,.075,4.7,12),swingMetal);brace.position.set(x*.52,2.25,0);brace.rotation.z=x>0?.66:-.66;swingGroup.add(brace);
+}
+const swingBeam=new THREE.Mesh(new THREE.CylinderGeometry(.22,.22,8.1,24),swingFrame);swingBeam.rotation.z=Math.PI/2;swingBeam.position.y=7.1;swingBeam.castShadow=true;swingGroup.add(swingBeam);
+for(let x of [-2.3,0,2.3]){
+ const g=new THREE.Group();g.position.set(x,6.9,0);swingGroup.add(g);
+ for(let dx of [-.43,.43]){
+  const chain=new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,2.65,12),swingMetal);chain.position.set(dx,-1.3,0);chain.castShadow=true;g.add(chain);
+  for(let k=0;k<8;k++){const link=new THREE.Mesh(new THREE.TorusGeometry(.045,.012,6,10),swingMetal);link.position.set(dx,-.18-k*.32,.01);link.rotation.x=Math.PI/2;g.add(link);}
+ }
+ const seatBase=new THREE.Mesh(new THREE.BoxGeometry(1.28,.18,.72),swingSeatMat);seatBase.position.set(0,-2.68,0);seatBase.castShadow=true;g.add(seatBase);
+ const seatBack=new THREE.Mesh(new THREE.BoxGeometry(1.28,.62,.12),swingSeatMat);seatBack.position.set(0,-2.38,-.29);seatBack.rotation.x=-.12;g.add(seatBack);
+ const cushion=new THREE.Mesh(new THREE.BoxGeometry(1.08,.09,.52),mat('#f1a4a9',.6));cushion.position.set(0,-2.54,.02);g.add(cushion);
+ const handle=new THREE.Mesh(new THREE.TorusGeometry(.18,.035,8,20,Math.PI),swingMetal);handle.position.set(0,-2.32,.36);handle.rotation.z=Math.PI;g.add(handle);
+ swings.push(g);
+}
+const swingLamp=new THREE.PointLight(0xffd58b,1.2,15);swingLamp.position.set(28,6.5,-17);scene.add(swingLamp);
+
+// Premium illuminated Ferris wheel
+const ferris=new THREE.Group();ferris.position.set(0,0,-43);scene.add(ferris);
+const wheel=new THREE.Group();wheel.position.set(0,13,0);ferris.add(wheel);
+const wheelGold=mat('#d6a94e',.3),wheelSteel=mat('#9eabb6',.28),wheelAccent=mat('#ecf4f7',.24);
+for(const z of [-.32,.32]){
+ const rim=new THREE.Mesh(new THREE.TorusGeometry(9,.24,16,96),wheelGold);rim.position.z=z;rim.castShadow=true;rim.receiveShadow=true;wheel.add(rim);
+ const innerRim=new THREE.Mesh(new THREE.TorusGeometry(8.55,.075,10,96),wheelSteel);innerRim.position.z=z;wheel.add(innerRim);
+}
+const hub=new THREE.Mesh(new THREE.CylinderGeometry(.85,.85,.9,32),wheelGold);hub.rotation.x=Math.PI/2;hub.castShadow=true;wheel.add(hub);
+const hubCap=new THREE.Mesh(new THREE.CylinderGeometry(.55,.55,.96,32),mat('#e9edf0',.22));hubCap.rotation.x=Math.PI/2;hubCap.position.z=.03;wheel.add(hubCap);
+const wheelPods=[];
+for(let i=0;i<12;i++){
+ const a=i*Math.PI/6;
+ for(const z of [-.32,.32]){
+  const spoke=new THREE.Mesh(new THREE.CylinderGeometry(.095,.13,9,14),wheelSteel);
+  spoke.position.set(Math.cos(a)*4.5,Math.sin(a)*4.5,z);spoke.rotation.z=-a;spoke.castShadow=true;wheel.add(spoke);
+  const brace=new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,6.3,10),wheelAccent);
+  brace.position.set(Math.cos(a)*5.8,Math.sin(a)*5.8,z);brace.rotation.z=-a;wheel.add(brace);
+ }
+ const pod=new THREE.Group();pod.position.set(Math.cos(a)*9,Math.sin(a)*9,0);wheelPods.push(pod);
+ const palette=[mat('#c94f58',.4),mat('#247c91',.35),mat('#9c5d9e',.4),mat('#d59b39',.35)];
+ const color=palette[i%palette.length];
+ const floor=new THREE.Mesh(new THREE.BoxGeometry(1.65,.16,1.35),wheelSteel);floor.position.y=-.92;floor.castShadow=true;pod.add(floor);
+ const body=new THREE.Mesh(new THREE.BoxGeometry(1.58,1.05,1.28),color);body.position.y=-.48;body.castShadow=true;pod.add(body);
+ const opening=new THREE.Mesh(new THREE.BoxGeometry(1.24,.55,.035),mat('#172c3a',.35));opening.position.set(0,-.38,.66);pod.add(opening);
+ for(const side of [-1,1]){
+  const post=new THREE.Mesh(new THREE.CylinderGeometry(.055,.055,.85,12),wheelGold);post.position.set(side*.68,.08,.54);pod.add(post);
+  const rail=new THREE.Mesh(new THREE.CylinderGeometry(.055,.055,1.42,12),wheelGold);rail.rotation.z=Math.PI/2;rail.position.set(0,.48,.54);pod.add(rail);
+ }
+ const roof=new THREE.Mesh(new THREE.BoxGeometry(1.9,.14,1.55),wheelGold);roof.position.y=.28;roof.castShadow=true;pod.add(roof);
+ const canopy=new THREE.Mesh(new THREE.BoxGeometry(1.72,.12,1.38),color);canopy.position.y=.4;pod.add(canopy);
+ const lamp=new THREE.PointLight(0xffd78a,.35,4);lamp.position.set(0,.05,.85);pod.add(lamp);
+ wheel.add(pod);
+}
+for(let x of [-3.5,3.5]){
+ const leg=new THREE.Mesh(new THREE.CylinderGeometry(.48,.68,9,20),wheelSteel);leg.position.set(x,4.5,0);leg.rotation.z=x>0?-.34:.34;leg.castShadow=true;ferris.add(leg);
+ const foot=new THREE.Mesh(new THREE.BoxGeometry(1.5,.35,2.1),wheelGold);foot.position.set(x,.2,0);ferris.add(foot);
+ const brace=new THREE.Mesh(new THREE.CylinderGeometry(.12,.16,6.5,14),wheelGold);brace.position.set(x*.5,3,0);brace.rotation.z=x>0?.55:-.55;ferris.add(brace);
+}
+const ferrisBase=new THREE.Mesh(new THREE.BoxGeometry(10,.5,3.5),mat('#344958',.65));ferrisBase.position.set(0,.25,0);ferris.add(ferrisBase);
+const ferrisLight=new THREE.PointLight(0x74dfff,1.8,26);ferrisLight.position.set(0,13,2.2);ferris.add(ferrisLight);
+wheel.rotation.z=.12;
 // mini football pitch
 box(20,.12,12,mat('#36865b'),31,.05,22);for(let z of [16,28])box(20,.05,.12,white,31,.13,z);for(let x of [21,41])box(.12,.05,12,white,x,.13,22);cyl(.08,.08,.05,white,31,.16,22);for(let z of [20,24]){box(.2,2,.3,white,21,1,z);box(.2,2,.3,white,41,1,z);}
 // cafe pavilion
@@ -654,7 +712,7 @@ else if(jumpRequested&&avatar.position.y>floorY+.18){jumpRequested=false;}
 jumpV-=18*dt;avatar.position.y+=jumpV*dt;
 if(avatar.position.y<=floorY){avatar.position.y=floorY;jumpV=0;onGround=true}else{onGround=false;}
 avatar.position.x=THREE.MathUtils.clamp(avatar.position.x,-54,54);avatar.position.z=THREE.MathUtils.clamp(avatar.position.z,-60,60);
-swings.forEach((g,i)=>{g.rotation.x=rideMode==="swing"&&rideIndex===i?Math.sin(t*4.8)*.62:Math.sin(t*2.2+i*1.7)*.18;});wheel.rotation.z+=dt*(rideMode==="wheel"?.42:.12);
+swings.forEach((g,i)=>{g.rotation.x=rideMode==="swing"&&rideIndex===i?Math.sin(t*4.8)*.62:Math.sin(t*2.2+i*1.7)*.18;});wheel.rotation.z+=dt*(rideMode==="wheel"?.42:.12);wheelPods.forEach(p=>{p.rotation.z=-wheel.rotation.z;});
 if(rideMode==="swing"){const p=swingGroup.localToWorld(new THREE.Vector3(swings[rideIndex].position.x,4.1,0));avatar.position.set(p.x,p.y,p.z);avatar.rotation.y=swingGroup.rotation.y;avatar.rotation.x=swings[rideIndex].rotation.x;setSitPose();}
 if(rideMode==="wheel"){wheel.updateMatrixWorld(true);const p=new THREE.Vector3();wheelPods[rideIndex].getWorldPosition(p);avatar.position.set(p.x,p.y-.05,p.z);avatar.rotation.y=-wheel.rotation.z;avatar.rotation.z=-wheel.rotation.z;setSitPose();}
 if(mapWaypoint){const wx=mapWaypoint.x-avatar.position.x,wz=mapWaypoint.z-avatar.position.z,dist=Math.hypot(wx,wz);if(dist<mapWaypoint.r){document.querySelector('#hint').textContent='📍 وصلت إلى '+mapWaypoint.label;mapWaypoint=null;}else{const dir=Math.atan2(wx,wz)-yaw;const dirs=['قدامك','يمينك','ورا','شمالك'];const sector=((Math.round(dir/(Math.PI/2))%4)+4)%4;document.querySelector('#hint').textContent='📍 '+mapWaypoint.label+' · '+Math.round(dist)+' متر · '+dirs[sector];}}else{document.querySelector('#hint').textContent='اسحب العصاية للحركة · اسحب أي مكان فاضي لتلف الكاميرا';}
