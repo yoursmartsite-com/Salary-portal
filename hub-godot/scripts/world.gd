@@ -46,12 +46,13 @@ func _ready() -> void:
 	arabic_font = load("res://assets/Cairo.ttf") as Font if ResourceLoader.exists("res://assets/Cairo.ttf") else null
 	_build_hud()
 	_load_professional_avatar()
-	firebase_bridge = FirebaseHub.new()
-	add_child(firebase_bridge)
-	firebase_bridge.connected.connect(_on_firebase_connected)
-	firebase_bridge.players_changed.connect(_on_firebase_players_changed)
-	firebase_bridge.failed.connect(_on_firebase_failed)
-	firebase_bridge.start()
+	if not has_meta("skip_firebase"):
+		firebase_bridge = FirebaseHub.new()
+		add_child(firebase_bridge)
+		firebase_bridge.connected.connect(_on_firebase_connected)
+		firebase_bridge.players_changed.connect(_on_firebase_players_changed)
+		firebase_bridge.failed.connect(_on_firebase_failed)
+		firebase_bridge.start()
 
 func _build_environment() -> void:
 	var env := WorldEnvironment.new()
@@ -577,7 +578,8 @@ func _build_hud() -> void:
 	if arabic_font != null:
 		var arabic_theme := Theme.new()
 		arabic_theme.default_font = arabic_font
-		ui_layer.theme = arabic_theme
+		# CanvasLayer has no Theme property; set the shared UI theme on the root Window.
+		get_tree().root.theme = arabic_theme
 	add_child(ui_layer)
 	var title := Label.new()
 	title.text = "لَمّة  |  عالم الأصدقاء"
