@@ -6,6 +6,7 @@ func _initialize() -> void:
 func _run_remote_avatar_test() -> void:
 	var world := Node3D.new()
 	world.set_script(load("res://scripts/world.gd"))
+	world.set_meta("skip_firebase", true)
 	root.add_child(world)
 
 	var forward: Vector3 = world.call("_camera_relative_direction", Vector2(0, -1))
@@ -68,6 +69,10 @@ func _run_remote_avatar_test() -> void:
 
 	world.call("_on_portal_enter", "اختبار", "../games/connect-four.html")
 	var portal_button: Button = world.get("portal_enter_button")
+	if portal_button == null:
+		push_error("Portal entry button was not created")
+		quit(1)
+		return
 	if not portal_button.visible or portal_button.text != "دخول: اختبار":
 		push_error("Portal entry prompt did not appear")
 		quit(1)
