@@ -8,6 +8,25 @@ func _run_remote_avatar_test() -> void:
 	world.set_script(load("res://scripts/world.gd"))
 	root.add_child(world)
 
+	var forward: Vector3 = world.call("_camera_relative_direction", Vector2(0, -1))
+	var backward: Vector3 = world.call("_camera_relative_direction", Vector2(0, 1))
+	if forward.distance_to(Vector3(0, 0, -1)) > 0.001:
+		push_error("Joystick up must move the avatar forward (-Z)")
+		quit(1)
+		return
+	if backward.distance_to(Vector3(0, 0, 1)) > 0.001:
+		push_error("Joystick down must move the avatar backward (+Z)")
+		quit(1)
+		return
+	if absf(float(world.call("_yaw_for_direction", forward))) > 0.001:
+		push_error("Forward travel must face the character toward -Z")
+		quit(1)
+		return
+	if absf(absf(float(world.call("_yaw_for_direction", backward))) - PI) > 0.001:
+		push_error("Backward travel must turn the character toward +Z")
+		quit(1)
+		return
+
 	var now_ms := Time.get_unix_time_from_system() * 1000.0
 	var sample := {
 		"smoke_room": {
