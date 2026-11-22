@@ -269,8 +269,34 @@ plazaRim.rotation.x=-Math.PI/2;plazaRim.position.y=.035;scene.add(plazaRim);
 const shoreSand=mat('#bca77d',.98);
 const shoreBeach=new THREE.Mesh(new THREE.PlaneGeometry(20,160),shoreSand);
 shoreBeach.rotation.x=-Math.PI/2;shoreBeach.position.set(44,-.075,0);shoreBeach.receiveShadow=true;scene.add(shoreBeach);
-const seaMaterial=new THREE.MeshStandardMaterial({color:0x07566c,roughness:.24,metalness:.28,transparent:true,opacity:.96});
-const seaSurface=new THREE.Mesh(new THREE.PlaneGeometry(90,180),seaMaterial);
+// Layered night sea: GPU waves, shallow-water color falloff and moonlit highlights.
+let seaTimeUniform=null;
+const seaMaterial=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.19,metalness:.12});
+seaMaterial.onBeforeCompile=(shader)=>{
+ shader.uniforms.uSeaTime={value:0};seaTimeUniform=shader.uniforms.uSeaTime;
+ shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nuniform float uSeaTime;\nvarying vec3 vSeaWorldPosition;');
+ shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',`#include <begin_vertex>
+ float seaA=sin(transformed.x*0.19+uSeaTime*0.82)*0.105;
+ float seaB=sin(transformed.y*0.24-uSeaTime*0.61)*0.075;
+ float seaC=sin((transformed.x+transformed.y)*0.115+uSeaTime*0.43)*0.045;
+ transformed.z+=seaA+seaB+seaC;
+ float slopeX=cos(transformed.x*0.19+uSeaTime*0.82)*0.020+cos((transformed.x+transformed.y)*0.115+uSeaTime*0.43)*0.005;
+ float slopeY=cos(transformed.y*0.24-uSeaTime*0.61)*0.018+cos((transformed.x+transformed.y)*0.115+uSeaTime*0.43)*0.005;
+ objectNormal=normalize(vec3(-slopeX,-slopeY,1.0));
+ vSeaWorldPosition=(modelMatrix*vec4(transformed,1.0)).xyz;`);
+ shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\nvarying vec3 vSeaWorldPosition;');
+ shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>
+ float shoreFade=1.0-smoothstep(0.0,34.0,vSeaWorldPosition.x-54.0);
+ vec3 deepSea=vec3(0.006,0.055,0.105);
+ vec3 shallowSea=vec3(0.018,0.22,0.27);
+ float moonGlint=pow(max(0.0,sin(vSeaWorldPosition.x*0.34+vSeaWorldPosition.z*0.10+uSeaTime*0.8)),18.0);
+ float fineRipples=pow(max(0.0,sin(vSeaWorldPosition.x*0.72-vSeaWorldPosition.z*0.19+uSeaTime*1.25)),22.0);
+ vec3 waterColor=mix(deepSea,shallowSea,shoreFade*0.72);
+ waterColor+=vec3(0.24,0.40,0.43)*moonGlint*0.24;
+ waterColor+=vec3(0.10,0.22,0.25)*fineRipples*0.12;
+ diffuseColor.rgb*=waterColor;`);
+};
+const seaSurface=new THREE.Mesh(new THREE.PlaneGeometry(90,180,1,1),seaMaterial);
 seaSurface.rotation.x=-Math.PI/2;seaSurface.position.set(99,-.105,0);scene.add(seaSurface);
 // Soft turquoise foam follows a gently irregular shoreline.
 const shoreCurve=new THREE.CatmullRomCurve3(Array.from({length:17},(_,i)=>{
@@ -529,7 +555,7 @@ document.querySelector('#explore').onclick=()=>{const places=[['منطقة ال�
 async function enterLandscape(){try{if(!document.fullscreenElement&&document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen();}catch(e){}try{if(screen.orientation&&screen.orientation.lock)await screen.orientation.lock('landscape');}catch(e){document.querySelector('#hint').textContent='لف الموبايل بالعرض عشان تلعب بشكل أفضل';}}document.querySelector('#closeModal').onclick=()=>{document.querySelector('#modal').classList.remove('open');enterLandscape()};
 document.querySelector('#modal').addEventListener('click',e=>{if(e.target.id==='modal')e.currentTarget.classList.remove('open')});
 function resize(){renderer.setSize(innerWidth,innerHeight,false);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix()}addEventListener('resize',resize);resize();
-const clock=new THREE.Clock();const stairGround=(x,z,fromY)=>{let best=0;for(const step of stairSurfaces){if(Math.abs(x-step.x)<=step.w/2&&Math.abs(z-step.z)<=step.d/2&&step.y<=fromY+.56&&step.y>best)best=step.y;}return best;};function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04),t=clock.elapsedTime;
+const clock=new THREE.Clock();const stairGround=(x,z,fromY)=>{let best=0;for(const step of stairSurfaces){if(Math.abs(x-step.x)<=step.w/2&&Math.abs(z-step.z)<=step.d/2&&step.y<=fromY+.56&&step.y>best)best=step.y;}return best;};function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04),t=clock.elapsedTime;if(seaTimeUniform)seaTimeUniform.value=t;
 let ix=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0),iz=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);ix+=move.x;iz+=move.z;const mag=Math.hypot(ix,iz);if(mag>1){ix/=mag;iz/=mag}
 const forwardX=Math.sin(yaw),forwardZ=Math.cos(yaw),rightX=-Math.cos(yaw),rightZ=Math.sin(yaw);const forwardInput=-iz,lateralInput=ix;const dx=(rightX*lateralInput+forwardX*forwardInput),dz=(rightZ*lateralInput+forwardZ*forwardInput);
 if(Math.abs(dx)+Math.abs(dz)>.02){const isSprinting=sprintEnabled&&forwardInput>.35;const moveSpeed=isSprinting?13.5:8;const stepX=dx*moveSpeed*dt,stepZ=dz*moveSpeed*dt;
