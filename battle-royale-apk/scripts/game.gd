@@ -91,7 +91,7 @@ func _make_box(n: String, pos: Vector3, size: Vector3, color: Color, solid: bool
 	add_child(body)
 
 func _make_tree(pos: Vector3) -> void:
-	var trunk := _make_cylinder(pos + Vector3(0,1.2,0), Vector3(0.38,2.4,0.38), Color(0.24,0.16,0.10), true)
+	_make_cylinder(pos + Vector3(0,1.2,0), Vector3(0.38,2.4,0.38), Color(0.24,0.16,0.10), true)
 	var crown := MeshInstance3D.new()
 	var mesh := SphereMesh.new()
 	mesh.radius = 1.55
@@ -225,5 +225,5 @@ func _make_button(label_text: String, offset: Vector2, color: Color) -> Button:
 
 func _update_hud() -> void:
 	if status_label:
-		var ammo := player.ammo if is_instance_valid(player) else 0
+		var ammo: int = player.ammo if is_instance_valid(player) else 0
 		status_label.text = "HP  %d     KILLS  %d\nAMMO  %d / 90     ZONE  %dm" % [health, kills, ammo, int(zone_radius)]
