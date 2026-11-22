@@ -72,11 +72,7 @@
  }`;
  const water=B.MeshBuilder.CreateGround('ocean',{width:190,height:190,subdivisions:220},scene);water.position.set(114,-.055,0);
  const waterMat=new B.ShaderMaterial('ocean-shader',scene,{vertexSource:vertex,fragmentSource:fragment},{attributes:['position'],uniforms:['world','viewProjection','uTime','cameraPosition']});waterMat.backFaceCulling=false;water.material=waterMat;
- // Curved broken wave lines, moving in shallow water to reinforce the wash onto the sand.
- const foamMat=new B.StandardMaterial('foam-white',scene);foamMat.emissiveColor=new B.Color3(.22,.48,.52);foamMat.diffuseColor=new B.Color3(.5,.72,.72);foamMat.alpha=.64;
- const waveBands=[];
- for(let j=0;j<5;j++){const pts=[];for(let i=0;i<=150;i++){const z=-92+i*1.23;pts.push(new B.Vector3(19+j*1.15+Math.sin(z*.075+j)*.65,-.015+j*.009,z));}const line=B.MeshBuilder.CreateTube('shore-break-'+j,{path:pts,radius:.035+(j%2)*.018,tessellation:6},scene);line.material=foamMat;waveBands.push({mesh:line,base:pts,j});}
- // Dark coastal rocks with irregular scale and a little wet sheen.
+ // Animated foam is generated directly in the ocean shader, so no per-frame mesh allocation is needed.\n // Dark coastal rocks with irregular scale and a little wet sheen.
  const rockMat=new B.PBRMaterial('basalt-rock',scene);rockMat.albedoColor=new B.Color3(.105,.14,.15);rockMat.roughness=.72;
  for(let i=0;i<54;i++){const z=-91+(i*41%178);if(Math.abs(z)<9)continue;const x=10+(i*19%10);const rock=B.MeshBuilder.CreatePolyhedron('coastal-rock',{type:i%3,size:.42+(i%5)*.17},scene);rock.position.set(x,-.02,z);rock.scaling.set(1.2+(i%3)*.3,.48+(i%4)*.14,.9+(i%2)*.35);rock.rotation.set(i*.19,i*.73,i*.27);rock.material=rockMat;}
  // Moon, atmospheric halo and scattered stars.
@@ -87,7 +83,6 @@
  for(let i=0;i<210;i++){const s=B.MeshBuilder.CreateSphere('star',{diameter:.08+(i%4)*.035,segments:5},scene);const ang=i*2.399,rad=55+(i%23)*2.5;s.position.set(Math.cos(ang)*rad,20+(i%13)*3.2,Math.sin(ang)*rad-20);s.material=starMat;}
  let time=0;
  engine.runRenderLoop(()=>{const dt=Math.min(engine.getDeltaTime()/1000,.04);time+=dt;waterMat.setFloat('uTime',time);waterMat.setVector3('cameraPosition',camera.position);
-  waveBands.forEach(({mesh,base,j})=>{const p=base.map((v,i)=>new B.Vector3(v.x+Math.sin(time*1.05+j+i*.12)*.36+Math.sin(i*.19+time*.8)*.13,v.y,v.z));const next=B.MeshBuilder.CreateTube('foam-flow',{path:p,radius:.034+(j%2)*.017,tessellation:6,instance:mesh},scene);});
   scene.render();
  });
  window.addEventListener('resize',()=>engine.resize());
