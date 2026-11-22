@@ -114,14 +114,20 @@ async function connectHub(){
    import('https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js'),
    import('https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js')
   ]);
-  const app=appMod.initializeApp(firebaseConfig,'lamma-hub-'+Math.random().toString(36).slice(2));
+  // Share the site's default Firebase app and anonymous identity instead of
+  // creating a brand-new named app/user every time the HUB is opened.
+  const app=appMod.getApps().find(x=>x.name==='[DEFAULT]')||appMod.initializeApp(firebaseConfig);
   hubDb=dbMod.getDatabase(app);hubApi=dbMod;
   hubStatus.textContent='🟡 تسجيل دخول اللاعب...';
-  const cred=await authMod.signInAnonymously(authMod.getAuth(app));hubUid=cred.user.uid;
+  const auth=authMod.getAuth(app);
+  const user=auth.currentUser || (await authMod.signInAnonymously(auth)).user;
+  hubUid=user.uid;
+  localStorage.setItem('arcade_uid',hubUid);
   let hash=0;for(const ch of hubUid)hash=(hash*31+ch.charCodeAt(0))|0;
   avatar.position.set((Math.abs(hash)%17)-8,0,4+(Math.abs(hash>>4)%5));
   const myPresenceRef=dbMod.ref(hubDb,'presence/'+hubUid);
   const connectionRef=dbMod.ref(hubDb,'.info/connected');
+  hubStatus.textContent='🟡 جاري فحص اتصال قاعدة البيانات...';
   dbMod.onValue(connectionRef,async snap=>{
    if(snap.val()!==true){
     clearTimeout(hubConnectWatchdog);
