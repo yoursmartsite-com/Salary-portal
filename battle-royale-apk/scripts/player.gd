@@ -27,10 +27,27 @@ var walk_time := 0.0
 var muzzle: MeshInstance3D
 
 func setup(owner_game) -> void:
+	_ensure_input_actions()
 	game = owner_game
 	_build_character()
 	_build_camera()
 	set_process_input(true)
+
+func _ensure_input_actions() -> void:
+	var actions := {
+		"move_left": KEY_A,
+		"move_right": KEY_D,
+		"move_forward": KEY_W,
+		"move_back": KEY_S,
+		"jump": KEY_SPACE
+	}
+	for action_name in actions:
+		if not InputMap.has_action(action_name):
+			InputMap.add_action(action_name)
+		if InputMap.action_get_events(action_name).is_empty():
+			var key_event := InputEventKey.new()
+			key_event.physical_keycode = actions[action_name]
+			InputMap.action_add_event(action_name, key_event)
 
 func _mat(color: Color, metal := 0.0, rough := 0.8) -> StandardMaterial3D:
 	var m := StandardMaterial3D.new()
