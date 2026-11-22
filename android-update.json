@@ -1,8 +1,8 @@
 {
-  "versionCode": 23,
-  "versionName": "1.8.4",
+  "versionCode": 24,
+  "versionName": "1.8.5",
   "apkUrl": "https://github.com/yoursmartsite-com/Salary-portal/releases/latest/download/lamma.apk",
   "force": false,
-  "message": "تحسين شكل البحر وإضافة تموجات وانعكاسات ليلية.",
-  "releaseNotes": "تحسين البحر في عالم لَمّة: تموجات متحركة، تدرج مياه ضحلة وعميقة، ولمعات وانعكاسات ليلية مع الحفاظ على الشاطئ والساحة."
+  "message": "تطوير البحر بموجات أكثر واقعية ورغوة متحركة عند الشاطئ.",
+  "releaseNotes": "تحسين مياه البحر بموجات متداخلة وتفاصيل سطح أدق، مع رغوة متحركة قرب الشاطئ وتدرج ألوان ولمعات ليلية."
 }
