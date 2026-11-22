@@ -150,6 +150,7 @@ func _make_portal(pos: Vector3, label: String, target_url: String, tint: Color) 
 	surface_mesh.size = Vector2(2.7, 2.85)
 	gate_surface.mesh = surface_mesh
 	gate_surface.position = Vector3(0, 1.68, -0.12)
+	gate_surface.rotation.x = deg_to_rad(90)
 	var surface_material := StandardMaterial3D.new()
 	surface_material.albedo_color = Color(tint.r, tint.g, tint.b, 0.2)
 	surface_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
