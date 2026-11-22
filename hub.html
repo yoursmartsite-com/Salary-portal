@@ -363,8 +363,9 @@ for(let i=0;i<34;i++){
 for(let i=0;i<14;i++){const x=(i%7-3)*7,z=(Math.floor(i/7)?-39:39);cyl(.12,.18,3,dark,x,1.5,z);sphere(.65,yellow,x,3.2,z);}
 // flower beds
 for(let i=0;i<22;i++){const a=i*2.399,r=16,x=Math.cos(a)*r,z=Math.sin(a)*r;const f=cyl(.65,.65,.25,mat('#bd8f61'),x,.1,z);for(let j=0;j<5;j++){const q=j*Math.PI*2/5;sphere(.18,[pink,yellow,white,coral][j%4],x+Math.cos(q)*.32,.45,z+Math.sin(q)*.32);}}
-function bench(x,z,rot=0){box(2,.18,.65,mat('#9a6847'),x,.7,z,rot);for(const dx of [-.7,.7])box(.15,.7,.15,dark,x,.35,z,rot)}
+const benchSeats=[];function bench(x,z,rot=0){box(2,.18,.65,mat('#9a6847'),x,.7,z,rot);for(const dx of [-.7,.7])box(.15,.7,.15,dark,x+Math.cos(rot)*dx,.35,z-Math.sin(rot)*dx,rot);benchSeats.push({x,z,rot});}
 for(let a=0;a<8;a++){const q=a*Math.PI/4;bench(Math.cos(q)*12,Math.sin(q)*12,q+Math.PI/2)}
+bench(-27,33,Math.PI);bench(-33,33,0);
 // giant slide, climbing tower
 const towerX=-29,towerZ=-12;
 const stairSurfaces=[];
@@ -390,7 +391,7 @@ const swings=[];for(let x of [-2.3,0,2.3]){const g=new THREE.Group();g.position.
 // ferris wheel
 const ferris=new THREE.Group();ferris.position.set(0,0,-43);scene.add(ferris);const wheel=new THREE.Group();wheel.position.set(0,13,0);ferris.add(wheel);
 const tor=new THREE.Mesh(new THREE.TorusGeometry(9,.22,12,64),yellow);wheel.add(tor);const hub=sphere(.75,coral,0,0,0);wheel.add(hub);
-for(let i=0;i<12;i++){const a=i*Math.PI/6;const spoke=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,18,8),white);spoke.rotation.z=a;wheel.add(spoke);const pod=new THREE.Group();pod.position.set(Math.cos(a)*9,-Math.sin(a)*9,0);const basket=new THREE.Mesh(new THREE.BoxGeometry(1.5,1.4,1.3),[coral,blue,pink,teal][i%4]);basket.position.y=-.8;pod.add(basket);const roof=new THREE.Mesh(new THREE.ConeGeometry(1.1,.6,4),yellow);roof.position.y=.15;roof.rotation.y=Math.PI/4;pod.add(roof);wheel.add(pod)}
+const wheelPods=[];for(let i=0;i<12;i++){const a=i*Math.PI/6;const spoke=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,18,8),white);spoke.rotation.z=a;wheel.add(spoke);const pod=new THREE.Group();pod.position.set(Math.cos(a)*9,-Math.sin(a)*9,0);wheelPods.push(pod);const basket=new THREE.Mesh(new THREE.BoxGeometry(1.5,1.4,1.3),[coral,blue,pink,teal][i%4]);basket.position.y=-.8;pod.add(basket);const roof=new THREE.Mesh(new THREE.ConeGeometry(1.1,.6,4),yellow);roof.position.y=.15;roof.rotation.y=Math.PI/4;pod.add(roof);wheel.add(pod)}
 for(let x of [-3.5,3.5]){const leg=new THREE.Mesh(new THREE.CylinderGeometry(.35,.5,8,12),blue);leg.position.set(x,4,0);leg.rotation.z=x>0?-.3:.3;ferris.add(leg)}wheel.rotation.z=.12;
 // mini football pitch
 box(20,.12,12,mat('#36865b'),31,.05,22);for(let z of [16,28])box(20,.05,.12,white,31,.13,z);for(let x of [21,41])box(.12,.05,12,white,x,.13,22);cyl(.08,.08,.05,white,31,.16,22);for(let z of [20,24]){box(.2,2,.3,white,21,1,z);box(.2,2,.3,white,41,1,z);}
@@ -572,7 +573,9 @@ async function enterLandscape(){try{if(!document.fullscreenElement&&document.doc
 document.querySelector('#modal').addEventListener('click',e=>{if(e.target.id==='modal')e.currentTarget.classList.remove('open')});
 
 const interactBtn=document.querySelector("#interact");
-let sitting=false;
+let sitting=false,rideMode="none",rideIndex=0,activeBench=null;
+function setSitPose(){legs[0].rotation.x=-1.38;legs[1].rotation.x=-1.38;arms[0].rotation.x=-.28;arms[1].rotation.x=-.28;}
+function leaveRide(){if(rideMode==="swing"){const p=swingGroup.localToWorld(new THREE.Vector3(swings[rideIndex].position.x,4.1,0));avatar.position.set(p.x,0,p.z);}else if(rideMode==="wheel"){const p=new THREE.Vector3();wheelPods[rideIndex].getWorldPosition(p);avatar.position.set(p.x,0,p.z+1.8);}rideMode="none";sitting=false;activeBench=null;avatar.rotation.set(0,avatar.rotation.y,0);}
 const activitySpots=[
  {x:28,z:-17,r:7,label:"المرجيحة",message:"وصلت لمنطقة المراجيح. استمتع بالحركة مع أصحابك."},
  {x:0,z:-43,r:8,label:"عجلة لَمّة",message:"عجلة لَمّة بتنور الساحة. مكان حلو للتجمع والتصوير."},
@@ -584,10 +587,13 @@ const activitySpots=[
 ];
 let nearbyActivity=null;
 interactBtn.addEventListener("click",()=>{
+ if(rideMode!=="none"||sitting){leaveRide();toast("نزلت من اللعبة/المقعد");return;}
  if(!nearbyActivity)return;
  const a=nearbyActivity;
- if(a.label==="الكافيه"||a.label==="جلسات الساحة"){sitting=!sitting;toast(sitting?"قعدت تستريح مع أصحابك 🪑":"قمت من مكانك");return;}
- if(a.label==="المرجيحة"){swings.forEach((g,i)=>g.rotation.x=Math.sin(performance.now()*.004+i)*.55);}
+ if(a.type==="bench"){activeBench=a.bench;sitting=true;avatar.position.set(a.bench.x+Math.sin(a.bench.rot)*.95,0,a.bench.z+Math.cos(a.bench.rot)*.95);avatar.rotation.y=a.bench.rot;setSitPose();toast("قعدت على المقعد 🪑");return;}
+ if(a.label==="الكافيه"){const seat=benchSeats.filter(b=>Math.hypot(avatar.position.x-b.x,avatar.position.z-b.z)<5).sort((a,b)=>Math.hypot(avatar.position.x-a.x,avatar.position.z-a.z)-Math.hypot(avatar.position.x-b.x,avatar.position.z-b.z))[0];if(seat){activeBench=seat;sitting=true;avatar.position.set(seat.x+Math.sin(seat.rot)*.95,0,seat.z+Math.cos(seat.rot)*.95);avatar.rotation.y=seat.rot;setSitPose();toast("قعدت في جلسة الكافيه 🪑");}else toast("اقرب من كرسي الكافيه الأول");return;}
+ if(a.label==="المرجيحة"){rideMode="swing";rideIndex=0;toast("ركبت المرجيحة. اضغط تفاعل للنزول.");return;}
+ if(a.label==="عجلة لَمّة"){rideMode="wheel";rideIndex=0;toast("ركبت عجلة لَمّة. اضغط تفاعل للنزول.");return;}
  toast(a.message);
 });
 
@@ -595,7 +601,7 @@ function resize(){renderer.setPixelRatio(Math.min(devicePixelRatio,innerWidth<90
 const clock=new THREE.Clock();const stairGround=(x,z,fromY)=>{let best=0;for(const step of stairSurfaces){if(Math.abs(x-step.x)<=step.w/2&&Math.abs(z-step.z)<=step.d/2&&step.y<=fromY+.56&&step.y>best)best=step.y;}return best;};function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04),t=clock.elapsedTime;if(seaTimeUniform)seaTimeUniform.value=t;
 let ix=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0),iz=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);ix+=move.x;iz+=move.z;const mag=Math.hypot(ix,iz);if(mag>1){ix/=mag;iz/=mag}
 const forwardX=Math.sin(yaw),forwardZ=Math.cos(yaw),rightX=-Math.cos(yaw),rightZ=Math.sin(yaw);const forwardInput=-iz,lateralInput=ix;const dx=(rightX*lateralInput+forwardX*forwardInput),dz=(rightZ*lateralInput+forwardZ*forwardInput);
-if(Math.abs(dx)+Math.abs(dz)>.02){sitting=false;const isSprinting=sprintEnabled&&forwardInput>.35;const moveSpeed=isSprinting?13.5:8;const stepX=dx*moveSpeed*dt,stepZ=dz*moveSpeed*dt;
+if(rideMode==="none"&&Math.abs(dx)+Math.abs(dz)>.02){if(sitting){sitting=false;activeBench=null;}const isSprinting=sprintEnabled&&forwardInput>.35;const moveSpeed=isSprinting?13.5:8;const stepX=dx*moveSpeed*dt,stepZ=dz*moveSpeed*dt;
  // Solid collision: players and tree trunks cannot be walked through; allow sliding along edges
  const canStand=(x,z)=>{for(const obstacle of treeColliders){const nextDist=Math.hypot(x-obstacle.x,z-obstacle.z),currentDist=Math.hypot(avatar.position.x-obstacle.x,avatar.position.z-obstacle.z),limit=obstacle.r+.48;const jumpingOver=avatar.position.y>1.05;const movingOut=currentDist<limit&&nextDist>currentDist;if(nextDist<limit&&!jumpingOver&&!movingOut)return false;}for(const other of remotePlayers.values()){const p=other.model.position;if(Math.hypot(x-p.x,z-p.z)<1.35)return false;}return Math.abs(x)<=54&&Math.abs(z)<=60;};
  const nx=avatar.position.x+stepX,nz=avatar.position.z+stepZ;
@@ -611,10 +617,12 @@ else if(jumpRequested&&avatar.position.y>floorY+.18){jumpRequested=false;}
 jumpV-=18*dt;avatar.position.y+=jumpV*dt;
 if(avatar.position.y<=floorY){avatar.position.y=floorY;jumpV=0;onGround=true}else{onGround=false;}
 avatar.position.x=THREE.MathUtils.clamp(avatar.position.x,-54,54);avatar.position.z=THREE.MathUtils.clamp(avatar.position.z,-60,60);
-swings.forEach((s,i)=>s.rotation.x=Math.sin(t*2.2+i*1.7)*.38);wheel.rotation.z+=dt*.12;
-let nearest=null,nearestD=Infinity;for(const spot of activitySpots){const d=Math.hypot(avatar.position.x-spot.x,avatar.position.z-spot.z);if(d<spot.r&&d<nearestD){nearest=spot;nearestD=d;}}nearbyActivity=nearest;if(nearest){interactBtn.disabled=false;interactBtn.classList.add("nearby");interactBtn.textContent=(nearest.label==="الكافيه"||nearest.label==="جلسات الساحة")?(sitting?"🚶 قوم":"🪑 اقعد"):"🤝 "+nearest.label;}else{interactBtn.disabled=true;interactBtn.classList.remove("nearby");interactBtn.textContent="🤝 تفاعل";}
+swings.forEach((g,i)=>{g.rotation.x=rideMode==="swing"&&rideIndex===i?Math.sin(t*4.8)*.62:Math.sin(t*2.2+i*1.7)*.18;});wheel.rotation.z+=dt*(rideMode==="wheel"?.42:.12);
+if(rideMode==="swing"){const p=swingGroup.localToWorld(new THREE.Vector3(swings[rideIndex].position.x,4.1,0));avatar.position.set(p.x,p.y,p.z);avatar.rotation.y=swingGroup.rotation.y;avatar.rotation.x=swings[rideIndex].rotation.x;setSitPose();}
+if(rideMode==="wheel"){wheel.updateMatrixWorld(true);const p=new THREE.Vector3();wheelPods[rideIndex].getWorldPosition(p);avatar.position.set(p.x,p.y-.05,p.z);avatar.rotation.y=-wheel.rotation.z;avatar.rotation.z=-wheel.rotation.z;setSitPose();}
+let nearest=null,nearestD=Infinity;if(rideMode!=="none"){nearest={label:"انزل",type:"exit",message:"اضغط للنزول"};nearestD=0;}else{for(const seat of benchSeats){const d=Math.hypot(avatar.position.x-seat.x,avatar.position.z-seat.z);if(d<2.8&&d<nearestD){nearest={label:"مقعد",type:"bench",bench:seat};nearestD=d;}}for(const spot of activitySpots){const d=Math.hypot(avatar.position.x-spot.x,avatar.position.z-spot.z);if(d<spot.r&&d<nearestD){nearest=spot;nearestD=d;}}}nearbyActivity=nearest;if(nearest){interactBtn.disabled=false;interactBtn.classList.add("nearby");interactBtn.textContent=rideMode!=="none"?"🚶 انزل":sitting?"🚶 قوم":nearest.type==="bench"?"🪑 اقعد":"🤝 "+nearest.label;}else{interactBtn.disabled=true;interactBtn.classList.remove("nearby");interactBtn.textContent="🤝 تفاعل";}
 const desired=new THREE.Vector3(avatar.position.x-Math.sin(yaw)*10,avatar.position.y+6,avatar.position.z-Math.cos(yaw)*10);camera.position.lerp(desired,1-Math.pow(.001,dt));camera.lookAt(avatar.position.x,avatar.position.y+1.6,avatar.position.z);
-if(sitting&&Math.abs(dx)+Math.abs(dz)<=.02){legs[0].rotation.x=-1.2;legs[1].rotation.x=-1.2;arms[0].rotation.x=-.35;arms[1].rotation.x=-.35;}
+if(sitting&&rideMode==="none"){setSitPose();}
 for(const item of remotePlayers.values()){item.model.position.lerp(item.target,Math.min(1,dt*12));if(item.moving){item.walkT+=dt*10;item.legs[0].rotation.x=Math.sin(item.walkT)*.55;item.legs[1].rotation.x=-Math.sin(item.walkT)*.55;item.arms[0].rotation.x=-Math.sin(item.walkT)*.28;item.arms[1].rotation.x=Math.sin(item.walkT)*.28;}else{item.legs.forEach(l=>l.rotation.x=0);item.arms.forEach(a=>a.rotation.x=0);}}
 renderer.render(scene,camera);if(hubApi&&hubUid&&t-hubLastWrite>.12){hubLastWrite=t;const p=hubApi.ref(hubDb,'presence/'+hubUid+'/hub');hubApi.update(p,{active:true,name:myName,x:Number(avatar.position.x.toFixed(2)),z:Number(avatar.position.z.toFixed(2)),yaw:Number(yaw.toFixed(3)),moving:Math.abs(dx)+Math.abs(dz)>.02,updatedAt:Date.now()}).catch(e=>{console.error('Hub position update',e);hubStatus.textContent='🔴 فقد الاتصال';});}}
 animate();connectHub();document.querySelector('#modal').classList.add('open');
