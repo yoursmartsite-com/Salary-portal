@@ -17,6 +17,8 @@ var animated_arms: Array[Node3D] = []
 var animation_clock := 0.0
 var sprint_enabled := false
 var attraction_wheels: Array[Node3D] = []
+var joystick_base: ColorRect
+var joystick_knob: ColorRect
 
 func _ready() -> void:
 	_build_environment()
@@ -316,8 +318,22 @@ func _build_hud() -> void:
 	jump.position = Vector2(-116, -105)
 	jump.pressed.connect(func(): jump_requested = true)
 	ui_layer.add_child(jump)
+	joystick_base = ColorRect.new()
+	joystick_base.name = "TouchJoystickBase"
+	joystick_base.color = Color(0.04, 0.08, 0.13, 0.48)
+	joystick_base.size = Vector2(142, 142)
+	joystick_base.position = Vector2(28, get_viewport().get_visible_rect().size.y - 174)
+	joystick_base.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ui_layer.add_child(joystick_base)
+	joystick_knob = ColorRect.new()
+	joystick_knob.name = "TouchJoystickKnob"
+	joystick_knob.color = Color(0.45, 0.9, 0.78, 0.78)
+	joystick_knob.size = Vector2(58, 58)
+	joystick_knob.position = Vector2(42, 42)
+	joystick_knob.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	joystick_base.add_child(joystick_knob)
 	var hint := Label.new()
-	hint.text = "حرّك بإبهامك يسار الشاشة · اسحب يمينًا لتحريك الكاميرا"
+	hint.text = "حرّك العصا يسارًا · اسحب يمينًا لتحريك الكاميرا"
 	hint.anchor_left = 0.5
 	hint.anchor_right = 0.5
 	hint.anchor_top = 1
@@ -336,20 +352,29 @@ func _unhandled_input(event: InputEvent) -> void:
 				active_move = true
 				move_origin = event.position
 				move_touch = Vector2.ZERO
+				_update_joystick_visual()
 			elif event.position.x > get_viewport().size.x * 0.55:
 				active_look = true
 		else:
 			if event.position.x < get_viewport().size.x * 0.48:
 				active_move = false
 				move_touch = Vector2.ZERO
+				_update_joystick_visual()
 			else:
 				active_look = false
 	elif event is InputEventScreenDrag:
 		if active_move:
 			move_touch = ((event.position - move_origin) / 65.0).limit_length(1.0)
+			_update_joystick_visual()
 		elif active_look:
 			camera_yaw -= event.relative.x * 0.006
 			camera_pitch = clampf(camera_pitch + event.relative.y * 0.004, -0.65, 0.25)
+
+func _update_joystick_visual() -> void:
+	if not is_instance_valid(joystick_knob):
+		return
+	var offset := move_touch * 38.0
+	joystick_knob.position = Vector2(42, 42) + offset
 
 func _process(delta: float) -> void:
 	for wheel in attraction_wheels:
