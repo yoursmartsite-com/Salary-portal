@@ -601,14 +601,7 @@ const activitySpots=[
  {x:51,z:0,r:9,label:"الشاطئ",message:"وصلت للشاطئ. استمتع بصوت البحر والمنظر الليلي."},
  
 ];
-function buildWorldMap(){
- mapSpots.forEach(spot=>{
-  const pos=mapPosition(spot.x,spot.z),icon=mapIcons[spot.label]||'🎮';
-  const marker=document.createElement('button');marker.type='button';marker.className='map-landmark';marker.dataset.destination=spot.label;marker.style.left=pos.left+'%';marker.style.top=pos.top+'%';marker.innerHTML='<span>'+icon+'</span>'+spot.label;marker.addEventListener('click',()=>chooseMapDestination(spot));worldMap.appendChild(marker);
-  const item=document.createElement('button');item.type='button';item.className='map-destination';item.dataset.destination=spot.label;item.innerHTML='<span>'+icon+'</span><span><b>'+spot.label+'</b><small>اضغط لتحديد الاتجاه</small></span>';item.addEventListener('click',()=>chooseMapDestination(spot));mapList.appendChild(item);
- });
-}
-buildWorldMap();
+const mapSpots=activitySpots;
 let nearbyActivity=null;
 const mapOverlay=document.querySelector('#mapOverlay'),worldMap=document.querySelector('#worldMap'),mapPlayer=document.querySelector('#mapPlayer'),mapYouLabel=document.querySelector('#mapYouLabel'),mapList=document.querySelector('#mapList');
 let mapWaypoint=null;
@@ -621,6 +614,14 @@ document.querySelector('#mapOpen').addEventListener('click',openWorldMap);
 document.querySelector('#mapClose').addEventListener('click',closeWorldMap);
 mapOverlay.addEventListener('click',e=>{if(e.target===mapOverlay)closeWorldMap();});
 function chooseMapDestination(spot){mapWaypoint=spot;document.querySelectorAll('.map-landmark,.map-destination').forEach(el=>el.classList.toggle('active',el.dataset.destination===spot.label));closeWorldMap();toast('تم تحديد '+spot.label+' على الخريطة. اتبع المسافة والاتجاه أسفل الشاشة.');}
+function buildWorldMap(){
+ mapSpots.forEach(spot=>{
+  const pos=mapPosition(spot.x,spot.z),icon=mapIcons[spot.label]||'🎮';
+  const marker=document.createElement('button');marker.type='button';marker.className='map-landmark';marker.dataset.destination=spot.label;marker.style.left=pos.left+'%';marker.style.top=pos.top+'%';marker.innerHTML='<span>'+icon+'</span>'+spot.label;marker.addEventListener('click',()=>chooseMapDestination(spot));worldMap.appendChild(marker);
+  const item=document.createElement('button');item.type='button';item.className='map-destination';item.dataset.destination=spot.label;item.innerHTML='<span>'+icon+'</span><span><b>'+spot.label+'</b><small>اضغط لتحديد الاتجاه</small></span>';item.addEventListener('click',()=>chooseMapDestination(spot));mapList.appendChild(item);
+ });
+}
+buildWorldMap();
 
 interactBtn.addEventListener("click",()=>{
  if(rideMode!=="none"||sitting){leaveRide();toast("نزلت من اللعبة/المقعد");return;}
