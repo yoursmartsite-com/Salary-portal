@@ -47,5 +47,17 @@ func _run_remote_avatar_test() -> void:
 		quit(1)
 		return
 
+	world.call("_on_portal_enter", "اختبار", "../games/connect-four.html")
+	var portal_button: Button = world.get("portal_enter_button")
+	if not portal_button.visible or portal_button.text != "دخول: اختبار":
+		push_error("Portal entry prompt did not appear")
+		quit(1)
+		return
+	world.call("_on_portal_exit", "../games/connect-four.html")
+	if portal_button.visible:
+		push_error("Portal entry prompt did not hide after exit")
+		quit(1)
+		return
+
 	world.queue_free()
 	quit(0)
