@@ -97,6 +97,7 @@ func _build_environment() -> void:
 	_make_box("Beach sand", Vector3(0, -0.05, 25), Vector3(70, 0.2, 12), Color(0.72, 0.62, 0.42))
 	_make_ocean()
 	_make_landscape_details()
+	_make_world_architecture()
 
 	for x in [-5.0, 5.0]:
 		for z in [-20.0, -12.0, -4.0, 4.0, 12.0]:
@@ -385,9 +386,112 @@ func _make_attraction(pos: Vector3) -> void:
 	add_child(support)
 
 func _make_cafe(pos: Vector3) -> void:
-	_make_box("Cafe building", pos + Vector3(0, 1.7, 0), Vector3(7, 3.4, 5), Color(0.25, 0.31, 0.39))
-	_make_box("Cafe roof", pos + Vector3(0, 3.55, 0), Vector3(7.6, 0.35, 5.6), Color(0.16, 0.62, 0.52))
-	_make_box("Cafe window", pos + Vector3(0, 1.9, -2.56), Vector3(4.2, 1.5, 0.08), Color(0.1, 0.42, 0.55), 0.2)
+	_make_box("Cafe building", pos + Vector3(0, 1.7, 0), Vector3(7, 3.4, 5), Color("#263747"))
+	_make_box("Cafe roof", pos + Vector3(0, 3.55, 0), Vector3(7.6, 0.35, 5.6), Color("#176b60"), 0.34)
+	_make_box("Cafe fascia", pos + Vector3(0, 3.12, -2.58), Vector3(7.25, 0.32, 0.16), Color("#d6b77c"), 0.4)
+	_make_box("Cafe panoramic glass", pos + Vector3(0, 1.95, -2.56), Vector3(5.45, 1.72, 0.07), Color("#173b50"), 0.16)
+	for x in [-1.82, 0.0, 1.82]:
+		_make_box("Cafe window mullion", pos + Vector3(x, 1.95, -2.62), Vector3(0.055, 1.72, 0.06), Color("#b9d7d3"), 0.3)
+	_make_box("Cafe counter", pos + Vector3(0, 1.02, -2.9), Vector3(5.6, 0.16, 0.65), Color("#9a7655"), 0.48)
+	_make_box("Cafe awning", pos + Vector3(0, 2.95, -3.08), Vector3(6.2, 0.12, 1.05), Color("#d8eee4"), 0.55)
+	for i in range(9):
+		_make_box("Cafe awning stripe", pos + Vector3(-2.75 + float(i) * 0.69, 2.88, -3.1), Vector3(0.32, 0.035, 1.0), Color("#267b70"), 0.6)
+	for side in [-1.0, 1.0]:
+		_make_box("Cafe side window", pos + Vector3(side * 3.53, 1.95, -0.35), Vector3(0.06, 1.45, 2.0), Color("#174056"), 0.18)
+		_make_box("Cafe wall sconce", pos + Vector3(side * 2.7, 2.35, -2.7), Vector3(0.18, 0.32, 0.12), Color("#f5cb83"), 0.25)
+	_make_box("Cafe entrance", pos + Vector3(2.82, 1.1, -2.58), Vector3(0.72, 2.2, 0.1), Color("#604c3d"), 0.35)
+	_make_box("Cafe door glass", pos + Vector3(2.82, 1.22, -2.65), Vector3(0.48, 1.72, 0.035), Color("#4c8790"), 0.16)
+	_make_box("Cafe sign panel", pos + Vector3(0, 3.92, -2.85), Vector3(3.3, 0.48, 0.18), Color("#102b35"), 0.38)
+	var cafe_label := Label3D.new()
+	cafe_label.text = "LAMMA CAFE"
+	cafe_label.position = pos + Vector3(0, 3.82, -2.72)
+	cafe_label.font_size = 25
+	cafe_label.pixel_size = 0.012
+	cafe_label.modulate = Color("#f4d49a")
+	add_child(cafe_label)
+
+func _detail_box(label: String, pos: Vector3, size: Vector3, color: Color, roughness := 0.78, metallic := 0.0) -> MeshInstance3D:
+	var mesh := BoxMesh.new()
+	mesh.size = size
+	var node := MeshInstance3D.new()
+	node.name = label
+	node.mesh = mesh
+	node.position = pos
+	node.material_override = _make_material(color, roughness, metallic)
+	add_child(node)
+	return node
+
+func _make_bench(pos: Vector3, facing := 0.0) -> void:
+	var bench := Node3D.new()
+	bench.position = pos
+	bench.rotation.y = facing
+	add_child(bench)
+	var wood := _make_material(Color("#8b6042"), 0.62)
+	var metal := _make_material(Color("#263b49"), 0.32, 0.72)
+	for i in range(5):
+		var plank := MeshInstance3D.new()
+		var pm := BoxMesh.new()
+		pm.size = Vector3(1.85, 0.075, 0.16)
+		plank.mesh = pm
+		plank.position = Vector3(0, 0.58, -0.32 + float(i) * 0.16)
+		plank.material_override = wood
+		bench.add_child(plank)
+	var seat := MeshInstance3D.new()
+	var seat_mesh := BoxMesh.new()
+	seat_mesh.size = Vector3(1.95, 0.12, 0.58)
+	seat.mesh = seat_mesh
+	seat.position = Vector3(0, 0.42, 0)
+	seat.material_override = wood
+	bench.add_child(seat)
+	for side in [-1.0, 1.0]:
+		var leg := MeshInstance3D.new()
+		var lm := BoxMesh.new()
+		lm.size = Vector3(0.12, 0.72, 0.62)
+		leg.mesh = lm
+		leg.position = Vector3(side * 0.72, 0.2, 0)
+		leg.material_override = metal
+		bench.add_child(leg)
+
+func _make_world_architecture() -> void:
+	# Fine paving bands give the promenade a readable, constructed surface.
+	for z in range(-16, 18, 2):
+		_detail_box("Promenade paving joint", Vector3(0, 0.087, float(z)), Vector3(11.6, 0.012, 0.035), Color("#69747b"), 0.92)
+	for x in [-4.0, -2.0, 0.0, 2.0, 4.0]:
+		_detail_box("Promenade paving joint", Vector3(x, 0.087, 0), Vector3(0.025, 0.012, 32.0), Color("#68747b"), 0.92)
+	# Low perimeter rails and warm metal caps around the beach edge.
+	for side in [-1.0, 1.0]:
+		_detail_box("Beach promenade rail", Vector3(side * 12.0, 0.72, 20.0), Vector3(0.12, 1.25, 10.0), Color("#263d4b"), 0.36, 0.65)
+		for z in range(16, 25, 2):
+			_detail_box("Beach rail post", Vector3(side * 12.0, 0.88, float(z)), Vector3(0.22, 1.7, 0.22), Color("#b28b58"), 0.34, 0.55)
+		_detail_box("Beach rail top", Vector3(side * 12.0, 1.72, 20.0), Vector3(0.25, 0.12, 10.0), Color("#c4a16b"), 0.3, 0.55)
+	# Seating pockets, planters and subtle path markers.
+	for z in [-13.0, -5.0, 3.0, 11.0]:
+		_make_bench(Vector3(-10.0, 0.0, z), PI * 0.5)
+		_make_bench(Vector3(10.0, 0.0, z), -PI * 0.5)
+	for x in [-18.0, 18.0]:
+		for z in [-17.0, -7.0, 3.0, 13.0]:
+			_detail_box("Garden curb", Vector3(x, 0.2, z), Vector3(2.8, 0.38, 2.8), Color("#354d49"), 0.84)
+			_detail_box("Garden soil", Vector3(x, 0.405, z), Vector3(2.5, 0.06, 2.5), Color("#33291f"), 0.98)
+			for n in range(5):
+				var plant := MeshInstance3D.new()
+				var leaf_mesh := SphereMesh.new()
+				leaf_mesh.radius = 0.34
+				leaf_mesh.height = 0.95
+				plant.mesh = leaf_mesh
+				plant.position = Vector3(x + (float(n % 3) - 1.0) * 0.65, 0.88 + float(n % 2) * 0.12, z + (float(n / 3) - 0.5) * 0.8)
+				plant.material_override = _make_material(Color("#236044") if n % 2 == 0 else Color("#397b50"), 0.94)
+				add_child(plant)
+	# Small beach rocks add a natural transition between sand and water.
+	for i in range(18):
+		var rock := MeshInstance3D.new()
+		var rock_mesh := SphereMesh.new()
+		rock_mesh.radius = 0.5
+		rock_mesh.height = 0.65
+		rock.mesh = rock_mesh
+		rock.position = Vector3(-28.0 + float(i) * 3.25, 0.02, 28.5 + sin(float(i) * 1.7) * 1.2)
+		rock.scale = Vector3(1.4, 0.55, 0.9)
+		rock.material_override = _make_material(Color("#687477") if i % 2 == 0 else Color("#8b897b"), 0.94)
+		add_child(rock)
 
 func _make_sign(pos: Vector3, label: String) -> void:
 	_make_box("Welcome sign", pos + Vector3(0, 2.1, 0), Vector3(8, 2.3, 0.35), Color(0.035, 0.12, 0.17))
