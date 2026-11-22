@@ -542,6 +542,14 @@ func _play_avatar_animation(model: Node, wanted: String) -> void:
 				if lowered.contains("walk") or lowered.contains("run"):
 					chosen = animation_name
 					break
+		if wanted == "idle" and chosen == "":
+			# This avatar pack has no Idle clip. Stop the last locomotion clip and
+			# restore the rig's authored rest pose instead of freezing mid-stride.
+			anim_player.stop()
+			anim_player.speed_scale = 1.0
+			for skeleton_node in model.find_children("*", "Skeleton3D", true, false):
+				(skeleton_node as Skeleton3D).reset_bone_poses()
+			continue
 		if chosen != "" and anim_player.current_animation != chosen:
 			# A short cross-fade prevents the hard pose snap between idle and locomotion.
 			anim_player.play(chosen, 0.22)
