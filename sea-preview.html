@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#061522">
+<title>معاينة بحر لَمّة — Babylon.js</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#061522;color:#fff;font-family:Arial,sans-serif}#renderCanvas{width:100%;height:100%;display:block;touch-action:none;outline:0}.hud{position:fixed;inset:0;pointer-events:none;background:linear-gradient(180deg,#06152299,transparent 24%,transparent 72%,#06152299)}.head{position:absolute;top:18px;right:20px;left:20px;display:flex;align-items:center;justify-content:space-between;gap:12px}.title{font-weight:800;font-size:19px;text-shadow:0 2px 10px #000}.sub{font-size:11px;color:#b6d8df;margin-top:4px}.tag{border:1px solid #6adac3;background:#06242bc9;border-radius:12px;padding:9px 13px;font-size:11px}.bottom{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);border:1px solid #78cbbb66;background:#061b25dc;border-radius:14px;padding:10px 16px;font-size:11px;white-space:nowrap;text-align:center}.back{position:absolute;top:78px;right:20px;pointer-events:auto;text-decoration:none;color:#e9fffa;border:1px solid #ffffff38;background:#061b25c9;border-radius:10px;padding:8px 12px;font-size:11px}@media(max-width:600px){.head{top:12px;right:12px;left:12px}.title{font-size:15px}.tag{font-size:9px;padding:7px 9px}.back{top:66px;right:12px}.bottom{bottom:12px;font-size:10px;max-width:calc(100% - 24px)}}
+</style>
+</head>
+<body>
+<canvas id="renderCanvas"></canvas>
+<div class="hud">
+ <div class="head"><div><div class="title">🌊 بحر لَمّة — تجربة Babylon.js</div><div class="sub">أمواج حية · انعكاس قمري · شاطئ رملي</div></div><div class="tag">3D REALTIME WATER</div></div>
+ <a class="back" href="./hub.html">العودة إلى عالم لَمّة</a>
+ <div class="bottom">اسحب الشاشة لتدوير الكاميرا · قرّب وبعّد بإصبعين</div>
+</div>
+<script src="https://cdn.babylonjs.com/babylon.js"></script>
+<script>
+(() => {
+ const canvas=document.getElementById('renderCanvas');
+ if(!window.BABYLON){document.querySelector('.title').textContent='تعذر تحميل Babylon.js — تحقق من الإنترنت';return;}
+ const B=window.BABYLON;
+ const engine=new B.Engine(canvas,true,{preserveDrawingBuffer:false,stencil:true,antialias:true});
+ engine.setHardwareScalingLevel(Math.min(1.5,Math.max(1,window.devicePixelRatio||1)));
+ const scene=new B.Scene(engine);
+ scene.clearColor=new B.Color4(.012,.035,.065,1);
+ scene.fogMode=B.Scene.FOGMODE_EXP2;scene.fogColor=new B.Color3(.012,.035,.065);scene.fogDensity=.0019;
+ const camera=new B.ArcRotateCamera('shore-camera',Math.PI,1.16,105,new B.Vector3(57,0,0),scene);
+ camera.lowerRadiusLimit=42;camera.upperRadiusLimit=155;camera.lowerBetaLimit=.72;camera.upperBetaLimit=1.48;camera.wheelPrecision=38;camera.panningSensibility=0;camera.attachControl(canvas,true);
+ const hemi=new B.HemisphericLight('moon-fill',new B.Vector3(0,1,0),scene);hemi.intensity=.72;hemi.diffuse=new B.Color3(.48,.68,.88);hemi.groundColor=new B.Color3(.035,.07,.09);
+ const moonLight=new B.DirectionalLight('moonlight',new B.Vector3(-.55,-1,.22),scene);moonLight.position=new B.Vector3(20,45,-35);moonLight.intensity=1.15;moonLight.diffuse=new B.Color3(.68,.8,1);
+ const sand=B.MeshBuilder.CreateGround('wide-sandy-shore',{width:75,height:160,subdivisions:2},scene);sand.position.set(-19,-.22,0);
+ const sandMat=new B.PBRMaterial('wet-beach-sand',scene);sandMat.albedoColor=new B.Color3(.36,.31,.22);sandMat.roughness=.92;sandMat.metallic=0;sand.material=sandMat;
+ const wet=B.MeshBuilder.CreateGround('wet-sand-edge',{width:8,height:160,subdivisions:2},scene);wet.position.set(19,-.13,0);
+ const wetMat=new B.PBRMaterial('wet-sand',scene);wetMat.albedoColor=new B.Color3(.12,.2,.2);wetMat.roughness=.28;wetMat.metallic=.12;wet.material=wetMat;
+ const shaderVertex=`
+ precision highp float;
+ attribute vec3 position;
+ uniform mat4 world;
+ uniform mat4 viewProjection;
+ uniform float uTime;
+ varying vec3 vPos;
+ varying float vWave;
+ void main(void){
+  vec3 p=position;
+  float a=sin(p.x*.105+p.z*.045+uTime*.72)*.48;
+  float b=sin(p.z*.16-p.x*.052-uTime*.57)*.25;
+  float c=sin((p.x+p.z)*.082+uTime*.39)*.14;
+  float d=sin(p.x*.34-p.z*.23+uTime*1.12)*.055;
+  p.y+=a+b+c+d;
+  vec4 wp=world*vec4(p,1.0);
+  vPos=wp.xyz;vWave=a+b+c+d;
+  gl_Position=viewProjection*wp;
+ }`;
+ const shaderFragment=`
+ precision highp float;
+ uniform float uTime;
+ uniform vec3 cameraPosition;
+ varying vec3 vPos;
+ varying float vWave;
+ void main(void){
+  vec3 deep=vec3(.004,.035,.075);
+  vec3 mid=vec3(.008,.12,.17);
+  vec3 aqua=vec3(.025,.29,.31);
+  float shore=1.0-smoothstep(18.0,58.0,vPos.x);
+  vec3 col=mix(deep,mid,shore*.75);
+  col=mix(col,aqua,shore*.25);
+  float broad=pow(max(0.0,sin(vPos.x*.105+vPos.z*.055+uTime*.7)),17.0);
+  float ripple=pow(max(0.0,sin(vPos.x*.42-vPos.z*.31+uTime*1.05)*sin(vPos.z*.36+uTime*.82)),8.0);
+  vec3 N=normalize(vec3(-.08*sin(vPos.x*.1+uTime*.7),1.0,-.06*cos(vPos.z*.15-uTime*.6)));
+  vec3 V=normalize(cameraPosition-vPos);
+  float fresnel=pow(1.0-max(dot(N,V),0.0),3.0);
+  float moon=pow(max(0.0,dot(reflect(-normalize(vec3(-.5,.8,.2)),N),V)),34.0);
+  float streak=pow(max(0.0,sin(vPos.z*.58+uTime*1.5)*sin(vPos.x*.19-uTime*.55)),3.0);
+  col+=vec3(.19,.34,.47)*broad*.42;
+  col+=vec3(.08,.22,.25)*ripple*.32;
+  col+=vec3(.55,.72,.95)*moon*(.25+streak*1.2);
+  col+=vec3(.12,.34,.38)*fresnel*.42;
+  float foamZone=1.0-smoothstep(18.0,22.5,vPos.x+sin(vPos.z*.12+uTime)*.8);
+  float foam=foamZone*smoothstep(.35,.82,sin(vPos.z*.28+uTime*1.25+sin(vPos.z*.1)*.8)*.5+.5);
+  col=mix(col,vec3(.48,.72,.72),foam*.42);
+  gl_FragColor=vec4(col,1.0);
+ }`;
+ const water=B.MeshBuilder.CreateGround('ocean-surface',{width:180,height:190,subdivisions:180},scene);water.position.set(109,-.05,0);
+ const waterMat=new B.ShaderMaterial('living-ocean',scene,{vertexSource:shaderVertex,fragmentSource:shaderFragment},{attributes:['position'],uniforms:['world','viewProjection','uTime','cameraPosition']});
+ waterMat.backFaceCulling=false;water.material=waterMat;
+ const foamMat=new B.StandardMaterial('shore-foam',scene);foamMat.emissiveColor=new B.Color3(.28,.62,.65);foamMat.diffuseColor=new B.Color3(.35,.65,.66);foamMat.alpha=.68;
+ const shorePath=[];for(let i=0;i<=100;i++){const z=-80+i*1.6;shorePath.push(new B.Vector3(20+Math.sin(z*.055)*.9,-.015,z));}
+ const foam=B.MeshBuilder.CreateTube('moving-shoreline',{path:shorePath,radius:.14,tessellation:8,sideOrientation:B.Mesh.DOUBLESIDE},scene);foam.material=foamMat;
+ const foam2=B.MeshBuilder.CreateTube('inner-shoreline',{path:shorePath.map(p=>new B.Vector3(p.x+.32,.005,p.z)),radius:.055,tessellation:7},scene);foam2.material=foamMat;
+ const rockMat=new B.PBRMaterial('shore-rocks',scene);rockMat.albedoColor=new B.Color3(.16,.19,.19);rockMat.roughness=.95;
+ for(let i=0;i<46;i++){const z=-76+(i*37%150),x=12+(i*17%9);if(Math.abs(z)<7)continue;const rock=B.MeshBuilder.CreatePolyhedron('shore-stone',{type:1,size:.5+(i%4)*.18},scene);rock.position.set(x,-.02,z);rock.scaling.set(1.4,.55,1.05);rock.rotation.set(i*.13,i*.57,i*.21);rock.material=rockMat;}
+ const moon=B.MeshBuilder.CreateSphere('moon',{diameter:7,segments:24},scene);moon.position.set(6,39,-62);
+ const moonMat=new B.StandardMaterial('moon-glow',scene);moonMat.emissiveColor=new B.Color3(.72,.82,1);moonMat.diffuseColor=new B.Color3(.5,.62,.85);moon.material=moonMat;
+ const glow=B.MeshBuilder.CreateSphere('moon-halo',{diameter:13,segments:24},scene);glow.position.copyFrom(moon.position);
+ const glowMat=new B.StandardMaterial('halo-mat',scene);glowMat.emissiveColor=new B.Color3(.13,.23,.42);glowMat.alpha=.16;glowMat.disableLighting=true;glow.material=glowMat;
+ const starMat=new B.StandardMaterial('stars',scene);starMat.emissiveColor=new B.Color3(.45,.62,.85);starMat.disableLighting=true;
+ for(let i=0;i<170;i++){const s=B.MeshBuilder.CreateSphere('star',{diameter:.12+(i%3)*.045,segments:5},scene);const a=i*2.399,r=55+(i%17)*3;s.position.set(Math.cos(a)*r,18+(i%11)*4,Math.sin(a)*r-25);s.material=starMat;}
+ let t=0;
+ engine.runRenderLoop(()=>{const dt=engine.getDeltaTime()/1000;t+=Math.min(dt,.04);waterMat.setFloat('uTime',t);waterMat.setVector3('cameraPosition',camera.position);scene.render();});
+ window.addEventListener('resize',()=>engine.resize());
+})();
+</script>
+</body>
+</html>
