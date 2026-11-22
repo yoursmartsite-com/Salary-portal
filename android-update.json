@@ -1,8 +1,8 @@
 {
-  "versionCode": 33,
-  "versionName": "1.9.4",
+  "versionCode": 34,
+  "versionName": "1.9.5",
   "apkUrl": "https://github.com/yoursmartsite-com/Salary-portal/releases/latest/download/lamma.apk",
   "force": false,
-  "message": "تحديث اللوبي ليعمل بالعرض مثل اللعبة مع محرر الشخصية الجديد.",
-  "releaseNotes": "لوبي لَمّة يعمل الآن بالعرض على الهاتف بتخطيط شبيه بالألعاب، مع محرر شخصية لتخصيص الملابس والجسم والشعر والوجه والإكسسوارات، ومعاينة 3D وحفظ الاختيارات وتطبيقها داخل HUB."
+  "message": "إصلاح النطق في أكاديمية لَمّة باستخدام محرك الصوت الأصلي في أندرويد.",
+  "releaseNotes": "إضافة دعم النطق للكلمات والجمل داخل الأكاديمية عبر Android TextToSpeech، مع دعم الإنجليزية والهولندية والعربية وإيقاف النطق عند طلب ذلك."
 }
