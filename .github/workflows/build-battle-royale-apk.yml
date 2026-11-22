@@ -36,9 +36,8 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
-
-      - name: Install Android build tools
-        run: sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+        with:
+          packages: 'platform-tools,platforms;android-35,build-tools;35.0.0'
 
       - name: Configure Android export preset
         working-directory: battle-royale-apk
@@ -65,9 +64,6 @@ jobs:
           custom_template/debug=""
           custom_template/release=""
           gradle_build/use_gradle_build=false
-          gradle_build/ Gradle_build_directory=""
-          gradle_build/android_source_template=""
-          gradle_build/compress_native_libraries=false
           gradle_build/export_format=0
           gradle_build/min_sdk=23
           gradle_build/target_sdk=35
@@ -75,22 +71,28 @@ jobs:
           architectures/arm64-v8a=true
           architectures/x86=false
           architectures/x86_64=false
-          package/unique_name="com.lamma.battleroyaleprototype"
-          package/name="Battle Royale Prototype"
+          keystore/debug="$HOME/.config/godot/debug.keystore"
+          keystore/debug_user="androiddebugkey"
+          keystore/debug_password="android"
+          package/unique_name="com.yoursmartsite.battleroyaleprototype"
+          package/name="Battle Royale Mobile"
           package/signed=true
-          package/app_category=ゲーム
+          package/app_category=2
           package/retain_data_on_uninstall=false
           package/exclude_from_recents=false
           package/show_in_android_tv=false
-          package/ show_in_app_library=true
+          package/show_in_app_library=true
           version/code=1
           version/name="0.1"
           screen/immersive_mode=true
           screen/edge_to_edge=false
-          launcher_icons/main_192x192=""
           EOF
 
       - name: Validate project and scripts
+        env:
+          ANDROID_HOME: ${{ env.ANDROID_HOME }}
+          ANDROID_SDK_ROOT: ${{ env.ANDROID_HOME }}
+          JAVA_HOME: ${{ env.JAVA_HOME }}
         run: |
           "$GODOT_BIN" --headless --editor --path battle-royale-apk --quit
           "$GODOT_BIN" --headless --path battle-royale-apk --quit-after 8
