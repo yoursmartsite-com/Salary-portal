@@ -527,7 +527,7 @@ func _play_avatar_animation(model: Node, wanted: String) -> void:
 			if wanted == "run" and lowered.contains("run"):
 				chosen = animation_name
 				break
-			if wanted == "walk" and (lowered.contains("walk") or lowered.contains("run")):
+			if wanted == "walk" and lowered.contains("walk"):
 				chosen = animation_name
 				break
 			if wanted == "jump" and (lowered.contains("jump") or lowered.contains("fall")):
@@ -536,23 +536,31 @@ func _play_avatar_animation(model: Node, wanted: String) -> void:
 			if wanted == "idle" and (lowered.contains("idle") or lowered.contains("stand")):
 				chosen = animation_name
 				break
+		# Prefer a real run cycle when running; use the walk cycle only as a fallback.
 		if chosen == "" and wanted == "run":
 			for animation_name in anim_player.get_animation_list():
 				var lowered := animation_name.to_lower()
-				if lowered.contains("walk") or lowered.contains("run"):
+				if lowered.contains("walk"):
 					chosen = animation_name
 					break
 		if wanted == "idle" and chosen == "":
-			# This avatar pack has no Idle clip. Stop the last locomotion clip and
-			# restore the rig's authored rest pose instead of freezing mid-stride.
+			# This rig has no authored idle clip: return every bone to its bind/rest pose.
 			anim_player.stop()
 			anim_player.speed_scale = 1.0
 			for skeleton_node in model.find_children("*", "Skeleton3D", true, false):
-				(skeleton_node as Skeleton3D).reset_bone_poses()
+				var skeleton := skeleton_node as Skeleton3D
+				skeleton.reset_bone_poses()
 			continue
-		if chosen != "" and anim_player.current_animation != chosen:
-			# A short cross-fade prevents the hard pose snap between idle and locomotion.
-			anim_player.play(chosen, 0.22)
+		if chosen != "":
+			var clip := anim_player.get_animation(chosen)
+			# Imported glTF clips may default to one-shot playback. A walk/run cycle
+			# must loop or it freezes on its final (often one-legged) stride.
+			if wanted == "walk" or wanted == "run":
+				clip.loop_mode = Animation.LOOP_LINEAR
+			elif wanted == "jump":
+				clip.loop_mode = Animation.LOOP_NONE
+			if anim_player.current_animation != chosen or not anim_player.is_playing():
+				anim_player.play(chosen, 0.18)
 
 func _set_avatar_animation_speed(model: Node, movement_speed: float, wanted: String) -> void:
 	if model == null:
