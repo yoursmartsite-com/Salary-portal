@@ -1,8 +1,8 @@
 {
-  "versionCode": 30,
-  "versionName": "1.9.1",
+  "versionCode": 31,
+  "versionName": "1.9.2",
   "apkUrl": "https://github.com/yoursmartsite-com/Salary-portal/releases/latest/download/lamma.apk",
   "force": false,
-  "message": "تحسين رسومات العجلة والمرجيحة ثلاثية الأبعاد.",
-  "releaseNotes": "إعادة تصميم عجلة لَمّة والمرجيحة بتفاصيل معدنية ومقاعد وكبائن وإضاءة أفضل، مع تثبيت عربات العجلة في وضع رأسي أثناء الدوران."
+  "message": "إضافة لوبي شخصية ثلاثي الأبعاد بأسلوب Roblox قبل دخول HUB.",
+  "releaseNotes": "لوبي جديد لاختيار اسم اللاعب وشكل الشخصية وتدويرها قبل دخول عالم HUB. حفظ اختيار ألوان الشخصية ومزامنته مع شخصية اللاعب داخل العالم."
 }
