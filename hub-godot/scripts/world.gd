@@ -856,6 +856,14 @@ func _update_remote_players(delta: float) -> void:
 			remote.global_position = remote.global_position.lerp(remote_targets[uid], minf(1.0, delta * 8.0))
 			remote.rotation.y = lerp_angle(remote.rotation.y, float(remote_yaws.get(uid, 0.0)), delta * 8.0)
 
+func _camera_relative_direction(input_dir: Vector2) -> Vector3:
+	var forward := Vector3(-sin(camera_yaw), 0, -cos(camera_yaw))
+	var right := Vector3(-forward.z, 0, forward.x)
+	return (right * input_dir.x - forward * input_dir.y).normalized()
+
+func _yaw_for_direction(direction: Vector3) -> float:
+	return atan2(direction.x, -direction.z)
+
 func _physics_process(delta: float) -> void:
 	if not is_instance_valid(player):
 		return
@@ -865,17 +873,14 @@ func _physics_process(delta: float) -> void:
 	)
 	if input_dir.length() > 1.0:
 		input_dir = input_dir.normalized()
-	# Camera sits behind the avatar on +Z, so its forward direction is -Z.
-	# Touch-stick Y is positive downward; invert it to make pushing up move forward.
-	var forward := Vector3(-sin(camera_yaw), 0, -cos(camera_yaw))
-	var right := Vector3(-forward.z, 0, forward.x)
-	var direction := (right * input_dir.x - forward * input_dir.y).normalized()
+	# Camera-relative movement: joystick up always follows the camera's forward axis.
+	var direction := _camera_relative_direction(input_dir)
 	if direction.length() > 0.05:
 		var current_speed := MOVE_SPEED * (1.65 if sprint_enabled else 1.0)
 		player.velocity.x = direction.x * current_speed
 		player.velocity.z = direction.z * current_speed
 		# Godot character forward is -Z; face the actual travel vector, including reverse input.
-		var target_yaw := atan2(direction.x, -direction.z)
+		var target_yaw := _yaw_for_direction(direction)
 		player.rotation.y = lerp_angle(player.rotation.y, target_yaw, delta * 9.0)
 	else:
 		player.velocity.x = move_toward(player.velocity.x, 0, MOVE_SPEED * delta * 3.0)
