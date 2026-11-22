@@ -1,5 +1,6 @@
 extends Node3D
 
+const FirebaseHub = preload("res://scripts/firebase_hub.gd")
 const MOVE_SPEED := 5.2
 const JUMP_VELOCITY := 5.8
 var player: CharacterBody3D
@@ -17,6 +18,13 @@ var animated_arms: Array[Node3D] = []
 var animation_clock := 0.0
 var sprint_enabled := false
 var attraction_wheels: Array[Node3D] = []
+var status_label: Label
+var firebase_bridge
+var firebase_uid := ""
+var firebase_send_clock := 0.0
+var remote_avatars: Dictionary = {}
+var remote_targets: Dictionary = {}
+var remote_yaws: Dictionary = {}
 var joystick_base: ColorRect
 var joystick_knob: ColorRect
 
@@ -25,6 +33,12 @@ func _ready() -> void:
 	_build_player()
 	_build_camera()
 	_build_hud()
+	firebase_bridge = FirebaseHub.new()
+	add_child(firebase_bridge)
+	firebase_bridge.connected.connect(_on_firebase_connected)
+	firebase_bridge.players_changed.connect(_on_firebase_players_changed)
+	firebase_bridge.failed.connect(_on_firebase_failed)
+	firebase_bridge.start()
 
 func _build_environment() -> void:
 	var env := WorldEnvironment.new()
@@ -291,12 +305,12 @@ func _build_hud() -> void:
 	title.add_theme_font_size_override("font_size", 25)
 	title.add_theme_color_override("font_color", Color("#e7fff7"))
 	ui_layer.add_child(title)
-	var status := Label.new()
-	status.text = "نسخة Godot الأولية · الحركة WASD / الأسهم"
-	status.position = Vector2(26, 54)
-	status.add_theme_font_size_override("font_size", 14)
-	status.add_theme_color_override("font_color", Color("#b9d8dc"))
-	ui_layer.add_child(status)
+	status_label = Label.new()
+	status_label.text = "جاري الاتصال بعالم لَمّة..."
+	status_label.position = Vector2(26, 54)
+	status_label.add_theme_font_size_override("font_size", 14)
+	status_label.add_theme_color_override("font_color", Color("#b9d8dc"))
+	ui_layer.add_child(status_label)
 	var run := Button.new()
 	run.text = "جري"
 	run.custom_minimum_size = Vector2(90, 54)
@@ -380,6 +394,12 @@ func _process(delta: float) -> void:
 	for wheel in attraction_wheels:
 		wheel.rotation.z += delta * 0.22
 	_update_camera(delta)
+	_update_remote_players(delta)
+	if firebase_uid != "" and is_instance_valid(player):
+		firebase_send_clock += delta
+		if firebase_send_clock >= 0.2:
+			firebase_send_clock = 0.0
+			firebase_bridge.send_position(player.global_position, player.rotation.y)
 	if is_instance_valid(joystick_base):
 		joystick_base.position.y = get_viewport().get_visible_rect().size.y - 174.0
 	if not is_instance_valid(player):
@@ -397,6 +417,90 @@ func _process(delta: float) -> void:
 			limb.rotation.x = move_toward(limb.rotation.x, 0.0, delta * 3.5)
 		for limb in animated_arms:
 			limb.rotation.x = move_toward(limb.rotation.x, 0.0, delta * 3.5)
+
+
+func _on_firebase_connected(uid: String) -> void:
+	firebase_uid = uid
+	if is_instance_valid(status_label):
+		status_label.text = "متصل أونلاين · جاري البحث عن اللاعبين..."
+
+func _on_firebase_failed(reason: String) -> void:
+	if is_instance_valid(status_label):
+		status_label.text = "تعذر الاتصال: " + reason
+
+func _on_firebase_players_changed(data: Dictionary) -> void:
+	var seen: Dictionary = {}
+	var now_ms := Time.get_unix_time_from_system() * 1000.0
+	for room_id in data:
+		var room = data[room_id]
+		if typeof(room) != TYPE_DICTIONARY:
+			continue
+		var game = room.get("game", {})
+		if typeof(game) != TYPE_DICTIONARY or game.get("type", "") != "lamma_hub":
+			continue
+		var players = room.get("players", {})
+		if typeof(players) != TYPE_DICTIONARY:
+			continue
+		for uid in players:
+			if str(uid) == firebase_uid:
+				continue
+			var entry = players[uid]
+			if typeof(entry) != TYPE_DICTIONARY:
+				continue
+			if now_ms - float(entry.get("updatedAt", 0)) > 12000.0:
+				continue
+			var pos = entry.get("position", {})
+			if typeof(pos) != TYPE_DICTIONARY:
+				continue
+			seen[str(uid)] = true
+			if not remote_avatars.has(str(uid)):
+				_create_remote_avatar(str(uid), str(entry.get("name", "لاعب")))
+			remote_targets[str(uid)] = Vector3(
+				float(pos.get("x", 0.0)),
+				float(pos.get("y", 0.0)),
+				float(pos.get("z", 0.0))
+			)
+			remote_yaws[str(uid)] = float(entry.get("yaw", 0.0))
+	for uid in remote_avatars.keys():
+		if not seen.has(uid):
+			remote_avatars[uid].queue_free()
+			remote_avatars.erase(uid)
+			remote_targets.erase(uid)
+			remote_yaws.erase(uid)
+	if is_instance_valid(status_label) and firebase_uid != "":
+		status_label.text = "متصل أونلاين · " + str(remote_avatars.size() + 1) + " لاعب"
+
+func _create_remote_avatar(uid: String, player_name: String) -> void:
+	var remote := Node3D.new()
+	remote.name = "RemotePlayer_" + uid
+	add_child(remote)
+	var collider_body := StaticBody3D.new()
+	collider_body.name = "PlayerCollision"
+	var collision := CollisionShape3D.new()
+	var capsule := CapsuleShape3D.new()
+	capsule.radius = 0.34
+	capsule.height = 2.5
+	collision.shape = capsule
+	collision.position.y = 1.25
+	collider_body.add_child(collision)
+	remote.add_child(collider_body)
+	_build_girl_model(remote)
+	var name_tag := Label3D.new()
+	name_tag.name = "PlayerName"
+	name_tag.text = player_name
+	name_tag.position = Vector3(0, 2.85, 0)
+	name_tag.font_size = 30
+	name_tag.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	name_tag.modulate = Color("#e7fff7")
+	remote.add_child(name_tag)
+	remote_avatars[uid] = remote
+
+func _update_remote_players(delta: float) -> void:
+	for uid in remote_avatars:
+		var remote: Node3D = remote_avatars[uid]
+		if remote_targets.has(uid):
+			remote.global_position = remote.global_position.lerp(remote_targets[uid], minf(1.0, delta * 8.0))
+			remote.rotation.y = lerp_angle(remote.rotation.y, float(remote_yaws.get(uid, 0.0)), delta * 8.0)
 
 func _physics_process(delta: float) -> void:
 	if not is_instance_valid(player):
