@@ -106,4 +106,4 @@ func take_damage(amount: int) -> void:
 	if hp <= 0:
 		if game:
 			game.register_kill()
-	queue_free()
+		queue_free()
