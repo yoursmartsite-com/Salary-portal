@@ -274,12 +274,12 @@ func _build_camera() -> void:
 	add_child(camera)
 	_update_camera()
 
-func _update_camera() -> void:
+func _update_camera(delta := 1.0) -> void:
 	if not is_instance_valid(player):
 		return
 	var target := player.global_position + Vector3(0, 1.55, 0)
 	var offset := Vector3(sin(camera_yaw) * 7.0, 3.2 - camera_pitch * 2.0, cos(camera_yaw) * 7.0)
-	camera.global_position = target + offset
+	camera.global_position = camera.global_position.lerp(target + offset, 1.0 - exp(-8.0 * delta))
 	camera.look_at(target, Vector3.UP)
 
 func _build_hud() -> void:
@@ -379,7 +379,9 @@ func _update_joystick_visual() -> void:
 func _process(delta: float) -> void:
 	for wheel in attraction_wheels:
 		wheel.rotation.z += delta * 0.22
-	_update_camera()
+	_update_camera(delta)
+	if is_instance_valid(joystick_base):
+		joystick_base.position.y = get_viewport().get_visible_rect().size.y - 174.0
 	if not is_instance_valid(player):
 		return
 	var horizontal_speed := Vector2(player.velocity.x, player.velocity.z).length()
