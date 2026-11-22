@@ -530,10 +530,13 @@ func _play_avatar_animation(model: Node, wanted: String) -> void:
 			if wanted == "walk" and (lowered.contains("walk") or lowered.contains("run")):
 				chosen = animation_name
 				break
+			if wanted == "jump" and (lowered.contains("jump") or lowered.contains("fall")):
+				chosen = animation_name
+				break
 			if wanted == "idle" and (lowered.contains("idle") or lowered.contains("stand")):
 				chosen = animation_name
 				break
-		if chosen == "" and wanted != "idle":
+		if chosen == "" and wanted == "run":
 			for animation_name in anim_player.get_animation_list():
 				var lowered := animation_name.to_lower()
 				if lowered.contains("walk") or lowered.contains("run"):
@@ -552,7 +555,8 @@ func _set_avatar_animation_speed(model: Node, movement_speed: float, wanted: Str
 	elif wanted == "run":
 		scale = clampf(movement_speed / (MOVE_SPEED * 1.65), 0.85, 1.25)
 	for item in model.find_children("*", "AnimationPlayer", true, false):
-		(item as AnimationPlayer).speed_scale = scale
+		var anim_player := item as AnimationPlayer
+		anim_player.speed_scale = scale
 
 func _set_local_avatar_motion(speed: float, on_floor: bool) -> void:
 	if avatar_scene == null or not is_instance_valid(player):
