@@ -15,6 +15,8 @@ var ui_layer: CanvasLayer
 var animated_legs: Array[Node3D] = []
 var animated_arms: Array[Node3D] = []
 var animation_clock := 0.0
+var sprint_enabled := false
+var attraction_wheels: Array[Node3D] = []
 
 func _ready() -> void:
 	_build_environment()
@@ -144,25 +146,29 @@ func _make_lamp(pos: Vector3) -> void:
 	add_child(light)
 
 func _make_attraction(pos: Vector3) -> void:
+	var wheel := Node3D.new()
+	wheel.name = "AnimatedFerrisWheel"
+	wheel.position = pos + Vector3(0, 4.0, 0)
+	add_child(wheel)
+	attraction_wheels.append(wheel)
 	var ring_node := MeshInstance3D.new()
 	var ring := TorusMesh.new()
 	ring.inner_radius = 2.2
 	ring.outer_radius = 2.45
 	ring_node.mesh = ring
-	ring_node.position = pos + Vector3(0, 4.0, 0)
 	ring_node.rotation.x = deg_to_rad(90)
 	ring_node.material_override = _make_material(Color(0.9, 0.38, 0.58), 0.35, 0.25)
-	add_child(ring_node)
+	wheel.add_child(ring_node)
 	for i in range(8):
 		var angle := TAU * float(i) / 8.0
 		var cabin := MeshInstance3D.new()
 		var cm := BoxMesh.new()
 		cm.size = Vector3(0.8, 0.9, 0.7)
 		cabin.mesh = cm
-		cabin.position = pos + Vector3(cos(angle) * 2.3, 4.0 + sin(angle) * 2.3, 0)
+		cabin.position = Vector3(cos(angle) * 2.3, sin(angle) * 2.3, 0)
 		var colors := [Color("#e58d9d"), Color("#76c9c4"), Color("#e9c36c"), Color("#8d9ee6")]
 		cabin.material_override = _make_material(colors[i % 4])
-		add_child(cabin)
+		wheel.add_child(cabin)
 	var support := MeshInstance3D.new()
 	var sm := BoxMesh.new()
 	sm.size = Vector3(0.22, 8.0, 0.22)
@@ -274,6 +280,17 @@ func _build_hud() -> void:
 	status.add_theme_font_size_override("font_size", 14)
 	status.add_theme_color_override("font_color", Color("#b9d8dc"))
 	ui_layer.add_child(status)
+	var run := Button.new()
+	run.text = "جري"
+	run.custom_minimum_size = Vector2(90, 54)
+	run.anchor_left = 1
+	run.anchor_right = 1
+	run.anchor_top = 1
+	run.anchor_bottom = 1
+	run.position = Vector2(-116, -178)
+	run.toggle_mode = true
+	run.toggled.connect(func(enabled: bool): sprint_enabled = enabled)
+	ui_layer.add_child(run)
 	var jump := Button.new()
 	jump.text = "قفز"
 	jump.custom_minimum_size = Vector2(90, 62)
@@ -320,6 +337,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			camera_pitch = clampf(camera_pitch + event.relative.y * 0.004, -0.65, 0.25)
 
 func _process(delta: float) -> void:
+	for wheel in attraction_wheels:
+		wheel.rotation.z += delta * 0.22
 	_update_camera()
 	if not is_instance_valid(player):
 		return
@@ -350,8 +369,9 @@ func _physics_process(delta: float) -> void:
 	var right := Vector3(forward.z, 0, -forward.x)
 	var direction := (right * input_dir.x + forward * input_dir.y).normalized()
 	if direction.length() > 0.05:
-		player.velocity.x = direction.x * MOVE_SPEED
-		player.velocity.z = direction.z * MOVE_SPEED
+		var current_speed := MOVE_SPEED * (1.65 if sprint_enabled else 1.0)
+		player.velocity.x = direction.x * current_speed
+		player.velocity.z = direction.z * current_speed
 		player.rotation.y = lerp_angle(player.rotation.y, atan2(direction.x, direction.z), delta * 9.0)
 	else:
 		player.velocity.x = move_toward(player.velocity.x, 0, MOVE_SPEED * delta * 3.0)
