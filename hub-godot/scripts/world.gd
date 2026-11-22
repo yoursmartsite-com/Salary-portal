@@ -19,6 +19,7 @@ var animation_clock := 0.0
 var sprint_enabled := false
 var attraction_wheels: Array[Node3D] = []
 var status_label: Label
+var local_name_tag: Label3D
 var firebase_bridge
 var firebase_uid := ""
 var firebase_send_clock := 0.0
@@ -220,6 +221,14 @@ func _build_player() -> void:
 	capsule.position.y = 1.25
 	player.add_child(capsule)
 	_build_girl_model(player)
+	local_name_tag = Label3D.new()
+	local_name_tag.name = "LocalPlayerName"
+	local_name_tag.text = "لاعب"
+	local_name_tag.position = Vector3(0, 2.85, 0)
+	local_name_tag.font_size = 30
+	local_name_tag.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	local_name_tag.modulate = Color("#e7fff7")
+	player.add_child(local_name_tag)
 	add_child(player)
 
 func _part(parent: Node3D, part_name: String, mesh: Mesh, pos: Vector3, color: Color, scale := Vector3.ONE) -> MeshInstance3D:
@@ -421,8 +430,10 @@ func _process(delta: float) -> void:
 			limb.rotation.x = move_toward(limb.rotation.x, 0.0, delta * 3.5)
 
 
-func _on_firebase_connected(uid: String) -> void:
+func _on_firebase_connected(uid: String, player_name: String) -> void:
 	firebase_uid = uid
+	if is_instance_valid(local_name_tag):
+		local_name_tag.text = player_name
 	if is_instance_valid(status_label):
 		status_label.text = "متصل أونلاين · جاري البحث عن اللاعبين..."
 
