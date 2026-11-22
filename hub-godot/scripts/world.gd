@@ -75,7 +75,7 @@ func _build_environment() -> void:
 	_make_box("Main promenade", Vector3(0, 0.02, 0), Vector3(12, 0.12, 34), Color(0.43, 0.46, 0.48))
 	_make_box("Central plaza", Vector3(0, 0.08, -8), Vector3(24, 0.18, 17), Color(0.57, 0.55, 0.49))
 	_make_box("Beach sand", Vector3(0, -0.05, 25), Vector3(70, 0.2, 12), Color(0.72, 0.62, 0.42))
-	_make_box("Ocean", Vector3(0, -0.22, 35), Vector3(180, 0.18, 180), Color(0.025, 0.24, 0.36), 0.18)
+	_make_ocean()
 
 	for x in [-5.0, 5.0]:
 		for z in [-20.0, -12.0, -4.0, 4.0, 12.0]:
@@ -112,6 +112,43 @@ func _make_box(label: String, pos: Vector3, size: Vector3, color: Color, roughne
 	body.add_child(shape_node)
 	add_child(body)
 	return node
+
+
+func _make_ocean() -> void:
+	var water_mesh := PlaneMesh.new()
+	water_mesh.size = Vector2(180, 180)
+	water_mesh.subdivide_width = 80
+	water_mesh.subdivide_depth = 80
+	var water := MeshInstance3D.new()
+	water.name = "AnimatedOcean"
+	water.mesh = water_mesh
+	water.position = Vector3(0, -0.22, 35)
+	var water_shader := Shader.new()
+	water_shader.code = """
+	shader_type spatial;
+	render_mode cull_back, depth_draw_opaque;
+	uniform vec4 deep_water : source_color = vec4(0.012, 0.09, 0.17, 1.0);
+	uniform vec4 light_water : source_color = vec4(0.035, 0.30, 0.39, 1.0);
+	void vertex() {
+		float wave_a = sin(VERTEX.x * 0.18 + TIME * 0.8) * 0.11;
+		float wave_b = cos(VERTEX.z * 0.15 - TIME * 0.65) * 0.08;
+		VERTEX.y += wave_a + wave_b;
+	}
+	void fragment() {
+		float ripple = sin(UV.x * 140.0 + TIME * 1.1) * cos(UV.y * 115.0 - TIME * 0.9);
+		float depth = clamp(0.35 + ripple * 0.08 + UV.y * 0.18, 0.0, 1.0);
+		float fresnel = pow(1.0 - clamp(dot(normalize(NORMAL), normalize(VIEW)), 0.0, 1.0), 3.0);
+		ALBEDO = mix(deep_water.rgb, light_water.rgb, depth) + vec3(0.02, 0.04, 0.05) * max(ripple, 0.0);
+		ROUGHNESS = 0.16;
+		METALLIC = 0.22;
+		SPECULAR = 0.9;
+		EMISSION = vec3(0.005, 0.025, 0.04) + fresnel * vec3(0.02, 0.12, 0.15);
+	}
+	"""
+	var water_material := ShaderMaterial.new()
+	water_material.shader = water_shader
+	water.material_override = water_material
+	add_child(water)
 
 func _make_tree(pos: Vector3) -> void:
 	var trunk := MeshInstance3D.new()
