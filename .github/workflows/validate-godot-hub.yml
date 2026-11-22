@@ -50,6 +50,12 @@ jobs:
         run: |
           "$GODOT_BIN" --headless --editor --path hub-godot --quit --verbose
 
+      - name: Validate imported avatar walk and run clips
+        timeout-minutes: 1
+        run: |
+          set -euo pipefail
+          "$GODOT_BIN" --headless --path hub-godot --script res://tests/avatar_animation_smoke.gd
+
       - name: Run headless scene smoke test
         run: |
           "$GODOT_BIN" --headless --path hub-godot --quit-after 5
