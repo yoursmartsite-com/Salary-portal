@@ -583,7 +583,7 @@ const activitySpots=[
  {x:31,z:22,r:8,label:"ملعب الكرة",message:"وصلت لملعب لَمّة. استعد للتحديات الجماعية."},
  {x:-29,z:-12,r:8,label:"برج التسلق",message:"اطلع السلم درجة درجة وبعدها جرّب الزحليقة."},
  {x:51,z:0,r:9,label:"الشاطئ",message:"وصلت للشاطئ. استمتع بصوت البحر والمنظر الليلي."},
- {x:12,z:12,r:5,label:"جلسات الساحة",message:"مكان هادي تقعد فيه مع أصحابك."}
+ 
 ];
 let nearbyActivity=null;
 interactBtn.addEventListener("click",()=>{
@@ -591,7 +591,7 @@ interactBtn.addEventListener("click",()=>{
  if(!nearbyActivity)return;
  const a=nearbyActivity;
  if(a.type==="bench"){activeBench=a.bench;sitting=true;avatar.position.set(a.bench.x+Math.sin(a.bench.rot)*.95,0,a.bench.z+Math.cos(a.bench.rot)*.95);avatar.rotation.y=a.bench.rot;setSitPose();toast("قعدت على المقعد 🪑");return;}
- if(a.label==="الكافيه"){const seat=benchSeats.filter(b=>Math.hypot(avatar.position.x-b.x,avatar.position.z-b.z)<5).sort((a,b)=>Math.hypot(avatar.position.x-a.x,avatar.position.z-a.z)-Math.hypot(avatar.position.x-b.x,avatar.position.z-b.z))[0];if(seat){activeBench=seat;sitting=true;avatar.position.set(seat.x+Math.sin(seat.rot)*.95,0,seat.z+Math.cos(seat.rot)*.95);avatar.rotation.y=seat.rot;setSitPose();toast("قعدت في جلسة الكافيه 🪑");}else toast("اقرب من كرسي الكافيه الأول");return;}
+ if(a.label==="الكافيه"){const seat=benchSeats.filter(b=>Math.hypot(avatar.position.x-b.x,avatar.position.z-b.z)<8).sort((a,b)=>Math.hypot(avatar.position.x-a.x,avatar.position.z-a.z)-Math.hypot(avatar.position.x-b.x,avatar.position.z-b.z))[0];if(seat){activeBench=seat;sitting=true;avatar.position.set(seat.x+Math.sin(seat.rot)*.95,0,seat.z+Math.cos(seat.rot)*.95);avatar.rotation.y=seat.rot;setSitPose();toast("قعدت في جلسة الكافيه 🪑");}else toast("اقرب من كرسي الكافيه الأول");return;}
  if(a.label==="المرجيحة"){rideMode="swing";rideIndex=0;toast("ركبت المرجيحة. اضغط تفاعل للنزول.");return;}
  if(a.label==="عجلة لَمّة"){rideMode="wheel";rideIndex=0;toast("ركبت عجلة لَمّة. اضغط تفاعل للنزول.");return;}
  toast(a.message);
