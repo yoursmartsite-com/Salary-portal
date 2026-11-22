@@ -572,6 +572,7 @@ async function enterLandscape(){try{if(!document.fullscreenElement&&document.doc
 document.querySelector('#modal').addEventListener('click',e=>{if(e.target.id==='modal')e.currentTarget.classList.remove('open')});
 
 const interactBtn=document.querySelector("#interact");
+let sitting=false;
 const activitySpots=[
  {x:28,z:-17,r:7,label:"المرجيحة",message:"وصلت لمنطقة المراجيح. استمتع بالحركة مع أصحابك."},
  {x:0,z:-43,r:8,label:"عجلة لَمّة",message:"عجلة لَمّة بتنور الساحة. مكان حلو للتجمع والتصوير."},
@@ -585,6 +586,7 @@ let nearbyActivity=null;
 interactBtn.addEventListener("click",()=>{
  if(!nearbyActivity)return;
  const a=nearbyActivity;
+ if(a.label==="الكافيه"||a.label==="جلسات الساحة"){sitting=!sitting;toast(sitting?"قعدت تستريح مع أصحابك 🪑":"قمت من مكانك");return;}
  if(a.label==="المرجيحة"){swings.forEach((g,i)=>g.rotation.x=Math.sin(performance.now()*.004+i)*.55);}
  toast(a.message);
 });
@@ -593,7 +595,7 @@ function resize(){renderer.setPixelRatio(Math.min(devicePixelRatio,innerWidth<90
 const clock=new THREE.Clock();const stairGround=(x,z,fromY)=>{let best=0;for(const step of stairSurfaces){if(Math.abs(x-step.x)<=step.w/2&&Math.abs(z-step.z)<=step.d/2&&step.y<=fromY+.56&&step.y>best)best=step.y;}return best;};function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04),t=clock.elapsedTime;if(seaTimeUniform)seaTimeUniform.value=t;
 let ix=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0),iz=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);ix+=move.x;iz+=move.z;const mag=Math.hypot(ix,iz);if(mag>1){ix/=mag;iz/=mag}
 const forwardX=Math.sin(yaw),forwardZ=Math.cos(yaw),rightX=-Math.cos(yaw),rightZ=Math.sin(yaw);const forwardInput=-iz,lateralInput=ix;const dx=(rightX*lateralInput+forwardX*forwardInput),dz=(rightZ*lateralInput+forwardZ*forwardInput);
-if(Math.abs(dx)+Math.abs(dz)>.02){const isSprinting=sprintEnabled&&forwardInput>.35;const moveSpeed=isSprinting?13.5:8;const stepX=dx*moveSpeed*dt,stepZ=dz*moveSpeed*dt;
+if(Math.abs(dx)+Math.abs(dz)>.02){sitting=false;const isSprinting=sprintEnabled&&forwardInput>.35;const moveSpeed=isSprinting?13.5:8;const stepX=dx*moveSpeed*dt,stepZ=dz*moveSpeed*dt;
  // Solid collision: players and tree trunks cannot be walked through; allow sliding along edges
  const canStand=(x,z)=>{for(const obstacle of treeColliders){const nextDist=Math.hypot(x-obstacle.x,z-obstacle.z),currentDist=Math.hypot(avatar.position.x-obstacle.x,avatar.position.z-obstacle.z),limit=obstacle.r+.48;const jumpingOver=avatar.position.y>1.05;const movingOut=currentDist<limit&&nextDist>currentDist;if(nextDist<limit&&!jumpingOver&&!movingOut)return false;}for(const other of remotePlayers.values()){const p=other.model.position;if(Math.hypot(x-p.x,z-p.z)<1.35)return false;}return Math.abs(x)<=54&&Math.abs(z)<=60;};
  const nx=avatar.position.x+stepX,nz=avatar.position.z+stepZ;
@@ -610,9 +612,9 @@ jumpV-=18*dt;avatar.position.y+=jumpV*dt;
 if(avatar.position.y<=floorY){avatar.position.y=floorY;jumpV=0;onGround=true}else{onGround=false;}
 avatar.position.x=THREE.MathUtils.clamp(avatar.position.x,-54,54);avatar.position.z=THREE.MathUtils.clamp(avatar.position.z,-60,60);
 swings.forEach((s,i)=>s.rotation.x=Math.sin(t*2.2+i*1.7)*.38);wheel.rotation.z+=dt*.12;
-let nearest=null,nearestD=Infinity;for(const spot of activitySpots){const d=Math.hypot(avatar.position.x-spot.x,avatar.position.z-spot.z);if(d<spot.r&&d<nearestD){nearest=spot;nearestD=d;}}nearbyActivity=nearest;if(nearest){interactBtn.disabled=false;interactBtn.classList.add("nearby");interactBtn.textContent="🤝 "+nearest.label;}else{interactBtn.disabled=true;interactBtn.classList.remove("nearby");interactBtn.textContent="🤝 تفاعل";}
+let nearest=null,nearestD=Infinity;for(const spot of activitySpots){const d=Math.hypot(avatar.position.x-spot.x,avatar.position.z-spot.z);if(d<spot.r&&d<nearestD){nearest=spot;nearestD=d;}}nearbyActivity=nearest;if(nearest){interactBtn.disabled=false;interactBtn.classList.add("nearby");interactBtn.textContent=(nearest.label==="الكافيه"||nearest.label==="جلسات الساحة")?(sitting?"🚶 قوم":"🪑 اقعد"):"🤝 "+nearest.label;}else{interactBtn.disabled=true;interactBtn.classList.remove("nearby");interactBtn.textContent="🤝 تفاعل";}
 const desired=new THREE.Vector3(avatar.position.x-Math.sin(yaw)*10,avatar.position.y+6,avatar.position.z-Math.cos(yaw)*10);camera.position.lerp(desired,1-Math.pow(.001,dt));camera.lookAt(avatar.position.x,avatar.position.y+1.6,avatar.position.z);
-renderer.render(scene,camera);if(hubApi&&hubUid&&t-hubLastWrite>.12){hubLastWrite=t;const p=hubApi.ref(hubDb,'presence/'+hubUid+'/hub');hubApi.update(p,{active:true,name:myName,x:Number(avatar.position.x.toFixed(2)),z:Number(avatar.position.z.toFixed(2)),yaw:Number(yaw.toFixed(3)),updatedAt:Date.now()}).catch(e=>{console.error('Hub position update',e);hubStatus.textContent='🔴 فقد الاتصال';});}}
+if(sitting&&Math.abs(dx)+Math.abs(dz)<=.02){legs[0].rotation.x=-1.2;legs[1].rotation.x=-1.2;arms[0].rotation.x=-.35;arms[1].rotation.x=-.35;}\nrenderer.render(scene,camera);if(hubApi&&hubUid&&t-hubLastWrite>.12){hubLastWrite=t;const p=hubApi.ref(hubDb,'presence/'+hubUid+'/hub');hubApi.update(p,{active:true,name:myName,x:Number(avatar.position.x.toFixed(2)),z:Number(avatar.position.z.toFixed(2)),yaw:Number(yaw.toFixed(3)),updatedAt:Date.now()}).catch(e=>{console.error('Hub position update',e);hubStatus.textContent='🔴 فقد الاتصال';});}}
 animate();connectHub();document.querySelector('#modal').classList.add('open');
 </script>
 </body></html>
