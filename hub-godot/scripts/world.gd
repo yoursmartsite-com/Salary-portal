@@ -26,6 +26,7 @@ var hud_scale := 1.0
 var local_name_tag: Label3D
 var firebase_bridge
 var avatar_scene: PackedScene
+var arabic_font: Font
 var avatar_animation_state := "idle"
 var firebase_uid := ""
 var firebase_send_clock := 0.0
@@ -42,6 +43,7 @@ func _ready() -> void:
 	_build_environment()
 	_build_player()
 	_build_camera()
+	arabic_font = load("res://assets/Cairo.ttf") as Font if ResourceLoader.exists("res://assets/Cairo.ttf") else null
 	_build_hud()
 	_load_professional_avatar()
 	firebase_bridge = FirebaseHub.new()
@@ -387,6 +389,8 @@ func _make_sign(pos: Vector3, label: String) -> void:
 	_make_box("Welcome sign", pos + Vector3(0, 2.1, 0), Vector3(8, 2.3, 0.35), Color(0.035, 0.12, 0.17))
 	var text_3d := Label3D.new()
 	text_3d.text = label
+	if arabic_font != null:
+		text_3d.font = arabic_font
 	text_3d.font_size = 48
 	text_3d.position = pos + Vector3(0, 2.15, 0.2)
 	text_3d.modulate = Color(0.55, 1.0, 0.84)
@@ -408,6 +412,8 @@ func _build_player() -> void:
 	local_name_tag = Label3D.new()
 	local_name_tag.name = "LocalPlayerName"
 	local_name_tag.text = "لاعب"
+	if arabic_font != null:
+		local_name_tag.font = arabic_font
 	local_name_tag.position = Vector3(0, 2.08, 0)
 	local_name_tag.font_size = 30
 	local_name_tag.billboard = BaseMaterial3D.BILLBOARD_ENABLED
@@ -566,6 +572,10 @@ func _update_camera(delta := 1.0) -> void:
 
 func _build_hud() -> void:
 	ui_layer = CanvasLayer.new()
+	if arabic_font != null:
+		var arabic_theme := Theme.new()
+		arabic_theme.default_font = arabic_font
+		ui_layer.theme = arabic_theme
 	add_child(ui_layer)
 	var title := Label.new()
 	title.text = "لَمّة  |  عالم الأصدقاء"
@@ -828,6 +838,8 @@ func _create_remote_avatar(uid: String, player_name: String) -> void:
 	var name_tag := Label3D.new()
 	name_tag.name = "PlayerName"
 	name_tag.text = player_name
+	if arabic_font != null:
+		name_tag.font = arabic_font
 	name_tag.position = Vector3(0, 2.08, 0)
 	name_tag.font_size = 30
 	name_tag.billboard = BaseMaterial3D.BILLBOARD_ENABLED
