@@ -28,6 +28,20 @@ body.hud-editing [data-hud-control]{outline:2px dashed #ffe18b!important;outline
 body.hud-editing .bottom{background:transparent;border-color:transparent;box-shadow:none;pointer-events:none}
 body.hud-editing [data-hud-control]{pointer-events:auto!important}
 @media(max-width:760px){.hud-settings-btn{top:58px;left:10px;padding:8px 10px;font-size:10px}.settings-card{padding:22px 16px 15px}.hud-done-btn{top:8px}}
+
+/* Interactive world map */
+.map-open{position:fixed;z-index:125;top:126px;left:14px;padding:10px 14px;border-radius:12px;border:1px solid #65d9ba;background:#092632ed;color:#fff;font:900 12px Cairo,Arial;box-shadow:0 7px 24px #0009}
+.map-overlay{display:none;position:fixed;inset:0;z-index:400;background:#020a10d9;backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:14px}
+.map-overlay.open{display:flex}.map-card{width:min(760px,100%);max-height:92vh;overflow:auto;border:1px solid #4b8b87;border-radius:20px;background:linear-gradient(145deg,#102d38,#071722);box-shadow:0 25px 80px #000c;padding:16px}
+.map-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.map-head h2{font-size:19px;margin:0}.map-close{width:36px;height:36px;border-radius:10px;background:#1c3c49;font-size:23px}
+.world-map{height:min(56vh,430px);min-height:260px;position:relative;overflow:hidden;border:1px solid #46766f;border-radius:16px;background:radial-gradient(ellipse at 88% 76%,#176078 0 14%,transparent 14.5%),radial-gradient(ellipse at 6% 18%,#15566a 0 13%,transparent 13.5%),linear-gradient(145deg,#234d40,#315b43 48%,#1b493d);box-shadow:inset 0 0 45px #061c20}
+.world-map:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0 39px,#b4d5a014 40px),repeating-linear-gradient(90deg,transparent 0 39px,#b4d5a014 40px);pointer-events:none}
+.map-road{position:absolute;height:13px;border:3px solid #c7b99599;background:#807c6b;border-radius:30px;transform-origin:center;box-shadow:0 1px 5px #0005}.map-road.one{width:86%;left:7%;top:49%;transform:rotate(-19deg)}.map-road.two{width:72%;left:14%;top:54%;transform:rotate(48deg)}.map-road.three{width:48%;left:27%;top:30%;transform:rotate(82deg)}
+.map-landmark{position:absolute;transform:translate(-50%,-50%);z-index:2;border:1px solid #d5f5e8;background:#092a32eF;color:white;border-radius:11px;padding:5px 8px;font:800 10px Cairo,Arial;white-space:nowrap;box-shadow:0 4px 12px #0008;cursor:pointer}.map-landmark.active{background:#d5a64e;color:#1a170d;border-color:#fff2c8;box-shadow:0 0 0 4px #f2c66a44}.map-landmark span{font-size:14px;margin-left:3px}
+.map-player{position:absolute;z-index:4;transform:translate(-50%,-50%);width:17px;height:17px;border-radius:50%;background:#54e5c0;border:3px solid white;box-shadow:0 0 0 7px #36e2b555,0 2px 10px #0009;pointer-events:none}
+.map-you-label{position:absolute;z-index:4;transform:translate(-50%,12px);font:900 9px Cairo,Arial;color:#eafff7;text-shadow:0 2px 4px #000;pointer-events:none;white-space:nowrap}
+.map-legend{display:flex;flex-wrap:wrap;gap:12px;margin:10px 2px;color:#c3dedb;font-size:10px}.map-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#54e5c0;margin-left:5px}.map-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.map-destination{display:flex;align-items:center;gap:9px;text-align:right;padding:10px;border:1px solid #345b62;border-radius:12px;background:#0b202b;color:#fff;min-width:0}.map-destination span:first-child{font-size:20px}.map-destination b{display:block;font-size:11px}.map-destination small{display:block;color:#a9c7c9;font-size:9px}.map-destination.selected{border-color:#e6bb65;background:#253329}
+@media(max-width:760px){.map-open{top:101px;left:10px;padding:8px 11px;font-size:10px}.map-card{padding:12px}.map-head h2{font-size:16px}.map-list{grid-template-columns:1fr 1fr}.map-destination{padding:8px;gap:6px}.map-destination b{font-size:10px}.map-landmark{font-size:9px;padding:4px 6px}}
 </style>
 </head>
 <body>
@@ -46,6 +60,8 @@ body.hud-editing [data-hud-control]{pointer-events:auto!important}
 <div class="joystick" id="joystick" data-hud-control><div class="stick" id="stick"></div></div>
 <div class="bottom"><button class="action primary" id="explore" data-hud-control>✨ استكشف المكان</button><button class="action" id="interact" data-hud-control type="button" disabled>🤝 تفاعل</button><button class="action" id="emote" data-hud-control>👋 تلويح</button></div>
 <div class="toast" id="toast"></div>
+<button class="map-open" id="mapOpen" type="button">🗺️ خريطة العالم</button>
+<div class="map-overlay" id="mapOverlay" aria-hidden="true"><section class="map-card" role="dialog" aria-modal="true" aria-labelledby="mapTitle"><div class="map-head"><h2 id="mapTitle">🗺️ خريطة عالم لَمّة</h2><button class="map-close" id="mapClose" type="button">×</button></div><div class="world-map" id="worldMap"><div class="map-road one"></div><div class="map-road two"></div><div class="map-road three"></div><div class="map-player" id="mapPlayer"></div><div class="map-you-label" id="mapYouLabel">أنت هنا</div></div><div class="map-legend"><span><i class="map-dot"></i>موقعك الحالي</span><span>اضغط على أي مكان عشان تعرف اتجاهه</span></div><div class="map-list" id="mapList"></div></section></div>
 <div class="settings-overlay" id="hudSettingsOverlay" aria-hidden="true"><section class="settings-card" role="dialog" aria-modal="true" aria-labelledby="hudSettingsTitle"><button class="settings-close" id="hudSettingsClose" type="button">×</button><h2 id="hudSettingsTitle">إعدادات التحكم</h2><p>ظبط حجم وشفافية الأزرار على راحتك. تقدر كمان تحرك كل زر لمكانه.</p><label class="setting-row"><span>حجم الأزرار <b id="hudSizeValue">100%</b></span><input id="hudSize" type="range" min="70" max="150" value="100"></label><label class="setting-row"><span>شفافية الأزرار <b id="hudOpacityValue">90%</b></span><input id="hudOpacity" type="range" min="30" max="100" value="90"></label><button class="settings-main" id="hudMoveBtn" type="button">✥ تعديل أماكن الأزرار</button><button class="settings-reset" id="hudResetBtn" type="button">إعادة التوزيع الافتراضي</button><small>بعد الضغط على تعديل الأماكن، اسحب الزر للمكان المناسب ثم اضغط تم من أعلى الشاشة.</small></section></div>
 <button class="hud-done-btn" id="hudDoneBtn" type="button">تم حفظ التوزيع</button>
 <div class="modal" id="modal"><div class="modal-card"><div style="font-size:42px">🎡</div><h2 id="modalTitle">أهلاً بيك في لَمّة</h2><p id="modalText">دي ساحتك الترفيهية. اتحرك واستكشف المكان بنفسك!</p><button id="closeModal">تمام، يلا!</button></div></div>
@@ -585,7 +601,27 @@ const activitySpots=[
  {x:51,z:0,r:9,label:"الشاطئ",message:"وصلت للشاطئ. استمتع بصوت البحر والمنظر الليلي."},
  
 ];
+function buildWorldMap(){
+ mapSpots.forEach(spot=>{
+  const pos=mapPosition(spot.x,spot.z),icon=mapIcons[spot.label]||'🎮';
+  const marker=document.createElement('button');marker.type='button';marker.className='map-landmark';marker.dataset.destination=spot.label;marker.style.left=pos.left+'%';marker.style.top=pos.top+'%';marker.innerHTML='<span>'+icon+'</span>'+spot.label;marker.addEventListener('click',()=>chooseMapDestination(spot));worldMap.appendChild(marker);
+  const item=document.createElement('button');item.type='button';item.className='map-destination';item.dataset.destination=spot.label;item.innerHTML='<span>'+icon+'</span><span><b>'+spot.label+'</b><small>اضغط لتحديد الاتجاه</small></span>';item.addEventListener('click',()=>chooseMapDestination(spot));mapList.appendChild(item);
+ });
+}
+buildWorldMap();
 let nearbyActivity=null;
+const mapOverlay=document.querySelector('#mapOverlay'),worldMap=document.querySelector('#worldMap'),mapPlayer=document.querySelector('#mapPlayer'),mapYouLabel=document.querySelector('#mapYouLabel'),mapList=document.querySelector('#mapList');
+let mapWaypoint=null;
+const mapIcons={'المرجيحة':'🎠','عجلة لَمّة':'🎡','الكافيه':'☕','ملعب الكرة':'⚽','برج التسلق':'🧗','الشاطئ':'🏖️'};
+function mapPosition(x,z){return {left:((x+60)/120*100),top:((z+65)/130*100)};}
+function updateMapPlayer(){const p=mapPosition(avatar.position.x,avatar.position.z);mapPlayer.style.left=p.left+'%';mapPlayer.style.top=p.top+'%';mapYouLabel.style.left=p.left+'%';mapYouLabel.style.top=p.top+'%';}
+function openWorldMap(){mapOverlay.classList.add('open');mapOverlay.setAttribute('aria-hidden','false');updateMapPlayer();}
+function closeWorldMap(){mapOverlay.classList.remove('open');mapOverlay.setAttribute('aria-hidden','true');}
+document.querySelector('#mapOpen').addEventListener('click',openWorldMap);
+document.querySelector('#mapClose').addEventListener('click',closeWorldMap);
+mapOverlay.addEventListener('click',e=>{if(e.target===mapOverlay)closeWorldMap();});
+function chooseMapDestination(spot){mapWaypoint=spot;document.querySelectorAll('.map-landmark,.map-destination').forEach(el=>el.classList.toggle('active',el.dataset.destination===spot.label));closeWorldMap();toast('تم تحديد '+spot.label+' على الخريطة. اتبع المسافة والاتجاه أسفل الشاشة.');}
+
 interactBtn.addEventListener("click",()=>{
  if(rideMode!=="none"||sitting){leaveRide();toast("نزلت من اللعبة/المقعد");return;}
  if(!nearbyActivity)return;
@@ -620,6 +656,8 @@ avatar.position.x=THREE.MathUtils.clamp(avatar.position.x,-54,54);avatar.positio
 swings.forEach((g,i)=>{g.rotation.x=rideMode==="swing"&&rideIndex===i?Math.sin(t*4.8)*.62:Math.sin(t*2.2+i*1.7)*.18;});wheel.rotation.z+=dt*(rideMode==="wheel"?.42:.12);
 if(rideMode==="swing"){const p=swingGroup.localToWorld(new THREE.Vector3(swings[rideIndex].position.x,4.1,0));avatar.position.set(p.x,p.y,p.z);avatar.rotation.y=swingGroup.rotation.y;avatar.rotation.x=swings[rideIndex].rotation.x;setSitPose();}
 if(rideMode==="wheel"){wheel.updateMatrixWorld(true);const p=new THREE.Vector3();wheelPods[rideIndex].getWorldPosition(p);avatar.position.set(p.x,p.y-.05,p.z);avatar.rotation.y=-wheel.rotation.z;avatar.rotation.z=-wheel.rotation.z;setSitPose();}
+if(mapWaypoint){const wx=mapWaypoint.x-avatar.position.x,wz=mapWaypoint.z-avatar.position.z,dist=Math.hypot(wx,wz);if(dist<mapWaypoint.r){document.querySelector('#hint').textContent='📍 وصلت إلى '+mapWaypoint.label;mapWaypoint=null;}else{const dir=Math.atan2(wx,wz)-yaw;const dirs=['قدامك','يمينك','ورا','شمالك'];const sector=((Math.round(dir/(Math.PI/2))%4)+4)%4;document.querySelector('#hint').textContent='📍 '+mapWaypoint.label+' · '+Math.round(dist)+' متر · '+dirs[sector];}}else{document.querySelector('#hint').textContent='اسحب العصاية للحركة · اسحب أي مكان فاضي لتلف الكاميرا';}
+updateMapPlayer();
 let nearest=null,nearestD=Infinity;if(rideMode!=="none"){nearest={label:"انزل",type:"exit",message:"اضغط للنزول"};nearestD=0;}else{for(const seat of benchSeats){const d=Math.hypot(avatar.position.x-seat.x,avatar.position.z-seat.z);if(d<2.8&&d<nearestD){nearest={label:"مقعد",type:"bench",bench:seat};nearestD=d;}}for(const spot of activitySpots){const d=Math.hypot(avatar.position.x-spot.x,avatar.position.z-spot.z);if(d<spot.r&&d<nearestD){nearest=spot;nearestD=d;}}}nearbyActivity=nearest;if(nearest){interactBtn.disabled=false;interactBtn.classList.add("nearby");interactBtn.textContent=rideMode!=="none"?"🚶 انزل":sitting?"🚶 قوم":nearest.type==="bench"?"🪑 اقعد":"🤝 "+nearest.label;}else{interactBtn.disabled=true;interactBtn.classList.remove("nearby");interactBtn.textContent="🤝 تفاعل";}
 const desired=new THREE.Vector3(avatar.position.x-Math.sin(yaw)*10,avatar.position.y+6,avatar.position.z-Math.cos(yaw)*10);camera.position.lerp(desired,1-Math.pow(.001,dt));camera.lookAt(avatar.position.x,avatar.position.y+1.6,avatar.position.z);
 if(sitting&&rideMode==="none"){setSitPose();}
