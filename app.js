@@ -1,5 +1,6 @@
 
-import { firebaseConfig, firebaseReady } from "./firebase-config.js";
+import { firebaseReady } from "./firebase-config.js";
+import { getFirebaseSession } from "./firebase-session.js";
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -101,46 +102,25 @@ function setupGameModal(local) {
 }
 
 async function initFirebase() {
-  if (!firebaseReady) {
-    setDemoStatus();
-    return;
-  }
-
+  if (!firebaseReady) { setDemoStatus(); return; }
   try {
-    const [appMod, dbMod, authMod] = await Promise.all([
-      import("https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js"),
-      import("https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js"),
-      import("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js")
-    ]);
-
-    const app = appMod.initializeApp(firebaseConfig);
-    state.db = dbMod.getDatabase(app);
-    state.auth = authMod.getAuth(app);
-    state.dbApi = dbMod;
-
-    const credential = await authMod.signInAnonymously(state.auth);
-    state.uid = credential.user.uid;
+    const session = await getFirebaseSession({ waitForDatabase: true });
+    state.db = session.db;
+    state.auth = session.auth;
+    state.dbApi = session.dbMod;
+    state.uid = session.uid;
     localStorage.setItem("arcade_uid", state.uid);
     state.firebase = true;
-
-    if ($("#connectionLabel")) {
-      $("#connectionLabel").textContent = "متصل أونلاين";
-    }
-    if ($("#firebaseStatus")) {
-      $("#firebaseStatus").textContent = "متصل";
-    }
-    if ($("#lobbyHint")) {
-      $("#lobbyHint").textContent =
-        "اختار لعبة لإنشاء غرفة، أو ادخل غرفة من القائمة.";
-    }
-
+    if ($("#connectionLabel")) $("#connectionLabel").textContent = "متصل أونلاين";
+    if ($("#firebaseStatus")) $("#firebaseStatus").textContent = "متصل";
+    if ($("#lobbyHint")) $("#lobbyHint").textContent = "اختار لعبة لإنشاء غرفة، أو ادخل غرفة من القائمة.";
     subscribeRooms();
     subscribePresence();
   } catch (err) {
     console.error("Firebase error:", err);
     state.firebase = false;
     setDemoStatus();
-    toast("تعذر الاتصال أونلاين. تقدر تجرب الألعاب محليًا.");
+    toast("تعذر الاتصال بقاعدة البيانات. راجع الإنترنت وحاول تاني.");
   }
 }
 
