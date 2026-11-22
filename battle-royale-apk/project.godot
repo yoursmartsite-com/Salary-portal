@@ -13,6 +13,7 @@ window/size/window_height_override=720
 window/handheld/orientation=1
 
 [rendering]
+textures/vram_compression/import_etc2_astc=true
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
 textures/default_filters/use_nearest_mipmap_filter=false
