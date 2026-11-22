@@ -1,4 +1,4 @@
-name: Validate Lamma Godot HUB
+name: Validate and export Lamma Godot HUB
 
 on:
   workflow_dispatch:
@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 jobs:
-  validate:
+  validate-and-export:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -22,7 +22,11 @@ jobs:
           set -euo pipefail
           VERSION="4.7.2"
           curl -fL --retry 3 "https://github.com/godotengine/godot/releases/download/${VERSION}-stable/Godot_v${VERSION}-stable_linux.x86_64.zip" -o /tmp/godot.zip
+          curl -fL --retry 3 "https://github.com/godotengine/godot/releases/download/${VERSION}-stable/Godot_v${VERSION}-stable_export_templates.tpz" -o /tmp/templates.tpz
           unzip -q /tmp/godot.zip -d /tmp/godot
+          mkdir -p "$HOME/.local/share/godot/export_templates/${VERSION}.stable"
+          unzip -q /tmp/templates.tpz -d /tmp/godot-templates
+          cp -R /tmp/godot-templates/templates/. "$HOME/.local/share/godot/export_templates/${VERSION}.stable/"
           GODOT_BIN="$(find /tmp/godot -maxdepth 2 -type f -name 'Godot*' | head -n 1)"
           test -n "$GODOT_BIN"
           chmod +x "$GODOT_BIN"
@@ -31,3 +35,15 @@ jobs:
       - name: Import project and validate GDScript
         run: |
           "$GODOT_BIN" --headless --editor --path hub-godot --quit --verbose
+
+      - name: Export Web build
+        run: |
+          mkdir -p hub-web
+          "$GODOT_BIN" --headless --path hub-godot --export-release Web ../hub-web/index.html
+
+      - name: Upload Web build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lamma-hub-web-preview
+          path: hub-web/
+          if-no-files-found: error
