@@ -1,0 +1,33 @@
+name: Validate Lamma Godot HUB
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'hub-godot/**'
+      - '.github/workflows/validate-godot-hub.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Godot 4.7.2
+        run: |
+          set -euo pipefail
+          VERSION="4.7.2"
+          curl -fL --retry 3 "https://github.com/godotengine/godot/releases/download/${VERSION}-stable/Godot_v${VERSION}-stable_linux.x86_64.zip" -o /tmp/godot.zip
+          unzip -q /tmp/godot.zip -d /tmp/godot
+          GODOT_BIN="$(find /tmp/godot -maxdepth 2 -type f -name 'Godot*' | head -n 1)"
+          test -n "$GODOT_BIN"
+          chmod +x "$GODOT_BIN"
+          echo "GODOT_BIN=$GODOT_BIN" >> "$GITHUB_ENV"
+
+      - name: Import project and validate GDScript
+        run: |
+          "$GODOT_BIN" --headless --editor --path hub-godot --quit --verbose
