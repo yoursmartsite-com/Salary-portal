@@ -40,6 +40,10 @@ jobs:
         run: |
           "$GODOT_BIN" --headless --path hub-godot --quit-after 5
 
+      - name: Test remote player creation and interpolation
+        run: |
+          "$GODOT_BIN" --headless --path hub-godot --script res://tests/remote_avatar_smoke.gd
+
       - name: Export Web build
         run: |
           mkdir -p hub-web
