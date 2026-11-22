@@ -14,6 +14,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
+import android.speech.tts.TextToSpeech;
+import android.webkit.JavascriptInterface;
 import android.graphics.Color;
 import android.webkit.WebView;
 import android.webkit.DownloadListener;
@@ -33,6 +35,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Locale;
 
 public class MainActivity extends Activity {
     private static final String SITE_HOST = "yoursmartsite-com.github.io";
@@ -42,6 +45,8 @@ public class MainActivity extends Activity {
     private static final int FILE_CHOOSER_REQUEST = 4102;
     private static final int INSTALL_PERMISSION_REQUEST = 4103;
     private WebView webView;
+    private TextToSpeech textToSpeech;
+    private volatile boolean ttsReady = false;
     private ValueCallback<Uri[]> fileCallback;
     private DownloadManager downloadManager;
     private long pendingDownloadId = -1L;
@@ -64,6 +69,10 @@ public class MainActivity extends Activity {
         getWindow().setStatusBarColor(Color.rgb(11, 16, 32));
         getWindow().setNavigationBarColor(Color.rgb(7, 11, 23));
         downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+        textToSpeech = new TextToSpeech(this, status -> {
+            ttsReady = status == TextToSpeech.SUCCESS;
+            if (ttsReady) textToSpeech.setLanguage(Locale.US);
+        });
 
         IntentFilter filter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
         if (Build.VERSION.SDK_INT >= 33) registerReceiver(downloadReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
@@ -71,6 +80,7 @@ public class MainActivity extends Activity {
 
         webView = new WebView(this);
         webView.setBackgroundColor(Color.rgb(7, 11, 23));
+        webView.addJavascriptInterface(new NativeSpeechBridge(), "LammaNativeTTS");
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
@@ -95,6 +105,23 @@ public class MainActivity extends Activity {
                 setRequestedOrientation(hubPage
                     ? ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
                     : ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            }
+            @Override public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                String bridge = "(function(){"
+                    + "if(!window.LammaNativeTTS)return;"
+                    + "function LammaUtterance(text){this.text=String(text==null?'':text);this.lang='en-US';this.rate=1;this.pitch=1;this.volume=1;}"
+                    + "window.SpeechSynthesisUtterance=LammaUtterance;"
+                    + "var synth={"
+                    + "speak:function(u){if(!u)return;window.LammaNativeTTS.speak(String(u.text||''),String(u.lang||'en-US'),Number(u.rate)||1);},"
+                    + "cancel:function(){window.LammaNativeTTS.cancel();},"
+                    + "pause:function(){window.LammaNativeTTS.cancel();},resume:function(){},"
+                    + "getVoices:function(){return [{lang:'en-US',name:'Android English'},{lang:'nl-NL',name:'Android Dutch'},{lang:'ar-EG',name:'Android Arabic'}];}"
+                    + "};"
+                    + "try{Object.defineProperty(window,'speechSynthesis',{configurable:true,value:synth});}"
+                    + "catch(e){window.speechSynthesis=synth;}"
+                    + "})();";
+                view.evaluateJavascript(bridge, null);
             }
             @Override public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
                 return serveBundledSite(request.getUrl());
@@ -328,6 +355,40 @@ public class MainActivity extends Activity {
         return "application/octet-stream";
     }
 
+    private final class NativeSpeechBridge {
+        @JavascriptInterface
+        public void speak(String text, String languageTag, float rate) {
+            runOnUiThread(() -> {
+                if (textToSpeech == null || !ttsReady || text == null || text.trim().isEmpty()) return;
+                Locale locale = Locale.forLanguageTag(
+                    languageTag == null || languageTag.trim().isEmpty() ? "en-US" : languageTag);
+                int languageResult = textToSpeech.setLanguage(locale);
+                if (languageResult == TextToSpeech.LANG_MISSING_DATA
+                    || languageResult == TextToSpeech.LANG_NOT_SUPPORTED) {
+                    textToSpeech.setLanguage(Locale.getDefault());
+                }
+                textToSpeech.setSpeechRate(Math.max(0.55f, Math.min(1.25f, rate)));
+                if (Build.VERSION.SDK_INT >= 21) {
+                    textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, "lamma-native-tts");
+                } else {
+                    textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null);
+                }
+            });
+        }
+
+        @JavascriptInterface
+        public void cancel() {
+            runOnUiThread(() -> {
+                if (textToSpeech != null) textToSpeech.stop();
+            });
+        }
+
+        @JavascriptInterface
+        public boolean isReady() {
+            return ttsReady;
+        }
+    }
+
     @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == FILE_CHOOSER_REQUEST && fileCallback != null) {
@@ -355,6 +416,7 @@ public class MainActivity extends Activity {
         try { unregisterReceiver(downloadReceiver); } catch (Exception ignored) {}
         if (fileCallback != null) { fileCallback.onReceiveValue(null); fileCallback = null; }
         if (webView != null) { webView.stopLoading(); webView.destroy(); webView = null; }
+        if (textToSpeech != null) { textToSpeech.stop(); textToSpeech.shutdown(); textToSpeech = null; }
         super.onDestroy();
     }
 }
