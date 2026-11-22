@@ -122,6 +122,10 @@ jobs:
           "$GODOT_BIN" --headless --editor --path battle-royale-apk --quit
           "$GODOT_BIN" --headless --path battle-royale-apk --quit-after 8
 
+      - name: Install Android Gradle build template
+        run: |
+          "$GODOT_BIN" --headless --path battle-royale-apk --install-android-build-template
+
       - name: Export Android APK
         env:
           ANDROID_HOME: ${{ env.ANDROID_HOME }}
