@@ -225,5 +225,5 @@ func _make_button(label_text: String, offset: Vector2, color: Color) -> Button:
 
 func _update_hud() -> void:
 	if status_label:
-		var ammo: int = player.ammo if is_instance_valid(player) else 0
+		var ammo: int = int(player.get("ammo")) if is_instance_valid(player) else 0
 		status_label.text = "HP  %d     KILLS  %d\nAMMO  %d / 90     ZONE  %dm" % [health, kills, ammo, int(zone_radius)]
