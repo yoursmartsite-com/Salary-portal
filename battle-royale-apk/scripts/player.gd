@@ -124,7 +124,7 @@ func _input(event: InputEvent) -> void:
 			move_vector = (event.position - move_origin) / 85.0
 			move_vector = move_vector.limit_length(1.0)
 		elif event.index == look_touch:
-			var diff := event.position - last_look
+			var diff: Vector2 = event.position - last_look
 			yaw -= diff.x * look_sensitivity
 			pitch = clampf(pitch - diff.y * look_sensitivity, -0.75, 0.35)
 			last_look = event.position
