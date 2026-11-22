@@ -8,7 +8,7 @@ on:
       - '.github/workflows/validate-godot-hub.yml'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   validate-and-export:
@@ -40,6 +40,22 @@ jobs:
         run: |
           mkdir -p hub-web
           "$GODOT_BIN" --headless --path hub-godot --export-release Web ../hub-web/index.html
+
+      - name: Publish isolated HUB preview without replacing the current hub
+        run: |
+          set -euo pipefail
+          mkdir -p hub-preview
+          rsync -a --delete hub-web/ hub-preview/
+          touch hub-preview/.nojekyll
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add hub-preview
+          if git diff --cached --quiet; then
+            echo "Preview is already up to date"
+          else
+            git commit -m "Publish isolated Lamma HUB web preview"
+            git push origin HEAD:main
+          fi
 
       - name: Upload Web build artifact
         uses: actions/upload-artifact@v4
