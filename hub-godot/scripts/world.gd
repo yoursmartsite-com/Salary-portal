@@ -595,16 +595,20 @@ func _build_camera() -> void:
 	camera = Camera3D.new()
 	camera.name = "FollowCamera"
 	camera.current = true
-	camera.fov = 70
+	# Close third-person shoulder framing: show the head and upper body, not the full avatar.
+	camera.fov = 58
 	add_child(camera)
 	_update_camera()
 
 func _update_camera(delta := 1.0) -> void:
 	if not is_instance_valid(player):
 		return
-	var target := player.global_position + Vector3(0, 1.55, 0)
-	var offset := Vector3(sin(camera_yaw) * 7.0, 3.2 - camera_pitch * 2.0, cos(camera_yaw) * 7.0)
-	camera.global_position = camera.global_position.lerp(target + offset, 1.0 - exp(-8.0 * delta))
+	var target := player.global_position + Vector3(0, 1.62, 0)
+	# Stay just behind and slightly to the right of the avatar, like a third-person action game.
+	var shoulder := Vector3(cos(camera_yaw) * 0.42, 0.0, -sin(camera_yaw) * 0.42)
+	var behind := Vector3(sin(camera_yaw) * 2.55, 1.82 - camera_pitch * 0.65, cos(camera_yaw) * 2.55)
+	var desired_position := target + behind + shoulder
+	camera.global_position = camera.global_position.lerp(desired_position, 1.0 - exp(-10.0 * delta))
 	camera.look_at(target, Vector3.UP)
 
 func _build_hud() -> void:
@@ -898,7 +902,9 @@ func _camera_relative_direction(input_dir: Vector2) -> Vector3:
 	return (right * input_dir.x - forward * input_dir.y).normalized()
 
 func _yaw_for_direction(direction: Vector3) -> float:
-	return atan2(direction.x, -direction.z)
+	# Godot's local forward axis is -Z; positive Y rotation turns it toward -X.
+	# Negating X keeps left/right facing aligned with the actual travel direction.
+	return atan2(-direction.x, -direction.z)
 
 func _physics_process(delta: float) -> void:
 	if not is_instance_valid(player):
