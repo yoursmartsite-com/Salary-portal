@@ -1,6 +1,6 @@
 extends Node
 
-signal connected(uid: String)
+signal connected(uid: String, player_name: String)
 signal players_changed(players: Dictionary)
 signal failed(reason: String)
 
@@ -62,7 +62,7 @@ func start() -> void:
 				yaw: payload.yaw,
 				updatedAt: Date.now()
 			});
-			if (window.lammaHubReadyCallback) window.lammaHubReadyCallback(uid);
+			if (window.lammaHubReadyCallback) window.lammaHubReadyCallback(uid, playerName);
 		} catch (error) {
 			if (window.lammaHubErrorCallback) window.lammaHubErrorCallback(String(error));
 		}
@@ -82,7 +82,7 @@ func send_position(position: Vector3, yaw: float) -> void:
 
 func _on_ready(args: Array) -> void:
 	if args.size() > 0:
-		connected.emit(str(args[0]))
+		connected.emit(str(args[0]), str(args[1]) if args.size() > 1 else "لاعب")
 
 func _on_players(args: Array) -> void:
 	if args.is_empty():
