@@ -109,17 +109,30 @@ async function connectHub(){
   ]);
   const app=appMod.initializeApp(firebaseConfig,'lamma-hub-'+Math.random().toString(36).slice(2));
   hubDb=dbMod.getDatabase(app);hubApi=dbMod;
+  hubStatus.textContent='🟡 تسجيل دخول اللاعب...';
   const cred=await authMod.signInAnonymously(authMod.getAuth(app));hubUid=cred.user.uid;
   let hash=0;for(const ch of hubUid)hash=(hash*31+ch.charCodeAt(0))|0;
   avatar.position.set((Math.abs(hash)%17)-8,0,4+(Math.abs(hash>>4)%5));
-  const myPresenceRef=dbMod.ref(hubDb,'presence/'+hubUid);const myHubRef=dbMod.ref(hubDb,'presence/'+hubUid+'/hub');
-  dbMod.onValue(dbMod.ref(hubDb,'.info/connected'),async snap=>{
-   if(snap.val()!==true)return;
+  const myPresenceRef=dbMod.ref(hubDb,'presence/'+hubUid);
+  const connectionRef=dbMod.ref(hubDb,'.info/connected');
+  dbMod.onValue(connectionRef,async snap=>{
+   if(snap.val()!==true){
+    hubStatus.textContent='🔴 غير متصل بقاعدة البيانات';
+    hubCount.textContent='👥 1 لاعب';
+    return;
+   }
+   hubStatus.textContent='🟡 جاري تسجيل ظهورك...';
    try{
-    await dbMod.onDisconnect(myHubRef).remove();
-    await dbMod.update(myPresenceRef,{name:myName,online:true,at:Date.now(),hub:{active:true,name:myName,x:avatar.position.x,z:avatar.position.z,yaw,updatedAt:Date.now()}});
+    await dbMod.onDisconnect(myPresenceRef).remove();
+    await dbMod.update(myPresenceRef,{
+     name:myName,online:true,at:Date.now(),
+     hub:{active:true,name:myName,x:avatar.position.x,z:avatar.position.z,yaw,updatedAt:Date.now()}
+    });
     hubStatus.textContent='🟢 متصل أونلاين';
-   }catch(e){console.error('Hub presence write',e);hubStatus.textContent='🔴 تعذر تسجيل الدخول';}
+   }catch(e){
+    console.error('Hub presence registration failed',e);
+    hubStatus.textContent='🔴 فشل تسجيل الظهور: '+(e.code||'صلاحيات');
+   }
   });
   dbMod.onValue(dbMod.ref(hubDb,'presence'),snap=>{
    const alive=new Set();
@@ -129,16 +142,28 @@ async function connectHub(){
     alive.add(child.key);
     let item=remotePlayers.get(child.key);
     if(!item){
-     const seed=Array.from(child.key).reduce((h,ch)=>(h*31+ch.charCodeAt(0))|0,0);const remote=createRobloxAvatar(Math.abs(seed));const model=remote.model;
-     item={model,arms:remote.arms,legs:remote.legs,label:hubLabel(p.name),target:new THREE.Vector3(),walkT:0,moving:false};model.add(item.label);scene.add(model);remotePlayers.set(child.key,item);
+     const seed=Array.from(child.key).reduce((h,ch)=>(h*31+ch.charCodeAt(0))|0,0);
+     const remote=createRobloxAvatar(Math.abs(seed));const model=remote.model;
+     item={model,arms:remote.arms,legs:remote.legs,label:hubLabel(p.name),target:new THREE.Vector3(),walkT:0,moving:false};
+     model.add(item.label);scene.add(model);remotePlayers.set(child.key,item);
     }
-    item.target.set(Number(p.x)||0,0,Number(p.z)||0);item.moving=p.moving===true;
+    item.target.set(Number(p.x)||0,0,Number(p.z)||0);
+    item.moving=p.moving===true;
     item.model.rotation.y=Number(p.yaw)||0;
    });
-   for(const [id,item] of remotePlayers){if(!alive.has(id)){scene.remove(item.model);item.label.material.map?.dispose();remotePlayers.delete(id);}}
+   for(const [id,item] of remotePlayers){
+    if(!alive.has(id)){scene.remove(item.model);item.label.material.map?.dispose();remotePlayers.delete(id);}
+   }
    hubCount.textContent='👥 '+(1+remotePlayers.size)+' لاعب';
-  },err=>{console.error('Hub presence read',err);hubStatus.textContent='🔴 مشكلة صلاحيات';});
- }catch(e){console.error('Hub Firebase connection failed',e);hubStatus.textContent='🟡 وضع أوفلاين';toast('اللعبة تعمل بدون اتصال اللاعبين حالياً.');}
+  },err=>{
+   console.error('Hub presence read',err);
+   hubStatus.textContent='🔴 تعذر قراءة اللاعبين: '+(err.code||'صلاحيات');
+  });
+ }catch(e){
+  console.error('Hub Firebase connection failed',e);
+  hubStatus.textContent='🔴 فشل الاتصال: '+(e.code||e.message||'خطأ غير معروف');
+  toast('تعذر الاتصال أونلاين. تأكد من تفعيل Anonymous Authentication في Firebase.');
+ }
 }
 const canvas=document.querySelector('#world');
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false});
@@ -290,42 +315,50 @@ let seaTimeUniform=null;
 const seaMaterial=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.19,metalness:.12});
 seaMaterial.onBeforeCompile=(shader)=>{
  shader.uniforms.uSeaTime={value:0};seaTimeUniform=shader.uniforms.uSeaTime;
- shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nuniform float uSeaTime;\nvarying vec3 vSeaWorldPosition;\nvarying vec3 vSeaWorldNormal;');
- shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',`#include <begin_vertex>
- float waveA=sin(transformed.x*0.17+transformed.y*0.045+uSeaTime*0.72)*0.22;
- float waveB=sin(transformed.y*0.25-transformed.x*0.055-uSeaTime*0.58)*0.14;
- float waveC=sin((transformed.x+transformed.y)*0.13+uSeaTime*0.43)*0.085;
- float waveD=sin(transformed.x*0.48-transformed.y*0.29+uSeaTime*1.08)*0.035;
- transformed.z+=waveA+waveB+waveC+waveD;
- float slopeX=cos(transformed.x*0.17+transformed.y*0.045+uSeaTime*0.72)*0.0374-cos(transformed.y*0.25-transformed.x*0.055-uSeaTime*0.58)*0.0077+cos((transformed.x+transformed.y)*0.13+uSeaTime*0.43)*0.01105+cos(transformed.x*0.48-transformed.y*0.29+uSeaTime*1.08)*0.0168;
- float slopeY=cos(transformed.x*0.17+transformed.y*0.045+uSeaTime*0.72)*0.0099+cos(transformed.y*0.25-transformed.x*0.055-uSeaTime*0.58)*0.035-cos((transformed.x+transformed.y)*0.13+uSeaTime*0.43)*0.01105-cos(transformed.x*0.48-transformed.y*0.29+uSeaTime*1.08)*0.01015;
- objectNormal=normalize(vec3(-slopeX,-slopeY,1.0));
- vSeaWorldPosition=(modelMatrix*vec4(transformed,1.0)).xyz;\n vSeaWorldNormal=normalize(mat3(modelMatrix)*objectNormal);`);
- shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\nuniform float uSeaTime;\nvarying vec3 vSeaWorldPosition;\nvarying vec3 vSeaWorldNormal;');
- shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>
- float shoreFade=1.0-smoothstep(0.0,34.0,vSeaWorldPosition.x-54.0);
- vec3 deepSea=vec3(0.006,0.055,0.105);
- vec3 shallowSea=vec3(0.018,0.22,0.27);
- float moonGlint=pow(max(0.0,sin(vSeaWorldPosition.x*0.22+vSeaWorldPosition.z*0.075+uSeaTime*0.72)),24.0);
- float fineRipples=pow(max(0.0,sin(vSeaWorldPosition.x*0.58-vSeaWorldPosition.z*0.31+uSeaTime*1.1)*sin(vSeaWorldPosition.z*0.42+uSeaTime*0.76)),10.0);
- float shoreBand=1.0-smoothstep(0.0,3.2,vSeaWorldPosition.x-54.0);
- float movingFoam=shoreBand*smoothstep(0.18,0.82,sin(vSeaWorldPosition.z*0.34+uSeaTime*1.35+sin(vSeaWorldPosition.z*0.12)*0.7)*0.5+0.5);
- vec3 waterColor=mix(deepSea,shallowSea,shoreFade*0.78);
- waterColor+=vec3(0.34,0.52,0.55)*moonGlint*0.30;
- waterColor+=vec3(0.12,0.28,0.31)*fineRipples*0.18;
- waterColor=mix(waterColor,vec3(0.58,0.78,0.76),movingFoam*0.48);
- // Camera-dependent moon reflection broken into moving silver streaks by the wave normals.
- vec3 N=normalize(vSeaWorldNormal);
- vec3 V=normalize(cameraPosition-vSeaWorldPosition);
- vec3 L=normalize(vec3(-28.0,42.0,22.0)-vSeaWorldPosition);
- vec3 H=normalize(L+V);
- float moonSpec=pow(max(dot(N,H),0.0),92.0);
- float brokenReflection=0.42+0.58*pow(max(0.0,sin(vSeaWorldPosition.z*0.72+uSeaTime*1.7)*sin(vSeaWorldPosition.x*0.36-uSeaTime*0.9)),2.0);
- float silverReflection=moonSpec*brokenReflection*3.2;
- float lampGlints=pow(max(0.0,sin(vSeaWorldPosition.z*1.15+uSeaTime*1.25)*sin(vSeaWorldPosition.x*0.42)),18.0)*smoothstep(65.0,58.0,vSeaWorldPosition.x);
- diffuseColor.rgb*=waterColor;
- diffuseColor.rgb+=vec3(0.58,0.72,0.92)*silverReflection;
- diffuseColor.rgb+=vec3(1.0,0.48,0.18)*lampGlints*0.22;`);
+ shader.vertexShader=shader.vertexShader.replace('#include <common>',[
+  '#include <common>','uniform float uSeaTime;','varying vec3 vSeaWorldPosition;','varying vec3 vSeaWorldNormal;','varying float vSeaCrest;'
+ ].join('\n'));
+ shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',[
+  '#include <begin_vertex>',
+  'vec2 seaSlope=vec2(0.0);float seaCrest=0.0;',
+  'vec2 seaDir1=normalize(vec2(1.0,.18));float seaK1=6.2831853/23.0;float seaP1=seaK1*dot(seaDir1,transformed.xy)-uSeaTime*1.18;float seaA1=.34/seaK1;',
+  'transformed.xy+=seaDir1*(seaA1*cos(seaP1));transformed.z+=seaA1*sin(seaP1);seaSlope+=seaDir1*(.34*cos(seaP1));seaCrest+=.34*sin(seaP1);',
+  'vec2 seaDir2=normalize(vec2(.62,-.78));float seaK2=6.2831853/15.0;float seaP2=seaK2*dot(seaDir2,transformed.xy)-uSeaTime*.92;float seaA2=.25/seaK2;',
+  'transformed.xy+=seaDir2*(seaA2*cos(seaP2));transformed.z+=seaA2*sin(seaP2);seaSlope+=seaDir2*(.25*cos(seaP2));seaCrest+=.25*sin(seaP2);',
+  'vec2 seaDir3=normalize(vec2(-.35,.94));float seaK3=6.2831853/10.0;float seaP3=seaK3*dot(seaDir3,transformed.xy)-uSeaTime*1.38;float seaA3=.17/seaK3;',
+  'transformed.xy+=seaDir3*(seaA3*cos(seaP3));transformed.z+=seaA3*sin(seaP3);seaSlope+=seaDir3*(.17*cos(seaP3));seaCrest+=.17*sin(seaP3);',
+  'vec2 seaDir4=normalize(vec2(.92,.4));float seaK4=6.2831853/6.5;float seaP4=seaK4*dot(seaDir4,transformed.xy)-uSeaTime*1.72;float seaA4=.10/seaK4;',
+  'transformed.xy+=seaDir4*(seaA4*cos(seaP4));transformed.z+=seaA4*sin(seaP4);seaSlope+=seaDir4*(.10*cos(seaP4));seaCrest+=.10*sin(seaP4);',
+  'float seaChop=sin(transformed.x*.31+transformed.y*.19+uSeaTime*1.9)*.055+sin(transformed.x*.47-transformed.y*.37-uSeaTime*1.6)*.025;',
+  'transformed.z+=seaChop;seaSlope+=vec2(cos(transformed.x*.31+transformed.y*.19+uSeaTime*1.9)*.017,cos(transformed.x*.47-transformed.y*.37-uSeaTime*1.6)*.012);',
+  'objectNormal=normalize(vec3(-seaSlope.x,-seaSlope.y,1.0));',
+  'vSeaWorldPosition=(modelMatrix*vec4(transformed,1.0)).xyz;',
+  'vSeaWorldNormal=normalize(mat3(modelMatrix)*objectNormal);vSeaCrest=seaCrest+seaChop*2.0;'
+ ].join('\n'));
+ shader.fragmentShader=shader.fragmentShader.replace('#include <common>',[
+  '#include <common>','uniform float uSeaTime;','varying vec3 vSeaWorldPosition;','varying vec3 vSeaWorldNormal;','varying float vSeaCrest;',
+  'float seaHash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}',
+  'float seaNoise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);return mix(mix(seaHash(i),seaHash(i+vec2(1.,0.)),f.x),mix(seaHash(i+vec2(0.,1.)),seaHash(i+vec2(1.,1.)),f.x),f.y);}'
+ ].join('\n'));
+ shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>',[
+  '#include <color_fragment>',
+  'float shoreDepth=clamp(1.0-smoothstep(55.0,122.0,vSeaWorldPosition.x),0.0,1.0);',
+  'vec3 deepSea=vec3(.002,.018,.043);vec3 shallowSea=vec3(.006,.09,.14);vec3 waterColor=mix(deepSea,shallowSea,shoreDepth);',
+  'waterColor=mix(waterColor,vec3(.012,.20,.20),shoreDepth*.42);',
+  'vec3 seaN=normalize(vSeaWorldNormal);vec3 seaV=normalize(cameraPosition-vSeaWorldPosition);vec3 seaL=normalize(vec3(-.32,.86,-.22));vec3 seaH=normalize(seaL+seaV);',
+  'float seaSpec=pow(max(dot(seaN,seaH),0.0),100.0);float broadSpec=pow(max(dot(seaN,seaH),0.0),22.0);float fresnel=pow(1.0-max(dot(seaN,seaV),0.0),3.0);',
+  'float moonTrack=exp(-pow((vSeaWorldPosition.z+vSeaWorldPosition.x*.105+sin(vSeaWorldPosition.x*.035+uSeaTime*.15)*4.0)*.036,2.0));',
+  'float sparkle=seaNoise(vSeaWorldPosition.xz*.22+vec2(uSeaTime*.10,-uSeaTime*.13));',
+  'float glint=pow(max(0.0,sin(vSeaWorldPosition.x*.17+vSeaWorldPosition.z*.13+uSeaTime*.75)*sin(vSeaWorldPosition.z*.25-uSeaTime*.62)),12.0);',
+  'float crestFoam=smoothstep(.30,.78,vSeaCrest+sparkle*.23);',
+  'float shoreWave=sin(vSeaWorldPosition.z*.13+uSeaTime*1.05)+sin(vSeaWorldPosition.z*.29-uSeaTime*.72)*.35;',
+  'float shoreNoise=seaNoise(vSeaWorldPosition.xz*.31+vec2(uSeaTime*.12,-uSeaTime*.16));',
+  'float shoreline=(1.0-smoothstep(54.0,62.0,vSeaWorldPosition.x+shoreWave*1.9+shoreNoise*2.0))*smoothstep(.30,.72,shoreNoise+shoreWave*.12);',
+  'waterColor+=vec3(.18,.34,.48)*seaSpec*(.45+moonTrack);waterColor+=vec3(.12,.25,.38)*broadSpec*.25;',
+  'waterColor+=vec3(.18,.34,.48)*moonTrack*glint*.85;waterColor+=vec3(.08,.23,.28)*fresnel*.55;',
+  'waterColor+=vec3(.25,.43,.47)*crestFoam*.24;waterColor=mix(waterColor,vec3(.66,.82,.82),shoreline*.92);',
+  'diffuseColor.rgb*=waterColor;'
+ ].join('\n'));
 };
 // Dense tessellation is essential: vertex waves cannot form on a four-vertex plane.
 const seaSurface=new THREE.Mesh(new THREE.PlaneGeometry(90,180,100,200),seaMaterial);
@@ -742,7 +775,7 @@ let nearest=null,nearestD=Infinity;if(rideMode!=="none"){nearest={label:"انز�
 const desired=new THREE.Vector3(avatar.position.x-Math.sin(yaw)*10,avatar.position.y+6,avatar.position.z-Math.cos(yaw)*10);camera.position.lerp(desired,1-Math.pow(.001,dt));camera.lookAt(avatar.position.x,avatar.position.y+1.6,avatar.position.z);
 if(sitting&&rideMode==="none"){setSitPose();}
 for(const item of remotePlayers.values()){item.model.position.lerp(item.target,Math.min(1,dt*12));if(item.moving){item.walkT+=dt*10;item.legs[0].rotation.x=Math.sin(item.walkT)*.55;item.legs[1].rotation.x=-Math.sin(item.walkT)*.55;item.arms[0].rotation.x=-Math.sin(item.walkT)*.28;item.arms[1].rotation.x=Math.sin(item.walkT)*.28;}else{item.legs.forEach(l=>l.rotation.x=0);item.arms.forEach(a=>a.rotation.x=0);}}
-renderer.render(scene,camera);if(hubApi&&hubUid&&t-hubLastWrite>.12){hubLastWrite=t;const p=hubApi.ref(hubDb,'presence/'+hubUid+'/hub');hubApi.update(p,{active:true,name:myName,x:Number(avatar.position.x.toFixed(2)),z:Number(avatar.position.z.toFixed(2)),yaw:Number(yaw.toFixed(3)),moving:Math.abs(dx)+Math.abs(dz)>.02,updatedAt:Date.now()}).catch(e=>{console.error('Hub position update',e);hubStatus.textContent='🔴 فقد الاتصال';});}}
+foamLine.position.x=Math.sin(t*.75)*.22;foamLine2.position.x=.38+Math.sin(t*.75+.8)*.18;renderer.render(scene,camera);if(hubApi&&hubUid&&t-hubLastWrite>.30){hubLastWrite=t;const p=hubApi.ref(hubDb,'presence/'+hubUid+'/hub');hubApi.update(p,{active:true,name:myName,x:Number(avatar.position.x.toFixed(2)),z:Number(avatar.position.z.toFixed(2)),yaw:Number(yaw.toFixed(3)),moving:Math.abs(dx)+Math.abs(dz)>.02,updatedAt:Date.now()}).catch(e=>{console.error('Hub position update',e);hubStatus.textContent='🔴 فقد الاتصال';});}}
 animate();connectHub();document.querySelector('#modal').classList.add('open');
 </script>
 </body></html>
