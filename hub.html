@@ -274,7 +274,7 @@ let seaTimeUniform=null;
 const seaMaterial=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.19,metalness:.12});
 seaMaterial.onBeforeCompile=(shader)=>{
  shader.uniforms.uSeaTime={value:0};seaTimeUniform=shader.uniforms.uSeaTime;
- shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nuniform float uSeaTime;\nvarying vec3 vSeaWorldPosition;');
+ shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nuniform float uSeaTime;\nvarying vec3 vSeaWorldPosition;\nvarying vec3 vSeaWorldNormal;');
  shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',`#include <begin_vertex>
  float waveA=sin(transformed.x*0.17+transformed.y*0.045+uSeaTime*0.72)*0.22;
  float waveB=sin(transformed.y*0.25-transformed.x*0.055-uSeaTime*0.58)*0.14;
@@ -284,8 +284,8 @@ seaMaterial.onBeforeCompile=(shader)=>{
  float slopeX=cos(transformed.x*0.17+transformed.y*0.045+uSeaTime*0.72)*0.0374-cos(transformed.y*0.25-transformed.x*0.055-uSeaTime*0.58)*0.0077+cos((transformed.x+transformed.y)*0.13+uSeaTime*0.43)*0.01105+cos(transformed.x*0.48-transformed.y*0.29+uSeaTime*1.08)*0.0168;
  float slopeY=cos(transformed.x*0.17+transformed.y*0.045+uSeaTime*0.72)*0.0099+cos(transformed.y*0.25-transformed.x*0.055-uSeaTime*0.58)*0.035-cos((transformed.x+transformed.y)*0.13+uSeaTime*0.43)*0.01105-cos(transformed.x*0.48-transformed.y*0.29+uSeaTime*1.08)*0.01015;
  objectNormal=normalize(vec3(-slopeX,-slopeY,1.0));
- vSeaWorldPosition=(modelMatrix*vec4(transformed,1.0)).xyz;`);
- shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\nuniform float uSeaTime;\nvarying vec3 vSeaWorldPosition;');
+ vSeaWorldPosition=(modelMatrix*vec4(transformed,1.0)).xyz;\n vSeaWorldNormal=normalize(mat3(modelMatrix)*objectNormal);`);
+ shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\nuniform float uSeaTime;\nvarying vec3 vSeaWorldPosition;\nvarying vec3 vSeaWorldNormal;');
  shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>
  float shoreFade=1.0-smoothstep(0.0,34.0,vSeaWorldPosition.x-54.0);
  vec3 deepSea=vec3(0.006,0.055,0.105);
@@ -298,7 +298,18 @@ seaMaterial.onBeforeCompile=(shader)=>{
  waterColor+=vec3(0.34,0.52,0.55)*moonGlint*0.30;
  waterColor+=vec3(0.12,0.28,0.31)*fineRipples*0.18;
  waterColor=mix(waterColor,vec3(0.58,0.78,0.76),movingFoam*0.48);
- diffuseColor.rgb*=waterColor;`);
+ // Camera-dependent moon reflection broken into moving silver streaks by the wave normals.
+ vec3 N=normalize(vSeaWorldNormal);
+ vec3 V=normalize(cameraPosition-vSeaWorldPosition);
+ vec3 L=normalize(vec3(-28.0,42.0,22.0)-vSeaWorldPosition);
+ vec3 H=normalize(L+V);
+ float moonSpec=pow(max(dot(N,H),0.0),92.0);
+ float brokenReflection=0.42+0.58*pow(max(0.0,sin(vSeaWorldPosition.z*0.72+uSeaTime*1.7)*sin(vSeaWorldPosition.x*0.36-uSeaTime*0.9)),2.0);
+ float silverReflection=moonSpec*brokenReflection*3.2;
+ float lampGlints=pow(max(0.0,sin(vSeaWorldPosition.z*1.15+uSeaTime*1.25)*sin(vSeaWorldPosition.x*0.42)),18.0)*smoothstep(65.0,58.0,vSeaWorldPosition.x);
+ diffuseColor.rgb*=waterColor;
+ diffuseColor.rgb+=vec3(0.58,0.72,0.92)*silverReflection;
+ diffuseColor.rgb+=vec3(1.0,0.48,0.18)*lampGlints*0.22;`);
 };
 // Dense tessellation is essential: vertex waves cannot form on a four-vertex plane.
 const seaSurface=new THREE.Mesh(new THREE.PlaneGeometry(90,180,100,200),seaMaterial);
