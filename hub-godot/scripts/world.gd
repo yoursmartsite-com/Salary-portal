@@ -30,6 +30,9 @@ var firebase_send_clock := 0.0
 var remote_avatars: Dictionary = {}
 var remote_targets: Dictionary = {}
 var remote_yaws: Dictionary = {}
+var portal_enter_button: Button
+var nearby_portal_url := ""
+var nearby_portal_label := ""
 var joystick_base: ColorRect
 var joystick_knob: ColorRect
 
@@ -86,6 +89,12 @@ func _build_environment() -> void:
 	_make_attraction(Vector3(-15, 0, -10))
 	_make_cafe(Vector3(15, 0, -12))
 	_make_sign(Vector3(0, 0, -18), "LAMMA SOCIAL WORLD")
+	_make_portal(Vector3(-8, 0, -11), "لودو أونلاين", "../games/ludo-online.html", Color("#69d6b4"))
+	_make_portal(Vector3(8, 0, -11), "كونكت 4", "../games/connect-four.html", Color("#72b7ff"))
+	_make_portal(Vector3(-8, 0, -3), "معركة القمم", "../games/m3rakat-alqimam.html", Color("#ed9a69"))
+	_make_portal(Vector3(8, 0, -3), "غرفة الكوتشينة", "../games/card-room.html?game=tarneeb", Color("#c69bff"))
+	_make_portal(Vector3(-8, 0, 5), "ارسم وخمّن", "../games/draw-guess.html", Color("#f1cf6f"))
+	_make_portal(Vector3(8, 0, 5), "تحدي الأسئلة", "../quiz.html?mode=online", Color("#6ddce5"))
 
 func _make_material(color: Color, roughness := 0.8, metallic := 0.0) -> StandardMaterial3D:
 	var m := StandardMaterial3D.new()
@@ -113,6 +122,86 @@ func _make_box(label: String, pos: Vector3, size: Vector3, color: Color, roughne
 	add_child(body)
 	return node
 
+
+
+func _make_portal(pos: Vector3, label: String, target_url: String, tint: Color) -> void:
+	var portal := Node3D.new()
+	portal.name = "Portal_" + label.replace(" ", "_")
+	portal.position = pos
+	add_child(portal)
+	var frame_material := _make_material(tint, 0.22, 0.35)
+	for side in [-1.0, 1.0]:
+		var pillar := MeshInstance3D.new()
+		var pillar_mesh := BoxMesh.new()
+		pillar_mesh.size = Vector3(0.32, 3.25, 0.42)
+		pillar.mesh = pillar_mesh
+		pillar.position = Vector3(side * 1.55, 1.62, 0)
+		pillar.material_override = frame_material
+		portal.add_child(pillar)
+	var top := MeshInstance3D.new()
+	var top_mesh := BoxMesh.new()
+	top_mesh.size = Vector3(3.4, 0.32, 0.42)
+	top.mesh = top_mesh
+	top.position = Vector3(0, 3.25, 0)
+	top.material_override = frame_material
+	portal.add_child(top)
+	var gate_surface := MeshInstance3D.new()
+	var surface_mesh := PlaneMesh.new()
+	surface_mesh.size = Vector2(2.7, 2.85)
+	gate_surface.mesh = surface_mesh
+	gate_surface.position = Vector3(0, 1.68, -0.12)
+	var surface_material := StandardMaterial3D.new()
+	surface_material.albedo_color = Color(tint.r, tint.g, tint.b, 0.2)
+	surface_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	surface_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	surface_material.emission_enabled = true
+	surface_material.emission = tint
+	surface_material.emission_energy_multiplier = 0.7
+	gate_surface.material_override = surface_material
+	portal.add_child(gate_surface)
+	var title_tag := Label3D.new()
+	title_tag.text = label
+	title_tag.position = Vector3(0, 3.75, 0.05)
+	title_tag.font_size = 30
+	title_tag.modulate = tint.lightened(0.35)
+	portal.add_child(title_tag)
+	var area := Area3D.new()
+	area.name = "PortalTrigger"
+	var trigger_shape := CollisionShape3D.new()
+	var trigger_box := BoxShape3D.new()
+	trigger_box.size = Vector3(3.3, 3.1, 1.7)
+	trigger_shape.shape = trigger_box
+	trigger_shape.position = Vector3(0, 1.55, 0)
+	area.add_child(trigger_shape)
+	portal.add_child(area)
+	area.body_entered.connect(func(body: Node3D):
+		if body == player:
+			_on_portal_enter(label, target_url)
+	)
+	area.body_exited.connect(func(body: Node3D):
+		if body == player:
+			_on_portal_exit(target_url)
+	)
+
+func _on_portal_enter(label: String, target_url: String) -> void:
+	nearby_portal_label = label
+	nearby_portal_url = target_url
+	if is_instance_valid(portal_enter_button):
+		portal_enter_button.text = "دخول: " + label
+		portal_enter_button.visible = true
+
+func _on_portal_exit(target_url: String) -> void:
+	if nearby_portal_url == target_url:
+		nearby_portal_url = ""
+		nearby_portal_label = ""
+		if is_instance_valid(portal_enter_button):
+			portal_enter_button.visible = false
+
+func _enter_nearby_portal() -> void:
+	if nearby_portal_url.is_empty():
+		return
+	if OS.has_feature("web"):
+		JavaScriptBridge.eval("window.location.href = " + JSON.stringify(nearby_portal_url) + ";", true)
 
 func _make_ocean() -> void:
 	var water_mesh := PlaneMesh.new()
@@ -439,6 +528,16 @@ func _build_hud() -> void:
 	close_settings.text = "إغلاق"
 	close_settings.pressed.connect(func(): settings_panel.visible = false)
 	settings_content.add_child(close_settings)
+
+	portal_enter_button = Button.new()
+	portal_enter_button.text = "دخول الغرفة"
+	portal_enter_button.custom_minimum_size = Vector2(230, 56)
+	portal_enter_button.anchor_left = 0.5
+	portal_enter_button.anchor_right = 0.5
+	portal_enter_button.position = Vector2(-115, 82)
+	portal_enter_button.visible = false
+	portal_enter_button.pressed.connect(_enter_nearby_portal)
+	ui_layer.add_child(portal_enter_button)
 	var hint := Label.new()
 	hint.text = "حرّك العصا يسارًا · اسحب يمينًا لتحريك الكاميرا"
 	hint.anchor_left = 0.5
