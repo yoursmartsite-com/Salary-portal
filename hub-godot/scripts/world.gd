@@ -1,0 +1,329 @@
+extends Node3D
+
+const MOVE_SPEED := 5.2
+const JUMP_VELOCITY := 5.8
+var player: CharacterBody3D
+var camera: Camera3D
+var camera_yaw := 0.0
+var camera_pitch := -0.22
+var active_look := false
+var jump_requested := false
+var ui_layer: CanvasLayer
+
+func _ready() -> void:
+	_build_environment()
+	_build_player()
+	_build_camera()
+	_build_hud()
+
+func _build_environment() -> void:
+	var env := WorldEnvironment.new()
+	var e := Environment.new()
+	e.background_mode = Environment.BG_SKY
+	e.sky = Sky.new()
+	var sky_mat := ProceduralSkyMaterial.new()
+	sky_mat.sky_top_color = Color(0.025, 0.07, 0.15)
+	sky_mat.sky_horizon_color = Color(0.23, 0.31, 0.42)
+	sky_mat.ground_bottom_color = Color(0.025, 0.045, 0.07)
+	sky_mat.ground_horizon_color = Color(0.12, 0.17, 0.22)
+	e.sky.sky_material = sky_mat
+	e.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	e.ambient_light_color = Color(0.43, 0.55, 0.72)
+	e.ambient_light_energy = 0.65
+	e.tonemap_mode = Environment.TONE_MAPPER_FILMIC
+	e.glow_enabled = true
+	env.environment = e
+	add_child(env)
+
+	var sun := DirectionalLight3D.new()
+	sun.rotation_degrees = Vector3(-48, -32, 0)
+	sun.light_color = Color(0.72, 0.82, 1.0)
+	sun.light_energy = 0.8
+	sun.shadow_enabled = true
+	add_child(sun)
+
+	_make_box("Island", Vector3(0, -0.5, 0), Vector3(70, 1, 70), Color(0.12, 0.25, 0.22))
+	_make_box("Main promenade", Vector3(0, 0.02, 0), Vector3(12, 0.12, 34), Color(0.43, 0.46, 0.48))
+	_make_box("Central plaza", Vector3(0, 0.08, -8), Vector3(24, 0.18, 17), Color(0.57, 0.55, 0.49))
+	_make_box("Beach sand", Vector3(0, -0.05, 25), Vector3(70, 0.2, 12), Color(0.72, 0.62, 0.42))
+	_make_box("Ocean", Vector3(0, -0.22, 35), Vector3(180, 0.18, 180), Color(0.025, 0.24, 0.36), 0.18)
+
+	for x in [-5.0, 5.0]:
+		for z in [-20.0, -12.0, -4.0, 4.0, 12.0]:
+			_make_lamp(Vector3(x, 0, z))
+	for x in [-15.0, -11.0, 11.0, 15.0]:
+		for z in [-20.0, -12.0, -4.0, 4.0, 12.0]:
+			_make_tree(Vector3(x, 0, z))
+	_make_attraction(Vector3(-15, 0, -10))
+	_make_cafe(Vector3(15, 0, -12))
+	_make_sign(Vector3(0, 0, -18), "LAMMA SOCIAL WORLD")
+
+func _make_material(color: Color, roughness := 0.8, metallic := 0.0) -> StandardMaterial3D:
+	var m := StandardMaterial3D.new()
+	m.albedo_color = color
+	m.roughness = roughness
+	m.metallic = metallic
+	return m
+
+func _make_box(label: String, pos: Vector3, size: Vector3, color: Color, roughness := 0.85) -> MeshInstance3D:
+	var mesh := BoxMesh.new()
+	mesh.size = size
+	var node := MeshInstance3D.new()
+	node.name = label
+	node.mesh = mesh
+	node.position = pos
+	node.material_override = _make_material(color, roughness)
+	add_child(node)
+	var body := StaticBody3D.new()
+	body.position = pos
+	var shape_node := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = size
+	shape_node.shape = box
+	body.add_child(shape_node)
+	add_child(body)
+	return node
+
+func _make_tree(pos: Vector3) -> void:
+	var trunk := MeshInstance3D.new()
+	var trunk_mesh := CylinderMesh.new()
+	trunk_mesh.top_radius = 0.18
+	trunk_mesh.bottom_radius = 0.28
+	trunk_mesh.height = 2.3
+	trunk.mesh = trunk_mesh
+	trunk.position = pos + Vector3(0, 1.15, 0)
+	trunk.material_override = _make_material(Color(0.25, 0.14, 0.09))
+	add_child(trunk)
+	var crown := MeshInstance3D.new()
+	var crown_mesh := SphereMesh.new()
+	crown_mesh.radius = 1.15
+	crown_mesh.height = 2.2
+	crown.mesh = crown_mesh
+	crown.position = pos + Vector3(0, 2.8, 0)
+	crown.material_override = _make_material(Color(0.08, 0.29, 0.19))
+	add_child(crown)
+	var body := StaticBody3D.new()
+	body.position = pos + Vector3(0, 1.2, 0)
+	var collision := CollisionShape3D.new()
+	var shape := CylinderShape3D.new()
+	shape.radius = 0.48
+	shape.height = 2.4
+	collision.shape = shape
+	body.add_child(collision)
+	add_child(body)
+
+func _make_lamp(pos: Vector3) -> void:
+	var pole := MeshInstance3D.new()
+	var pm := CylinderMesh.new()
+	pm.top_radius = 0.055
+	pm.bottom_radius = 0.09
+	pm.height = 3.5
+	pole.mesh = pm
+	pole.position = pos + Vector3(0, 1.75, 0)
+	pole.material_override = _make_material(Color(0.12, 0.16, 0.2), 0.35, 0.7)
+	add_child(pole)
+	var bulb := MeshInstance3D.new()
+	var bm := SphereMesh.new()
+	bm.radius = 0.22
+	bm.height = 0.3
+	bulb.mesh = bm
+	bulb.position = pos + Vector3(0, 3.5, 0)
+	bulb.material_override = _make_material(Color(1.0, 0.78, 0.43), 0.2, 0.0)
+	add_child(bulb)
+	var light := OmniLight3D.new()
+	light.position = pos + Vector3(0, 3.4, 0)
+	light.light_color = Color(1.0, 0.69, 0.37)
+	light.light_energy = 1.25
+	light.omni_range = 8.0
+	add_child(light)
+
+func _make_attraction(pos: Vector3) -> void:
+	var ring_node := MeshInstance3D.new()
+	var ring := TorusMesh.new()
+	ring.inner_radius = 2.2
+	ring.outer_radius = 2.45
+	ring_node.mesh = ring
+	ring_node.position = pos + Vector3(0, 4.0, 0)
+	ring_node.rotation.x = deg_to_rad(90)
+	ring_node.material_override = _make_material(Color(0.9, 0.38, 0.58), 0.35, 0.25)
+	add_child(ring_node)
+	for i in range(8):
+		var angle := TAU * float(i) / 8.0
+		var cabin := MeshInstance3D.new()
+		var cm := BoxMesh.new()
+		cm.size = Vector3(0.8, 0.9, 0.7)
+		cabin.mesh = cm
+		cabin.position = pos + Vector3(cos(angle) * 2.3, 4.0 + sin(angle) * 2.3, 0)
+		var colors := [Color("#e58d9d"), Color("#76c9c4"), Color("#e9c36c"), Color("#8d9ee6")]
+		cabin.material_override = _make_material(colors[i % 4])
+		add_child(cabin)
+	var support := MeshInstance3D.new()
+	var sm := BoxMesh.new()
+	sm.size = Vector3(0.22, 8.0, 0.22)
+	support.mesh = sm
+	support.position = pos + Vector3(0, 4, 0)
+	support.material_override = _make_material(Color(0.18, 0.23, 0.3), 0.35, 0.5)
+	add_child(support)
+
+func _make_cafe(pos: Vector3) -> void:
+	_make_box("Cafe building", pos + Vector3(0, 1.7, 0), Vector3(7, 3.4, 5), Color(0.25, 0.31, 0.39))
+	_make_box("Cafe roof", pos + Vector3(0, 3.55, 0), Vector3(7.6, 0.35, 5.6), Color(0.16, 0.62, 0.52))
+	_make_box("Cafe window", pos + Vector3(0, 1.9, -2.56), Vector3(4.2, 1.5, 0.08), Color(0.1, 0.42, 0.55), 0.2)
+
+func _make_sign(pos: Vector3, label: String) -> void:
+	_make_box("Welcome sign", pos + Vector3(0, 2.1, 0), Vector3(8, 2.3, 0.35), Color(0.035, 0.12, 0.17))
+	var text_3d := Label3D.new()
+	text_3d.text = label
+	text_3d.font_size = 48
+	text_3d.position = pos + Vector3(0, 2.15, 0.2)
+	text_3d.modulate = Color(0.55, 1.0, 0.84)
+	text_3d.pixel_size = 0.008
+	add_child(text_3d)
+
+func _build_player() -> void:
+	player = CharacterBody3D.new()
+	player.name = "LammaGirl"
+	player.position = Vector3(0, 1.1, 5)
+	var capsule := CollisionShape3D.new()
+	var cap := CapsuleShape3D.new()
+	cap.radius = 0.34
+	cap.height = 1.65
+	capsule.shape = cap
+	capsule.position.y = 0.82
+	player.add_child(capsule)
+	_build_girl_model(player)
+	add_child(player)
+
+func _part(parent: Node3D, part_name: String, mesh: Mesh, pos: Vector3, color: Color, scale := Vector3.ONE) -> MeshInstance3D:
+	var part := MeshInstance3D.new()
+	part.name = part_name
+	part.mesh = mesh
+	part.position = pos
+	part.scale = scale
+	part.material_override = _make_material(color, 0.72)
+	parent.add_child(part)
+	return part
+
+func _sphere(parent: Node3D, part_name: String, pos: Vector3, size: Vector3, color: Color) -> MeshInstance3D:
+	var mesh := SphereMesh.new()
+	mesh.radius = 0.5
+	mesh.height = 1.0
+	return _part(parent, part_name, mesh, pos, color, size)
+
+func _build_girl_model(root: Node3D) -> void:
+	var skin := Color("#f3c6a9")
+	var hair := Color("#39233b")
+	var dress := Color("#7c75d8")
+	var white := Color("#f7edf0")
+	var body := Node3D.new()
+	body.name = "StylizedGirlAvatar"
+	root.add_child(body)
+	_sphere(body, "Torso", Vector3(0, 1.18, 0), Vector3(0.64, 0.82, 0.36), dress)
+	_sphere(body, "Neck", Vector3(0, 1.72, 0), Vector3(0.22, 0.26, 0.22), skin)
+	_sphere(body, "Head", Vector3(0, 2.02, 0), Vector3(0.62, 0.72, 0.57), skin)
+	_sphere(body, "Hair cap", Vector3(0, 2.29, -0.06), Vector3(0.67, 0.43, 0.62), hair)
+	_sphere(body, "Hair back", Vector3(0, 1.82, -0.25), Vector3(0.62, 1.0, 0.38), hair)
+	_sphere(body, "Hair left", Vector3(-0.38, 1.98, -0.02), Vector3(0.2, 0.78, 0.28), hair)
+	_sphere(body, "Hair right", Vector3(0.38, 1.98, -0.02), Vector3(0.2, 0.78, 0.28), hair)
+	_sphere(body, "Eye left", Vector3(-0.16, 2.08, 0.48), Vector3(0.075, 0.105, 0.045), Color("#38243b"))
+	_sphere(body, "Eye right", Vector3(0.16, 2.08, 0.48), Vector3(0.075, 0.105, 0.045), Color("#38243b"))
+	_sphere(body, "Smile", Vector3(0, 1.91, 0.49), Vector3(0.09, 0.035, 0.025), Color("#b65d6e"))
+	_sphere(body, "Skirt", Vector3(0, 0.77, 0), Vector3(0.76, 0.56, 0.48), Color("#a9a1ec"))
+	for side in [-1.0, 1.0]:
+		_sphere(body, "Upper arm", Vector3(side * 0.43, 1.32, 0), Vector3(0.23, 0.58, 0.24), dress)
+		_sphere(body, "Hand", Vector3(side * 0.46, 0.98, 0.02), Vector3(0.2, 0.22, 0.2), skin)
+		_sphere(body, "Leg", Vector3(side * 0.2, 0.34, 0), Vector3(0.23, 0.62, 0.24), skin)
+		_sphere(body, "Shoe", Vector3(side * 0.2, 0.08, 0.09), Vector3(0.3, 0.16, 0.43), white)
+
+func _build_camera() -> void:
+	camera = Camera3D.new()
+	camera.name = "FollowCamera"
+	camera.current = true
+	camera.fov = 62
+	add_child(camera)
+	_update_camera()
+
+func _update_camera() -> void:
+	if not is_instance_valid(player):
+		return
+	var target := player.global_position + Vector3(0, 1.55, 0)
+	var offset := Vector3(sin(camera_yaw) * 7.0, 3.2 - camera_pitch * 2.0, cos(camera_yaw) * 7.0)
+	camera.global_position = target + offset
+	camera.look_at(target, Vector3.UP)
+
+func _build_hud() -> void:
+	ui_layer = CanvasLayer.new()
+	add_child(ui_layer)
+	var title := Label.new()
+	title.text = "لَمّة  |  عالم الأصدقاء"
+	title.position = Vector2(24, 18)
+	title.add_theme_font_size_override("font_size", 25)
+	title.add_theme_color_override("font_color", Color("#e7fff7"))
+	ui_layer.add_child(title)
+	var status := Label.new()
+	status.text = "نسخة Godot الأولية · الحركة WASD / الأسهم"
+	status.position = Vector2(26, 54)
+	status.add_theme_font_size_override("font_size", 14)
+	status.add_theme_color_override("font_color", Color("#b9d8dc"))
+	ui_layer.add_child(status)
+	var jump := Button.new()
+	jump.text = "قفز"
+	jump.custom_minimum_size = Vector2(90, 62)
+	jump.anchor_left = 1
+	jump.anchor_right = 1
+	jump.anchor_top = 1
+	jump.anchor_bottom = 1
+	jump.position = Vector2(-116, -105)
+	jump.pressed.connect(func(): jump_requested = true)
+	ui_layer.add_child(jump)
+	var hint := Label.new()
+	hint.text = "اسحب يمين الشاشة لتدوير الكاميرا"
+	hint.anchor_left = 0.5
+	hint.anchor_right = 0.5
+	hint.anchor_top = 1
+	hint.anchor_bottom = 1
+	hint.position = Vector2(-130, -36)
+	hint.add_theme_font_size_override("font_size", 12)
+	ui_layer.add_child(hint)
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventMouseMotion and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
+		camera_yaw -= event.relative.x * 0.006
+		camera_pitch = clampf(camera_pitch + event.relative.y * 0.004, -0.65, 0.25)
+	elif event is InputEventScreenTouch:
+		if event.pressed and event.position.x > get_viewport().size.x * 0.45:
+			active_look = true
+		elif not event.pressed:
+			active_look = false
+	elif event is InputEventScreenDrag and active_look:
+		camera_yaw -= event.relative.x * 0.006
+		camera_pitch = clampf(camera_pitch + event.relative.y * 0.004, -0.65, 0.25)
+
+func _process(_delta: float) -> void:
+	_update_camera()
+
+func _physics_process(delta: float) -> void:
+	if not is_instance_valid(player):
+		return
+	var input_dir := Vector2(
+		Input.get_action_strength("ui_right") - Input.get_action_strength("ui_left"),
+		Input.get_action_strength("ui_down") - Input.get_action_strength("ui_up")
+	)
+	if input_dir.length() > 1.0:
+		input_dir = input_dir.normalized()
+	var forward := Vector3(sin(camera_yaw), 0, cos(camera_yaw))
+	var right := Vector3(forward.z, 0, -forward.x)
+	var direction := (right * input_dir.x + forward * input_dir.y).normalized()
+	if direction.length() > 0.05:
+		player.velocity.x = direction.x * MOVE_SPEED
+		player.velocity.z = direction.z * MOVE_SPEED
+		player.rotation.y = lerp_angle(player.rotation.y, atan2(direction.x, direction.z), delta * 9.0)
+	else:
+		player.velocity.x = move_toward(player.velocity.x, 0, MOVE_SPEED * delta * 3.0)
+		player.velocity.z = move_toward(player.velocity.z, 0, MOVE_SPEED * delta * 3.0)
+	if not player.is_on_floor():
+		player.velocity.y -= 18.0 * delta
+	elif jump_requested or Input.is_action_just_pressed("ui_accept"):
+		player.velocity.y = JUMP_VELOCITY
+	jump_requested = false
+	player.move_and_slide()
