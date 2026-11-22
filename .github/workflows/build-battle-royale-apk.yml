@@ -1,0 +1,113 @@
+name: Build standalone Battle Royale Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - standalone-battle-royale-apk
+    paths:
+      - 'battle-royale-apk/**'
+      - '.github/workflows/build-battle-royale-apk.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  android-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout isolated prototype branch
+        uses: actions/checkout@v4
+
+      - name: Install Godot 4.7.2 and Android export templates
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="4.7.2"
+          curl -fL --retry 3 "https://github.com/godotengine/godot/releases/download/${VERSION}-stable/Godot_v${VERSION}-stable_linux.x86_64.zip" -o /tmp/godot.zip
+          curl -fL --retry 3 "https://github.com/godotengine/godot/releases/download/${VERSION}-stable/Godot_v${VERSION}-stable_export_templates.tpz" -o /tmp/templates.tpz
+          unzip -q /tmp/godot.zip -d /tmp/godot
+          mkdir -p "$HOME/.local/share/godot/export_templates/${VERSION}.stable"
+          unzip -q /tmp/templates.tpz -d /tmp/godot-templates
+          cp -R /tmp/godot-templates/templates/. "$HOME/.local/share/godot/export_templates/${VERSION}.stable/"
+          GODOT_BIN="$(find /tmp/godot -maxdepth 2 -type f -name 'Godot*' | head -n 1)"
+          chmod +x "$GODOT_BIN"
+          echo "GODOT_BIN=$GODOT_BIN" >> "$GITHUB_ENV"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android build tools
+        run: sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Configure Android export preset
+        working-directory: battle-royale-apk
+        run: |
+          cat > export_presets.cfg <<'EOF'
+          [preset.0]
+          name="Android"
+          platform="Android"
+          runnable=true
+          advanced_options=false
+          dedicated_server=false
+          custom_features=""
+          export_filter="all_resources"
+          include_filter=""
+          exclude_filter=""
+          export_path="../BattleRoyalePrototype.apk"
+          encryption_include_filters=""
+          encryption_exclude_filters=""
+          encrypt_pck=false
+          encrypt_directory=false
+          script_export_mode=2
+
+          [preset.0.options]
+          custom_template/debug=""
+          custom_template/release=""
+          gradle_build/use_gradle_build=false
+          gradle_build/ Gradle_build_directory=""
+          gradle_build/android_source_template=""
+          gradle_build/compress_native_libraries=false
+          gradle_build/export_format=0
+          gradle_build/min_sdk=23
+          gradle_build/target_sdk=35
+          architectures/armeabi-v7a=false
+          architectures/arm64-v8a=true
+          architectures/x86=false
+          architectures/x86_64=false
+          package/unique_name="com.lamma.battleroyaleprototype"
+          package/name="Battle Royale Prototype"
+          package/signed=true
+          package/app_category=ゲーム
+          package/retain_data_on_uninstall=false
+          package/exclude_from_recents=false
+          package/show_in_android_tv=false
+          package/ show_in_app_library=true
+          version/code=1
+          version/name="0.1"
+          screen/immersive_mode=true
+          screen/edge_to_edge=false
+          launcher_icons/main_192x192=""
+          EOF
+
+      - name: Validate project and scripts
+        run: |
+          "$GODOT_BIN" --headless --editor --path battle-royale-apk --quit
+          "$GODOT_BIN" --headless --path battle-royale-apk --quit-after 8
+
+      - name: Export Android APK
+        env:
+          ANDROID_HOME: ${{ env.ANDROID_HOME }}
+          ANDROID_SDK_ROOT: ${{ env.ANDROID_HOME }}
+          JAVA_HOME: ${{ env.JAVA_HOME }}
+        run: |
+          mkdir -p "$HOME/.config/godot"
+          keytool -genkeypair -v -keystore "$HOME/.config/godot/debug.keystore" -storepass android -alias androiddebugkey -keypass android -dname "CN=Android Debug,O=Android,C=US" -keyalg RSA -keysize 2048 -validity 10000
+          "$GODOT_BIN" --headless --path battle-royale-apk --export-debug Android BattleRoyalePrototype.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: BattleRoyalePrototype-Android-APK
+          path: BattleRoyalePrototype.apk
+          if-no-files-found: error
