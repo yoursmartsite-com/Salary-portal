@@ -10,6 +10,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: lamma-hub-preview-publish
+  cancel-in-progress: false
+
 jobs:
   validate-and-export:
     runs-on: ubuntu-latest
@@ -70,6 +74,8 @@ jobs:
             echo "Preview is already up to date"
           else
             git commit -m "Publish isolated Lamma HUB web preview"
+            git fetch origin main
+            git rebase FETCH_HEAD
             git push origin HEAD:main
           fi
 
