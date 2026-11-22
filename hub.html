@@ -549,6 +549,27 @@ function createRobloxAvatar(seed=0,useSaved=false){
   part(.45,.2,.5,dark,0,-.83,.025,pivot);
   legs.push(pivot);
  }
+ // Apply the complete locally saved avatar configuration to the local player's model.
+ if(useSaved){
+  let c={};try{c=JSON.parse(localStorage.getItem('lamma_avatar_style_v1')||'{}')}catch(_){}
+  if(/^#[0-9a-f]{6}$/i.test(c.shirt||'')){shirt.color.set(c.shirt);for(const a of arms) a.children.forEach(o=>{if(o.material===shirt)o.material=shirt})}
+  if(/^#[0-9a-f]{6}$/i.test(c.pants||''))pants.color.set(c.pants);
+  if(/^#[0-9a-f]{6}$/i.test(c.skin||''))skin.color.set(c.skin);
+  if(/^#[0-9a-f]{6}$/i.test(c.hair||''))hairMat.color.set(c.hair);
+  if(c.build==='wide')model.scale.x=1.12;else if(c.build==='slim')model.scale.x=.88;
+  const add=(w,h,d,m,x,y,z)=>part(w,h,d,m,x,y,z);
+  if(c.hairStyle==='none'){model.children.filter(o=>o.material===hairMat).forEach(o=>model.remove(o))}
+  if(c.hairStyle==='long'){add(.2,.65,.72,hairMat,-.38,2.63,-.02);add(.2,.65,.72,hairMat,.38,2.63,-.02)}
+  if(c.hairStyle==='spiky'){for(const x of [-.34,0,.34]){const q=new THREE.Mesh(new THREE.ConeGeometry(.16,.4,4),hairMat);q.position.set(x,3.31,0);model.add(q)}}
+  if(c.hairStyle==='fringe')add(.5,.16,.2,hairMat,0,2.88,.44);
+  const metal=mat('#c7d8e8');
+  if(c.hat){add(.9,.15,.9,mat('#b84b37'),0,3.14,0);add(.58,.42,.58,mat('#d45a40'),0,3.36,0)}
+  if(c.glasses){const fm=mat('#17202d');for(const x of [-.19,.19]){const q=new THREE.Mesh(new THREE.TorusGeometry(.105,.025,7,18),fm);q.position.set(x,2.59,.45);model.add(q)}add(.12,.035,.035,fm,0,2.59,.45)}
+  if(c.backpack){add(.72,.78,.25,mat('#b66b37'),0,1.53,-.38);add(.48,.35,.28,mat('#d18b4f'),0,1.48,-.54)}
+  if(c.necklace){const q=new THREE.Mesh(new THREE.TorusGeometry(.24,.025,7,24,Math.PI),metal);q.rotation.x=Math.PI;q.position.set(0,1.96,.28);model.add(q)}
+  if(c.face==='calm'){for(const o of model.children.filter(o=>o.geometry?.type==='BoxGeometry'&&Math.abs(o.position.y-2.57)<.02))o.scale.y=.35}
+  if(c.face==='wow')add(.12,.12,.04,face,0,2.34,.45);
+ }
  return {model,arms,legs};
 }
 const localSeed=(()=>{let h=0;for(const ch of myName)h=(h*31+ch.charCodeAt(0))|0;return Math.abs(h)})();
