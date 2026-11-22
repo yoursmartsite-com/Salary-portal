@@ -100,6 +100,13 @@ function hubLabel(name){
  sprite.scale.set(3.6,.9,1);sprite.position.y=3.75;return sprite;
 }
 async function connectHub(){
+ const hubConnectWatchdog=setTimeout(()=>{
+  if(hubStatus.textContent.includes('🟡')){
+   hubStatus.textContent='🔴 انتهت مهلة الاتصال بـ Firebase';
+   console.error('HUB Firebase connection timed out. Check Anonymous Auth, Realtime Database URL, and network access.');
+   toast('الاتصال بقاعدة البيانات لم يكتمل خلال 15 ثانية. راجع إعدادات Firebase والإنترنت.');
+  }
+ },15000);
  try{
   if(!firebaseConfig) throw new Error('Firebase configuration unavailable');
   const [appMod,dbMod,authMod]=await Promise.all([
@@ -117,6 +124,7 @@ async function connectHub(){
   const connectionRef=dbMod.ref(hubDb,'.info/connected');
   dbMod.onValue(connectionRef,async snap=>{
    if(snap.val()!==true){
+    clearTimeout(hubConnectWatchdog);
     hubStatus.textContent='🔴 غير متصل بقاعدة البيانات';
     hubCount.textContent='👥 1 لاعب';
     return;
@@ -128,8 +136,10 @@ async function connectHub(){
      name:myName,online:true,at:Date.now(),
      hub:{active:true,name:myName,x:avatar.position.x,z:avatar.position.z,yaw,updatedAt:Date.now()}
     });
+    clearTimeout(hubConnectWatchdog);
     hubStatus.textContent='🟢 متصل أونلاين';
    }catch(e){
+    clearTimeout(hubConnectWatchdog);
     console.error('Hub presence registration failed',e);
     hubStatus.textContent='🔴 فشل تسجيل الظهور: '+(e.code||'صلاحيات');
    }
@@ -160,6 +170,7 @@ async function connectHub(){
    hubStatus.textContent='🔴 تعذر قراءة اللاعبين: '+(err.code||'صلاحيات');
   });
  }catch(e){
+  clearTimeout(hubConnectWatchdog);
   console.error('Hub Firebase connection failed',e);
   hubStatus.textContent='🔴 فشل الاتصال: '+(e.code||e.message||'خطأ غير معروف');
   toast('تعذر الاتصال أونلاين. تأكد من تفعيل Anonymous Authentication في Firebase.');
