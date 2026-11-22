@@ -43,12 +43,29 @@ func start() -> void:
 			const playerRef = dbm.ref(session.db, roomPath + "/players/" + uid);
 			await dbm.onDisconnect(playerRef).remove();
 			const playerName = localStorage.getItem("arcade_name") || "لاعب";
+			let latestPayload = { position: { x: 0, y: 0, z: 5 }, yaw: 0 };
 			await dbm.set(playerRef, {
 				uid: uid,
 				name: playerName,
-				position: { x: 0, y: 0, z: 5 },
-				yaw: 0,
+				position: latestPayload.position,
+				yaw: latestPayload.yaw,
 				updatedAt: Date.now()
+			});
+			dbm.onValue(dbm.ref(session.db, ".info/connected"), async connection => {
+				if (connection.val() === true) {
+					try {
+						await dbm.onDisconnect(playerRef).remove();
+						await dbm.set(playerRef, {
+							uid: uid,
+							name: playerName,
+							position: latestPayload.position,
+							yaw: latestPayload.yaw,
+							updatedAt: Date.now()
+						});
+					} catch (error) {
+						if (window.lammaHubErrorCallback) window.lammaHubErrorCallback(String(error));
+					}
+				}
 			});
 			dbm.onValue(dbm.ref(session.db, "onlineRooms"), snapshot => {
 				if (window.lammaHubPlayersCallback) {
@@ -57,11 +74,14 @@ func start() -> void:
 			}, error => {
 				if (window.lammaHubErrorCallback) window.lammaHubErrorCallback(String(error));
 			});
-			window.lammaHubSendPosition = payload => dbm.update(playerRef, {
-				position: payload.position,
-				yaw: payload.yaw,
-				updatedAt: Date.now()
-			});
+			window.lammaHubSendPosition = payload => {
+				latestPayload = payload;
+				return dbm.update(playerRef, {
+					position: payload.position,
+					yaw: payload.yaw,
+					updatedAt: Date.now()
+				});
+			};
 			if (window.lammaHubReadyCallback) window.lammaHubReadyCallback(uid, playerName);
 		} catch (error) {
 			if (window.lammaHubErrorCallback) window.lammaHubErrorCallback(String(error));
