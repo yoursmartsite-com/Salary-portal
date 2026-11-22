@@ -12,6 +12,9 @@ var move_origin := Vector2.ZERO
 var move_touch := Vector2.ZERO
 var jump_requested := false
 var ui_layer: CanvasLayer
+var animated_legs: Array[Node3D] = []
+var animated_arms: Array[Node3D] = []
+var animation_clock := 0.0
 
 func _ready() -> void:
 	_build_environment()
@@ -233,9 +236,11 @@ func _build_girl_model(root: Node3D) -> void:
 	_sphere(body, "Smile", Vector3(0, 1.91, 0.49), Vector3(0.09, 0.035, 0.025), Color("#b65d6e"))
 	_sphere(body, "Skirt", Vector3(0, 0.77, 0), Vector3(0.76, 0.56, 0.48), Color("#a9a1ec"))
 	for side in [-1.0, 1.0]:
-		_sphere(body, "Upper arm", Vector3(side * 0.43, 1.32, 0), Vector3(0.23, 0.58, 0.24), dress)
+		var arm := _sphere(body, "Upper arm", Vector3(side * 0.43, 1.32, 0), Vector3(0.23, 0.58, 0.24), dress)
+		animated_arms.append(arm)
 		_sphere(body, "Hand", Vector3(side * 0.46, 0.98, 0.02), Vector3(0.2, 0.22, 0.2), skin)
-		_sphere(body, "Leg", Vector3(side * 0.2, 0.34, 0), Vector3(0.23, 0.62, 0.24), skin)
+		var leg := _sphere(body, "Leg", Vector3(side * 0.2, 0.34, 0), Vector3(0.23, 0.62, 0.24), skin)
+		animated_legs.append(leg)
 		_sphere(body, "Shoe", Vector3(side * 0.2, 0.08, 0.09), Vector3(0.3, 0.16, 0.43), white)
 
 func _build_camera() -> void:
@@ -314,8 +319,23 @@ func _unhandled_input(event: InputEvent) -> void:
 			camera_yaw -= event.relative.x * 0.006
 			camera_pitch = clampf(camera_pitch + event.relative.y * 0.004, -0.65, 0.25)
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	_update_camera()
+	if not is_instance_valid(player):
+		return
+	var horizontal_speed := Vector2(player.velocity.x, player.velocity.z).length()
+	if horizontal_speed > 0.25 and player.is_on_floor():
+		animation_clock += delta * 9.0
+		var swing := sin(animation_clock) * 0.42
+		for i in range(animated_legs.size()):
+			animated_legs[i].rotation.x = swing if i == 0 else -swing
+		for i in range(animated_arms.size()):
+			animated_arms[i].rotation.x = -swing if i == 0 else swing
+	else:
+		for limb in animated_legs:
+			limb.rotation.x = move_toward(limb.rotation.x, 0.0, delta * 3.5)
+		for limb in animated_arms:
+			limb.rotation.x = move_toward(limb.rotation.x, 0.0, delta * 3.5)
 
 func _physics_process(delta: float) -> void:
 	if not is_instance_valid(player):
