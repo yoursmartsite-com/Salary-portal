@@ -427,29 +427,18 @@ func _build_girl_model(root: Node3D, track_local_animation := true) -> void:
 
 func _load_professional_avatar() -> void:
 	var avatar_path := "res://assets/lamma_girl.glb"
-	if not FileAccess.file_exists(avatar_path):
-		push_warning("Professional avatar asset is missing; using safe fallback avatar.")
+	if not ResourceLoader.exists(avatar_path):
+		push_error("Professional avatar resource is missing from the exported project: " + avatar_path)
 		return
-	var gltf := GLTFDocument.new()
-	var state := GLTFState.new()
-	var error := gltf.append_from_file(avatar_path, state)
-	if error != OK:
-		push_error("Could not import Lamma GLB avatar: " + str(error))
+	var loaded_avatar: Resource = load(avatar_path)
+	if loaded_avatar == null or not loaded_avatar is PackedScene:
+		push_error("Godot did not import the GLB as a PackedScene: " + avatar_path)
 		return
-	var imported_root := gltf.generate_scene(state)
-	if imported_root == null:
-		push_error("The Lamma GLB avatar did not produce a scene.")
-		return
-	avatar_scene = PackedScene.new()
-	var pack_error := avatar_scene.pack(imported_root)
-	if pack_error != OK:
-		push_error("Could not pack Lamma avatar scene: " + str(pack_error))
-		avatar_scene = null
-		return
+	avatar_scene = loaded_avatar as PackedScene
 	_apply_professional_avatar(player)
 	for uid in remote_avatars:
 		_apply_professional_avatar(remote_avatars[uid])
-	print("Lamma professional rigged avatar loaded successfully.")
+	print("Lamma professional rigged avatar loaded from imported GLB resource.")
 
 func _apply_professional_avatar(target: Node3D) -> void:
 	if avatar_scene == null or not is_instance_valid(target):
