@@ -1,8 +1,8 @@
 {
-  "versionCode": 24,
-  "versionName": "1.8.5",
+  "versionCode": 25,
+  "versionName": "1.8.6",
   "apkUrl": "https://github.com/yoursmartsite-com/Salary-portal/releases/latest/download/lamma.apk",
   "force": false,
-  "message": "تطوير البحر بموجات أكثر واقعية ورغوة متحركة عند الشاطئ.",
-  "releaseNotes": "تحسين مياه البحر بموجات متداخلة وتفاصيل سطح أدق، مع رغوة متحركة قرب الشاطئ وتدرج ألوان ولمعات ليلية."
+  "message": "إضافة انعكاس متغير للقمر وأضواء الشاطئ على سطح البحر.",
+  "releaseNotes": "انعكاسات فضية للقمر تتغير حسب زاوية الكاميرا وتموجات المياه، مع لمعات دافئة تحاكي أضواء الممشى على سطح البحر."
 }
