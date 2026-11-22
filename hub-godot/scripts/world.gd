@@ -540,7 +540,19 @@ func _play_avatar_animation(model: Node, wanted: String) -> void:
 					chosen = animation_name
 					break
 		if chosen != "" and anim_player.current_animation != chosen:
-			anim_player.play(chosen)
+			# A short cross-fade prevents the hard pose snap between idle and locomotion.
+			anim_player.play(chosen, 0.22)
+
+func _set_avatar_animation_speed(model: Node, movement_speed: float, wanted: String) -> void:
+	if model == null:
+		return
+	var scale := 1.0
+	if wanted == "walk":
+		scale = clampf(movement_speed / maxf(MOVE_SPEED, 0.1), 0.72, 1.35)
+	elif wanted == "run":
+		scale = clampf(movement_speed / (MOVE_SPEED * 1.65), 0.85, 1.25)
+	for item in model.find_children("*", "AnimationPlayer", true, false):
+		(item as AnimationPlayer).speed_scale = scale
 
 func _set_local_avatar_motion(speed: float, on_floor: bool) -> void:
 	if avatar_scene == null or not is_instance_valid(player):
@@ -548,14 +560,16 @@ func _set_local_avatar_motion(speed: float, on_floor: bool) -> void:
 	var wanted := "idle"
 	if not on_floor:
 		wanted = "jump"
-	elif speed > MOVE_SPEED * 1.35:
+	elif speed > MOVE_SPEED * 1.25:
 		wanted = "run"
-	elif speed > 0.25:
+	elif speed > 0.35:
 		wanted = "walk"
 	var model := player.get_node_or_null("ProfessionalGirlAvatar")
-	if model != null and wanted != avatar_animation_state:
-		avatar_animation_state = wanted
-		_play_avatar_animation(model, wanted)
+	if model != null:
+		if wanted != avatar_animation_state:
+			avatar_animation_state = wanted
+			_play_avatar_animation(model, wanted)
+		_set_avatar_animation_speed(model, speed, wanted)
 
 func _build_camera() -> void:
 	camera = Camera3D.new()
@@ -877,16 +891,20 @@ func _physics_process(delta: float) -> void:
 		input_dir = input_dir.normalized()
 	# Camera-relative movement: joystick up always follows the camera's forward axis.
 	var direction := _camera_relative_direction(input_dir)
-	if direction.length() > 0.05:
-		var current_speed := MOVE_SPEED * (1.65 if sprint_enabled else 1.0)
-		player.velocity.x = direction.x * current_speed
-		player.velocity.z = direction.z * current_speed
-		# Godot character forward is -Z; face the actual travel vector, including reverse input.
-		var target_yaw := _yaw_for_direction(direction)
-		player.rotation.y = lerp_angle(player.rotation.y, target_yaw, delta * 9.0)
-	else:
-		player.velocity.x = move_toward(player.velocity.x, 0, MOVE_SPEED * delta * 3.0)
-		player.velocity.z = move_toward(player.velocity.z, 0, MOVE_SPEED * delta * 3.0)
+	var has_input := direction.length() > 0.05
+	var max_speed := MOVE_SPEED * (1.65 if sprint_enabled else 1.0)
+	var desired_velocity := direction * max_speed if has_input else Vector3.ZERO
+	# Acceleration and braking make starts/stops feel like a person moving, not a sliding rigid object.
+	var rate := 13.0 if has_input else 19.0
+	player.velocity.x = move_toward(player.velocity.x, desired_velocity.x, rate * delta)
+	player.velocity.z = move_toward(player.velocity.z, desired_velocity.z, rate * delta)
+	var actual_horizontal_speed := Vector2(player.velocity.x, player.velocity.z).length()
+	if actual_horizontal_speed > 0.18:
+		# Turn toward the real travel direction smoothly; no instant snapping on direction changes.
+		var travel_direction := Vector3(player.velocity.x, 0.0, player.velocity.z).normalized()
+		var target_yaw := _yaw_for_direction(travel_direction)
+		var turn_weight := 1.0 - exp(-10.0 * delta)
+		player.rotation.y = lerp_angle(player.rotation.y, target_yaw, turn_weight)
 	if not player.is_on_floor():
 		player.velocity.y -= 18.0 * delta
 	elif jump_requested or Input.is_action_just_pressed("ui_accept"):
