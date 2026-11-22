@@ -1,6 +1,6 @@
 
 import { firebaseReady } from "./firebase-config.js";
-import { getFirebaseSession } from "./firebase-session.js";
+import { getFirebaseSession } from "./firebase-session.js?v=20261122-4";
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
