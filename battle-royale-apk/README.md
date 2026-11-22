@@ -15,3 +15,5 @@ This is an early offline gameplay prototype, not a PUBG-scale multiplayer releas
 The Android APK is built by GitHub Actions and uploaded as a workflow artifact.
 
 Build pipeline now uses explicit Android SDK packages; see workflow run for APK validation.
+
+Android SDK package installation step corrected for the next build.
