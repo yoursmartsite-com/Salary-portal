@@ -25,6 +25,8 @@ var settings_panel: PanelContainer
 var hud_scale := 1.0
 var local_name_tag: Label3D
 var firebase_bridge
+var avatar_scene: PackedScene
+var avatar_animation_state := "idle"
 var firebase_uid := ""
 var firebase_send_clock := 0.0
 var remote_avatars: Dictionary = {}
@@ -41,6 +43,7 @@ func _ready() -> void:
 	_build_player()
 	_build_camera()
 	_build_hud()
+	_load_professional_avatar()
 	firebase_bridge = FirebaseHub.new()
 	add_child(firebase_bridge)
 	firebase_bridge.connected.connect(_on_firebase_connected)
@@ -346,16 +349,16 @@ func _build_player() -> void:
 	player.position = Vector3(0, 0.1, 5)
 	var capsule := CollisionShape3D.new()
 	var cap := CapsuleShape3D.new()
-	cap.radius = 0.34
-	cap.height = 2.5
+	cap.radius = 0.32
+	cap.height = 1.8
 	capsule.shape = cap
-	capsule.position.y = 1.25
+	capsule.position.y = 0.9
 	player.add_child(capsule)
 	_build_girl_model(player)
 	local_name_tag = Label3D.new()
 	local_name_tag.name = "LocalPlayerName"
 	local_name_tag.text = "لاعب"
-	local_name_tag.position = Vector3(0, 2.85, 0)
+	local_name_tag.position = Vector3(0, 2.08, 0)
 	local_name_tag.font_size = 30
 	local_name_tag.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	local_name_tag.modulate = Color("#e7fff7")
@@ -421,6 +424,90 @@ func _build_girl_model(root: Node3D, track_local_animation := true) -> void:
 		_sphere(leg_pivot, "Shoe", Vector3(0, -0.54, 0.09), Vector3(0.3, 0.16, 0.43), white)
 		if track_local_animation:
 			animated_legs.append(leg_pivot)
+
+func _load_professional_avatar() -> void:
+	var avatar_path := "res://assets/lamma_girl.glb"
+	if not FileAccess.file_exists(avatar_path):
+		push_warning("Professional avatar asset is missing; using safe fallback avatar.")
+		return
+	var gltf := GLTFDocument.new()
+	var state := GLTFState.new()
+	var error := gltf.append_from_file(avatar_path, state)
+	if error != OK:
+		push_error("Could not import Lamma GLB avatar: " + str(error))
+		return
+	var imported_root := gltf.generate_scene(state)
+	if imported_root == null:
+		push_error("The Lamma GLB avatar did not produce a scene.")
+		return
+	avatar_scene = PackedScene.new()
+	var pack_error := avatar_scene.pack(imported_root)
+	if pack_error != OK:
+		push_error("Could not pack Lamma avatar scene: " + str(pack_error))
+		avatar_scene = null
+		return
+	_apply_professional_avatar(player)
+	for uid in remote_avatars:
+		_apply_professional_avatar(remote_avatars[uid])
+	print("Lamma professional rigged avatar loaded successfully.")
+
+func _apply_professional_avatar(target: Node3D) -> void:
+	if avatar_scene == null or not is_instance_valid(target):
+		return
+	var fallback := target.get_node_or_null("StylizedGirlAvatar")
+	if fallback != null:
+		target.remove_child(fallback)
+		fallback.queue_free()
+	var old_avatar := target.get_node_or_null("ProfessionalGirlAvatar")
+	if old_avatar != null:
+		target.remove_child(old_avatar)
+		old_avatar.queue_free()
+	var model := avatar_scene.instantiate()
+	model.name = "ProfessionalGirlAvatar"
+	model.rotation.y = PI
+	model.scale = Vector3.ONE
+	target.add_child(model)
+	_play_avatar_animation(model, "idle")
+
+func _play_avatar_animation(model: Node, wanted: String) -> void:
+	var players := model.find_children("*", "AnimationPlayer", true, false)
+	for item in players:
+		var anim_player := item as AnimationPlayer
+		var chosen := ""
+		for animation_name in anim_player.get_animation_list():
+			var lowered := animation_name.to_lower()
+			if wanted == "run" and lowered.contains("run"):
+				chosen = animation_name
+				break
+			if wanted == "walk" and (lowered.contains("walk") or lowered.contains("run")):
+				chosen = animation_name
+				break
+			if wanted == "idle" and (lowered.contains("idle") or lowered.contains("stand")):
+				chosen = animation_name
+				break
+		if chosen == "" and wanted != "idle":
+			for animation_name in anim_player.get_animation_list():
+				var lowered := animation_name.to_lower()
+				if lowered.contains("walk") or lowered.contains("run"):
+					chosen = animation_name
+					break
+		if chosen != "" and anim_player.current_animation != chosen:
+			anim_player.play(chosen)
+
+func _set_local_avatar_motion(speed: float, on_floor: bool) -> void:
+	if avatar_scene == null or not is_instance_valid(player):
+		return
+	var wanted := "idle"
+	if not on_floor:
+		wanted = "jump"
+	elif speed > MOVE_SPEED * 1.35:
+		wanted = "run"
+	elif speed > 0.25:
+		wanted = "walk"
+	var model := player.get_node_or_null("ProfessionalGirlAvatar")
+	if model != null and wanted != avatar_animation_state:
+		avatar_animation_state = wanted
+		_play_avatar_animation(model, wanted)
 
 func _build_camera() -> void:
 	camera = Camera3D.new()
@@ -612,7 +699,9 @@ func _process(delta: float) -> void:
 	if not is_instance_valid(player):
 		return
 	var horizontal_speed := Vector2(player.velocity.x, player.velocity.z).length()
-	if horizontal_speed > 0.25 and player.is_on_floor():
+	if avatar_scene != null:
+		_set_local_avatar_motion(horizontal_speed, player.is_on_floor())
+	elif horizontal_speed > 0.25 and player.is_on_floor():
 		animation_clock += delta * 9.0
 		var swing := sin(animation_clock) * 0.42
 		for i in range(animated_legs.size()):
@@ -687,17 +776,20 @@ func _create_remote_avatar(uid: String, player_name: String) -> void:
 	collider_body.name = "PlayerCollision"
 	var collision := CollisionShape3D.new()
 	var capsule := CapsuleShape3D.new()
-	capsule.radius = 0.34
-	capsule.height = 2.5
+	capsule.radius = 0.32
+	capsule.height = 1.8
 	collision.shape = capsule
-	collision.position.y = 1.25
+	collision.position.y = 0.9
 	collider_body.add_child(collision)
 	remote.add_child(collider_body)
-	_build_girl_model(remote, false)
+	if avatar_scene != null:
+		_apply_professional_avatar(remote)
+	else:
+		_build_girl_model(remote, false)
 	var name_tag := Label3D.new()
 	name_tag.name = "PlayerName"
 	name_tag.text = player_name
-	name_tag.position = Vector3(0, 2.85, 0)
+	name_tag.position = Vector3(0, 2.08, 0)
 	name_tag.font_size = 30
 	name_tag.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	name_tag.modulate = Color("#e7fff7")
