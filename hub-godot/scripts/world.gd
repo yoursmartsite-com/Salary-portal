@@ -544,12 +544,15 @@ func _play_avatar_animation(model: Node, wanted: String) -> void:
 					chosen = animation_name
 					break
 		if wanted == "idle" and chosen == "":
-			# This rig has no authored idle clip: return every bone to its bind/rest pose.
+			# This rig has no authored idle clip. Stop playback first, then clear every
+			# procedural bone override so the character returns to its neutral bind pose.
+			anim_player.clear_queue()
 			anim_player.stop()
 			anim_player.speed_scale = 1.0
 			for skeleton_node in model.find_children("*", "Skeleton3D", true, false):
 				var skeleton := skeleton_node as Skeleton3D
 				skeleton.reset_bone_poses()
+				skeleton.force_update_all_bone_transforms()
 			continue
 		if chosen != "":
 			var clip := anim_player.get_animation(chosen)
@@ -589,6 +592,17 @@ func _set_local_avatar_motion(speed: float, on_floor: bool) -> void:
 		if wanted != avatar_animation_state:
 			avatar_animation_state = wanted
 			_play_avatar_animation(model, wanted)
+		elif wanted == "walk" or wanted == "run":
+			# Some imported GLB players can stop at a clip boundary even after the
+			# resource loop flag is changed at runtime. Restart only if playback stopped;
+			# never restart a healthy cycle, or the gait would jump back to frame zero.
+			var locomotion_running := false
+			for item in model.find_children("*", "AnimationPlayer", true, false):
+				var ap := item as AnimationPlayer
+				if ap.is_playing():
+					locomotion_running = true
+			if not locomotion_running:
+				_play_avatar_animation(model, wanted)
 		_set_avatar_animation_speed(model, speed, wanted)
 
 func _build_camera() -> void:
