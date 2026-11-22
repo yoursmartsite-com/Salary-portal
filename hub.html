@@ -509,7 +509,7 @@ for(const x of [-35,-25])for(const z of [25,31])addSolid(x,z,.65);
 for(const [x,z] of [[-8,-28],[8,-28],[-8,28],[8,28],[-37,0],[37,0],[0,-17],[0,17],[-23,-17],[23,17]])addSolid(x,z,.62);
 // Keep the avatar inside the walkable world and out of the outer tree line.
 // Roblox-style blocky avatar: cuboid head, torso, arms and legs
-function createRobloxAvatar(seed=0){
+function createRobloxAvatar(seed=0,useSaved=false){
  const palettes=[
   {shirt:'#18a88f',pants:'#263f70',hair:'#26313c',skin:'#efbd91'},
   {shirt:'#e06b58',pants:'#30384c',hair:'#3a2922',skin:'#d99a70'},
@@ -518,7 +518,7 @@ function createRobloxAvatar(seed=0){
   {shirt:'#e2ad42',pants:'#334b45',hair:'#29242a',skin:'#c98762'},
   {shirt:'#e779a8',pants:'#4a416d',hair:'#35251e',skin:'#f2c9a7'}
  ];
- const p=palettes[Math.abs(seed)%palettes.length];
+ let savedStyle={};if(useSaved){try{savedStyle=JSON.parse(localStorage.getItem('lamma_avatar_style_v1')||'{}')}catch(_){}} const savedPalette=Number(savedStyle.palette); const p=palettes[useSaved&&Number.isInteger(savedPalette)&&savedPalette>=0&&savedPalette<palettes.length?savedPalette:Math.abs(seed)%palettes.length];
  const model=new THREE.Group();
  const shirt=mat(p.shirt),pants=mat(p.pants),hairMat=mat(p.hair),skin=mat(p.skin),face=mat('#17232b');
  function part(w,h,d,material,x,y,z,parent=model){
@@ -552,7 +552,7 @@ function createRobloxAvatar(seed=0){
  return {model,arms,legs};
 }
 const localSeed=(()=>{let h=0;for(const ch of myName)h=(h*31+ch.charCodeAt(0))|0;return Math.abs(h)})();
-const localAvatar=createRobloxAvatar(localSeed);
+const localAvatar=createRobloxAvatar(localSeed,true);
 const avatar=localAvatar.model,arms=localAvatar.arms,legs=localAvatar.legs;
 scene.add(avatar);
 avatar.position.set(0,0,4);let velocity=0,move={x:0,z:0},jumpV=0,onGround=true,walkT=0,drag=null,yaw=0,sprintEnabled=false;camera.position.set(0,7,-10);
