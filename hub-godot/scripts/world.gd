@@ -509,7 +509,9 @@ func _apply_professional_avatar(target: Node3D) -> void:
 		old_avatar.queue_free()
 	var model := avatar_scene.instantiate()
 	model.name = "ProfessionalGirlAvatar"
-	model.rotation.y = 0.0
+	# The imported GLB faces +Z; the player controller faces -Z at yaw 0.
+	# Keep the correction on the visual root so physics/camera yaw stay consistent.
+	model.rotation.y = PI
 	model.scale = Vector3.ONE
 	target.add_child(model)
 	_play_avatar_animation(model, "idle")
@@ -863,14 +865,18 @@ func _physics_process(delta: float) -> void:
 	)
 	if input_dir.length() > 1.0:
 		input_dir = input_dir.normalized()
-	var forward := Vector3(sin(camera_yaw), 0, cos(camera_yaw))
-	var right := Vector3(forward.z, 0, -forward.x)
-	var direction := (right * input_dir.x + forward * input_dir.y).normalized()
+	# Camera sits behind the avatar on +Z, so its forward direction is -Z.
+	# Touch-stick Y is positive downward; invert it to make pushing up move forward.
+	var forward := Vector3(-sin(camera_yaw), 0, -cos(camera_yaw))
+	var right := Vector3(-forward.z, 0, forward.x)
+	var direction := (right * input_dir.x - forward * input_dir.y).normalized()
 	if direction.length() > 0.05:
 		var current_speed := MOVE_SPEED * (1.65 if sprint_enabled else 1.0)
 		player.velocity.x = direction.x * current_speed
 		player.velocity.z = direction.z * current_speed
-		player.rotation.y = lerp_angle(player.rotation.y, atan2(direction.x, direction.z), delta * 9.0)
+		# Godot character forward is -Z; face the actual travel vector, including reverse input.
+		var target_yaw := atan2(direction.x, -direction.z)
+		player.rotation.y = lerp_angle(player.rotation.y, target_yaw, delta * 9.0)
 	else:
 		player.velocity.x = move_toward(player.velocity.x, 0, MOVE_SPEED * delta * 3.0)
 		player.velocity.z = move_toward(player.velocity.z, 0, MOVE_SPEED * delta * 3.0)
