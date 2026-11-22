@@ -303,6 +303,7 @@ const barkMat=mat('#493326',.96),barkLight=mat('#62432e',.94);
 const leafMats=['#174b38','#205b40','#286747','#34764b','#3d8050'].map(c=>mat(c,.92));
 const branchMat=mat('#533a2b',.95);
 for(let i=0;i<34;i++){
+ if(i===0)continue; // leave the eastern gate open toward the beach promenade
  const a=i*Math.PI*2/34,rad=32+(i%3)*2,x=Math.cos(a)*rad,z=Math.sin(a)*rad;
  treeColliders.push({x,z,r:1.05});
  const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.28,.48,4.3,10,2),barkMat);
