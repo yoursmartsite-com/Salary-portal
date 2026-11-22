@@ -424,6 +424,7 @@ for(let i=0;i<7;i++){box(2.2,.25,1.0,white,towerX+7,4.8-i*.65,towerZ+2+i*.85,-.3
 const slideMat=mat('#f27d65',.45);const slide=new THREE.Mesh(new THREE.BoxGeometry(3,.25,13),slideMat);slide.position.set(towerX+7,2.1,towerZ+6);slide.rotation.x=-.34;slide.rotation.z=-.18;slide.castShadow=true;scene.add(slide);
 for(const side of [-1,1]){const rail=new THREE.Mesh(new THREE.BoxGeometry(.18,.55,13),yellow);rail.position.set(towerX+7+side*1.5,2.45,towerZ+6);rail.rotation.x=-.34;rail.rotation.z=-.18;scene.add(rail)}
 // Premium playground swing set
+const swings=[];
 const swingGroup=new THREE.Group();swingGroup.position.set(28,0,-17);scene.add(swingGroup);
 const swingFrame=mat('#263b4a',.38),swingMetal=mat('#aebdc7',.32),swingSeatMat=mat('#d94f64',.32),swingRubber=mat('#202a34',.9);
 for(const x of [-3.65,3.65]){
