@@ -1,8 +1,8 @@
 {
-  "versionCode": 22,
-  "versionName": "1.8.3",
+  "versionCode": 23,
+  "versionName": "1.8.4",
   "apkUrl": "https://github.com/yoursmartsite-com/Salary-portal/releases/latest/download/lamma.apk",
   "force": false,
-  "message": "تكبير ساحة لَمّة وإضافة شاطئ وبحر.",
-  "releaseNotes": "توسيع الساحة الرئيسية، وإضافة شاطئ رملي وبحر على طرف العالم مع خط أمواج وصخور ساحلية وممر يصل الساحة بالشاطئ. توسيع حدود الحركة للوصول إلى الشاطئ."
+  "message": "تحسين شكل البحر وإضافة تموجات وانعكاسات ليلية.",
+  "releaseNotes": "تحسين البحر في عالم لَمّة: تموجات متحركة، تدرج مياه ضحلة وعميقة، ولمعات وانعكاسات ليلية مع الحفاظ على الشاطئ والساحة."
 }
