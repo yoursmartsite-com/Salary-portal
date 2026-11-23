@@ -44,6 +44,22 @@ jobs:
           npx cap add android
           npx cap sync android
 
+      - name: Apply ZEIN & RAHAF perfume bottle app icon
+        working-directory: perfumes
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y imagemagick
+          for spec in "mdpi 48" "hdpi 72" "xhdpi 96" "xxhdpi 144" "xxxhdpi 192"; do
+            set -- $spec
+            density="$1"
+            size="$2"
+            mkdir -p "android/app/src/main/res/mipmap-$density"
+            convert -background none app-icon.svg -resize "${size}x${size}" "android/app/src/main/res/mipmap-$density/ic_launcher.png"
+            convert -background none app-icon.svg -resize "${size}x${size}" "android/app/src/main/res/mipmap-$density/ic_launcher_round.png"
+            fg_size=$((size * 9 / 4))
+            convert -background none app-icon.svg -resize "${fg_size}x${fg_size}" "android/app/src/main/res/mipmap-$density/ic_launcher_foreground.png"
+          done
+
       - name: Build debug APK
         working-directory: perfumes/android
         run: |
