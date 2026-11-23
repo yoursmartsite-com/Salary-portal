@@ -851,6 +851,13 @@ func _load_control_layout() -> void:
 	if config.load("user://lamma_hub_controls.cfg") != OK:
 		return
 	hud_scale = float(config.get_value("controls", "scale", 1.0))
+	# Migrate existing saved layouts once so the previous left-side joystick does not override the mirrored HUD.
+	if int(config.get_value("controls", "layout_version", 0)) < 2:
+		config.set_value("controls", "layout_version", 2)
+		config.set_value("controls", "joystick", joystick_base.position)
+		config.set_value("controls", "run", run_button.position)
+		config.set_value("controls", "jump", jump_button.position)
+		config.save("user://lamma_hub_controls.cfg")
 	if is_instance_valid(hud_scale_slider):
 		hud_scale_slider.set_value_no_signal(hud_scale)
 	for entry in [["joystick", joystick_base], ["run", run_button], ["jump", jump_button]]:
