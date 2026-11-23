@@ -766,6 +766,8 @@ func _build_hud() -> void:
 
 	for button in [run_button, jump_button, settings_button, free_look_button, portal_enter_button]:
 		_style_hud_button(button)
+	_style_action_button(run_button)
+	_style_action_button(jump_button)
 	run_button.toggled.connect(func(enabled: bool): sprint_enabled = enabled)
 	jump_button.pressed.connect(func(): jump_requested = true)
 	settings_button.pressed.connect(_toggle_settings)
@@ -804,6 +806,26 @@ func _style_hud_button(button: Button) -> void:
 	button.add_theme_color_override("font_color", Color("#edfff9"))
 	button.add_theme_color_override("font_hover_color", Color.WHITE)
 	button.add_theme_color_override("font_pressed_color", Color.WHITE)
+
+func _style_action_button(button: Button) -> void:
+	# Circular, high-contrast action controls inspired by mobile battle-royale HUDs.
+	button.custom_minimum_size = Vector2(84, 84)
+	button.add_theme_color_override("icon_normal_color", Color.WHITE)
+	button.add_theme_color_override("icon_hover_color", Color.WHITE)
+	button.add_theme_color_override("icon_pressed_color", Color.WHITE)
+	var normal := StyleBoxFlat.new()
+	normal.bg_color = Color(0.025, 0.045, 0.065, 0.78)
+	normal.border_color = Color(0.88, 0.96, 1.0, 0.82)
+	normal.set_border_width_all(2)
+	normal.set_corner_radius_all(44)
+	var hover := normal.duplicate() as StyleBoxFlat
+	hover.bg_color = Color(0.12, 0.22, 0.28, 0.92)
+	var pressed := normal.duplicate() as StyleBoxFlat
+	pressed.bg_color = Color(0.12, 0.42, 0.39, 0.98)
+	button.add_theme_stylebox_override("normal", normal)
+	button.add_theme_stylebox_override("hover", hover)
+	button.add_theme_stylebox_override("pressed", pressed)
+	button.add_theme_stylebox_override("focus", normal)
 
 func _set_graphics_quality(index: int) -> void:
 	var viewport := get_viewport()
