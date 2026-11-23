@@ -1,4 +1,7 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/jump_button.svg" id="1_jump"]
+[ext_resource type="Texture2D" path="res://assets/sprint_button.svg" id="2_sprint"]
 
 [sub_resource type="StyleBoxFlat" id="JoystickBaseStyle"]
 bg_color = Color(0.025, 0.065, 0.105, 0.88)
@@ -60,9 +63,12 @@ offset_left = -206.0
 offset_top = -112.0
 offset_right = -122.0
 offset_bottom = -28.0
-text = "⚡"
+text = ""
+icon = ExtResource("2_sprint")
+icon_alignment = 1
+expand_icon = true
+icon_max_width = 58
 tooltip_text = "جري سريع"
-theme_override_font_sizes/font_size = 34
 toggle_mode = true
 
 [node name="JumpButton" type="Button" parent="Root"]
@@ -74,9 +80,12 @@ offset_left = -112.0
 offset_top = -120.0
 offset_right = -28.0
 offset_bottom = -36.0
-text = "↑"
+text = ""
+icon = ExtResource("1_jump")
+icon_alignment = 1
+expand_icon = true
+icon_max_width = 58
 tooltip_text = "قفز"
-theme_override_font_sizes/font_size = 38
 
 [node name="JoystickBase" type="Panel" parent="Root"]
 anchor_left = 0.0
