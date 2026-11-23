@@ -17,20 +17,50 @@
 <div class="camera-pad" id="cameraPad" aria-label="اسحب لتحريك الكاميرا"></div><div class="bottom"><div class="hint">WASD / الأسهم للحركة · الماوس لتدوير الكاميرا · E للاختباء</div><div class="controls"><div class="stick" id="stick"><div class="knob" id="knob"></div></div><button type="button" class="act" id="hideBtn">اختبئ</button></div></div>
 <div class="overlay" id="start"><div class="panel"><div class="eyebrow">LAMMA ORIGINAL · 8 SLOTS</div><h1>اختبئ أو اهرب</h1><p>سبع شخصيات تحاول النجاة داخل منتجع مهجور وسط الغابة، وباحث واحد يطاردهم. اختبئ خلف المباني والأشجار، وغيّر مكانك قبل أن يكتشفك.</p><p><b>دورك: مختبئ</b> · 7 مختبئين + باحث ذكي · جولة 3 دقائق</p><button type="button" class="primary" id="startBtn">ابدأ الجولة</button><button type="button" class="secondary" id="qualityBtn">الجودة: عالية</button></div></div>
 <div class="overlay hidden" id="end"><div class="panel"><div class="eyebrow">انتهت الجولة</div><h1 id="endTitle">نجوت!</h1><p id="endText">أحسنت، لقد نجوت حتى نهاية الوقت.</p><button type="button" class="primary" id="again">العب مرة أخرى</button></div></div>
-<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <script>
 (function(){
- const b=document.getElementById('startBtn'), panel=document.getElementById('start');
- b.addEventListener('click',function(){
+ const startBtn=document.getElementById('startBtn'),startPanel=document.getElementById('start');
+ let fallbackRunning=false,frame=0,last=0,elapsed=0,player={x:0,y:0},bots=[],keys={},stick={x:0,y:0},hidden=false;
+ const game=document.getElementById('game'),timer=document.getElementById('timer'),count=document.getElementById('count'),hideBtn=document.getElementById('hideBtn');
+ function fallbackStart(){
   if(typeof window.__lammaStartGame==='function'){window.__lammaStartGame();return;}
-  b.disabled=true;b.textContent='تحميل محرك اللعبة...';
-  setTimeout(function(){
-   b.disabled=false;b.textContent='إعادة المحاولة';
-   if(typeof window.__lammaStartGame!=='function'){panel.classList.remove('hidden');panel.querySelector('.panel p').textContent='ملفات تشغيل اللعبة لم تكتمل. افتح الصفحة في Chrome وحدّثها ثم حاول مرة أخرى.';}
-   else{b.textContent='ابدأ الجولة';window.__lammaStartGame();}
-  },1500);
+  fallbackRunning=true;elapsed=0;player={x:0,y:0};hidden=false;
+  bots=Array.from({length:7},(_,i)=>({x:Math.cos(i/7*Math.PI*2)*24,y:Math.sin(i/7*Math.PI*2)*24,seeker:i===6,alive:true}));
+  startPanel.classList.add('hidden');document.getElementById('end').classList.add('hidden');
+  hideBtn.textContent='اختبئ';game.innerHTML='<canvas id="fallbackCanvas" style="width:100%;height:100%;display:block;touch-action:none"></canvas>';
+  const canvas=document.getElementById('fallbackCanvas'),ctx=canvas.getContext('2d');
+  function draw(t){
+   if(!fallbackRunning)return;const dt=Math.min((t-last)/1000||0,.04);last=t;elapsed+=dt;
+   const w=canvas.width=innerWidth*devicePixelRatio,h=canvas.height=innerHeight*devicePixelRatio;ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+   const W=innerWidth,H=innerHeight,scale=Math.min(W,H)/90,cx=W/2,cy=H/2;
+   ctx.fillStyle='#34483b';ctx.fillRect(0,0,W,H);
+   for(let i=0;i<150;i++){const x=((i*7919)%997)/997*W,y=((i*3571)%991)/991*H;ctx.fillStyle=i%2?'#405843':'#293e32';ctx.beginPath();ctx.arc(x,y,2+(i%4),0,Math.PI*2);ctx.fill()}
+   ctx.fillStyle='#59605a';ctx.fillRect(cx-42*scale,cy-5*scale,84*scale,10*scale);ctx.fillRect(cx-5*scale,cy-42*scale,10*scale,84*scale);
+   for(let i=0;i<16;i++){const x=cx+Math.cos(i*2.4)*((i%4)*8+25)*scale,y=cy+Math.sin(i*2.4)*((i%4)*8+25)*scale;ctx.fillStyle='#253c2e';ctx.beginPath();ctx.arc(x,y,2.5*scale,0,Math.PI*2);ctx.fill();ctx.fillStyle='#54704d';ctx.beginPath();ctx.arc(x,y,4.8*scale,0,Math.PI*2);ctx.fill()}
+   for(const b of bots){if(!b.alive)continue;if(b.seeker){const dx=player.x-b.x,dy=player.y-b.y,d=Math.hypot(dx,dy)||1;if(d<33&&!hidden){b.x+=dx/d*dt*3.8;b.y+=dy/d*dt*3.8}if(d<1.5&&!hidden){fallbackRunning=false;document.getElementById('endTitle').textContent='تم الإمساك بك';document.getElementById('endText').textContent='الباحث أمسك بك. حاول الاختباء والابتعاد عنه.';document.getElementById('end').classList.remove('hidden')}}else{b.x+=Math.sin(t/1500+b.y)*dt*.8;b.y+=Math.cos(t/1700+b.x)*dt*.8}
+    ctx.fillStyle=b.seeker?'#c94d43':'#d1c8ad';ctx.beginPath();ctx.arc(cx+b.x*scale,cy+b.y*scale,5*scale,0,Math.PI*2);ctx.fill()}
+   ctx.fillStyle=hidden?'#9fe2b5':'#e7f3e9';ctx.beginPath();ctx.arc(cx+player.x*scale,cy+player.y*scale,6*scale,0,Math.PI*2);ctx.fill();
+   const remain=Math.max(0,180-elapsed);timer.textContent='0'+Math.floor(remain/60)+':'+String(Math.floor(remain%60)).padStart(2,'0');count.textContent='7 / 7';
+   if(remain<=0){fallbackRunning=false;document.getElementById('endTitle').textContent='نجوت!';document.getElementById('endText').textContent='انتهى الوقت.';document.getElementById('end').classList.remove('hidden');return}
+   const dx=(keys.ArrowRight||keys.KeyD?1:0)-(keys.ArrowLeft||keys.KeyA?1:0)+stick.x,dy=(keys.ArrowDown||keys.KeyS?1:0)-(keys.ArrowUp||keys.KeyW?1:0)+stick.y,len=Math.hypot(dx,dy)||1;player.x=Math.max(-39,Math.min(39,player.x+dx/len*dt*(hidden?2:7)));player.y=Math.max(-39,Math.min(39,player.y+dy/len*dt*(hidden?2:7)));
+   frame=requestAnimationFrame(draw);
+  }
+  last=performance.now();frame=requestAnimationFrame(draw);
+ }
+ startBtn.addEventListener('click',function(){
+  if(typeof window.__lammaStartGame==='function'){window.__lammaStartGame();return;}
+  startBtn.disabled=true;startBtn.textContent='تحميل محرك اللعبة...';
+  setTimeout(function(){startBtn.disabled=false;startBtn.textContent='ابدأ الجولة';fallbackStart();},2200);
  });
- window.addEventListener('error',function(e){if(typeof window.__lammaStartGame!=='function'){b.disabled=false;b.textContent='إعادة المحاولة';panel.classList.remove('hidden');panel.querySelector('.panel p').textContent='تعذر تحميل محرك اللعبة: '+(e.message||'خطأ في ملفات التشغيل');}});
+ document.getElementById('again').addEventListener('click',fallbackStart);
+ hideBtn.addEventListener('click',function(){if(!fallbackRunning)return;hidden=!hidden;hideBtn.textContent=hidden?'تحرك':'اختبئ'});
+ addEventListener('keydown',e=>keys[e.code]=true);addEventListener('keyup',e=>keys[e.code]=false);
+ const stickEl=document.getElementById('stick'),knob=document.getElementById('knob');let active=false;
+ stickEl.addEventListener('pointerdown',e=>{active=true;stickEl.setPointerCapture(e.pointerId);});
+ stickEl.addEventListener('pointermove',e=>{if(!active)return;const r=stickEl.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2),max=r.width*.34,l=Math.hypot(dx,dy)||1,k=Math.min(1,max/l);stick.x=dx/max*k;stick.y=dy/max*k;knob.style.transform='translate('+dx*k+'px,'+dy*k+'px)'});
+ const release=()=>{active=false;stick={x:0,y:0};knob.style.transform=''};stickEl.addEventListener('pointerup',release);stickEl.addEventListener('pointercancel',release);
+ window.addEventListener('error',e=>{if(typeof window.__lammaStartGame!=='function'){startBtn.disabled=false;startBtn.textContent='ابدأ الجولة';startPanel.querySelector('.panel p').textContent='سيتم تشغيل وضع التوافق تلقائيًا عند الضغط على ابدأ.'}});
 })();
 </script>
 <script type="module">
