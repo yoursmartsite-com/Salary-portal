@@ -57,7 +57,6 @@ func _ready() -> void:
 	arabic_font = load("res://assets/Cairo.ttf") as Font if ResourceLoader.exists("res://assets/Cairo.ttf") else null
 	_build_hud()
 	_load_control_layout()
-	_load_professional_avatar()
 	if not has_meta("skip_firebase"):
 		firebase_bridge = FirebaseHub.new()
 		add_child(firebase_bridge)
@@ -556,48 +555,104 @@ func _sphere(parent: Node3D, part_name: String, pos: Vector3, size: Vector3, col
 	return _part(parent, part_name, mesh, pos, color, size)
 
 func _build_girl_model(root: Node3D, track_local_animation := true) -> void:
-	var skin := Color("#f3c6a9")
-	var hair := Color("#39233b")
-	var dress := Color("#7c75d8")
-	var white := Color("#f7edf0")
+	# New Lamma avatar: a cleaner, proportioned 3D girl with layered hair,
+	# a modern teal jacket, pleated skirt, fitted legs and detailed shoes.
+	var skin := Color("#e9b99d")
+	var hair := Color("#241d2b")
+	var hair_light := Color("#493047")
+	var jacket := Color("#176f78")
+	var jacket_light := Color("#2c9295")
+	var skirt := Color("#263b68")
+	var trim := Color("#e8c17d")
+	var white := Color("#f4f0e9")
+	var dark := Color("#292638")
 	var body := Node3D.new()
-	body.name = "StylizedGirlAvatar"
+	body.name = "LammaNovaAvatar"
 	root.add_child(body)
-	_sphere(body, "Torso", Vector3(0, 1.18, 0), Vector3(0.64, 0.82, 0.36), dress)
-	_sphere(body, "Neck", Vector3(0, 1.72, 0), Vector3(0.22, 0.26, 0.22), skin)
-	_sphere(body, "Head", Vector3(0, 2.02, 0), Vector3(0.62, 0.72, 0.57), skin)
-	_sphere(body, "Hair cap", Vector3(0, 2.29, -0.06), Vector3(0.67, 0.43, 0.62), hair)
-	_sphere(body, "Hair back", Vector3(0, 1.82, -0.25), Vector3(0.62, 1.0, 0.38), hair)
-	_sphere(body, "Hair left", Vector3(-0.38, 1.98, -0.02), Vector3(0.2, 0.78, 0.28), hair)
-	_sphere(body, "Hair right", Vector3(0.38, 1.98, -0.02), Vector3(0.2, 0.78, 0.28), hair)
-	_sphere(body, "Side fringe", Vector3(-0.22, 2.23, 0.36), Vector3(0.28, 0.24, 0.2), hair)
-	_sphere(body, "Eye left", Vector3(-0.16, 2.08, 0.48), Vector3(0.075, 0.105, 0.045), Color("#38243b"))
-	_sphere(body, "Eye right", Vector3(0.16, 2.08, 0.48), Vector3(0.075, 0.105, 0.045), Color("#38243b"))
-	_sphere(body, "Eye shine left", Vector3(-0.18, 2.12, 0.52), Vector3(0.025, 0.03, 0.018), white)
-	_sphere(body, "Eye shine right", Vector3(0.14, 2.12, 0.52), Vector3(0.025, 0.03, 0.018), white)
-	_sphere(body, "Blush left", Vector3(-0.27, 1.96, 0.43), Vector3(0.11, 0.055, 0.025), Color("#e99a9b"))
-	_sphere(body, "Blush right", Vector3(0.27, 1.96, 0.43), Vector3(0.11, 0.055, 0.025), Color("#e99a9b"))
-	_sphere(body, "Smile", Vector3(0, 1.91, 0.49), Vector3(0.09, 0.035, 0.025), Color("#b65d6e"))
-	_sphere(body, "Skirt", Vector3(0, 0.77, 0), Vector3(0.76, 0.56, 0.48), Color("#a9a1ec"))
-	var ponytail := _sphere(body, "Long ponytail", Vector3(0, 1.72, -0.48), Vector3(0.3, 0.85, 0.32), hair)
-	ponytail.rotation.x = -0.22
+
+	# Neck, upper body and tailored jacket.
+	_capsule(body, "Neck", Vector3(0, 1.73, 0.015), 0.13, 0.30, skin)
+	_capsule(body, "JacketBody", Vector3(0, 1.27, 0), 0.29, 0.76, jacket)
+	_sphere(body, "JacketHem", Vector3(0, 0.91, 0), Vector3(0.62, 0.12, 0.34), jacket_light)
+	_detail_avatar_box(body, "JacketZip", Vector3(0, 1.28, 0.296), Vector3(0.025, 0.57, 0.018), trim)
+	_detail_avatar_box(body, "JacketCollarL", Vector3(-0.12, 1.62, 0.17), Vector3(0.16, 0.22, 0.08), jacket_light, Vector3(0, 0, -0.25))
+	_detail_avatar_box(body, "JacketCollarR", Vector3(0.12, 1.62, 0.17), Vector3(0.16, 0.22, 0.08), jacket_light, Vector3(0, 0, 0.25))
+	_sphere(body, "ShoulderBadge", Vector3(-0.22, 1.47, 0.235), Vector3(0.095, 0.095, 0.035), trim)
+
+	# Head and face.
+	_sphere(body, "Face", Vector3(0, 2.12, 0.025), Vector3(0.49, 0.60, 0.43), skin)
+	_sphere(body, "EarL", Vector3(-0.255, 2.10, 0.005), Vector3(0.10, 0.15, 0.10), skin)
+	_sphere(body, "EarR", Vector3(0.255, 2.10, 0.005), Vector3(0.10, 0.15, 0.10), skin)
+	_sphere(body, "HairCap", Vector3(0, 2.36, -0.035), Vector3(0.53, 0.34, 0.48), hair)
+	_sphere(body, "HairBack", Vector3(0, 1.96, -0.20), Vector3(0.48, 0.73, 0.30), hair)
+	_sphere(body, "FringeCenter", Vector3(-0.08, 2.32, 0.30), Vector3(0.27, 0.22, 0.18), hair_light)
+	_sphere(body, "FringeSide", Vector3(0.19, 2.25, 0.27), Vector3(0.22, 0.30, 0.16), hair)
+	_sphere(body, "EyeL", Vector3(-0.125, 2.13, 0.408), Vector3(0.052, 0.078, 0.027), dark)
+	_sphere(body, "EyeR", Vector3(0.125, 2.13, 0.408), Vector3(0.052, 0.078, 0.027), dark)
+	_sphere(body, "EyeGlintL", Vector3(-0.139, 2.16, 0.432), Vector3(0.018, 0.023, 0.012), white)
+	_sphere(body, "EyeGlintR", Vector3(0.111, 2.16, 0.432), Vector3(0.018, 0.023, 0.012), white)
+	_sphere(body, "CheekL", Vector3(-0.20, 2.02, 0.365), Vector3(0.09, 0.04, 0.02), Color("#d98283"))
+	_sphere(body, "CheekR", Vector3(0.20, 2.02, 0.365), Vector3(0.09, 0.04, 0.02), Color("#d98283"))
+	_detail_avatar_box(body, "Smile", Vector3(0, 1.98, 0.414), Vector3(0.075, 0.018, 0.014), Color("#9f5261"))
+	# Long hair framing the face and falling behind the shoulders.
+	var pony_a := _sphere(body, "LongHairLeft", Vector3(-0.39, 1.77, -0.12), Vector3(0.17, 0.82, 0.19), hair)
+	pony_a.rotation.z = -0.10
+	var pony_b := _sphere(body, "LongHairRight", Vector3(0.39, 1.77, -0.12), Vector3(0.17, 0.82, 0.19), hair)
+	pony_b.rotation.z = 0.10
+	_sphere(body, "HairTie", Vector3(0.34, 1.88, -0.18), Vector3(0.12, 0.10, 0.12), trim)
+
+	# Pleated skirt and belt.
+	_sphere(body, "WaistBelt", Vector3(0, 0.91, 0), Vector3(0.59, 0.13, 0.34), trim)
+	_sphere(body, "PleatedSkirt", Vector3(0, 0.68, 0), Vector3(0.72, 0.42, 0.43), skirt)
+	for i in range(5):
+		var pleat := _detail_avatar_box(body, "SkirtPleat" + str(i), Vector3(-0.25 + float(i) * 0.125, 0.64, 0.218), Vector3(0.025, 0.31, 0.018), Color("#52699a"))
+		pleat.rotation.z = deg_to_rad(float(i - 2) * 2.0)
+
+	# Arms: the pivots remain compatible with the existing walk/run animation.
 	for side in [-1.0, 1.0]:
-		var arm_pivot := Node3D.new()
-		arm_pivot.name = "ArmPivot"
-		arm_pivot.position = Vector3(side * 0.43, 1.48, 0)
-		body.add_child(arm_pivot)
-		_sphere(arm_pivot, "Upper arm", Vector3(0, -0.25, 0), Vector3(0.23, 0.58, 0.24), dress)
-		_sphere(arm_pivot, "Hand", Vector3(0, -0.55, 0.02), Vector3(0.2, 0.22, 0.2), skin)
+		var arm := Node3D.new()
+		arm.name = "ArmPivot"
+		arm.position = Vector3(side * 0.34, 1.52, 0)
+		body.add_child(arm)
+		_capsule(arm, "JacketSleeve", Vector3(0, -0.27, 0), 0.125, 0.58, jacket_light)
+		_sphere(arm, "Cuff", Vector3(0, -0.53, 0), Vector3(0.27, 0.10, 0.25), trim)
+		_capsule(arm, "Hand", Vector3(0, -0.68, 0.025), 0.085, 0.22, skin)
 		if track_local_animation:
-			animated_arms.append(arm_pivot)
-		var leg_pivot := Node3D.new()
-		leg_pivot.name = "LegPivot"
-		leg_pivot.position = Vector3(side * 0.2, 0.57, 0)
-		body.add_child(leg_pivot)
-		_sphere(leg_pivot, "Leg", Vector3(0, -0.25, 0), Vector3(0.23, 0.62, 0.24), skin)
-		_sphere(leg_pivot, "Shoe", Vector3(0, -0.54, 0.09), Vector3(0.3, 0.16, 0.43), white)
+			animated_arms.append(arm)
+
+		var leg := Node3D.new()
+		leg.name = "LegPivot"
+		leg.position = Vector3(side * 0.19, 0.51, 0)
+		body.add_child(leg)
+		_capsule(leg, "Leg", Vector3(0, -0.23, 0), 0.105, 0.55, skin)
+		_capsule(leg, "Boot", Vector3(0, -0.52, 0.055), 0.12, 0.22, dark)
+		_sphere(leg, "BootToe", Vector3(0, -0.60, 0.13), Vector3(0.25, 0.10, 0.30), white)
 		if track_local_animation:
-			animated_legs.append(leg_pivot)
+			animated_legs.append(leg)
+
+func _capsule(parent: Node3D, part_name: String, pos: Vector3, radius: float, height: float, color: Color) -> MeshInstance3D:
+	var mesh := CapsuleMesh.new()
+	mesh.radius = radius
+	mesh.height = maxf(height, radius * 2.0)
+	var node := MeshInstance3D.new()
+	node.name = part_name
+	node.mesh = mesh
+	node.position = pos
+	node.material_override = _make_material(color, 0.58)
+	parent.add_child(node)
+	return node
+
+func _detail_avatar_box(parent: Node3D, part_name: String, pos: Vector3, size: Vector3, color: Color, rotation_degrees := Vector3.ZERO) -> MeshInstance3D:
+	var mesh := BoxMesh.new()
+	mesh.size = size
+	var node := MeshInstance3D.new()
+	node.name = part_name
+	node.mesh = mesh
+	node.position = pos
+	node.rotation_degrees = rotation_degrees
+	node.material_override = _make_material(color, 0.52)
+	parent.add_child(node)
+	return node
 
 func _load_professional_avatar() -> void:
 	var avatar_path := "res://assets/lamma_girl.glb"
