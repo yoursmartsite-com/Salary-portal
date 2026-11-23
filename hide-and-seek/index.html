@@ -15,9 +15,9 @@
 <div class="top"><div class="brand"><b>لَمّة <span style="color:#b5e5c7">/</span> اختبئ أو اهرب</b><small>ليلة الغابة · الجولة التجريبية</small></div><div class="hud"><div>الوقت<strong id="timer">03:00</strong></div><div>الناجون<strong id="count">7 / 7</strong></div><div>اللاعبون<strong>8</strong></div></div><div class="objective" id="objective"><b>مهمتك:</b> اهرب واختبئ من الباحث. ابقَ حيًا حتى انتهاء الوقت.</div></div>
 <div class="crosshair"></div><div class="toast hidden" id="toast"></div>
 <div class="camera-pad" id="cameraPad" aria-label="اسحب لتحريك الكاميرا"></div><div class="bottom"><div class="hint">WASD / الأسهم للحركة · الماوس لتدوير الكاميرا · E للاختباء</div><div class="controls"><div class="stick" id="stick"><div class="knob" id="knob"></div></div><button class="act" id="hideBtn">اختبئ</button></div></div>
-<div class="overlay" id="start"><div class="panel"><div class="eyebrow">LAMMA ORIGINAL · 8 SLOTS</div><h1>اختبئ أو اهرب</h1><p>سبع شخصيات تحاول النجاة داخل منتجع مهجور وسط الغابة، وباحث واحد يطاردهم. اختبئ خلف المباني والأشجار، وغيّر مكانك قبل أن يكتشفك.</p><p><b>دورك: مختبئ</b> · 7 مختبئين + باحث ذكي · جولة 3 دقائق</p><button class="primary" id="startBtn">ابدأ الجولة</button><button class="secondary" id="qualityBtn">الجودة: عالية</button></div></div>
+<div class="overlay" id="start"><div class="panel"><div class="eyebrow">LAMMA ORIGINAL · 8 SLOTS</div><h1>اختبئ أو اهرب</h1><p>سبع شخصيات تحاول النجاة داخل منتجع مهجور وسط الغابة، وباحث واحد يطاردهم. اختبئ خلف المباني والأشجار، وغيّر مكانك قبل أن يكتشفك.</p><p><b>دورك: مختبئ</b> · 7 مختبئين + باحث ذكي · جولة 3 دقائق</p><button type="button" class="primary" id="startBtn">ابدأ الجولة</button><button class="secondary" id="qualityBtn">الجودة: عالية</button></div></div>
 <div class="overlay hidden" id="end"><div class="panel"><div class="eyebrow">انتهت الجولة</div><h1 id="endTitle">نجوت!</h1><p id="endText">أحسنت، لقد نجوت حتى نهاية الوقت.</p><button class="primary" id="again">العب مرة أخرى</button></div></div>
-<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
 <script type="module">
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
@@ -119,7 +119,7 @@ async function start(){
   startPanel.classList.remove('hidden');notify('تعذر تشغيل الجولة على هذا الجهاز. حاول مرة أخرى.');
  }
 }
-document.querySelector('#startBtn').onclick=start;document.querySelector('#again').onclick=start;document.querySelector('#qualityBtn').onclick=()=>{quality=quality?0:1;document.querySelector('#qualityBtn').textContent='الجودة: '+(quality?'عالية':'موفرة')};
-addEventListener('resize',()=>{if(!camera||!renderer)return;camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+document.querySelector('#startBtn').addEventListener('click',start);document.querySelector('#again').addEventListener('click',start);window.__lammaGameModuleReady=true;document.querySelector('#qualityBtn').onclick=()=>{quality=quality?0:1;document.querySelector('#qualityBtn').textContent='الجودة: '+(quality?'عالية':'موفرة')};
+addEventListener('error',e=>{console.error('Game startup error:',e.error||e.message)});addEventListener('unhandledrejection',e=>{console.error('Game startup rejection:',e.reason)});\naddEventListener('resize',()=>{if(!camera||!renderer)return;camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
 </script>
 </body></html>
