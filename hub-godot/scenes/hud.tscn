@@ -52,32 +52,40 @@ text = "جاري الاتصال بعالم لَمّة..."
 theme_override_font_sizes/font_size = 14
 
 [node name="RunButton" type="Button" parent="Root"]
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_left = 26.0
-offset_top = -178.0
-offset_right = 116.0
-offset_bottom = -124.0
-text = "جري"
-toggle_mode = true
-
-[node name="JumpButton" type="Button" parent="Root"]
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_left = 26.0
-offset_top = -105.0
-offset_right = 116.0
-offset_bottom = -43.0
-text = "قفز"
-
-[node name="JoystickBase" type="Panel" parent="Root"]
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -170.0
-offset_top = -174.0
+offset_left = -206.0
+offset_top = -112.0
+offset_right = -122.0
+offset_bottom = -28.0
+text = "⚡"
+tooltip_text = "جري سريع"
+theme_override_font_sizes/font_size = 34
+toggle_mode = true
+
+[node name="JumpButton" type="Button" parent="Root"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -112.0
+offset_top = -120.0
 offset_right = -28.0
+offset_bottom = -36.0
+text = "↑"
+tooltip_text = "قفز"
+theme_override_font_sizes/font_size = 38
+
+[node name="JoystickBase" type="Panel" parent="Root"]
+anchor_left = 0.0
+anchor_top = 1.0
+anchor_right = 0.0
+anchor_bottom = 1.0
+offset_left = 28.0
+offset_top = -174.0
+offset_right = 170.0
 offset_bottom = -32.0
 mouse_filter = 2
 theme_override_styles/panel = SubResource("JoystickBaseStyle")
@@ -175,6 +183,6 @@ offset_left = -160.0
 offset_top = -36.0
 offset_right = 160.0
 offset_bottom = -8.0
-text = "حرّك العصا يمينًا · اسحب يسارًا لتحريك الكاميرا"
+text = "حرّك العصا شمالًا · اسحب يمينًا لتحريك الكاميرا"
 horizontal_alignment = 1
 theme_override_font_sizes/font_size = 12
