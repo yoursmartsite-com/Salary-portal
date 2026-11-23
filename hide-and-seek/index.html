@@ -53,7 +53,7 @@
   startBtn.disabled=true;startBtn.textContent='تحميل محرك اللعبة...';
   setTimeout(function(){startBtn.disabled=false;startBtn.textContent='ابدأ الجولة';fallbackStart();},2200);
  });
- document.getElementById('again').addEventListener('click',fallbackStart);
+ document.getElementById('again').addEventListener('click',function(){if(typeof window.__lammaStartGame!=='function')fallbackStart()});
  hideBtn.addEventListener('click',function(){if(!fallbackRunning)return;hidden=!hidden;hideBtn.textContent=hidden?'تحرك':'اختبئ'});
  addEventListener('keydown',e=>keys[e.code]=true);addEventListener('keyup',e=>keys[e.code]=false);
  const stickEl=document.getElementById('stick'),knob=document.getElementById('knob');let active=false;
