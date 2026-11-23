@@ -35,7 +35,7 @@ function makeTree(x,z,h){const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.
 function buildWorld(){
  scene=new THREE.Scene();scene.background=new THREE.Color('#84918a');scene.fog=new THREE.FogExp2('#89968d',.012);
  camera=new THREE.PerspectiveCamera(67,innerWidth/innerHeight,.1,220);
- renderer=new THREE.WebGLRenderer({antialias:quality>0,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,quality?1.65:1));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=quality>0;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;root.replaceChildren(renderer.domElement);
+ if(!renderer){renderer=new THREE.WebGLRenderer({antialias:quality>0,powerPreference:'high-performance'});root.replaceChildren(renderer.domElement)}renderer.setPixelRatio(Math.min(devicePixelRatio,quality?1.65:1));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=quality>0;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;
  scene.add(new THREE.HemisphereLight('#d9e5dc','#28332c',2.1));const sun=new THREE.DirectionalLight('#ffe3bd',3.1);sun.position.set(-24,38,12);sun.castShadow=true;sun.shadow.mapSize.set(quality?2048:1024,quality?2048:1024);sun.shadow.camera.left=-55;sun.shadow.camera.right=55;sun.shadow.camera.top=55;sun.shadow.camera.bottom=-55;scene.add(sun);
  const ground=new THREE.Mesh(new THREE.PlaneGeometry(220,220),mat('#4b594c'));ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
  // asphalt courtyard and cracked concrete paths
