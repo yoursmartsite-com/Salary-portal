@@ -120,6 +120,7 @@ async function start(){
  }
 }
 document.querySelector('#startBtn').addEventListener('click',start);document.querySelector('#again').addEventListener('click',start);window.__lammaGameModuleReady=true;document.querySelector('#qualityBtn').addEventListener('click',()=>{quality=quality?0:1;document.querySelector('#qualityBtn').textContent='الجودة: '+(quality?'عالية':'موفرة')});
-addEventListener('error',e=>{console.error('Game startup error:',e.error||e.message)});addEventListener('unhandledrejection',e=>{console.error('Game startup rejection:',e.reason)});\naddEventListener('resize',()=>{if(!camera||!renderer)return;camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+addEventListener('error',e=>{console.error('Game startup error:',e.error||e.message)});addEventListener('unhandledrejection',e=>{console.error('Game startup rejection:',e.reason)});
+addEventListener('resize',()=>{if(!camera||!renderer)return;camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
 </script>
 </body></html>
