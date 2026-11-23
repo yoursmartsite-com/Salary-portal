@@ -742,158 +742,68 @@ func _update_camera(delta := 1.0) -> void:
 	camera.look_at(target, Vector3.UP)
 
 func _build_hud() -> void:
-	ui_layer = CanvasLayer.new()
+	# The HUD is authored as a real Godot scene so controls are visible in the editor
+	# and are packaged with the world instead of being assembled invisibly at runtime.
+	ui_layer = preload("res://scenes/hud.tscn").instantiate() as CanvasLayer
+	add_child(ui_layer)
+	var hud_root := ui_layer.get_node("Root") as Control
 	if arabic_font != null:
 		var arabic_theme := Theme.new()
 		arabic_theme.default_font = arabic_font
-		# CanvasLayer has no Theme property; set the shared UI theme on the root Window.
 		get_tree().root.theme = arabic_theme
-	add_child(ui_layer)
-	var title := Label.new()
-	title.text = "لَمّة  |  عالم الأصدقاء"
-	title.position = Vector2(24, 18)
-	title.size = Vector2(420, 40)
-	title.add_theme_font_size_override("font_size", 25)
-	title.add_theme_color_override("font_color", Color("#e7fff7"))
-	ui_layer.add_child(title)
-	status_label = Label.new()
-	status_label.text = "جاري الاتصال بعالم لَمّة..."
-	status_label.position = Vector2(26, 54)
-	status_label.size = Vector2(520, 30)
-	status_label.add_theme_font_size_override("font_size", 14)
-	status_label.add_theme_color_override("font_color", Color("#b9d8dc"))
-	ui_layer.add_child(status_label)
-	run_button = Button.new()
-	run_button.text = "جري"
-	run_button.custom_minimum_size = Vector2(90, 54)
-	run_button.size = Vector2(90, 54)
-	run_button.anchor_left = 1
-	run_button.anchor_right = 1
-	run_button.anchor_top = 1
-	run_button.anchor_bottom = 1
-	run_button.position = Vector2(-116, -178)
-	run_button.pivot_offset = Vector2(45, 27)
-	run_button.toggle_mode = true
+
+	status_label = hud_root.get_node("Status") as Label
+	run_button = hud_root.get_node("RunButton") as Button
+	jump_button = hud_root.get_node("JumpButton") as Button
+	joystick_base = hud_root.get_node("JoystickBase") as Panel
+	joystick_knob = hud_root.get_node("JoystickBase/JoystickKnob") as Panel
+	settings_button = hud_root.get_node("SettingsButton") as Button
+	free_look_button = hud_root.get_node("FreeLookButton") as Button
+	settings_panel = hud_root.get_node("SettingsPanel") as PanelContainer
+	hud_scale_slider = hud_root.get_node("SettingsPanel/SettingsContent/HudScaleSlider") as HSlider
+	quality_option = hud_root.get_node("SettingsPanel/SettingsContent/QualityOption") as OptionButton
+	portal_enter_button = hud_root.get_node("PortalEnterButton") as Button
+
+	for button in [run_button, jump_button, settings_button, free_look_button, portal_enter_button]:
+		_style_hud_button(button)
 	run_button.toggled.connect(func(enabled: bool): sprint_enabled = enabled)
-	ui_layer.add_child(run_button)
-	jump_button = Button.new()
-	jump_button.text = "قفز"
-	jump_button.custom_minimum_size = Vector2(90, 62)
-	jump_button.size = Vector2(90, 62)
-	jump_button.anchor_left = 1
-	jump_button.anchor_right = 1
-	jump_button.anchor_top = 1
-	jump_button.anchor_bottom = 1
-	jump_button.position = Vector2(-116, -105)
-	jump_button.pivot_offset = Vector2(45, 31)
 	jump_button.pressed.connect(func(): jump_requested = true)
-	ui_layer.add_child(jump_button)
-	joystick_base = ColorRect.new()
-	joystick_base.name = "TouchJoystickBase"
-	joystick_base.color = Color(0.04, 0.08, 0.13, 0.48)
-	joystick_base.size = Vector2(142, 142)
-	joystick_base.position = Vector2(28, get_viewport().get_visible_rect().size.y - 174)
-	joystick_base.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	ui_layer.add_child(joystick_base)
-	joystick_knob = ColorRect.new()
-	joystick_knob.name = "TouchJoystickKnob"
-	joystick_knob.color = Color(0.45, 0.9, 0.78, 0.78)
-	joystick_knob.size = Vector2(58, 58)
-	joystick_knob.position = Vector2(42, 42)
-	joystick_knob.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	joystick_base.add_child(joystick_knob)
-
-	settings_button = Button.new()
-	settings_button.text = "إعدادات"
-	settings_button.custom_minimum_size = Vector2(116, 46)
-	settings_button.size = Vector2(116, 46)
-	settings_button.anchor_left = 1
-	settings_button.anchor_right = 1
-	settings_button.position = Vector2(-138, 18)
 	settings_button.pressed.connect(_toggle_settings)
-	ui_layer.add_child(settings_button)
-
-	# Toggle PUBG-style free-look independently from the avatar's facing direction.
-	free_look_button = Button.new()
-	free_look_button.text = "نظر حر"
-	free_look_button.custom_minimum_size = Vector2(116, 46)
-	free_look_button.size = Vector2(116, 46)
-	free_look_button.anchor_left = 1
-	free_look_button.anchor_right = 1
-	free_look_button.position = Vector2(-138, 72)
-	free_look_button.toggle_mode = true
 	free_look_button.toggled.connect(func(enabled: bool):
 		free_look_enabled = enabled
 		free_look_button.text = "إيقاف النظر" if enabled else "نظر حر"
 	)
-	ui_layer.add_child(free_look_button)
-	settings_panel = PanelContainer.new()
-	settings_panel.name = "ControlSettings"
-	settings_panel.anchor_left = 1
-	settings_panel.anchor_right = 1
-	settings_panel.position = Vector2(-292, 72)
-	settings_panel.custom_minimum_size = Vector2(290, 255)
-	settings_panel.size = Vector2(290, 255)
-	settings_panel.visible = false
-	ui_layer.add_child(settings_panel)
-	var settings_content := VBoxContainer.new()
-	settings_content.add_theme_constant_override("separation", 10)
-	settings_panel.add_child(settings_content)
-	var settings_title := Label.new()
-	settings_title.text = "إعدادات التحكم"
-	settings_title.add_theme_font_size_override("font_size", 17)
-	settings_content.add_child(settings_title)
-	var scale_label := Label.new()
-	scale_label.text = "حجم أزرار الحركة والقفز"
-	settings_content.add_child(scale_label)
-	hud_scale_slider = HSlider.new()
-	hud_scale_slider.min_value = 0.7
-	hud_scale_slider.max_value = 1.4
-	hud_scale_slider.step = 0.05
-	hud_scale_slider.value = 1.0
-	hud_scale_slider.custom_minimum_size = Vector2(230, 30)
 	hud_scale_slider.value_changed.connect(_on_hud_scale_changed)
-	settings_content.add_child(hud_scale_slider)
-	var quality_title := Label.new()
-	quality_title.text = "جودة الرسومات"
-	settings_content.add_child(quality_title)
-	quality_option = OptionButton.new()
-	quality_option.add_item("منخفضة - أداء أسرع", 0)
-	quality_option.add_item("متوسطة - متوازنة", 1)
-	quality_option.add_item("عالية - تفاصيل أفضل", 2)
-	quality_option.selected = 1
 	quality_option.item_selected.connect(_set_graphics_quality)
-	settings_content.add_child(quality_option)
-	var layout_button := Button.new()
-	layout_button.text = "تعديل أماكن الأزرار"
-	layout_button.toggle_mode = true
+	var layout_button := hud_root.get_node("SettingsPanel/SettingsContent/LayoutButton") as Button
 	layout_button.toggled.connect(_set_layout_edit_mode)
-	settings_content.add_child(layout_button)
-	var close_settings := Button.new()
-	close_settings.text = "إغلاق"
+	var close_settings := hud_root.get_node("SettingsPanel/SettingsContent/CloseSettings") as Button
 	close_settings.pressed.connect(func(): settings_panel.visible = false)
-	settings_content.add_child(close_settings)
-
-	portal_enter_button = Button.new()
-	portal_enter_button.text = "دخول الغرفة"
-	portal_enter_button.custom_minimum_size = Vector2(230, 56)
-	portal_enter_button.size = Vector2(230, 56)
-	portal_enter_button.anchor_left = 0.5
-	portal_enter_button.anchor_right = 0.5
-	portal_enter_button.position = Vector2(-115, 82)
-	portal_enter_button.visible = false
 	portal_enter_button.pressed.connect(_enter_nearby_portal)
-	ui_layer.add_child(portal_enter_button)
-	var hint := Label.new()
-	hint.text = "حرّك العصا يسارًا · اسحب يمينًا لتحريك الكاميرا"
-	hint.anchor_left = 0.5
-	hint.anchor_right = 0.5
-	hint.anchor_top = 1
-	hint.anchor_bottom = 1
-	hint.position = Vector2(-130, -36)
-	hint.size = Vector2(320, 28)
-	hint.add_theme_font_size_override("font_size", 12)
-	ui_layer.add_child(hint)
+	_set_graphics_quality(1)
+
+func _style_hud_button(button: Button) -> void:
+	button.focus_mode = Control.FOCUS_NONE
+	button.add_theme_font_size_override("font_size", 17)
+	var normal := StyleBoxFlat.new()
+	normal.bg_color = Color(0.035, 0.105, 0.16, 0.94)
+	normal.border_color = Color(0.28, 0.72, 0.68, 0.95)
+	normal.set_border_width_all(2)
+	normal.set_corner_radius_all(13)
+	normal.content_margin_left = 12
+	normal.content_margin_right = 12
+	normal.content_margin_top = 7
+	normal.content_margin_bottom = 7
+	var hover := normal.duplicate() as StyleBoxFlat
+	hover.bg_color = Color(0.07, 0.22, 0.27, 0.98)
+	var pressed := normal.duplicate() as StyleBoxFlat
+	pressed.bg_color = Color(0.12, 0.38, 0.36, 1.0)
+	button.add_theme_stylebox_override("normal", normal)
+	button.add_theme_stylebox_override("hover", hover)
+	button.add_theme_stylebox_override("pressed", pressed)
+	button.add_theme_color_override("font_color", Color("#edfff9"))
+	button.add_theme_color_override("font_hover_color", Color.WHITE)
+	button.add_theme_color_override("font_pressed_color", Color.WHITE)
 
 func _set_graphics_quality(index: int) -> void:
 	var viewport := get_viewport()
@@ -997,13 +907,16 @@ func _input(event: InputEvent) -> void:
 		camera_pitch = clampf(camera_pitch + event.relative.y * 0.004, -0.65, 0.25)
 	elif event is InputEventScreenTouch:
 		if event.pressed:
-			if is_instance_valid(joystick_base) and joystick_base.get_global_rect().has_point(event.position) and move_touch_index == -1:
+			var viewport_size := get_viewport().get_visible_rect().size
+			var on_joystick := is_instance_valid(joystick_base) and joystick_base.get_global_rect().has_point(event.position)
+			var in_left_movement_zone := event.position.x <= viewport_size.x * 0.43 and event.position.y >= viewport_size.y * 0.38
+			if (on_joystick or in_left_movement_zone) and move_touch_index == -1:
 				active_move = true
 				move_touch_index = event.index
-				move_origin = joystick_base.global_position + joystick_base.size * 0.5
+				move_origin = joystick_base.global_position + joystick_base.size * 0.5 if on_joystick else event.position
 				move_touch = ((event.position - move_origin) / 55.0).limit_length(1.0)
 				_update_joystick_visual()
-			elif event.position.x > get_viewport().get_visible_rect().size.x * 0.42 and not _point_over_control(event.position) and look_touch_index == -1:
+			elif event.position.x > viewport_size.x * 0.43 and not _point_over_control(event.position) and look_touch_index == -1:
 				active_look = true
 				look_touch_index = event.index
 		else:
