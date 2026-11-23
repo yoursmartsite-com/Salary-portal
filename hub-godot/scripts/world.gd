@@ -860,8 +860,8 @@ func _load_control_layout() -> void:
 		return
 	hud_scale = float(config.get_value("controls", "scale", 1.0))
 	# Migrate existing saved layouts once so the previous left-side joystick does not override the mirrored HUD.
-	if int(config.get_value("controls", "layout_version", 0)) < 2:
-		config.set_value("controls", "layout_version", 2)
+	if int(config.get_value("controls", "layout_version", 0)) < 3:
+		config.set_value("controls", "layout_version", 3)
 		config.set_value("controls", "joystick", joystick_base.position)
 		config.set_value("controls", "run", run_button.position)
 		config.set_value("controls", "jump", jump_button.position)
@@ -880,7 +880,7 @@ func _save_control_layout() -> void:
 	config.load("user://lamma_hub_controls.cfg")
 	config.set_value("controls", "scale", hud_scale)
 	# Mark newly saved layouts as migrated so loading them never resets edited positions.
-	config.set_value("controls", "layout_version", 2)
+	config.set_value("controls", "layout_version", 3)
 	for entry in [["joystick", joystick_base], ["run", run_button], ["jump", jump_button]]:
 		var control: Control = entry[1]
 		if is_instance_valid(control):
@@ -926,14 +926,13 @@ func _input(event: InputEvent) -> void:
 		if event.pressed:
 			var viewport_size := get_viewport().get_visible_rect().size
 			var on_joystick := is_instance_valid(joystick_base) and joystick_base.get_global_rect().has_point(event.position)
-			var in_right_movement_zone: bool = event.position.x >= viewport_size.x * 0.57 and event.position.y >= viewport_size.y * 0.38
-			if (on_joystick or in_right_movement_zone) and move_touch_index == -1:
+			if on_joystick and move_touch_index == -1:
 				active_move = true
 				move_touch_index = event.index
-				move_origin = joystick_base.global_position + joystick_base.size * 0.5 if on_joystick else event.position
+				move_origin = joystick_base.global_position + joystick_base.size * 0.5
 				move_touch = ((event.position - move_origin) / 55.0).limit_length(1.0)
 				_update_joystick_visual()
-			elif event.position.x < viewport_size.x * 0.57 and not _point_over_control(event.position) and look_touch_index == -1:
+			elif event.position.x >= viewport_size.x * 0.5 and not _point_over_control(event.position) and look_touch_index == -1:
 				active_look = true
 				look_touch_index = event.index
 		else:
