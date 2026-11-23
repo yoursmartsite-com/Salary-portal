@@ -18,6 +18,21 @@
 <div class="overlay" id="start"><div class="panel"><div class="eyebrow">LAMMA ORIGINAL · 8 SLOTS</div><h1>اختبئ أو اهرب</h1><p>سبع شخصيات تحاول النجاة داخل منتجع مهجور وسط الغابة، وباحث واحد يطاردهم. اختبئ خلف المباني والأشجار، وغيّر مكانك قبل أن يكتشفك.</p><p><b>دورك: مختبئ</b> · 7 مختبئين + باحث ذكي · جولة 3 دقائق</p><button type="button" class="primary" id="startBtn">ابدأ الجولة</button><button type="button" class="secondary" id="qualityBtn">الجودة: عالية</button></div></div>
 <div class="overlay hidden" id="end"><div class="panel"><div class="eyebrow">انتهت الجولة</div><h1 id="endTitle">نجوت!</h1><p id="endText">أحسنت، لقد نجوت حتى نهاية الوقت.</p><button type="button" class="primary" id="again">العب مرة أخرى</button></div></div>
 <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
+<script>
+(function(){
+ const b=document.getElementById('startBtn'), panel=document.getElementById('start');
+ b.addEventListener('click',function(){
+  if(typeof window.__lammaStartGame==='function'){window.__lammaStartGame();return;}
+  b.disabled=true;b.textContent='تحميل محرك اللعبة...';
+  setTimeout(function(){
+   b.disabled=false;b.textContent='إعادة المحاولة';
+   if(typeof window.__lammaStartGame!=='function'){panel.classList.remove('hidden');panel.querySelector('.panel p').textContent='ملفات تشغيل اللعبة لم تكتمل. افتح الصفحة في Chrome وحدّثها ثم حاول مرة أخرى.';}
+   else{b.textContent='ابدأ الجولة';window.__lammaStartGame();}
+  },1500);
+ });
+ window.addEventListener('error',function(e){if(typeof window.__lammaStartGame!=='function'){b.disabled=false;b.textContent='إعادة المحاولة';panel.classList.remove('hidden');panel.querySelector('.panel p').textContent='تعذر تحميل محرك اللعبة: '+(e.message||'خطأ في ملفات التشغيل');}});
+})();
+</script>
 <script type="module">
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
@@ -119,7 +134,7 @@ async function start(){
   startPanel.classList.remove('hidden');notify('تعذر تشغيل الجولة على هذا الجهاز. حاول مرة أخرى.');
  }
 }
-document.querySelector('#startBtn').addEventListener('click',start);document.querySelector('#again').addEventListener('click',start);window.__lammaGameModuleReady=true;document.querySelector('#qualityBtn').addEventListener('click',()=>{quality=quality?0:1;document.querySelector('#qualityBtn').textContent='الجودة: '+(quality?'عالية':'موفرة')});
+window.__lammaStartGame=start;document.querySelector('#again').addEventListener('click',start);window.__lammaGameModuleReady=true;document.querySelector('#qualityBtn').addEventListener('click',()=>{quality=quality?0:1;document.querySelector('#qualityBtn').textContent='الجودة: '+(quality?'عالية':'موفرة')});
 addEventListener('error',e=>{console.error('Game startup error:',e.error||e.message)});addEventListener('unhandledrejection',e=>{console.error('Game startup rejection:',e.reason)});
 addEventListener('resize',()=>{if(!camera||!renderer)return;camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
 </script>
