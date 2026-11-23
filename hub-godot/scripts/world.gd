@@ -8,7 +8,6 @@ var camera: Camera3D
 var camera_yaw := 0.0
 var camera_pitch := -0.14
 var camera_distance := 1.95
-var free_look_enabled := false
 var free_look_button: Button
 var active_look := false
 var active_move := false
@@ -47,6 +46,7 @@ var nearby_portal_url := ""
 var nearby_portal_label := ""
 var joystick_base: Panel
 var joystick_knob: Panel
+var camera_look_zone: Control
 
 func _ready() -> void:
 	_build_environment()
@@ -633,6 +633,7 @@ func _build_hud() -> void:
 	joystick_knob = hud_root.get_node("JoystickBase/JoystickKnob") as Panel
 	settings_button = hud_root.get_node("SettingsButton") as Button
 	free_look_button = hud_root.get_node("FreeLookButton") as Button
+	camera_look_zone = hud_root.get_node("CameraLookZone") as Control
 	settings_panel = hud_root.get_node("SettingsPanel") as PanelContainer
 	hud_scale_slider = hud_root.get_node("SettingsPanel/SettingsContent/HudScaleSlider") as HSlider
 	quality_option = hud_root.get_node("SettingsPanel/SettingsContent/QualityOption") as OptionButton
@@ -645,10 +646,7 @@ func _build_hud() -> void:
 	run_button.toggled.connect(func(enabled: bool): sprint_enabled = enabled)
 	jump_button.pressed.connect(func(): jump_requested = true)
 	settings_button.pressed.connect(_toggle_settings)
-	free_look_button.toggled.connect(func(enabled: bool):
-		free_look_enabled = enabled
-		free_look_button.text = "إيقاف النظر" if enabled else "نظر حر"
-	)
+	free_look_button.pressed.connect(_recenter_camera)
 	hud_scale_slider.value_changed.connect(_on_hud_scale_changed)
 	quality_option.item_selected.connect(_set_graphics_quality)
 	var layout_button := hud_root.get_node("SettingsPanel/SettingsContent/LayoutButton") as Button
@@ -737,6 +735,12 @@ func _set_layout_edit_mode(enabled: bool) -> void:
 		joystick_style.border_color = Color(0.45, 0.82, 0.78, 0.9)
 		joystick_style.set_border_width_all(2)
 		joystick_base.add_theme_stylebox_override("panel", joystick_style)
+
+func _recenter_camera() -> void:
+	if not is_instance_valid(player):
+		return
+	camera_yaw = player.rotation.y
+	camera_pitch = -0.14
 
 func _toggle_settings() -> void:
 	if is_instance_valid(settings_panel):
@@ -828,7 +832,7 @@ func _input(event: InputEvent) -> void:
 				move_origin = joystick_base.global_position + joystick_base.size * 0.5
 				move_touch = ((event.position - move_origin) / 55.0).limit_length(1.0)
 				_update_joystick_visual()
-			elif event.position.x >= viewport_size.x * 0.5 and not _point_over_control(event.position) and look_touch_index == -1:
+			elif is_instance_valid(camera_look_zone) and camera_look_zone.get_global_rect().has_point(event.position) and not _point_over_control(event.position) and look_touch_index == -1:
 				active_look = true
 				look_touch_index = event.index
 		else:
@@ -990,11 +994,6 @@ func _physics_process(delta: float) -> void:
 		input_dir = input_dir.normalized()
 	# Camera-relative movement: joystick up always follows the camera's forward axis.
 	var direction := _camera_relative_direction(input_dir)
-	if free_look_enabled:
-		# Orbit the view without steering the avatar while free-look is active.
-		var facing_forward := Vector3(-sin(player.rotation.y), 0.0, -cos(player.rotation.y))
-		var facing_right := Vector3(-facing_forward.z, 0.0, facing_forward.x)
-		direction = (facing_right * input_dir.x - facing_forward * input_dir.y).normalized()
 	var has_input := direction.length() > 0.05
 	var max_speed := MOVE_SPEED * (1.65 if sprint_enabled else 1.0)
 	var desired_velocity := direction * max_speed if has_input else Vector3.ZERO
