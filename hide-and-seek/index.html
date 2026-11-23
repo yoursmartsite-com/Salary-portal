@@ -70,12 +70,12 @@ function canHide(a){return obstacles.some(o=>Math.hypot(a.x-o.x,a.z-o.z)<Math.ma
 function resetRound(model){
  actors=[];mixerList=[];obstacles=[];elapsed=0;hideState=false;buildWorld();
  player=makeActor(model,'أنت','#8bd7a7',0,0,true);
- const colors=['#b5b7a9','#9faba5','#b9a58d','#879ca8','#c0b9a9','#9eaa8e','#a5a0b9'];
- for(let i=0;i<7;i++){const spots=[[-27,-25],[28,-24],[-34,29],[34,32],[-8,34],[17,-33],[4,18]];const [x,z]=spots[i];makeActor(model,'مختبئ '+(i+1),colors[i],x,z)}
+ const colors=['#b5b7a9','#9faba5','#b9a58d','#879ca8','#c0b9a9','#9eaa8e'];
+ for(let i=0;i<6;i++){const spots=[[-27,-25],[28,-24],[-34,29],[34,32],[-8,34],[17,-33]];const [x,z]=spots[i];makeActor(model,'مختبئ '+(i+1),colors[i],x,z)}
  const seeker=makeActor(model,'الباحث','#bb4b3f',-4,-35);seeker.obj.traverse(n=>{if(n.isMesh&&n.material&&n.material.color)n.material.color.set('#9a4139')});seekers=[seeker];
  camera.position.set(0,4.5,8);yaw=0;pitch=.2;updateHud();
 }
-function updateHud(){timerEl.textContent='0'+Math.floor(Math.max(0,180-elapsed)/60)+':'+String(Math.floor(Math.max(0,180-elapsed)%60)).padStart(2,'0');countEl.textContent=actors.filter(a=>!a.isPlayer&&a.alive).length+' / 7'}
+function updateHud(){timerEl.textContent='0'+Math.floor(Math.max(0,180-elapsed)/60)+':'+String(Math.floor(Math.max(0,180-elapsed)%60)).padStart(2,'0');countEl.textContent=(actors.filter(a=>!a.isPlayer&&a.alive).length+(player&&player.alive?1:0))+' / 7'}
 function moveActor(a,dx,dz,dt){const nx=a.x+dx*dt,nz=a.z+dz*dt;if(!blocked(nx,a.z))a.x=THREE.MathUtils.clamp(nx,-40,40);if(!blocked(a.x,nz))a.z=THREE.MathUtils.clamp(nz,-40,40);a.obj.position.set(a.x,0,a.z);if(Math.abs(dx)+Math.abs(dz)>.02){a.obj.rotation.y=Math.atan2(dx,dz);a.speed=1}else a.speed=0;setAnim(a,a.speed?'Run':'Idle')}
 function updateBots(dt){
  const hiders=actors.filter(a=>!a.isPlayer&&a.alive);
