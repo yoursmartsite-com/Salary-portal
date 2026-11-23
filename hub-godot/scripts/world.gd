@@ -846,7 +846,7 @@ func _build_hud() -> void:
 	var scale_label := Label.new()
 	scale_label.text = "حجم أزرار الحركة والقفز"
 	settings_content.add_child(scale_label)
-	var hud_scale_slider := HSlider.new()
+	hud_scale_slider = HSlider.new()
 	hud_scale_slider.min_value = 0.7
 	hud_scale_slider.max_value = 1.4
 	hud_scale_slider.step = 0.05
