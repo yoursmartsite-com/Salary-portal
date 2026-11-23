@@ -29,6 +29,15 @@ func _run_mobile_controls_test() -> void:
 			quit(1)
 			return
 
+	if run_button.icon == null or jump_button.icon == null:
+		push_error("Sprint and jump buttons must use the custom illustrated icons")
+		quit(1)
+		return
+	if not run_button.text.is_empty() or not jump_button.text.is_empty():
+		push_error("Sprint and jump buttons should not display placeholder text or arrows")
+		quit(1)
+		return
+
 	var original_joystick_position := joystick.position
 	world.call("_process", 0.016)
 	if joystick.position.distance_to(original_joystick_position) > 0.01:
