@@ -2,7 +2,7 @@ config_version=5
 
 [application]
 config/name="Lamma Social World"
-run/main_scene="res://scenes/world.tscn"
+run/main_scene="res://scenes/battle_lobby.tscn"
 
 [display]
 window/size/viewport_width=1280
