@@ -747,18 +747,21 @@ func _build_hud() -> void:
 	var title := Label.new()
 	title.text = "لَمّة  |  عالم الأصدقاء"
 	title.position = Vector2(24, 18)
+	title.size = Vector2(420, 40)
 	title.add_theme_font_size_override("font_size", 25)
 	title.add_theme_color_override("font_color", Color("#e7fff7"))
 	ui_layer.add_child(title)
 	status_label = Label.new()
 	status_label.text = "جاري الاتصال بعالم لَمّة..."
 	status_label.position = Vector2(26, 54)
+	status_label.size = Vector2(520, 30)
 	status_label.add_theme_font_size_override("font_size", 14)
 	status_label.add_theme_color_override("font_color", Color("#b9d8dc"))
 	ui_layer.add_child(status_label)
 	run_button = Button.new()
 	run_button.text = "جري"
 	run_button.custom_minimum_size = Vector2(90, 54)
+	run_button.size = Vector2(90, 54)
 	run_button.anchor_left = 1
 	run_button.anchor_right = 1
 	run_button.anchor_top = 1
@@ -771,6 +774,7 @@ func _build_hud() -> void:
 	jump_button = Button.new()
 	jump_button.text = "قفز"
 	jump_button.custom_minimum_size = Vector2(90, 62)
+	jump_button.size = Vector2(90, 62)
 	jump_button.anchor_left = 1
 	jump_button.anchor_right = 1
 	jump_button.anchor_top = 1
@@ -797,6 +801,7 @@ func _build_hud() -> void:
 	var settings_button := Button.new()
 	settings_button.text = "إعدادات"
 	settings_button.custom_minimum_size = Vector2(116, 46)
+	settings_button.size = Vector2(116, 46)
 	settings_button.anchor_left = 1
 	settings_button.anchor_right = 1
 	settings_button.position = Vector2(-138, 18)
@@ -807,6 +812,7 @@ func _build_hud() -> void:
 	free_look_button = Button.new()
 	free_look_button.text = "نظر حر"
 	free_look_button.custom_minimum_size = Vector2(116, 46)
+	free_look_button.size = Vector2(116, 46)
 	free_look_button.anchor_left = 1
 	free_look_button.anchor_right = 1
 	free_look_button.position = Vector2(-138, 72)
@@ -822,6 +828,7 @@ func _build_hud() -> void:
 	settings_panel.anchor_right = 1
 	settings_panel.position = Vector2(-292, 72)
 	settings_panel.custom_minimum_size = Vector2(290, 255)
+	settings_panel.size = Vector2(290, 255)
 	settings_panel.visible = false
 	ui_layer.add_child(settings_panel)
 	var settings_content := VBoxContainer.new()
@@ -865,6 +872,7 @@ func _build_hud() -> void:
 	portal_enter_button = Button.new()
 	portal_enter_button.text = "دخول الغرفة"
 	portal_enter_button.custom_minimum_size = Vector2(230, 56)
+	portal_enter_button.size = Vector2(230, 56)
 	portal_enter_button.anchor_left = 0.5
 	portal_enter_button.anchor_right = 0.5
 	portal_enter_button.position = Vector2(-115, 82)
@@ -878,6 +886,7 @@ func _build_hud() -> void:
 	hint.anchor_top = 1
 	hint.anchor_bottom = 1
 	hint.position = Vector2(-130, -36)
+	hint.size = Vector2(320, 28)
 	hint.add_theme_font_size_override("font_size", 12)
 	ui_layer.add_child(hint)
 
@@ -922,19 +931,22 @@ func _on_hud_scale_changed(value: float) -> void:
 	if is_instance_valid(jump_button):
 		jump_button.scale = Vector2.ONE * hud_scale
 
-func _unhandled_input(event: InputEvent) -> void:
+func _input(event: InputEvent) -> void:
 	if layout_edit_mode and event is InputEventScreenTouch:
 		if event.pressed:
 			for control in [joystick_base, run_button, jump_button]:
 				if is_instance_valid(control) and Rect2(control.global_position, control.size * control.scale).has_point(event.position):
 					dragging_control = control
 					drag_offset = event.position - control.global_position
+					get_viewport().set_input_as_handled()
 					return
 		else:
 			dragging_control = null
+			get_viewport().set_input_as_handled()
 			return
 	if layout_edit_mode and event is InputEventScreenDrag and is_instance_valid(dragging_control):
 		dragging_control.global_position = event.position - drag_offset
+		get_viewport().set_input_as_handled()
 		return
 	if event is InputEventMouseMotion and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
 		camera_yaw -= event.relative.x * 0.006
