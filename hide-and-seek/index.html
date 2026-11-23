@@ -54,7 +54,10 @@ function buildWorld(){
 }
 function fallbackHuman(color){const g=new THREE.Group(),body=new THREE.Mesh(new THREE.CapsuleGeometry(.36,.72,5,8),mat(color)),head=new THREE.Mesh(new THREE.SphereGeometry(.24,12,10),mat('#b78f70'));body.position.y=1.05;head.position.y=1.78;g.add(body,head);for(const x of [-.2,.2]){const leg=new THREE.Mesh(new THREE.CapsuleGeometry(.12,.62,4,6),mat('#252d2c'));leg.position.set(x,.38,0);g.add(leg)}return g}
 async function loadHuman(){
- try{const gltf=await loader.loadAsync('https://threejs.org/examples/models/gltf/Soldier.glb');return gltf}catch(e){console.warn('Character model unavailable; using local fallback.',e);return null}
+ try{
+  const timeout=new Promise((_,reject)=>setTimeout(()=>reject(new Error('Character download timeout')),3500));
+  return await Promise.race([loader.loadAsync('https://threejs.org/examples/models/gltf/Soldier.glb'),timeout]);
+ }catch(e){console.warn('Character model unavailable; using local fallback.',e);return null}
 }
 function makeActor(model,name,color,x,z,isPlayer=false){
  let obj, mixer=null,actions={};
@@ -102,7 +105,20 @@ function setupControls(){
  document.querySelector('#hideBtn').onclick=toggleHide;
 }
 function toggleHide(){if(!running||!player)return;if(!hideState&&!canHide(player)){notify('اقترب من شجرة أو ساتر أو مبنى للاختباء');return}hideState=!hideState;player.hidden=hideState;document.querySelector('#hideBtn').textContent=hideState?'تحرك':'اختبئ';notify(hideState?'أنت مختبئ وتتحرك ببطء':'خرجت من مخبئك')}
-async function start(){document.querySelector('#start').classList.add('hidden');document.querySelector('#end').classList.add('hidden');const button=document.querySelector('#startBtn');button.disabled=true;button.textContent='جارٍ تجهيز الجولة...';const model=await loadHuman();resetRound(model);if(!clock){clock=new THREE.Clock();setupControls();animate()}button.disabled=false;button.textContent='ابدأ الجولة';running=true;notify('ابدأ! ابقَ بعيدًا عن الباحث');}
+async function start(){
+ const startPanel=document.querySelector('#start'),endPanel=document.querySelector('#end'),button=document.querySelector('#startBtn');
+ button.disabled=true;button.textContent='جارٍ تجهيز الجولة...';endPanel.classList.add('hidden');
+ try{
+  const model=await loadHuman();
+  resetRound(model);
+  if(!clock){clock=new THREE.Clock();setupControls();animate()}
+  running=true;startPanel.classList.add('hidden');button.disabled=false;button.textContent='ابدأ الجولة';notify('ابدأ! ابقَ بعيدًا عن الباحث');
+ }catch(error){
+  console.error('Unable to start Hide and Seek:',error);
+  running=false;button.disabled=false;button.textContent='حاول مرة أخرى';
+  startPanel.classList.remove('hidden');notify('تعذر تشغيل الجولة على هذا الجهاز. حاول مرة أخرى.');
+ }
+}
 document.querySelector('#startBtn').onclick=start;document.querySelector('#again').onclick=start;document.querySelector('#qualityBtn').onclick=()=>{quality=quality?0:1;document.querySelector('#qualityBtn').textContent='الجودة: '+(quality?'عالية':'موفرة')};
 addEventListener('resize',()=>{if(!camera||!renderer)return;camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
 </script>
