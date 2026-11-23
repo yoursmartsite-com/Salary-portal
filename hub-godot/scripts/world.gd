@@ -104,6 +104,7 @@ func _build_environment() -> void:
 	_make_ocean()
 	_make_landscape_details()
 	_make_world_architecture()
+	_make_lamma_landmarks()
 
 	for x in [-5.0, 5.0]:
 		for z in [-20.0, -12.0, -4.0, 4.0, 12.0]:
@@ -1014,3 +1015,229 @@ func _physics_process(delta: float) -> void:
 		player.velocity.y = JUMP_VELOCITY
 	jump_requested = false
 	player.move_and_slide()
+
+
+# Distinctive Lamma landmarks: a social plaza, arcade pavilion and beach leisure area.
+# Built from real 3D meshes so the scene remains editable and exportable in Godot.
+func _make_lamma_landmarks() -> void:
+	_make_fountain(Vector3(0, 0.0, 15.0))
+	_make_arcade_pavilion(Vector3(25.0, 0.0, -13.0))
+	_make_beach_lounges()
+	_make_lighthouse(Vector3(29.0, 0.0, 26.0))
+	_make_welcome_arch(Vector3(0.0, 0.0, -25.0))
+
+func _make_fountain(pos: Vector3) -> void:
+	var stone := _make_material(Color("#b8c2c4"), 0.32, 0.18)
+	var dark_stone := _make_material(Color("#344b58"), 0.3, 0.28)
+	var water_mat := _make_material(Color("#36b9c3"), 0.16, 0.35)
+	var base := MeshInstance3D.new()
+	var base_mesh := CylinderMesh.new()
+	base_mesh.top_radius = 3.2
+	base_mesh.bottom_radius = 3.55
+	base_mesh.height = 0.48
+	base.mesh = base_mesh
+	base.position = pos + Vector3(0, 0.24, 0)
+	base.material_override = dark_stone
+	add_child(base)
+	var basin := MeshInstance3D.new()
+	var basin_mesh := CylinderMesh.new()
+	basin_mesh.top_radius = 2.95
+	basin_mesh.bottom_radius = 3.1
+	basin_mesh.height = 0.22
+	basin.mesh = basin_mesh
+	basin.position = pos + Vector3(0, 0.56, 0)
+	basin.material_override = stone
+	add_child(basin)
+	var water := MeshInstance3D.new()
+	var water_mesh := CylinderMesh.new()
+	water_mesh.top_radius = 2.72
+	water_mesh.bottom_radius = 2.72
+	water_mesh.height = 0.055
+	water.mesh = water_mesh
+	water.position = pos + Vector3(0, 0.69, 0)
+	water.material_override = water_mat
+	add_child(water)
+	for i in range(8):
+		var angle := TAU * float(i) / 8.0
+		var jet := MeshInstance3D.new()
+		var jet_mesh := CylinderMesh.new()
+		jet_mesh.top_radius = 0.035
+		jet_mesh.bottom_radius = 0.075
+		jet_mesh.height = 1.1
+		jet.mesh = jet_mesh
+		jet.position = pos + Vector3(cos(angle) * 1.75, 1.15, sin(angle) * 1.75)
+		jet.material_override = water_mat
+		add_child(jet)
+	var center := MeshInstance3D.new()
+	var center_mesh := SphereMesh.new()
+	center_mesh.radius = 0.52
+	center_mesh.height = 1.05
+	center.mesh = center_mesh
+	center.position = pos + Vector3(0, 1.1, 0)
+	center.material_override = _make_material(Color("#8be5dc"), 0.18, 0.45)
+	add_child(center)
+	var glow := OmniLight3D.new()
+	glow.position = pos + Vector3(0, 1.2, 0)
+	glow.light_color = Color("#4edbd1")
+	glow.light_energy = 0.65
+	glow.omni_range = 7.0
+	add_child(glow)
+
+func _make_arcade_pavilion(pos: Vector3) -> void:
+	var shell := _make_material(Color("#172b42"), 0.42, 0.18)
+	var trim := _make_material(Color("#e0b66d"), 0.3, 0.55)
+	var glass := _make_material(Color("#28647a"), 0.16, 0.28)
+	_detail_box("Arcade pavilion foundation", pos + Vector3(0, 0.22, 0), Vector3(12.0, 0.44, 9.0), Color("#344958"), 0.42, 0.2)
+	_detail_box("Arcade pavilion body", pos + Vector3(0, 2.45, 0), Vector3(11.2, 4.2, 8.2), Color("#1b3047"), 0.5, 0.12)
+	_detail_box("Arcade pavilion roof", pos + Vector3(0, 4.72, 0), Vector3(12.0, 0.38, 9.0), Color("#d6ad68"), 0.32, 0.45)
+	_detail_box("Arcade pavilion front glass", pos + Vector3(0, 2.45, -4.13), Vector3(8.8, 2.7, 0.12), Color("#28647a"), 0.16, 0.28)
+	for x in [-4.45, -2.2, 0.0, 2.2, 4.45]:
+		_detail_box("Arcade pavilion mullion", pos + Vector3(x, 2.45, -4.22), Vector3(0.11, 2.9, 0.16), Color("#d8c69f"), 0.28, 0.42)
+	for x in [-5.45, 5.45]:
+		_detail_box("Arcade pavilion corner", pos + Vector3(x, 2.35, -4.22), Vector3(0.32, 4.2, 0.36), Color("#54bcb1"), 0.3, 0.3)
+	_detail_box("Arcade marquee", pos + Vector3(0, 4.0, -4.42), Vector3(6.6, 0.72, 0.28), Color("#102335"), 0.28, 0.3)
+	var marquee_text := Label3D.new()
+	marquee_text.text = "LAMMA  •  ARCADE"
+	if arabic_font != null:
+		marquee_text.font = arabic_font
+	marquee_text.position = pos + Vector3(0, 3.91, -4.25)
+	marquee_text.font_size = 34
+	marquee_text.pixel_size = 0.012
+	marquee_text.modulate = Color("#a5fff0")
+	add_child(marquee_text)
+	for x in [-3.8, -1.3, 1.3, 3.8]:
+		var strip := MeshInstance3D.new()
+		var strip_mesh := BoxMesh.new()
+		strip_mesh.size = Vector3(0.72, 0.08, 0.12)
+		strip.mesh = strip_mesh
+		strip.position = pos + Vector3(x, 4.9, -4.48)
+		strip.material_override = trim
+		add_child(strip)
+	var sign_light := OmniLight3D.new()
+	sign_light.position = pos + Vector3(0, 4.0, -5.2)
+	sign_light.light_color = Color("#54d9d0")
+	sign_light.light_energy = 1.1
+	sign_light.omni_range = 10.0
+	add_child(sign_light)
+
+func _make_beach_lounges() -> void:
+	for i in range(3):
+		var x := -19.0 + float(i) * 9.0
+		var z := 23.0 + float(i % 2) * 2.0
+		var umbrella := Node3D.new()
+		umbrella.position = Vector3(x, 0.0, z)
+		add_child(umbrella)
+		var pole := MeshInstance3D.new()
+		var pole_mesh := CylinderMesh.new()
+		pole_mesh.top_radius = 0.045
+		pole_mesh.bottom_radius = 0.07
+		pole_mesh.height = 2.55
+		pole.mesh = pole_mesh
+		pole.position.y = 1.28
+		pole.material_override = _make_material(Color("#e8dfc8"), 0.42, 0.15)
+		umbrella.add_child(pole)
+		var canopy := MeshInstance3D.new()
+		var canopy_mesh := CylinderMesh.new()
+		canopy_mesh.top_radius = 0.08
+		canopy_mesh.bottom_radius = 1.65
+		canopy_mesh.height = 0.42
+		canopy.mesh = canopy_mesh
+		canopy.position.y = 2.42
+		var umbrella_colors := [Color("#e97878"), Color("#54b9ad"), Color("#e7bd70")]
+		canopy.material_override = _make_material(umbrella_colors[i], 0.48)
+		umbrella.add_child(canopy)
+		var bed := MeshInstance3D.new()
+		var bed_mesh := BoxMesh.new()
+		bed_mesh.size = Vector3(1.15, 0.18, 2.15)
+		bed.mesh = bed_mesh
+		bed.position = Vector3(x + 1.25, 0.28, z + 1.0)
+		bed.material_override = _make_material(Color("#d8d4c6"), 0.7)
+		add_child(bed)
+		var back := MeshInstance3D.new()
+		var back_mesh := BoxMesh.new()
+		back_mesh.size = Vector3(1.15, 0.82, 0.16)
+		back.mesh = back_mesh
+		back.position = Vector3(x + 1.25, 0.68, z + 1.92)
+		back.rotation.x = deg_to_rad(-18)
+		back.material_override = _make_material(Color("#f0e7d8"), 0.72)
+		add_child(back)
+
+func _make_lighthouse(pos: Vector3) -> void:
+	var tower := MeshInstance3D.new()
+	var tower_mesh := CylinderMesh.new()
+	tower_mesh.top_radius = 0.85
+	tower_mesh.bottom_radius = 1.35
+	tower_mesh.height = 8.0
+	tower.mesh = tower_mesh
+	tower.position = pos + Vector3(0, 4.0, 0)
+	tower.material_override = _make_material(Color("#e6e0d2"), 0.82)
+	add_child(tower)
+	for y in [1.4, 3.6, 5.8]:
+		var band := MeshInstance3D.new()
+		var band_mesh := CylinderMesh.new()
+		band_mesh.top_radius = 1.08
+		band_mesh.bottom_radius = 1.18
+		band_mesh.height = 0.62
+		band.mesh = band_mesh
+		band.position = pos + Vector3(0, y, 0)
+		band.material_override = _make_material(Color("#bd665c"), 0.78)
+		add_child(band)
+	var lantern := MeshInstance3D.new()
+	var lantern_mesh := CylinderMesh.new()
+	lantern_mesh.top_radius = 1.05
+	lantern_mesh.bottom_radius = 1.05
+	lantern_mesh.height = 1.1
+	lantern.mesh = lantern_mesh
+	lantern.position = pos + Vector3(0, 8.55, 0)
+	lantern.material_override = _make_material(Color("#3b6875"), 0.18, 0.4)
+	add_child(lantern)
+	var roof := MeshInstance3D.new()
+	var roof_mesh := PrismMesh.new()
+	roof_mesh.size = Vector3(2.5, 1.15, 2.5)
+	roof.mesh = roof_mesh
+	roof.position = pos + Vector3(0, 9.65, 0)
+	roof.material_override = _make_material(Color("#263c4a"), 0.35, 0.5)
+	add_child(roof)
+	var beacon := OmniLight3D.new()
+	beacon.position = pos + Vector3(0, 8.6, 0)
+	beacon.light_color = Color("#9cf6ee")
+	beacon.light_energy = 2.0
+	beacon.omni_range = 22.0
+	add_child(beacon)
+
+func _make_welcome_arch(pos: Vector3) -> void:
+	var arch := Node3D.new()
+	arch.position = pos
+	add_child(arch)
+	var frame_mat := _make_material(Color("#d2b078"), 0.3, 0.62)
+	for side in [-1.0, 1.0]:
+		var pillar := MeshInstance3D.new()
+		var pillar_mesh := BoxMesh.new()
+		pillar_mesh.size = Vector3(0.48, 5.4, 0.62)
+		pillar.mesh = pillar_mesh
+		pillar.position = Vector3(side * 5.2, 2.7, 0)
+		pillar.material_override = frame_mat
+		arch.add_child(pillar)
+	var header := MeshInstance3D.new()
+	var header_mesh := BoxMesh.new()
+	header_mesh.size = Vector3(11.0, 0.62, 0.72)
+	header.mesh = header_mesh
+	header.position = Vector3(0, 5.25, 0)
+	header.material_override = frame_mat
+	arch.add_child(header)
+	var plaque := MeshInstance3D.new()
+	var plaque_mesh := BoxMesh.new()
+	plaque_mesh.size = Vector3(7.6, 1.1, 0.16)
+	plaque.mesh = plaque_mesh
+	plaque.position = Vector3(0, 4.35, -0.42)
+	plaque.material_override = _make_material(Color("#102b39"), 0.32, 0.25)
+	arch.add_child(plaque)
+	var title_tag := Label3D.new()
+	title_tag.text = "أهلاً بيك في لَمّة"
+	if arabic_font != null:
+		title_tag.font = arabic_font
+	title_tag.position = Vector3(0, 4.25, -0.30)
+	title_tag.font_size = 36
+	title_tag.pixel_size = 0.012
+	title_tag.modulate = Color("#b8fff0")
+	arch.add_child(title_tag)
