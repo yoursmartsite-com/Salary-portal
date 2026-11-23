@@ -1,11 +1,5 @@
-Lamma HUB Avatar Asset
+Lamma HUB Character
 
-Model: Casual Woman (woman-rigged.glb)
-Source: https://grab3d.com/models/characters/woman/
-Download: https://grab3d.com/dl/woman-rigged/woman-rigged.glb
-License: CC0 1.0 (public domain dedication)
-Use: Personal and commercial projects; modification and redistribution permitted under CC0.
-Format: GLB / glTF 2.0
-Rig: Humanoid skeleton
-Animations: Walk and Run
-The GitHub Actions workflow downloads the rigged GLB into this folder before Godot import and web export. The binary is intentionally not committed to the repository.
+The HUB uses one built-in character only: `StylizedGirlAvatar`, assembled in `scripts/world.gd` by `_build_girl_model()`.
+
+No external GLB character is downloaded or imported by the HUB build. Local and remote HUB players use the same girl character so their appearance stays consistent.
