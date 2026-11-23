@@ -117,10 +117,16 @@ text = "إعدادات"
 [node name="FreeLookButton" type="Button" parent="Root"]
 offset_left = 22.0
 offset_top = 72.0
-offset_right = 138.0
+offset_right = 158.0
 offset_bottom = 118.0
-text = "نظر حر"
-toggle_mode = true
+text = "توسيط الكاميرا"
+tooltip_text = "إرجاع الكاميرا خلف الشخصية"
+
+[node name="CameraLookZone" type="Control" parent="Root"]
+anchor_left = 0.5
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
 
 [node name="SettingsPanel" type="PanelContainer" parent="Root"]
 offset_left = 18.0
