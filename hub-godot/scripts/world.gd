@@ -985,7 +985,7 @@ func _input(event: InputEvent) -> void:
 		if event is InputEventScreenDrag and is_instance_valid(dragging_control):
 			var viewport_size := get_viewport().get_visible_rect().size
 			var control_size := dragging_control.size * dragging_control.scale
-			var next_position := event.position - drag_offset
+			var next_position: Vector2 = event.position - drag_offset
 			next_position.x = clampf(next_position.x, 8.0, viewport_size.x - control_size.x - 8.0)
 			next_position.y = clampf(next_position.y, 8.0, viewport_size.y - control_size.y - 8.0)
 			dragging_control.global_position = next_position
