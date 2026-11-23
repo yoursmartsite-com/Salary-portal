@@ -879,6 +879,8 @@ func _save_control_layout() -> void:
 	var config := ConfigFile.new()
 	config.load("user://lamma_hub_controls.cfg")
 	config.set_value("controls", "scale", hud_scale)
+	# Mark newly saved layouts as migrated so loading them never resets edited positions.
+	config.set_value("controls", "layout_version", 2)
 	for entry in [["joystick", joystick_base], ["run", run_button], ["jump", jump_button]]:
 		var control: Control = entry[1]
 		if is_instance_valid(control):
