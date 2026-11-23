@@ -12,6 +12,7 @@ on:
       - '*.css'
       - 'games/**'
       - 'assets/**'
+      - 'hub-preview/**'
 
 permissions:
   contents: write
