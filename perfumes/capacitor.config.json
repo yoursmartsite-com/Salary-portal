@@ -4,6 +4,8 @@
   "webDir": "www",
   "bundledWebRuntime": false,
   "server": {
+    "url": "https://yoursmartsite-com.github.io/Salary-portal/perfumes/",
+    "cleartext": false,
     "androidScheme": "https"
   }
 }
