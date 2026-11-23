@@ -52,34 +52,32 @@ text = "جاري الاتصال بعالم لَمّة..."
 theme_override_font_sizes/font_size = 14
 
 [node name="RunButton" type="Button" parent="Root"]
-anchor_left = 1.0
 anchor_top = 1.0
-anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -116.0
+offset_left = 26.0
 offset_top = -178.0
-offset_right = -26.0
+offset_right = 116.0
 offset_bottom = -124.0
 text = "جري"
 toggle_mode = true
 
 [node name="JumpButton" type="Button" parent="Root"]
-anchor_left = 1.0
 anchor_top = 1.0
-anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -116.0
+offset_left = 26.0
 offset_top = -105.0
-offset_right = -26.0
+offset_right = 116.0
 offset_bottom = -43.0
 text = "قفز"
 
 [node name="JoystickBase" type="Panel" parent="Root"]
+anchor_left = 1.0
 anchor_top = 1.0
+anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 28.0
+offset_left = -170.0
 offset_top = -174.0
-offset_right = 170.0
+offset_right = -28.0
 offset_bottom = -32.0
 mouse_filter = 2
 theme_override_styles/panel = SubResource("JoystickBaseStyle")
@@ -93,30 +91,24 @@ mouse_filter = 2
 theme_override_styles/panel = SubResource("JoystickKnobStyle")
 
 [node name="SettingsButton" type="Button" parent="Root"]
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -138.0
+offset_left = 22.0
 offset_top = 18.0
-offset_right = -22.0
+offset_right = 138.0
 offset_bottom = 64.0
 text = "إعدادات"
 
 [node name="FreeLookButton" type="Button" parent="Root"]
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -138.0
+offset_left = 22.0
 offset_top = 72.0
-offset_right = -22.0
+offset_right = 138.0
 offset_bottom = 118.0
 text = "نظر حر"
 toggle_mode = true
 
 [node name="SettingsPanel" type="PanelContainer" parent="Root"]
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -310.0
+offset_left = 18.0
 offset_top = 130.0
-offset_right = -18.0
+offset_right = 310.0
 offset_bottom = 402.0
 visible = false
 
@@ -183,6 +175,6 @@ offset_left = -160.0
 offset_top = -36.0
 offset_right = 160.0
 offset_bottom = -8.0
-text = "حرّك العصا يسارًا · اسحب يمينًا لتحريك الكاميرا"
+text = "حرّك العصا يمينًا · اسحب يسارًا لتحريك الكاميرا"
 horizontal_alignment = 1
 theme_override_font_sizes/font_size = 12
