@@ -832,7 +832,15 @@ func _set_layout_edit_mode(enabled: bool) -> void:
 	if is_instance_valid(status_label):
 		status_label.text = "اسحب العصا وأزرار القفز والجري لتغيير أماكنها" if enabled else "تم حفظ أماكن التحكم"
 	if is_instance_valid(joystick_base):
-		joystick_base.color = Color(0.9, 0.65, 0.18, 0.82) if enabled else Color(0.04, 0.08, 0.13, 0.58)
+		var joystick_style := StyleBoxFlat.new()
+		joystick_style.bg_color = Color(0.9, 0.65, 0.18, 0.82) if enabled else Color(0.04, 0.08, 0.13, 0.58)
+		joystick_style.corner_radius_top_left = 64
+		joystick_style.corner_radius_top_right = 64
+		joystick_style.corner_radius_bottom_left = 64
+		joystick_style.corner_radius_bottom_right = 64
+		joystick_style.border_color = Color(0.45, 0.82, 0.78, 0.9)
+		joystick_style.set_border_width_all(2)
+		joystick_base.add_theme_stylebox_override("panel", joystick_style)
 
 func _toggle_settings() -> void:
 	if is_instance_valid(settings_panel):
