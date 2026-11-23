@@ -66,6 +66,12 @@ jobs:
           set -euo pipefail
           "$GODOT_BIN" --headless --path hub-godot --script res://tests/remote_avatar_smoke.gd
 
+      - name: Test mobile joystick, camera, buttons, and saved layout
+        timeout-minutes: 1
+        run: |
+          set -euo pipefail
+          "$GODOT_BIN" --headless --path hub-godot --script res://tests/mobile_controls_smoke.gd
+
       - name: Export Web build
         run: |
           mkdir -p hub-web
