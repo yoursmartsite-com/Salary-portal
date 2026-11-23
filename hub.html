@@ -66,6 +66,10 @@ body.hud-editing [data-hud-control]{pointer-events:auto!important}
 <button class="hud-done-btn" id="hudDoneBtn" type="button">تم حفظ التوزيع</button>
 <div class="modal" id="modal"><div class="modal-card"><div style="font-size:42px">🎡</div><h2 id="modalTitle">أهلاً بيك في لَمّة</h2><p id="modalText">دي ساحتك الترفيهية. اتحرك واستكشف المكان بنفسك!</p><button id="closeModal">تمام، يلا!</button></div></div>
 <script type="module">
+if (navigator.userAgent.includes('LammaAndroid/')) {
+  // Android app uses the Godot world build; desktop/mobile web keeps the current HUB.
+  window.location.replace('./hub-preview/index.html');
+} else {
 let THREE;
 try {
  THREE = await import('https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js');
@@ -77,7 +81,7 @@ try {
   throw secondError;
  }
 }
-import { getFirebaseSession } from './firebase-session.js?v=20261122-4';
+const { getFirebaseSession } = await import('./firebase-session.js?v=20261122-4');
 
 const hubStatus=document.querySelector('#hubOnlineStatus');
 const hubCount=document.querySelector('#hubPlayersCount');
@@ -767,5 +771,6 @@ if(sitting&&rideMode==="none"){setSitPose();}
 for(const item of remotePlayers.values()){item.model.position.lerp(item.target,Math.min(1,dt*12));if(item.moving){item.walkT+=dt*10;item.legs[0].rotation.x=Math.sin(item.walkT)*.55;item.legs[1].rotation.x=-Math.sin(item.walkT)*.55;item.arms[0].rotation.x=-Math.sin(item.walkT)*.28;item.arms[1].rotation.x=Math.sin(item.walkT)*.28;}else{item.legs.forEach(l=>l.rotation.x=0);item.arms.forEach(a=>a.rotation.x=0);}}
 foamLine.position.x=Math.sin(t*.75)*.22;foamLine2.position.x=.38+Math.sin(t*.75+.8)*.18;renderer.render(scene,camera);if(hubApi&&hubUid&&t-hubLastWrite>.30){hubLastWrite=t;const p=hubApi.ref(hubDb,'presence/'+hubUid+'/hub');hubApi.update(p,{active:true,name:myName,x:Number(avatar.position.x.toFixed(2)),z:Number(avatar.position.z.toFixed(2)),yaw:Number(yaw.toFixed(3)),moving:Math.abs(dx)+Math.abs(dz)>.02,updatedAt:Date.now()}).catch(e=>{console.error('Hub position update',e);hubStatus.textContent='🔴 فقد الاتصال';});}}
 animate();connectHub();
+}
 </script>
 </body></html>

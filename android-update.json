@@ -1,8 +1,8 @@
 {
-  "versionCode": 34,
-  "versionName": "1.9.5",
+  "versionCode": 35,
+  "versionName": "1.9.6",
   "apkUrl": "https://github.com/yoursmartsite-com/Salary-portal/releases/latest/download/lamma.apk",
   "force": false,
-  "message": "إصلاح النطق في أكاديمية لَمّة باستخدام محرك الصوت الأصلي في أندرويد.",
-  "releaseNotes": "إضافة دعم النطق للكلمات والجمل داخل الأكاديمية عبر Android TextToSpeech، مع دعم الإنجليزية والهولندية والعربية وإيقاف النطق عند طلب ذلك."
+  "message": "تحديث عالم لَمّة ثلاثي الأبعاد داخل التطبيق، مع تحسين وضع الشاشة بالعرض.",
+  "releaseNotes": "تطبيق لَمّة يفتح نسخة عالم Godot ثلاثية الأبعاد عند دخول HUB. تم ضبط اتجاه الشاشة بالعرض لصفحات عالم لَمّة."
 }

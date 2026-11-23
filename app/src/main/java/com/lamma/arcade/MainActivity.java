@@ -101,7 +101,8 @@ public class MainActivity extends Activity {
                 Uri page = Uri.parse(url);
                 boolean hubPage = SITE_HOST.equals(page.getHost())
                     && page.getPath() != null
-                    && page.getPath().equals(SITE_PREFIX + "hub.html");
+                    && (page.getPath().equals(SITE_PREFIX + "hub.html")
+                        || page.getPath().startsWith(SITE_PREFIX + "hub-preview/"));
                 setRequestedOrientation(hubPage
                     ? ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
                     : ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
