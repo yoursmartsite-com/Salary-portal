@@ -14,6 +14,8 @@ var active_look := false
 var active_move := false
 var move_origin := Vector2.ZERO
 var move_touch := Vector2.ZERO
+var move_touch_index := -1
+var look_touch_index := -1
 var jump_requested := false
 var ui_layer: CanvasLayer
 var animated_legs: Array[Node3D] = []
@@ -52,6 +54,7 @@ func _ready() -> void:
 	_build_camera()
 	arabic_font = load("res://assets/Cairo.ttf") as Font if ResourceLoader.exists("res://assets/Cairo.ttf") else null
 	_build_hud()
+	_load_control_layout()
 	_load_professional_avatar()
 	if not has_meta("skip_firebase"):
 		firebase_bridge = FirebaseHub.new()
@@ -912,10 +915,12 @@ func _set_graphics_quality(index: int) -> void:
 
 func _set_layout_edit_mode(enabled: bool) -> void:
 	layout_edit_mode = enabled
+	if not enabled:
+		_save_control_layout()
 	if is_instance_valid(status_label):
-		status_label.text = "اسحب العصا وأزرار القفز والجري لتغيير أماكنها" if enabled else "تم حفظ أماكن التحكم خلال الجلسة"
+		status_label.text = "اسحب العصا وأزرار القفز والجري لتغيير أماكنها" if enabled else "تم حفظ أماكن التحكم"
 	if is_instance_valid(joystick_base):
-		joystick_base.color = Color(0.9, 0.65, 0.18, 0.72) if enabled else Color(0.04, 0.08, 0.13, 0.48)
+		joystick_base.color = Color(0.9, 0.65, 0.18, 0.82) if enabled else Color(0.04, 0.08, 0.13, 0.58)
 
 func _toggle_settings() -> void:
 	if is_instance_valid(settings_panel):
@@ -923,55 +928,92 @@ func _toggle_settings() -> void:
 
 func _on_hud_scale_changed(value: float) -> void:
 	hud_scale = value
-	if is_instance_valid(joystick_base):
-		joystick_base.pivot_offset = Vector2(71, 71)
-		joystick_base.scale = Vector2.ONE * hud_scale
-	if is_instance_valid(run_button):
-		run_button.scale = Vector2.ONE * hud_scale
-	if is_instance_valid(jump_button):
-		jump_button.scale = Vector2.ONE * hud_scale
+	for control in [joystick_base, run_button, jump_button]:
+		if is_instance_valid(control):
+			control.pivot_offset = control.size * 0.5
+			control.scale = Vector2.ONE * hud_scale
+	_save_control_layout()
+
+func _load_control_layout() -> void:
+	var config := ConfigFile.new()
+	if config.load("user://lamma_hub_controls.cfg") != OK:
+		return
+	for entry in [["joystick", joystick_base], ["run", run_button], ["jump", jump_button]]:
+		var control: Control = entry[1]
+		if is_instance_valid(control) and config.has_section_key("controls", entry[0]):
+			control.position = config.get_value("controls", entry[0], control.position)
+			control.pivot_offset = control.size * 0.5
+			control.scale = Vector2.ONE * hud_scale
+
+func _save_control_layout() -> void:
+	var config := ConfigFile.new()
+	config.load("user://lamma_hub_controls.cfg")
+	for entry in [["joystick", joystick_base], ["run", run_button], ["jump", jump_button]]:
+		var control: Control = entry[1]
+		if is_instance_valid(control):
+			config.set_value("controls", entry[0], control.position)
+	config.save("user://lamma_hub_controls.cfg")
+
+func _point_over_control(point: Vector2) -> bool:
+	for control in [run_button, jump_button, free_look_button, settings_panel, portal_enter_button]:
+		if is_instance_valid(control) and control.visible and control.get_global_rect().has_point(point):
+			return true
+	return false
 
 func _input(event: InputEvent) -> void:
-	if layout_edit_mode and event is InputEventScreenTouch:
-		if event.pressed:
-			for control in [joystick_base, run_button, jump_button]:
-				if is_instance_valid(control) and Rect2(control.global_position, control.size * control.scale).has_point(event.position):
-					dragging_control = control
-					drag_offset = event.position - control.global_position
-					get_viewport().set_input_as_handled()
-					return
-		else:
-			dragging_control = null
+	if layout_edit_mode:
+		if event is InputEventScreenTouch:
+			if event.pressed:
+				for control in [joystick_base, run_button, jump_button]:
+					if is_instance_valid(control) and control.get_global_rect().has_point(event.position):
+						dragging_control = control
+						drag_offset = event.position - control.global_position
+						get_viewport().set_input_as_handled()
+						return
+			else:
+				if is_instance_valid(dragging_control):
+					_save_control_layout()
+				dragging_control = null
+				get_viewport().set_input_as_handled()
+				return
+		if event is InputEventScreenDrag and is_instance_valid(dragging_control):
+			var viewport_size := get_viewport().get_visible_rect().size
+			var control_size := dragging_control.size * dragging_control.scale
+			var next_position := event.position - drag_offset
+			next_position.x = clampf(next_position.x, 8.0, viewport_size.x - control_size.x - 8.0)
+			next_position.y = clampf(next_position.y, 8.0, viewport_size.y - control_size.y - 8.0)
+			dragging_control.global_position = next_position
 			get_viewport().set_input_as_handled()
 			return
-	if layout_edit_mode and event is InputEventScreenDrag and is_instance_valid(dragging_control):
-		dragging_control.global_position = event.position - drag_offset
-		get_viewport().set_input_as_handled()
-		return
+
 	if event is InputEventMouseMotion and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
 		camera_yaw -= event.relative.x * 0.006
 		camera_pitch = clampf(camera_pitch + event.relative.y * 0.004, -0.65, 0.25)
 	elif event is InputEventScreenTouch:
 		if event.pressed:
-			if event.position.x < get_viewport().size.x * 0.42:
+			if is_instance_valid(joystick_base) and joystick_base.get_global_rect().has_point(event.position) and move_touch_index == -1:
 				active_move = true
-				move_origin = event.position
-				move_touch = Vector2.ZERO
+				move_touch_index = event.index
+				move_origin = joystick_base.global_position + joystick_base.size * 0.5
+				move_touch = ((event.position - move_origin) / 55.0).limit_length(1.0)
 				_update_joystick_visual()
-			elif event.position.x > get_viewport().size.x * 0.55:
+			elif event.position.x > get_viewport().get_visible_rect().size.x * 0.42 and not _point_over_control(event.position) and look_touch_index == -1:
 				active_look = true
+				look_touch_index = event.index
 		else:
-			if event.position.x < get_viewport().size.x * 0.48:
+			if event.index == move_touch_index:
 				active_move = false
+				move_touch_index = -1
 				move_touch = Vector2.ZERO
 				_update_joystick_visual()
-			else:
+			if event.index == look_touch_index:
 				active_look = false
+				look_touch_index = -1
 	elif event is InputEventScreenDrag:
-		if active_move:
-			move_touch = ((event.position - move_origin) / 65.0).limit_length(1.0)
+		if active_move and event.index == move_touch_index:
+			move_touch = ((event.position - move_origin) / 55.0).limit_length(1.0)
 			_update_joystick_visual()
-		elif active_look:
+		elif active_look and event.index == look_touch_index:
 			camera_yaw -= event.relative.x * 0.006
 			camera_pitch = clampf(camera_pitch + event.relative.y * 0.004, -0.65, 0.25)
 
@@ -991,8 +1033,6 @@ func _process(delta: float) -> void:
 		if firebase_send_clock >= 0.2:
 			firebase_send_clock = 0.0
 			firebase_bridge.send_position(player.global_position, player.rotation.y)
-	if is_instance_valid(joystick_base):
-		joystick_base.position.y = get_viewport().get_visible_rect().size.y - 174.0
 	if not is_instance_valid(player):
 		return
 	var horizontal_speed := Vector2(player.velocity.x, player.velocity.z).length()
