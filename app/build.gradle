@@ -2,6 +2,8 @@ plugins {
     id 'com.android.application'
 }
 
+def lammaUpdate = new groovy.json.JsonSlurper().parse(file('../android-update.json'))
+
 android {
     namespace 'com.lamma.arcade'
     buildFeatures {
@@ -13,8 +15,8 @@ android {
         applicationId 'com.lamma.arcade'
         minSdk 23
         targetSdk 35
-        versionCode 36
-        versionName '1.9.7'
+        versionCode lammaUpdate.versionCode as int
+        versionName lammaUpdate.versionName.toString()
     }
 
     signingConfigs {
