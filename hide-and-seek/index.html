@@ -19,49 +19,12 @@
 <div class="overlay hidden" id="end"><div class="panel"><div class="eyebrow">انتهت الجولة</div><h1 id="endTitle">نجوت!</h1><p id="endText">أحسنت، لقد نجوت حتى نهاية الوقت.</p><button type="button" class="primary" id="again">العب مرة أخرى</button></div></div>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <script>
-(function(){
- const startBtn=document.getElementById('startBtn'),startPanel=document.getElementById('start');
- let fallbackRunning=false,frame=0,last=0,elapsed=0,player={x:0,y:0},bots=[],keys={},stick={x:0,y:0},hidden=false;
- const game=document.getElementById('game'),timer=document.getElementById('timer'),count=document.getElementById('count'),hideBtn=document.getElementById('hideBtn');
- function fallbackStart(){
-  if(typeof window.__lammaStartGame==='function'){window.__lammaStartGame();return;}
-  fallbackRunning=true;elapsed=0;player={x:0,y:0};hidden=false;
-  bots=Array.from({length:7},(_,i)=>({x:Math.cos(i/7*Math.PI*2)*24,y:Math.sin(i/7*Math.PI*2)*24,seeker:i===6,alive:true}));
-  startPanel.classList.add('hidden');document.getElementById('end').classList.add('hidden');
-  hideBtn.textContent='اختبئ';game.innerHTML='<canvas id="fallbackCanvas" style="width:100%;height:100%;display:block;touch-action:none"></canvas>';
-  const canvas=document.getElementById('fallbackCanvas'),ctx=canvas.getContext('2d');
-  function draw(t){
-   if(!fallbackRunning)return;const dt=Math.min((t-last)/1000||0,.04);last=t;elapsed+=dt;
-   const w=canvas.width=innerWidth*devicePixelRatio,h=canvas.height=innerHeight*devicePixelRatio;ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
-   const W=innerWidth,H=innerHeight,scale=Math.min(W,H)/90,cx=W/2,cy=H/2;
-   ctx.fillStyle='#34483b';ctx.fillRect(0,0,W,H);
-   for(let i=0;i<150;i++){const x=((i*7919)%997)/997*W,y=((i*3571)%991)/991*H;ctx.fillStyle=i%2?'#405843':'#293e32';ctx.beginPath();ctx.arc(x,y,2+(i%4),0,Math.PI*2);ctx.fill()}
-   ctx.fillStyle='#59605a';ctx.fillRect(cx-42*scale,cy-5*scale,84*scale,10*scale);ctx.fillRect(cx-5*scale,cy-42*scale,10*scale,84*scale);
-   for(let i=0;i<16;i++){const x=cx+Math.cos(i*2.4)*((i%4)*8+25)*scale,y=cy+Math.sin(i*2.4)*((i%4)*8+25)*scale;ctx.fillStyle='#253c2e';ctx.beginPath();ctx.arc(x,y,2.5*scale,0,Math.PI*2);ctx.fill();ctx.fillStyle='#54704d';ctx.beginPath();ctx.arc(x,y,4.8*scale,0,Math.PI*2);ctx.fill()}
-   for(const b of bots){if(!b.alive)continue;if(b.seeker){const dx=player.x-b.x,dy=player.y-b.y,d=Math.hypot(dx,dy)||1;if(d<33&&!hidden){b.x+=dx/d*dt*3.8;b.y+=dy/d*dt*3.8}if(d<1.5&&!hidden){fallbackRunning=false;document.getElementById('endTitle').textContent='تم الإمساك بك';document.getElementById('endText').textContent='الباحث أمسك بك. حاول الاختباء والابتعاد عنه.';document.getElementById('end').classList.remove('hidden')}}else{b.x+=Math.sin(t/1500+b.y)*dt*.8;b.y+=Math.cos(t/1700+b.x)*dt*.8}
-    ctx.fillStyle=b.seeker?'#c94d43':'#d1c8ad';ctx.beginPath();ctx.arc(cx+b.x*scale,cy+b.y*scale,5*scale,0,Math.PI*2);ctx.fill()}
-   ctx.fillStyle=hidden?'#9fe2b5':'#e7f3e9';ctx.beginPath();ctx.arc(cx+player.x*scale,cy+player.y*scale,6*scale,0,Math.PI*2);ctx.fill();
-   const remain=Math.max(0,180-elapsed);timer.textContent='0'+Math.floor(remain/60)+':'+String(Math.floor(remain%60)).padStart(2,'0');count.textContent='7 / 7';
-   if(remain<=0){fallbackRunning=false;document.getElementById('endTitle').textContent='نجوت!';document.getElementById('endText').textContent='انتهى الوقت.';document.getElementById('end').classList.remove('hidden');return}
-   const dx=(keys.ArrowRight||keys.KeyD?1:0)-(keys.ArrowLeft||keys.KeyA?1:0)+stick.x,dy=(keys.ArrowDown||keys.KeyS?1:0)-(keys.ArrowUp||keys.KeyW?1:0)+stick.y,len=Math.hypot(dx,dy)||1;player.x=Math.max(-39,Math.min(39,player.x+dx/len*dt*(hidden?2:7)));player.y=Math.max(-39,Math.min(39,player.y+dy/len*dt*(hidden?2:7)));
-   frame=requestAnimationFrame(draw);
-  }
-  last=performance.now();frame=requestAnimationFrame(draw);
- }
- startBtn.addEventListener('click',function(){
-  if(typeof window.__lammaStartGame==='function'){window.__lammaStartGame();return;}
-  startBtn.disabled=true;startBtn.textContent='تحميل محرك اللعبة...';
-  setTimeout(function(){startBtn.disabled=false;startBtn.textContent='ابدأ الجولة';fallbackStart();},2200);
- });
- document.getElementById('again').addEventListener('click',function(){if(typeof window.__lammaStartGame!=='function')fallbackStart()});
- hideBtn.addEventListener('click',function(){if(!fallbackRunning)return;hidden=!hidden;hideBtn.textContent=hidden?'تحرك':'اختبئ'});
- addEventListener('keydown',e=>keys[e.code]=true);addEventListener('keyup',e=>keys[e.code]=false);
- const stickEl=document.getElementById('stick'),knob=document.getElementById('knob');let active=false;
- stickEl.addEventListener('pointerdown',e=>{active=true;stickEl.setPointerCapture(e.pointerId);});
- stickEl.addEventListener('pointermove',e=>{if(!active)return;const r=stickEl.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2),max=r.width*.34,l=Math.hypot(dx,dy)||1,k=Math.min(1,max/l);stick.x=dx/max*k;stick.y=dy/max*k;knob.style.transform='translate('+dx*k+'px,'+dy*k+'px)'});
- const release=()=>{active=false;stick={x:0,y:0};knob.style.transform=''};stickEl.addEventListener('pointerup',release);stickEl.addEventListener('pointercancel',release);
- window.addEventListener('error',e=>{if(typeof window.__lammaStartGame!=='function'){startBtn.disabled=false;startBtn.textContent='ابدأ الجولة';startPanel.querySelector('.panel p').textContent='سيتم تشغيل وضع التوافق تلقائيًا عند الضغط على ابدأ.'}});
-})();
+document.querySelector('#startBtn').disabled=true;
+document.querySelector('#startBtn').textContent='تحميل اللعبة ثلاثية الأبعاد...';
+window.addEventListener('error',function(e){
+ const btn=document.querySelector('#startBtn');
+ if(btn && btn.disabled){btn.disabled=false;btn.textContent='إعادة المحاولة';}
+});
 </script>
 <script type="module">
 import * as THREE from 'three';
@@ -100,7 +63,7 @@ function buildWorld(){
 function fallbackHuman(color){const g=new THREE.Group(),body=new THREE.Mesh(new THREE.CapsuleGeometry(.36,.72,5,8),mat(color)),head=new THREE.Mesh(new THREE.SphereGeometry(.24,12,10),mat('#b78f70'));body.position.y=1.05;head.position.y=1.78;g.add(body,head);for(const x of [-.2,.2]){const leg=new THREE.Mesh(new THREE.CapsuleGeometry(.12,.62,4,6),mat('#252d2c'));leg.position.set(x,.38,0);g.add(leg)}return g}
 async function loadHuman(){
  try{
-  const timeout=new Promise((_,reject)=>setTimeout(()=>reject(new Error('Character download timeout')),3500));
+  const timeout=new Promise((_,reject)=>setTimeout(()=>reject(new Error('Character download timeout')),12000));
   return await Promise.race([loader.loadAsync('https://threejs.org/examples/models/gltf/Soldier.glb'),timeout]);
  }catch(e){console.warn('Character model unavailable; using local fallback.',e);return null}
 }
@@ -164,7 +127,7 @@ async function start(){
   startPanel.classList.remove('hidden');notify('تعذر تشغيل الجولة على هذا الجهاز. حاول مرة أخرى.');
  }
 }
-window.__lammaStartGame=start;document.querySelector('#again').addEventListener('click',start);window.__lammaGameModuleReady=true;document.querySelector('#qualityBtn').addEventListener('click',()=>{quality=quality?0:1;document.querySelector('#qualityBtn').textContent='الجودة: '+(quality?'عالية':'موفرة')});
+window.__lammaStartGame=start;document.querySelector('#startBtn').disabled=false;document.querySelector('#startBtn').textContent='ابدأ الجولة';document.querySelector('#startBtn').addEventListener('click',start);document.querySelector('#again').addEventListener('click',start);window.__lammaGameModuleReady=true;document.querySelector('#qualityBtn').addEventListener('click',()=>{quality=quality?0:1;document.querySelector('#qualityBtn').textContent='الجودة: '+(quality?'عالية':'موفرة')});
 addEventListener('error',e=>{console.error('Game startup error:',e.error||e.message)});addEventListener('unhandledrejection',e=>{console.error('Game startup rejection:',e.reason)});
 addEventListener('resize',()=>{if(!camera||!renderer)return;camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
 </script>
