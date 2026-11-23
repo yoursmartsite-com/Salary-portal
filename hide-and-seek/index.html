@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#080d13"><title>لَمّة | اختبئ أو اهرب</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#080d13;color:#f3f6f7;font-family:Cairo,system-ui,sans-serif}#game{position:fixed;inset:0}canvas{display:block;width:100%;height:100%;touch-action:none}.veil{position:fixed;inset:0;pointer-events:none;background:linear-gradient(180deg,#071018b8,transparent 24%,transparent 65%,#071018b8)}.top{position:fixed;top:14px;left:14px;right:14px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;pointer-events:none}.brand,.hud,.objective{background:#08131dcc;border:1px solid #ffffff22;backdrop-filter:blur(14px);box-shadow:0 12px 36px #0005;border-radius:15px}.brand{padding:9px 15px}.brand b{font-size:17px;font-weight:900}.brand small{display:block;color:#a7bac1;font-size:10px}.hud{display:flex;gap:15px;padding:9px 14px;font-size:12px}.hud strong{display:block;font-size:18px;direction:ltr;text-align:center}.objective{padding:9px 14px;max-width:260px;font-size:12px}.objective b{color:#b5e5c7}.bottom{position:fixed;left:14px;right:14px;bottom:14px;display:flex;justify-content:space-between;align-items:end;pointer-events:none}.hint{background:#08131dcc;border:1px solid #ffffff20;border-radius:12px;padding:8px 12px;color:#d0dcdf;font-size:11px}.controls{display:flex;gap:12px;align-items:end;pointer-events:auto}.stick{width:112px;height:112px;border-radius:50%;border:1px solid #ffffff55;background:#0b1b22aa;position:relative;touch-action:none;box-shadow:inset 0 0 25px #9ed5c522}.knob{position:absolute;width:43px;height:43px;left:34px;top:34px;border-radius:50%;background:#c9e6d9aa;border:1px solid #fff8;box-shadow:0 3px 12px #0008}.act{width:66px;height:66px;border-radius:50%;border:1px solid #ffffff55;background:#b5e5c7;color:#102018;font-weight:900;box-shadow:0 8px 22px #0007}.overlay{position:fixed;inset:0;display:grid;place-items:center;background:linear-gradient(120deg,#050b10dd,#0c171acc);z-index:5;padding:20px}.panel{width:min(480px,100%);padding:26px;border-radius:22px;border:1px solid #ffffff25;background:linear-gradient(145deg,#17272beF,#0a1319f5);box-shadow:0 25px 90px #000a;text-align:center}.eyebrow{color:#a7d8b7;font-size:11px;letter-spacing:2px}.panel h1{font-size:clamp(28px,7vw,42px);line-height:1.25;margin:8px 0}.panel p{color:#b8c6c7;font-size:13px;line-height:1.9}.primary{background:#b5e5c7;color:#102018;font:900 15px Cairo;border:0;border-radius:12px;padding:12px 25px;width:100%;margin-top:10px}.secondary{background:#ffffff12;color:#e8f2ed;border:1px solid #ffffff22;border-radius:11px;padding:10px 18px;font:700 13px Cairo;margin-top:8px;width:100%}.hidden{display:none!important}.toast{position:fixed;top:90px;left:50%;transform:translateX(-50%);background:#10241ddd;border:1px solid #b5e5c755;padding:8px 16px;border-radius:30px;font-size:12px;z-index:4;white-space:nowrap}.crosshair{position:fixed;left:50%;top:50%;width:18px;height:18px;transform:translate(-50%,-50%);opacity:.7;pointer-events:none}.crosshair:before,.crosshair:after{content:"";position:absolute;background:#e7f5ed}.crosshair:before{width:1px;height:18px;left:8px}.crosshair:after{height:1px;width:18px;top:8px}
+@media(min-width:800px){.stick{width:90px;height:90px}.knob{left:26px;top:26px;width:36px;height:36px}.bottom{bottom:20px}.objective{font-size:13px}}
+</style>
+</head>
+<body>
+<div id="game"></div><div class="veil"></div>
+<div class="top"><div class="brand"><b>لَمّة <span style="color:#b5e5c7">/</span> اختبئ أو اهرب</b><small>ليلة الغابة · الجولة التجريبية</small></div><div class="hud"><div>الوقت<strong id="timer">03:00</strong></div><div>الناجون<strong id="count">7 / 7</strong></div><div>اللاعبون<strong>8</strong></div></div><div class="objective" id="objective"><b>مهمتك:</b> اهرب واختبئ من الباحث. ابقَ حيًا حتى انتهاء الوقت.</div></div>
+<div class="crosshair"></div><div class="toast hidden" id="toast"></div>
+<div class="bottom"><div class="hint">WASD / الأسهم للحركة · الماوس لتدوير الكاميرا · E للاختباء</div><div class="controls"><div class="stick" id="stick"><div class="knob" id="knob"></div></div><button class="act" id="hideBtn">اختبئ</button></div></div>
+<div class="overlay" id="start"><div class="panel"><div class="eyebrow">LAMMA ORIGINAL · 8 SLOTS</div><h1>اختبئ أو اهرب</h1><p>سبع شخصيات تحاول النجاة داخل منتجع مهجور وسط الغابة، وباحث واحد يطاردهم. اختبئ خلف المباني والأشجار، وغيّر مكانك قبل أن يكتشفك.</p><p><b>دورك: مختبئ</b> · 7 مختبئين + باحث ذكي · جولة 3 دقائق</p><button class="primary" id="startBtn">ابدأ الجولة</button><button class="secondary" id="qualityBtn">الجودة: عالية</button></div></div>
+<div class="overlay hidden" id="end"><div class="panel"><div class="eyebrow">انتهت الجولة</div><h1 id="endTitle">نجوت!</h1><p id="endText">أحسنت، لقد نجوت حتى نهاية الوقت.</p><button class="primary" id="again">العب مرة أخرى</button></div></div>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+import {SkeletonUtils} from 'three/addons/utils/SkeletonUtils.js';
+
+const root=document.querySelector('#game'),timerEl=document.querySelector('#timer'),countEl=document.querySelector('#count'),toastEl=document.querySelector('#toast');
+let scene,camera,renderer,clock,mixerList=[],actors=[],obstacles=[],running=false,elapsed=0,quality=1,player,seekers=[],keys={},move={x:0,y:0},yaw=0,pitch=.22,hideState=false,toastTimer;
+const WORLD=82, loader=new GLTFLoader();
+const mat=(color,rough=.85,metal=0)=>new THREE.MeshStandardMaterial({color,roughness:rough,metalness:metal});
+const rand=(a,b)=>a+Math.random()*(b-a);
+function notify(s){toastEl.textContent=s;toastEl.classList.remove('hidden');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toastEl.classList.add('hidden'),1900)}
+function box(x,y,z,sx,sy,sz,material){const o=new THREE.Mesh(new THREE.BoxGeometry(sx,sy,sz),material);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;scene.add(o);return o}
+function addObstacle(x,z,sx,sz,sy=3,material=mat('#59645c')){const o=box(x,sy/2,z,sx,sy,sz,material);obstacles.push({x,z,rx:sx/2,rz:sz/2});return o}
+function makeTree(x,z,h){const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.18,.28,h*.42,7),mat('#44392e'));trunk.position.set(x,h*.21,z);trunk.castShadow=true;scene.add(trunk);for(let i=0;i<3;i++){const crown=new THREE.Mesh(new THREE.ConeGeometry(h*(.27-i*.045),h*.48,8),new THREE.MeshStandardMaterial({color:i===0?'#243c31':'#304c3a',roughness:1}));crown.position.set(x,h*.43+i*h*.19,z);crown.castShadow=true;scene.add(crown)}obstacles.push({x,z,rx:.55,rz:.55})}
+function buildWorld(){
+ scene=new THREE.Scene();scene.background=new THREE.Color('#84918a');scene.fog=new THREE.FogExp2('#89968d',.012);
+ camera=new THREE.PerspectiveCamera(67,innerWidth/innerHeight,.1,220);
+ renderer=new THREE.WebGLRenderer({antialias:quality>0,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,quality?1.65:1));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=quality>0;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;root.replaceChildren(renderer.domElement);
+ scene.add(new THREE.HemisphereLight('#d9e5dc','#28332c',2.1));const sun=new THREE.DirectionalLight('#ffe3bd',3.1);sun.position.set(-24,38,12);sun.castShadow=true;sun.shadow.mapSize.set(quality?2048:1024,quality?2048:1024);sun.shadow.camera.left=-55;sun.shadow.camera.right=55;sun.shadow.camera.top=55;sun.shadow.camera.bottom=-55;scene.add(sun);
+ const ground=new THREE.Mesh(new THREE.PlaneGeometry(220,220),mat('#4b594c'));ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
+ // asphalt courtyard and cracked concrete paths
+ const path=new THREE.Mesh(new THREE.PlaneGeometry(15,76),mat('#555b58'));path.rotation.x=-Math.PI/2;path.position.set(0,.012,0);scene.add(path);
+ const cross=new THREE.Mesh(new THREE.PlaneGeometry(76,12),mat('#555b58'));cross.rotation.x=-Math.PI/2;cross.position.set(0,.014,0);scene.add(cross);
+ for(let i=0;i<180;i++){const x=rand(-95,95),z=rand(-95,95);if(Math.abs(x)<12&&Math.abs(z)<40)continue;makeTree(x,z,rand(4.5,8.5))}
+ // abandoned lodge, storage sheds and concrete barriers
+ const concrete=mat('#747a73'),wall=mat('#6b716c'),roof=mat('#343b38',.7),glass=new THREE.MeshStandardMaterial({color:'#253d40',roughness:.18,metalness:.35});
+ function building(x,z,w,d,h){box(x,h/2,z,w,h,d,wall);box(x,h+.12,z,w+0.5,.28,d+.5,roof);for(let xx=x-w*.28;xx<x+w*.4;xx+=w*.35){const win=box(xx,h*.62,z-d/2-.012,w*.16,h*.22,.04,glass);win.castShadow=false}addObstacle(x,z,w,d,h,wall)}
+ building(-21,-13,18,14,7);building(24,17,15,12,5);building(1,31,12,10,4);
+ addObstacle(-8,4,7,2,2.2,concrete);addObstacle(12,-17,8,2,2,concrete);addObstacle(31,-8,3,8,2.5,concrete);addObstacle(-32,18,3,9,2.5,concrete);
+ // fence segments around the playable area
+ for(let i=-4;i<=4;i++){box(i*10,1.4,-43,8,.12,.12,mat('#333d39'));box(i*10,1.4,43,8,.12,.12,mat('#333d39'))}
+ // atmospheric lamps
+ for(const [x,z] of [[-10,-4],[16,4],[-30,3],[3,38]]){const pole=new THREE.Mesh(new THREE.CylinderGeometry(.08,.12,5,8),mat('#303a38'));pole.position.set(x,2.5,z);scene.add(pole);const lamp=new THREE.PointLight('#ffd6a0',quality?22:10,16,2);lamp.position.set(x,4.8,z);scene.add(lamp);const bulb=new THREE.Mesh(new THREE.SphereGeometry(.18,8,8),new THREE.MeshBasicMaterial({color:'#ffe0ae'}));bulb.position.copy(lamp.position);scene.add(bulb)}
+}
+function fallbackHuman(color){const g=new THREE.Group(),body=new THREE.Mesh(new THREE.CapsuleGeometry(.36,.72,5,8),mat(color)),head=new THREE.Mesh(new THREE.SphereGeometry(.24,12,10),mat('#b78f70'));body.position.y=1.05;head.position.y=1.78;g.add(body,head);for(const x of [-.2,.2]){const leg=new THREE.Mesh(new THREE.CapsuleGeometry(.12,.62,4,6),mat('#252d2c'));leg.position.set(x,.38,0);g.add(leg)}return g}
+async function loadHuman(){
+ try{const gltf=await loader.loadAsync('https://threejs.org/examples/models/gltf/Soldier.glb');return gltf}catch(e){console.warn('Character model unavailable; using local fallback.',e);return null}
+}
+function makeActor(model,name,color,x,z,isPlayer=false){
+ let obj, mixer=null,actions={};
+ if(model){obj=SkeletonUtils.clone(model.scene);obj.scale.setScalar(.82);obj.traverse(n=>{if(n.isMesh){n.castShadow=true;n.receiveShadow=true}});mixer=new THREE.AnimationMixer(obj);for(const clip of model.animations){const a=mixer.clipAction(clip);actions[clip.name]=a}const idle=actions['Idle'];if(idle)idle.play()}
+ else obj=fallbackHuman(color);
+ obj.position.set(x,0,z);scene.add(obj);
+ const marker=new THREE.Mesh(new THREE.CircleGeometry(.48,24),new THREE.MeshBasicMaterial({color:isPlayer?'#a7e5bd':'#e7b46f',transparent:true,opacity:.16,depthWrite:false}));marker.rotation.x=-Math.PI/2;marker.position.y=.025;obj.add(marker);
+ const a={obj,name,mixer,actions,x,z,alive:true,isPlayer,speed:0,hidden:false,think:0,target:null};actors.push(a);if(mixer)mixerList.push(mixer);return a
+}
+function setAnim(a,name){if(!a.actions||!a.actions[name])return;for(const [n,act] of Object.entries(a.actions)){if(n===name){act.reset().fadeIn(.18).play()}else act.fadeOut(.15)}}
+function blocked(x,z){return obstacles.some(o=>Math.abs(x-o.x)<o.rx+.48&&Math.abs(z-o.z)<o.rz+.48)}
+function canHide(a){return obstacles.some(o=>Math.hypot(a.x-o.x,a.z-o.z)<Math.max(o.rx,o.rz)+1.8)}
+function resetRound(model){
+ actors=[];mixerList=[];obstacles=[];elapsed=0;hideState=false;buildWorld();
+ player=makeActor(model,'أنت','#8bd7a7',0,0,true);
+ const colors=['#b5b7a9','#9faba5','#b9a58d','#879ca8','#c0b9a9','#9eaa8e','#a5a0b9'];
+ for(let i=0;i<7;i++){const spots=[[-27,-25],[28,-24],[-34,29],[34,32],[-8,34],[17,-33],[4,18]];const [x,z]=spots[i];makeActor(model,'مختبئ '+(i+1),colors[i],x,z)}
+ const seeker=makeActor(model,'الباحث','#bb4b3f',-4,-35);seeker.obj.traverse(n=>{if(n.isMesh&&n.material&&n.material.color)n.material.color.set('#9a4139')});seekers=[seeker];
+ camera.position.set(0,4.5,8);yaw=0;pitch=.2;updateHud();
+}
+function updateHud(){timerEl.textContent='0'+Math.floor(Math.max(0,180-elapsed)/60)+':'+String(Math.floor(Math.max(0,180-elapsed)%60)).padStart(2,'0');countEl.textContent=actors.filter(a=>!a.isPlayer&&a.alive).length+' / 7'}
+function moveActor(a,dx,dz,dt){const nx=a.x+dx*dt,nz=a.z+dz*dt;if(!blocked(nx,a.z))a.x=THREE.MathUtils.clamp(nx,-40,40);if(!blocked(a.x,nz))a.z=THREE.MathUtils.clamp(nz,-40,40);a.obj.position.set(a.x,0,a.z);if(Math.abs(dx)+Math.abs(dz)>.02){a.obj.rotation.y=Math.atan2(dx,dz);a.speed=1}else a.speed=0;setAnim(a,a.speed?'Run':'Idle')}
+function updateBots(dt){
+ const hiders=actors.filter(a=>!a.isPlayer&&a.alive);
+ const seeker=seekers[0];if(!seeker)return;
+ for(const a of hiders){a.think-=dt;if(a.think<=0){a.think=rand(1.2,3.2);const d=Math.hypot(a.x-seeker.x,a.z-seeker.z);if(d<17){const angle=Math.atan2(a.z-seeker.z,a.x-seeker.x)+rand(-.6,.6);a.target={x:THREE.MathUtils.clamp(a.x+Math.cos(angle)*rand(9,18),-38,38),z:THREE.MathUtils.clamp(a.z+Math.sin(angle)*rand(9,18),-38,38)}}else if(Math.random()<.4)a.target={x:rand(-37,37),z:rand(-38,38)}}
+ if(a.target){const dx=a.target.x-a.x,dz=a.target.z-a.z,l=Math.hypot(dx,dz);if(l>.8)moveActor(a,dx/l*.8,dz/l*.8,dt);else a.target=null}}
+ const target=player.alive?player:hiders.sort((a,b)=>Math.hypot(a.x-seeker.x,a.z-seeker.z)-Math.hypot(b.x-seeker.x,b.z-seeker.z))[0];if(target){const dx=target.x-seeker.x,dz=target.z-seeker.z,l=Math.hypot(dx,dz);if(l>1.5)moveActor(seeker,dx/l*.72,dz/l*.72,dt);if(l<1.45&&target.alive){if(target.isPlayer){finish(false,'الباحث أمسك بك! حاول الاختباء خلف مبنى أو ابتعد عنه.')}else{target.alive=false;target.obj.visible=false;notify('تم العثور على أحد المختبئين');updateHud()}}}
+}
+function finish(win,msg){if(!running)return;running=false;document.querySelector('#endTitle').textContent=win?'نجوت!':'تم الإمساك بك';document.querySelector('#endText').textContent=msg;document.querySelector('#end').classList.remove('hidden')}
+function animate(){if(!renderer)return;requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04);if(running){elapsed+=dt;updateBots(dt);if(elapsed>=180)finish(true,'انتهى الوقت ولم يستطع الباحث الإمساك بك.');updateHud();if(player){const forward=new THREE.Vector3(Math.sin(yaw),0,Math.cos(yaw)),right=new THREE.Vector3(forward.z,0,-forward.x);let x=move.x,z=move.y;if(keys.KeyW||keys.ArrowUp)z-=1;if(keys.KeyS||keys.ArrowDown)z+=1;if(keys.KeyA||keys.ArrowLeft)x-=1;if(keys.KeyD||keys.ArrowRight)x+=1;const v=new THREE.Vector3().addScaledVector(right,x).addScaledVector(forward,z);if(v.length()>1)v.normalize();moveActor(player,v.x*(hideState?.28:1.25),v.z*(hideState?.28:1.25),dt);const desired=new THREE.Vector3(player.x-Math.sin(yaw)*7,3.5+pitch*5,player.z-Math.cos(yaw)*7);camera.position.lerp(desired,.12);camera.lookAt(player.x,1.2,player.z)}for(const m of mixerList)m.update(dt)}renderer.render(scene,camera)}
+let pointer=null;
+function setupControls(){
+ addEventListener('keydown',e=>{keys[e.code]=true;if(e.code==='KeyE')toggleHide()});addEventListener('keyup',e=>keys[e.code]=false);
+ renderer.domElement.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'){pointer={x:e.clientX,y:e.clientY};renderer.domElement.setPointerCapture(e.pointerId)}});
+ renderer.domElement.addEventListener('pointermove',e=>{if(pointer&&e.pointerType==='mouse'){yaw-=(e.clientX-pointer.x)*.004;pitch=THREE.MathUtils.clamp(pitch+(e.clientY-pointer.y)*.002,-.2,.8);pointer={x:e.clientX,y:e.clientY}}});
+ renderer.domElement.addEventListener('pointerup',()=>pointer=null);
+ const stick=document.querySelector('#stick'),knob=document.querySelector('#knob');let active=false;
+ function stickMove(e){const r=stick.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let dx=e.clientX-cx,dy=e.clientY-cy,l=Math.hypot(dx,dy),max=r.width*.34;if(l>max){dx=dx/l*max;dy=dy/l*max}move.x=dx/max;move.y=dy/max;knob.style.transform='translate('+dx+'px,'+dy+'px)'}
+ stick.addEventListener('pointerdown',e=>{active=true;stick.setPointerCapture(e.pointerId);stickMove(e)});stick.addEventListener('pointermove',e=>{if(active)stickMove(e)});const release=()=>{active=false;move={x:0,y:0};knob.style.transform=''};stick.addEventListener('pointerup',release);stick.addEventListener('pointercancel',release);
+ document.querySelector('#hideBtn').onclick=toggleHide;
+}
+function toggleHide(){if(!running||!player)return;if(!hideState&&!canHide(player)){notify('اقترب من شجرة أو ساتر أو مبنى للاختباء');return}hideState=!hideState;document.querySelector('#hideBtn').textContent=hideState?'تحرك':'اختبئ';notify(hideState?'أنت مختبئ وتتحرك ببطء':'خرجت من مخبئك')}
+async function start(){document.querySelector('#start').classList.add('hidden');document.querySelector('#end').classList.add('hidden');if(!scene){buildWorld();clock=new THREE.Clock();animate();setupControls()}const model=await loadHuman();resetRound(model);running=true;notify('ابدأ! ابقَ بعيدًا عن الباحث');}
+document.querySelector('#startBtn').onclick=start;document.querySelector('#again').onclick=start;document.querySelector('#qualityBtn').onclick=()=>{quality=quality?0:1;document.querySelector('#qualityBtn').textContent='الجودة: '+(quality?'عالية':'موفرة')};
+addEventListener('resize',()=>{if(!camera||!renderer)return;camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+</script>
+</body></html>
