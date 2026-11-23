@@ -98,7 +98,7 @@ function setupControls(){
  document.querySelector('#hideBtn').onclick=toggleHide;
 }
 function toggleHide(){if(!running||!player)return;if(!hideState&&!canHide(player)){notify('اقترب من شجرة أو ساتر أو مبنى للاختباء');return}hideState=!hideState;document.querySelector('#hideBtn').textContent=hideState?'تحرك':'اختبئ';notify(hideState?'أنت مختبئ وتتحرك ببطء':'خرجت من مخبئك')}
-async function start(){document.querySelector('#start').classList.add('hidden');document.querySelector('#end').classList.add('hidden');if(!scene){buildWorld();clock=new THREE.Clock();animate();setupControls()}const model=await loadHuman();resetRound(model);running=true;notify('ابدأ! ابقَ بعيدًا عن الباحث');}
+async function start(){document.querySelector('#start').classList.add('hidden');document.querySelector('#end').classList.add('hidden');const button=document.querySelector('#startBtn');button.disabled=true;button.textContent='جارٍ تجهيز الجولة...';const model=await loadHuman();resetRound(model);if(!clock){clock=new THREE.Clock();setupControls();animate()}button.disabled=false;button.textContent='ابدأ الجولة';running=true;notify('ابدأ! ابقَ بعيدًا عن الباحث');}
 document.querySelector('#startBtn').onclick=start;document.querySelector('#again').onclick=start;document.querySelector('#qualityBtn').onclick=()=>{quality=quality?0:1;document.querySelector('#qualityBtn').textContent='الجودة: '+(quality?'عالية':'موفرة')};
 addEventListener('resize',()=>{if(!camera||!renderer)return;camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
 </script>
