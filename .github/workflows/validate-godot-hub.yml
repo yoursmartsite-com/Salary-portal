@@ -21,7 +21,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Download Cairo font only (no external character models)
+      - name: Download licensed rigged Lamma avatar
         run: |
           set -euo pipefail
           mkdir -p hub-godot/assets
