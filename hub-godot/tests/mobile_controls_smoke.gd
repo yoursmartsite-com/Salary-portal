@@ -67,6 +67,20 @@ func _run_mobile_controls_test() -> void:
 		quit(1)
 		return
 
+	# Verify that touch input actually reaches CharacterBody3D movement,
+	# not merely that the joystick variables change.
+	world.set("active_move", true)
+	world.set("move_touch", Vector2(0, -1))
+	var local_player: CharacterBody3D = world.get("player")
+	local_player.velocity = Vector3.ZERO
+	world.call("_physics_process", 0.016)
+	if local_player.velocity.z >= -0.05:
+		push_error("Joystick input did not move the player forward")
+		quit(1)
+		return
+	world.set("active_move", false)
+	world.set("move_touch", Vector2.ZERO)
+
 	for button in [run_button, jump_button, settings_button, free_look_button]:
 		var button_touch := InputEventScreenTouch.new()
 		button_touch.index = 7
