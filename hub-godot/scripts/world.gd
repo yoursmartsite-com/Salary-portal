@@ -909,14 +909,14 @@ func _input(event: InputEvent) -> void:
 		if event.pressed:
 			var viewport_size := get_viewport().get_visible_rect().size
 			var on_joystick := is_instance_valid(joystick_base) and joystick_base.get_global_rect().has_point(event.position)
-			var in_left_movement_zone: bool = event.position.x <= viewport_size.x * 0.43 and event.position.y >= viewport_size.y * 0.38
-			if (on_joystick or in_left_movement_zone) and move_touch_index == -1:
+			var in_right_movement_zone: bool = event.position.x >= viewport_size.x * 0.57 and event.position.y >= viewport_size.y * 0.38
+			if (on_joystick or in_right_movement_zone) and move_touch_index == -1:
 				active_move = true
 				move_touch_index = event.index
 				move_origin = joystick_base.global_position + joystick_base.size * 0.5 if on_joystick else event.position
 				move_touch = ((event.position - move_origin) / 55.0).limit_length(1.0)
 				_update_joystick_visual()
-			elif event.position.x > viewport_size.x * 0.43 and not _point_over_control(event.position) and look_touch_index == -1:
+			elif event.position.x < viewport_size.x * 0.57 and not _point_over_control(event.position) and look_touch_index == -1:
 				active_look = true
 				look_touch_index = event.index
 		else:
