@@ -21,15 +21,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Download licensed rigged Lamma avatar
+      - name: Download Cairo font only (no external character models)
         run: |
           set -euo pipefail
           mkdir -p hub-godot/assets
-          curl -fL --retry 3 "https://grab3d.com/dl/woman-rigged/woman-rigged.glb" -o hub-godot/assets/lamma_girl.glb
-          test -s hub-godot/assets/lamma_girl.glb
           curl -fL --retry 3 "https://raw.githubusercontent.com/google/fonts/main/ofl/cairo/Cairo%5Bslnt%2Cwght%5D.ttf" -o hub-godot/assets/Cairo.ttf
           test -s hub-godot/assets/Cairo.ttf
-          echo "Downloaded rigged Casual Woman GLB ($(du -h hub-godot/assets/lamma_girl.glb | cut -f1))"
 
       - name: Install Godot 4.7.2
         run: |
@@ -49,12 +46,6 @@ jobs:
       - name: Import project and validate GDScript
         run: |
           "$GODOT_BIN" --headless --editor --path hub-godot --quit --verbose
-
-      - name: Validate imported avatar walk and run clips
-        timeout-minutes: 1
-        run: |
-          set -euo pipefail
-          "$GODOT_BIN" --headless --path hub-godot --script res://tests/avatar_animation_smoke.gd
 
       - name: Run headless scene smoke test
         run: |
