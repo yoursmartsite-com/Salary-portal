@@ -36,7 +36,6 @@ var drag_offset := Vector2.ZERO
 var quality_option: OptionButton
 var local_name_tag: Label3D
 var firebase_bridge
-var avatar_scene: PackedScene
 var arabic_font: Font
 var avatar_animation_state := "idle"
 var firebase_uid := ""
@@ -58,7 +57,6 @@ func _ready() -> void:
 	arabic_font = load("res://assets/Cairo.ttf") as Font if ResourceLoader.exists("res://assets/Cairo.ttf") else null
 	_build_hud()
 	_load_control_layout()
-	_load_professional_avatar()
 	if not has_meta("skip_firebase"):
 		firebase_bridge = FirebaseHub.new()
 		add_child(firebase_bridge)
@@ -599,129 +597,6 @@ func _build_girl_model(root: Node3D, track_local_animation := true) -> void:
 		if track_local_animation:
 			animated_legs.append(leg_pivot)
 
-func _load_professional_avatar() -> void:
-	var avatar_path := "res://assets/lamma_girl.glb"
-	if not ResourceLoader.exists(avatar_path):
-		push_error("Professional avatar resource is missing from the exported project: " + avatar_path)
-		return
-	var loaded_avatar: Resource = load(avatar_path)
-	if loaded_avatar == null or not loaded_avatar is PackedScene:
-		push_error("Godot did not import the GLB as a PackedScene: " + avatar_path)
-		return
-	avatar_scene = loaded_avatar as PackedScene
-	_apply_professional_avatar(player)
-	for uid in remote_avatars:
-		_apply_professional_avatar(remote_avatars[uid])
-	print("Lamma professional rigged avatar loaded from imported GLB resource.")
-
-func _apply_professional_avatar(target: Node3D) -> void:
-	if avatar_scene == null or not is_instance_valid(target):
-		return
-	var fallback := target.get_node_or_null("StylizedGirlAvatar")
-	if fallback != null:
-		target.remove_child(fallback)
-		fallback.queue_free()
-	var old_avatar := target.get_node_or_null("ProfessionalGirlAvatar")
-	if old_avatar != null:
-		target.remove_child(old_avatar)
-		old_avatar.queue_free()
-	var model := avatar_scene.instantiate()
-	model.name = "ProfessionalGirlAvatar"
-	# The imported GLB faces +Z; the player controller faces -Z at yaw 0.
-	# Keep the correction on the visual root so physics/camera yaw stay consistent.
-	model.rotation.y = PI
-	model.scale = Vector3.ONE
-	target.add_child(model)
-	_play_avatar_animation(model, "idle")
-
-func _play_avatar_animation(model: Node, wanted: String) -> void:
-	var players := model.find_children("*", "AnimationPlayer", true, false)
-	for item in players:
-		var anim_player := item as AnimationPlayer
-		var chosen := ""
-		for animation_name in anim_player.get_animation_list():
-			var lowered := animation_name.to_lower()
-			if wanted == "run" and lowered.contains("run"):
-				chosen = animation_name
-				break
-			if wanted == "walk" and lowered.contains("walk"):
-				chosen = animation_name
-				break
-			if wanted == "jump" and (lowered.contains("jump") or lowered.contains("fall")):
-				chosen = animation_name
-				break
-			if wanted == "idle" and (lowered.contains("idle") or lowered.contains("stand")):
-				chosen = animation_name
-				break
-		# Prefer a real run cycle when running; use the walk cycle only as a fallback.
-		if chosen == "" and wanted == "run":
-			for animation_name in anim_player.get_animation_list():
-				var lowered := animation_name.to_lower()
-				if lowered.contains("walk"):
-					chosen = animation_name
-					break
-		if wanted == "idle" and chosen == "":
-			# This rig has no authored idle clip. Stop playback first, then clear every
-			# procedural bone override so the character returns to its neutral bind pose.
-			anim_player.clear_queue()
-			anim_player.stop()
-			anim_player.speed_scale = 1.0
-			for skeleton_node in model.find_children("*", "Skeleton3D", true, false):
-				var skeleton := skeleton_node as Skeleton3D
-				skeleton.reset_bone_poses()
-				skeleton.force_update_all_bone_transforms()
-			continue
-		if chosen != "":
-			var clip := anim_player.get_animation(chosen)
-			# Imported glTF clips may default to one-shot playback. A walk/run cycle
-			# must loop or it freezes on its final (often one-legged) stride.
-			if wanted == "walk" or wanted == "run":
-				clip.loop_mode = Animation.LOOP_LINEAR
-			elif wanted == "jump":
-				clip.loop_mode = Animation.LOOP_NONE
-			if anim_player.current_animation != chosen or not anim_player.is_playing():
-				anim_player.play(chosen, 0.18)
-
-func _set_avatar_animation_speed(model: Node, movement_speed: float, wanted: String) -> void:
-	if model == null:
-		return
-	var scale := 1.0
-	if wanted == "walk":
-		scale = clampf(movement_speed / maxf(MOVE_SPEED, 0.1), 0.72, 1.35)
-	elif wanted == "run":
-		scale = clampf(movement_speed / (MOVE_SPEED * 1.65), 0.85, 1.25)
-	for item in model.find_children("*", "AnimationPlayer", true, false):
-		var anim_player := item as AnimationPlayer
-		anim_player.speed_scale = scale
-
-func _set_local_avatar_motion(speed: float, on_floor: bool) -> void:
-	if avatar_scene == null or not is_instance_valid(player):
-		return
-	var wanted := "idle"
-	if not on_floor:
-		wanted = "jump"
-	elif speed > MOVE_SPEED * 1.25:
-		wanted = "run"
-	elif speed > 0.35:
-		wanted = "walk"
-	var model := player.get_node_or_null("ProfessionalGirlAvatar")
-	if model != null:
-		if wanted != avatar_animation_state:
-			avatar_animation_state = wanted
-			_play_avatar_animation(model, wanted)
-		elif wanted == "walk" or wanted == "run":
-			# Some imported GLB players can stop at a clip boundary even after the
-			# resource loop flag is changed at runtime. Restart only if playback stopped;
-			# never restart a healthy cycle, or the gait would jump back to frame zero.
-			var locomotion_running := false
-			for item in model.find_children("*", "AnimationPlayer", true, false):
-				var ap := item as AnimationPlayer
-				if ap.is_playing():
-					locomotion_running = true
-			if not locomotion_running:
-				_play_avatar_animation(model, wanted)
-		_set_avatar_animation_speed(model, speed, wanted)
-
 func _build_camera() -> void:
 	camera = Camera3D.new()
 	camera.name = "FollowCamera"
@@ -994,9 +869,7 @@ func _process(delta: float) -> void:
 	if not is_instance_valid(player):
 		return
 	var horizontal_speed := Vector2(player.velocity.x, player.velocity.z).length()
-	if avatar_scene != null:
-		_set_local_avatar_motion(horizontal_speed, player.is_on_floor())
-	elif horizontal_speed > 0.25 and player.is_on_floor():
+	if horizontal_speed > 0.25 and player.is_on_floor():
 		animation_clock += delta * 9.0
 		var swing := sin(animation_clock) * 0.42
 		for i in range(animated_legs.size()):
@@ -1060,7 +933,6 @@ func _on_firebase_players_changed(data: Dictionary) -> void:
 			remote_avatars.erase(uid)
 			remote_targets.erase(uid)
 			remote_yaws.erase(uid)
-			remote_animation_states.erase(uid)
 	if is_instance_valid(status_label) and firebase_uid != "":
 		status_label.text = "متصل أونلاين · " + str(remote_avatars.size() + 1) + " لاعب"
 
@@ -1078,10 +950,7 @@ func _create_remote_avatar(uid: String, player_name: String) -> void:
 	collision.position.y = 0.9
 	collider_body.add_child(collision)
 	remote.add_child(collider_body)
-	if avatar_scene != null:
-		_apply_professional_avatar(remote)
-	else:
-		_build_girl_model(remote, false)
+	_build_girl_model(remote, false)
 	var name_tag := Label3D.new()
 	name_tag.name = "PlayerName"
 	name_tag.text = player_name
@@ -1099,28 +968,8 @@ func _update_remote_players(delta: float) -> void:
 		var remote: Node3D = remote_avatars[uid]
 		if not remote_targets.has(uid):
 			continue
-		var previous_position := remote.global_position
 		remote.global_position = remote.global_position.lerp(remote_targets[uid], minf(1.0, delta * 8.0))
 		remote.rotation.y = lerp_angle(remote.rotation.y, float(remote_yaws.get(uid, 0.0)), delta * 8.0)
-		# Mirror the movement state of remote players so their rigged avatars do not
-		# remain frozen in an idle pose while their positions are being synchronized.
-		var horizontal_speed := Vector2(
-			remote.global_position.x - previous_position.x,
-			remote.global_position.z - previous_position.z
-		).length() / maxf(delta, 0.001)
-		var wanted := "idle"
-		if horizontal_speed > MOVE_SPEED * 1.25:
-			wanted = "run"
-		elif horizontal_speed > 0.25:
-			wanted = "walk"
-		if avatar_scene != null:
-			var previous_state := str(remote_animation_states.get(uid, ""))
-			var model := remote.get_node_or_null("ProfessionalGirlAvatar")
-			if model != null:
-				if wanted != previous_state:
-					remote_animation_states[uid] = wanted
-					_play_avatar_animation(model, wanted)
-				_set_avatar_animation_speed(model, horizontal_speed, wanted)
 
 func _camera_relative_direction(input_dir: Vector2) -> Vector3:
 	var forward := Vector3(-sin(camera_yaw), 0, -cos(camera_yaw))
