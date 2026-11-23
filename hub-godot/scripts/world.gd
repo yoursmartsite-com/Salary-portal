@@ -44,6 +44,7 @@ var firebase_send_clock := 0.0
 var remote_avatars: Dictionary = {}
 var remote_targets: Dictionary = {}
 var remote_yaws: Dictionary = {}
+var remote_animation_states: Dictionary = {}
 var portal_enter_button: Button
 var nearby_portal_url := ""
 var nearby_portal_label := ""
@@ -1059,6 +1060,7 @@ func _on_firebase_players_changed(data: Dictionary) -> void:
 			remote_avatars.erase(uid)
 			remote_targets.erase(uid)
 			remote_yaws.erase(uid)
+			remote_animation_states.erase(uid)
 	if is_instance_valid(status_label) and firebase_uid != "":
 		status_label.text = "متصل أونلاين · " + str(remote_avatars.size() + 1) + " لاعب"
 
@@ -1095,9 +1097,30 @@ func _create_remote_avatar(uid: String, player_name: String) -> void:
 func _update_remote_players(delta: float) -> void:
 	for uid in remote_avatars:
 		var remote: Node3D = remote_avatars[uid]
-		if remote_targets.has(uid):
-			remote.global_position = remote.global_position.lerp(remote_targets[uid], minf(1.0, delta * 8.0))
-			remote.rotation.y = lerp_angle(remote.rotation.y, float(remote_yaws.get(uid, 0.0)), delta * 8.0)
+		if not remote_targets.has(uid):
+			continue
+		var previous_position := remote.global_position
+		remote.global_position = remote.global_position.lerp(remote_targets[uid], minf(1.0, delta * 8.0))
+		remote.rotation.y = lerp_angle(remote.rotation.y, float(remote_yaws.get(uid, 0.0)), delta * 8.0)
+		# Mirror the movement state of remote players so their rigged avatars do not
+		# remain frozen in an idle pose while their positions are being synchronized.
+		var horizontal_speed := Vector2(
+			remote.global_position.x - previous_position.x,
+			remote.global_position.z - previous_position.z
+		).length() / maxf(delta, 0.001)
+		var wanted := "idle"
+		if horizontal_speed > MOVE_SPEED * 1.25:
+			wanted = "run"
+		elif horizontal_speed > 0.25:
+			wanted = "walk"
+		if avatar_scene != null:
+			var previous_state := str(remote_animation_states.get(uid, ""))
+			var model := remote.get_node_or_null("ProfessionalGirlAvatar")
+			if model != null:
+				if wanted != previous_state:
+					remote_animation_states[uid] = wanted
+					_play_avatar_animation(model, wanted)
+				_set_avatar_animation_speed(model, horizontal_speed, wanted)
 
 func _camera_relative_direction(input_dir: Vector2) -> Vector3:
 	var forward := Vector3(-sin(camera_yaw), 0, -cos(camera_yaw))
