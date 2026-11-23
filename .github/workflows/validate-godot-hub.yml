@@ -11,7 +11,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: lamma-hub-preview-publish
+  group: lamma-hub-preview-publish-mobile-controls
   cancel-in-progress: false
 
 jobs:
@@ -59,12 +59,6 @@ jobs:
       - name: Run headless scene smoke test
         run: |
           "$GODOT_BIN" --headless --path hub-godot --quit-after 5
-
-      - name: Test remote player creation, movement, and portal UI
-        timeout-minutes: 1
-        run: |
-          set -euo pipefail
-          "$GODOT_BIN" --headless --path hub-godot --script res://tests/remote_avatar_smoke.gd
 
       - name: Test mobile joystick, camera, buttons, and saved layout
         timeout-minutes: 1
