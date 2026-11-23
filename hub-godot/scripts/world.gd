@@ -26,6 +26,10 @@ var run_button: Button
 var jump_button: Button
 var settings_panel: PanelContainer
 var hud_scale := 1.0
+var layout_edit_mode := false
+var dragging_control: Control
+var drag_offset := Vector2.ZERO
+var quality_option: OptionButton
 var local_name_tag: Label3D
 var firebase_bridge
 var avatar_scene: PackedScene
@@ -817,7 +821,7 @@ func _build_hud() -> void:
 	settings_panel.anchor_left = 1
 	settings_panel.anchor_right = 1
 	settings_panel.position = Vector2(-292, 72)
-	settings_panel.custom_minimum_size = Vector2(270, 150)
+	settings_panel.custom_minimum_size = Vector2(290, 255)
 	settings_panel.visible = false
 	ui_layer.add_child(settings_panel)
 	var settings_content := VBoxContainer.new()
@@ -838,6 +842,21 @@ func _build_hud() -> void:
 	scale_slider.custom_minimum_size = Vector2(230, 30)
 	scale_slider.value_changed.connect(_on_hud_scale_changed)
 	settings_content.add_child(scale_slider)
+	var quality_title := Label.new()
+	quality_title.text = "جودة الرسومات"
+	settings_content.add_child(quality_title)
+	quality_option = OptionButton.new()
+	quality_option.add_item("منخفضة - أداء أسرع", 0)
+	quality_option.add_item("متوسطة - متوازنة", 1)
+	quality_option.add_item("عالية - تفاصيل أفضل", 2)
+	quality_option.selected = 1
+	quality_option.item_selected.connect(_set_graphics_quality)
+	settings_content.add_child(quality_option)
+	var layout_button := Button.new()
+	layout_button.text = "تعديل أماكن الأزرار"
+	layout_button.toggle_mode = true
+	layout_button.toggled.connect(_set_layout_edit_mode)
+	settings_content.add_child(layout_button)
 	var close_settings := Button.new()
 	close_settings.text = "إغلاق"
 	close_settings.pressed.connect(func(): settings_panel.visible = false)
@@ -862,6 +881,33 @@ func _build_hud() -> void:
 	hint.add_theme_font_size_override("font_size", 12)
 	ui_layer.add_child(hint)
 
+func _set_graphics_quality(index: int) -> void:
+	var viewport := get_viewport()
+	var world_env := get_node_or_null("WorldEnvironment") as WorldEnvironment
+	if world_env != null and world_env.environment != null:
+		var env := world_env.environment
+		env.glow_enabled = index == 2
+		env.fog_enabled = index > 0
+		for light in get_children():
+			if light is DirectionalLight3D:
+				light.shadow_enabled = index > 0
+	if index == 0:
+		viewport.scaling_3d_scale = 0.75
+		viewport.msaa_3d = Viewport.MSAA_DISABLED
+	elif index == 1:
+		viewport.scaling_3d_scale = 0.9
+		viewport.msaa_3d = Viewport.MSAA_2X
+	else:
+		viewport.scaling_3d_scale = 1.0
+		viewport.msaa_3d = Viewport.MSAA_2X
+
+func _set_layout_edit_mode(enabled: bool) -> void:
+	layout_edit_mode = enabled
+	if is_instance_valid(status_label):
+		status_label.text = "اسحب العصا وأزرار القفز والجري لتغيير أماكنها" if enabled else "تم حفظ أماكن التحكم خلال الجلسة"
+	if is_instance_valid(joystick_base):
+		joystick_base.color = Color(0.9, 0.65, 0.18, 0.72) if enabled else Color(0.04, 0.08, 0.13, 0.48)
+
 func _toggle_settings() -> void:
 	if is_instance_valid(settings_panel):
 		settings_panel.visible = not settings_panel.visible
@@ -877,6 +923,19 @@ func _on_hud_scale_changed(value: float) -> void:
 		jump_button.scale = Vector2.ONE * hud_scale
 
 func _unhandled_input(event: InputEvent) -> void:
+	if layout_edit_mode and event is InputEventScreenTouch:
+		if event.pressed:
+			for control in [joystick_base, run_button, jump_button]:
+				if is_instance_valid(control) and Rect2(control.global_position, control.size * control.scale).has_point(event.position):
+					dragging_control = control
+					drag_offset = event.position - control.global_position
+					return
+		else:
+			dragging_control = null
+			return
+	if layout_edit_mode and event is InputEventScreenDrag and is_instance_valid(dragging_control):
+		dragging_control.global_position = event.position - drag_offset
+		return
 	if event is InputEventMouseMotion and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
 		camera_yaw -= event.relative.x * 0.006
 		camera_pitch = clampf(camera_pitch + event.relative.y * 0.004, -0.65, 0.25)
