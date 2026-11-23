@@ -94,7 +94,8 @@ func _run_mobile_controls_test() -> void:
 		button_touch.pressed = false
 		world.call("_input", button_touch)
 
-	var look_start := Vector2(680, 350)
+	var view_size := root.get_viewport().get_visible_rect().size
+	var look_start := Vector2(view_size.x * 0.75, view_size.y * 0.5)
 	var look_press := InputEventScreenTouch.new()
 	look_press.index = 9
 	look_press.position = look_start
