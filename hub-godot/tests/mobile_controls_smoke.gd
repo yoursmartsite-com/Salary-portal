@@ -52,7 +52,8 @@ func _run_mobile_controls_test() -> void:
 	move_drag.position = move_start + Vector2(48, 0)
 	move_drag.relative = Vector2(48, 0)
 	world.call("_input", move_drag)
-	if float((world.get("move_touch") as Vector2).x) < 0.7:
+	var move_value: Vector2 = world.get("move_touch")
+	if move_value.x < 0.7:
 		push_error("Joystick drag did not produce movement input")
 		quit(1)
 		return
