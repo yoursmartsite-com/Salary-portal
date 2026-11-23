@@ -27,6 +27,8 @@ var status_label: Label
 var run_button: Button
 var jump_button: Button
 var settings_panel: PanelContainer
+var settings_button: Button
+var hud_scale_slider: HSlider
 var hud_scale := 1.0
 var layout_edit_mode := false
 var dragging_control: Control
@@ -801,7 +803,7 @@ func _build_hud() -> void:
 	joystick_knob.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	joystick_base.add_child(joystick_knob)
 
-	var settings_button := Button.new()
+	settings_button = Button.new()
 	settings_button.text = "إعدادات"
 	settings_button.custom_minimum_size = Vector2(116, 46)
 	settings_button.size = Vector2(116, 46)
@@ -844,14 +846,14 @@ func _build_hud() -> void:
 	var scale_label := Label.new()
 	scale_label.text = "حجم أزرار الحركة والقفز"
 	settings_content.add_child(scale_label)
-	var scale_slider := HSlider.new()
-	scale_slider.min_value = 0.7
-	scale_slider.max_value = 1.4
-	scale_slider.step = 0.05
-	scale_slider.value = 1.0
-	scale_slider.custom_minimum_size = Vector2(230, 30)
-	scale_slider.value_changed.connect(_on_hud_scale_changed)
-	settings_content.add_child(scale_slider)
+	var hud_scale_slider := HSlider.new()
+	hud_scale_slider.min_value = 0.7
+	hud_scale_slider.max_value = 1.4
+	hud_scale_slider.step = 0.05
+	hud_scale_slider.value = 1.0
+	hud_scale_slider.custom_minimum_size = Vector2(230, 30)
+	hud_scale_slider.value_changed.connect(_on_hud_scale_changed)
+	settings_content.add_child(hud_scale_slider)
 	var quality_title := Label.new()
 	quality_title.text = "جودة الرسومات"
 	settings_content.add_child(quality_title)
@@ -938,6 +940,9 @@ func _load_control_layout() -> void:
 	var config := ConfigFile.new()
 	if config.load("user://lamma_hub_controls.cfg") != OK:
 		return
+	hud_scale = float(config.get_value("controls", "scale", 1.0))
+	if is_instance_valid(hud_scale_slider):
+		hud_scale_slider.set_value_no_signal(hud_scale)
 	for entry in [["joystick", joystick_base], ["run", run_button], ["jump", jump_button]]:
 		var control: Control = entry[1]
 		if is_instance_valid(control) and config.has_section_key("controls", entry[0]):
@@ -948,6 +953,7 @@ func _load_control_layout() -> void:
 func _save_control_layout() -> void:
 	var config := ConfigFile.new()
 	config.load("user://lamma_hub_controls.cfg")
+	config.set_value("controls", "scale", hud_scale)
 	for entry in [["joystick", joystick_base], ["run", run_button], ["jump", jump_button]]:
 		var control: Control = entry[1]
 		if is_instance_valid(control):
@@ -955,8 +961,8 @@ func _save_control_layout() -> void:
 	config.save("user://lamma_hub_controls.cfg")
 
 func _point_over_control(point: Vector2) -> bool:
-	for control in [run_button, jump_button, free_look_button, settings_panel, portal_enter_button]:
-		if is_instance_valid(control) and control.visible and control.get_global_rect().has_point(point):
+	for control in [run_button, jump_button, free_look_button, settings_button, settings_panel, portal_enter_button]:
+		if is_instance_valid(control) and control.is_visible_in_tree() and control.get_global_rect().has_point(point):
 			return true
 	return false
 
