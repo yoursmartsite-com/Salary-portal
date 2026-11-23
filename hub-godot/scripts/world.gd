@@ -47,8 +47,8 @@ var remote_yaws: Dictionary = {}
 var portal_enter_button: Button
 var nearby_portal_url := ""
 var nearby_portal_label := ""
-var joystick_base: ColorRect
-var joystick_knob: ColorRect
+var joystick_base: Panel
+var joystick_knob: Panel
 
 func _ready() -> void:
 	_build_environment()
@@ -909,7 +909,7 @@ func _input(event: InputEvent) -> void:
 		if event.pressed:
 			var viewport_size := get_viewport().get_visible_rect().size
 			var on_joystick := is_instance_valid(joystick_base) and joystick_base.get_global_rect().has_point(event.position)
-			var in_left_movement_zone := event.position.x <= viewport_size.x * 0.43 and event.position.y >= viewport_size.y * 0.38
+			var in_left_movement_zone: bool = event.position.x <= viewport_size.x * 0.43 and event.position.y >= viewport_size.y * 0.38
 			if (on_joystick or in_left_movement_zone) and move_touch_index == -1:
 				active_move = true
 				move_touch_index = event.index
