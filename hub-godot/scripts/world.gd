@@ -37,13 +37,11 @@ var quality_option: OptionButton
 var local_name_tag: Label3D
 var firebase_bridge
 var arabic_font: Font
-var avatar_animation_state := "idle"
 var firebase_uid := ""
 var firebase_send_clock := 0.0
 var remote_avatars: Dictionary = {}
 var remote_targets: Dictionary = {}
 var remote_yaws: Dictionary = {}
-var remote_animation_states: Dictionary = {}
 var portal_enter_button: Button
 var nearby_portal_url := ""
 var nearby_portal_label := ""
