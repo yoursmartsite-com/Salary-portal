@@ -22,6 +22,18 @@
 <div class="settings-page" id="sound"><label class="setting"><span class="setting-head">مستوى الصوت <b id="volumeLabel">70%</b></span><input id="volume" type="range" min="0" max="100" value="70"></label><label class="toggle">المؤثرات الصوتية <input id="effects" type="checkbox" checked></label><label class="toggle">الموسيقى <input id="music" type="checkbox" checked></label></div>
 <div class="settings-page" id="controls"><label class="setting"><span class="setting-head">حساسية الكاميرا <b id="sensitivityLabel">100%</b></span><input id="sensitivity" type="range" min="40" max="200" value="100"></label><label class="setting"><span class="setting-head">حساسية التصويب <b id="aimLabel">80%</b></span><input id="aimSensitivity" type="range" min="40" max="200" value="80"></label><label class="toggle">اهتزاز الهاتف <input id="vibration" type="checkbox" checked></label><p style="font-size:10px;color:#9eb2ac;line-height:1.8">داخل اللعب: عصا الحركة على الشمال، واسحب يمين الشاشة لتحريك الكاميرا. أزرار القفز والجري على اليمين.</p></div><button class="save" id="settingsSave">حفظ الإعدادات</button></section></div>
 <div class="toast" id="toast"></div>
+<script>
+(function () {
+  const startButton = document.getElementById('startGame');
+  if (!startButton) return;
+  startButton.addEventListener('click', function () {
+    const mode = document.getElementById('gameMode');
+    try { localStorage.setItem('lamma_selected_mode', mode ? mode.value : 'classic'); } catch (_) {}
+    const target = new URL('./hub-preview/index.html', window.location.href);
+    window.location.assign(target.href);
+  });
+})();
+</script>
 <script type="module">
 let THREE;try{THREE=await import('https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js')}catch(e){THREE=await import('https://unpkg.com/three@0.160.0/build/three.module.js')}
 const canvas=document.querySelector('#lobby3d');const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.shadowMap.enabled=true;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.1;
@@ -49,6 +61,6 @@ const modal=document.querySelector('#settingsModal');function openSettings(){mod
 function toast(msg){const t=document.querySelector('#toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
 document.querySelector('#playerName').textContent=(localStorage.getItem('arcade_name')||'لاعب لَمّة').slice(0,22);let wallet=localStorage.getItem('lamma_lc_balance');document.querySelector('#coinBalance').textContent=(wallet||'0')+' LC';const avatarData=JSON.parse(localStorage.getItem('lamma_avatar_style_v1')||'{}');document.querySelector('#playerLevel').textContent=String(localStorage.getItem('lamma_level')||'01').padStart(2,'0');
 document.querySelectorAll('.nav-btn').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav-btn').forEach(x=>x.classList.toggle('active',x===b));const a=b.dataset.action;if(a==='settings')openSettings();else if(a==='home')toast('أنت بالفعل في اللوبي');else if(a==='locker')location.href='./lobby.html?section=locker';else if(a==='missions')location.href='./profile.html';else if(a==='friends')location.href='./profile.html#profileFriends';else if(a==='store')location.href='./store-page.html'});
-document.querySelector('#startGame').onclick=()=>{const mode=document.querySelector('#gameMode').value;localStorage.setItem('lamma_selected_mode',mode);location.href='./hub-preview/index.html'};
+
 </script>
 </body></html>
