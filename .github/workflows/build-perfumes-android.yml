@@ -8,7 +8,7 @@ on:
       - ".github/workflows/build-perfumes-android.yml"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -57,3 +57,13 @@ jobs:
           path: perfumes/android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 30
+
+      - name: Publish public APK download
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: android-latest
+          name: ZEIN & RAHAF Android App
+          body: "Official Android installer for ZEIN & RAHAF PERFUMES."
+          files: perfumes/android/app/build/outputs/apk/debug/app-debug.apk
+          overwrite_files: true
+          make_latest: true
