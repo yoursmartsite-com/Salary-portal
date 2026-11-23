@@ -13,8 +13,8 @@ android {
         applicationId 'com.lamma.arcade'
         minSdk 23
         targetSdk 35
-        versionCode 34
-        versionName '1.9.5'
+        versionCode 36
+        versionName '1.9.7'
     }
 
     signingConfigs {
