@@ -51,8 +51,10 @@ func _build_environment() -> void:
 	add_child(sun)
 
 	# Large military training ground and runway.
-	_make_box("MilitaryGround", Vector3(0, -0.55, 0), Vector3(110, 1, 110), Color("#465047"), 0.98)
-	_make_box("MainAsphalt", Vector3(0, 0.015, 0), Vector3(23, 0.12, 82), Color("#343b3b"), 0.92)
+	var military_ground := _make_box("MilitaryGround", Vector3(0, -0.55, 0), Vector3(110, 1, 110), Color("#465047"), 0.98)
+	military_ground.material_override = _make_ground_material(Color("#465047"), Color("#303a35"), 0.075)
+	var main_asphalt := _make_box("MainAsphalt", Vector3(0, 0.015, 0), Vector3(23, 0.12, 82), Color("#343b3b"), 0.92)
+	main_asphalt.material_override = _make_ground_material(Color("#454a48"), Color("#252d2d"), 0.12)
 	_make_box("RunwayCenterLine", Vector3(0, 0.083, -2), Vector3(0.18, 0.018, 62), Color("#c5b98f"), 0.8)
 	for z in range(-32, 34, 8):
 		_detail_box("RunwayDash", Vector3(0, 0.095, float(z)), Vector3(0.34, 0.025, 3.2), Color("#e0d7b8"), 0.82)
@@ -260,3 +262,42 @@ func _build_hud() -> void:
 	footer_text.add_theme_color_override("font_color", Color("#e1d0ac"))
 	footer.add_child(footer_text)
 	root.add_child(footer)
+
+
+# Procedural, tile-free surface detail keeps the arena readable without large
+# texture downloads. The Mobile renderer supports this spatial shader.
+func _make_ground_material(light_tone: Color, dark_tone: Color, detail_strength: float) -> ShaderMaterial:
+	var shader := Shader.new()
+	shader.code = """
+	shader_type spatial;
+	render_mode diffuse_burley, specular_schlick_ggx;
+	uniform vec4 light_tone : source_color = vec4(0.27, 0.30, 0.28, 1.0);
+	uniform vec4 dark_tone : source_color = vec4(0.13, 0.16, 0.15, 1.0);
+	uniform float detail_strength = 0.1;
+	float hash21(vec2 p) {
+		p = fract(p * vec2(123.34, 456.21));
+		p += dot(p, p + 45.32);
+		return fract(p.x * p.y);
+	}
+	float noise2(vec2 p) {
+		vec2 i = floor(p);
+		vec2 f = fract(p);
+		f = f * f * (3.0 - 2.0 * f);
+		return mix(mix(hash21(i), hash21(i + vec2(1.0, 0.0)), f.x),
+			mix(hash21(i + vec2(0.0, 1.0)), hash21(i + vec2(1.0, 1.0)), f.x), f.y);
+	}
+	void fragment() {
+		vec2 p = UV * vec2(190.0, 270.0);
+		float grain = noise2(p) * 0.62 + noise2(p * 3.7) * 0.25 + noise2(p * 11.0) * 0.13;
+		float variation = (grain - 0.5) * detail_strength;
+		ALBEDO = mix(dark_tone.rgb, light_tone.rgb, clamp(0.48 + variation * 3.0, 0.0, 1.0));
+		ROUGHNESS = 0.94;
+		SPECULAR = 0.18;
+	}
+	"""
+	var material := ShaderMaterial.new()
+	material.shader = shader
+	material.set_shader_parameter("light_tone", light_tone)
+	material.set_shader_parameter("dark_tone", dark_tone)
+	material.set_shader_parameter("detail_strength", detail_strength)
+	return material
