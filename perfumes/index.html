@@ -68,7 +68,7 @@ $("otherPage").innerHTML='<h1 class="page-title">حسابي</h1><p class="page-s
 document.addEventListener("click",e=>{let b=e.target.closest("button,[data-open]");if(!b)return;
 if(b.dataset.cat){cat=b.dataset.cat;document.querySelectorAll(".cat").forEach(x=>x.classList.toggle("active",x===b));draw()}
 if(b.dataset.open)detail(+b.dataset.open);
-if(b.dataset.fav){let id=+b.dataset.fav;fav=fav.includes(id)?fav.filter(x=>x!==id):fav.concat(id);draw();toast(fav.includes(id)?"اتضاف للمفضلة":"اتشال من المفضلة")}
+if(b.dataset.fav){let id=+b.dataset.fav;fav=fav.includes(id)?fav.filter(x=>x!==id):fav.concat(id);if(page==="favorites")pageChange("favorites");else draw();toast(fav.includes(id)?"اتضاف للمفضلة":"اتشال من المفضلة")}
 if(b.dataset.size!==undefined){size=+b.dataset.size;document.querySelectorAll(".size").forEach((x,i)=>x.classList.toggle("active",i===size));$("add").textContent="أضف إلى السلة — "+money(current.prices[size])}
 if(b.id==="add"){let ml=[30,50,100][size],old=cart.find(x=>x.id===current.id&&x.size===ml);if(old)old.qty++;else cart.push({id:current.id,name:current.name,size:ml,price:current.prices[size],qty:1});close();draw();toast("تمت إضافة المنتج للسلة")}
 if(b.id==="cartOpen")cartView();if(b.dataset.close)close();
