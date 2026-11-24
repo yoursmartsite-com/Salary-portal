@@ -35,7 +35,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:18p
 <script>
 (()=>{
 const $=id=>document.getElementById(id);
-const data=[
+let data=[
 {id:1,name:"عود ملكي",type:"رجالي",notes:"عود • عنبر • أخشاب",prices:[350,620,890],tag:"الأكثر مبيعًا",art:"dark"},
 {id:2,name:"روز جولد",type:"حريمي",notes:"ورد • فانيليا • مسك",prices:[320,580,840],tag:"نسائي",art:""},
 {id:3,name:"إمبير",type:"رجالي",notes:"برغموت • جلد • باتشولي",prices:[390,690,990],tag:"فاخر",art:"silver"},
@@ -49,6 +49,7 @@ window.__zrReadCloudData=()=>({cart,favorites:fav,orders});
 const money=n=>n.toLocaleString("ar-EG")+" ج.م";
 function toast(message){$("toast").textContent=message;$("toast").classList.add("show");clearTimeout(window.__toastTimer);window.__toastTimer=setTimeout(()=>$("toast").classList.remove("show"),2200)}
 function draw(){let q=$("search").value.trim().toLowerCase();let list=data.filter(p=>(cat==="الكل"||p.type===cat||(cat==="الأكثر مبيعًا"&&p.tag===cat))&&(!q||p.name.toLowerCase().includes(q)||p.notes.toLowerCase().includes(q)));if(page==="favorites")list=data.filter(p=>fav.includes(p.id));$("products").innerHTML=list.map(p=>'<article class="product" data-open="'+p.id+'"><button class="fav" data-fav="'+p.id+'" aria-label="إضافة للمفضلة">'+(fav.includes(p.id)?"♥":"♡")+'</button><div class="art"><div class="bottle '+p.art+'"></div></div><div class="kind">'+p.tag+'</div><div class="name">'+p.name+'</div><div class="notes">'+p.notes+'</div><div class="foot"><span>'+money(p.prices[0])+' <small>/ 30 مل</small></span><button class="add" data-open="'+p.id+'" aria-label="عرض المنتج">+</button></div></article>').join("")||'<div class="empty">لا توجد منتجات مطابقة.</div>';$("count").textContent=cart.reduce((n,x)=>n+x.qty,0);$("heading").textContent=page==="favorites"?"قائمة المفضلة":"مختارات زين ورهف";$("resultCount").textContent=list.length+" منتجات"}
+window.__zrSetProducts=list=>{if(Array.isArray(list)&&list.length){data=list;draw();}};
 function open(html){$("sheet").innerHTML=html;$("modal").classList.add("show")}function close(){$("modal").classList.remove("show")}
 function detail(id){current=data.find(p=>p.id===id);size=0;open('<button class="close" data-close>إغلاق ✕</button><div style="clear:both"></div><div class="art" style="margin-top:15px"><div class="bottle '+current.art+'"></div></div><div class="kind">'+current.tag+'</div><h2>'+current.name+'</h2><p style="color:#7c756b;font-size:13px">'+current.notes+'</p><h4>اختار الحجم المناسب</h4><div class="sizes">'+[30,50,100].map((v,i)=>'<button class="size '+(!i?"active":"")+'" data-size="'+i+'"><strong>'+v+' مل</strong><span>'+money(current.prices[i])+'</span></button>').join("")+'</div><button class="primary" id="add">أضف إلى السلة — '+money(current.prices[0])+'</button>')}
 function cartView(){let total=cart.reduce((s,x)=>s+x.price*x.qty,0);open('<button class="close" data-close>إغلاق ✕</button><div style="clear:both"></div><h2>سلة التسوق</h2>'+(cart.length?cart.map(x=>'<div class="cartline"><div><b>'+x.name+'</b><div style="color:#7c756b;font-size:11px">'+x.size+' مل · '+money(x.price)+' للقطعة</div></div><div class="qty"><button data-qty="-1" data-id="'+x.id+'" data-size="'+x.size+'">−</button> '+x.qty+' <button data-qty="1" data-id="'+x.id+'" data-size="'+x.size+'">+</button></div></div>').join(""):'<div class="empty">سلتك فارغة حاليًا 🛍</div>')+(cart.length?'<div class="cartline"><b>الإجمالي</b><b>'+money(total)+'</b></div><button class="primary" id="checkout">متابعة إتمام الطلب</button>':'') )}
@@ -86,11 +87,12 @@ $("search").addEventListener("input",draw);$("modal").addEventListener("click",e
 document.addEventListener("click",event=>{const button=event.target.closest("#login");if(!button)return;event.preventDefault();event.stopImmediatePropagation();location.href="account.html";},true);
 </script>
 <script type="module">
-import {auth,db,onAuthStateChanged,ref,get,set} from "./firebase.js";
+import {auth,db,onAuthStateChanged,ref,get,set,onValue} from "./firebase.js";
 let activeUid=null,loading=true;
 const paths={cart:"cart",favorites:"favorites",orders:"orders"};
 async function pull(uid){loading=true;try{const values={};for(const key of Object.keys(paths)){const snap=await get(ref(db,paths[key]+"/"+uid));values[key]=snap.exists()?snap.val(): (key==="cart"||key==="favorites"||key==="orders"?[]:[]);}if(window.__zrApplyCloudData)window.__zrApplyCloudData(values); }catch(e){console.error("Firebase sync failed",e);const note=document.createElement("div");note.className="hint";note.textContent="تعذر تحميل بيانات حسابك من قاعدة البيانات. راجع قواعد Firebase.";document.querySelector("main")?.prepend(note);}finally{loading=false;}}
 onAuthStateChanged(auth,async user=>{activeUid=user?.uid||null;if(user){await pull(user.uid);}else{loading=false;}});
+onValue(ref(db,"products"),snap=>{if(snap.exists()&&window.__zrSetProducts){const rows=Object.values(snap.val()||{}).sort((a,b)=>(a.id||0)-(b.id||0));window.__zrSetProducts(rows);}},err=>console.warn("Products sync unavailable; using built-in catalog",err));
 window.addEventListener("zr:datachange",async event=>{if(!activeUid||loading)return;const key=event.detail?.key;if(!paths[key])return;try{await set(ref(db,paths[key]+"/"+activeUid),event.detail.value);}catch(e){console.error("Firebase save failed",e);alert("لم يتم حفظ التعديل على حسابك. راجع قواعد Realtime Database.");}});
 </script>
 </body>
