@@ -429,6 +429,7 @@ function setAppPage(page,updateHistory=true){
  document.querySelectorAll(".mobile-nav button").forEach(b=>b.classList.toggle("active",
   (page==="home"&&b.id==="mobileHome")||(page==="categories"&&b.id==="mobileCategories")||
   (page==="purchases"&&b.id==="mobileCart")||(page==="account"&&b.id==="mobileAccount")));
+ if(page==="categories"){renderProducts();$("productStatus").textContent="كل العطور"}
  if(page==="purchases")renderCart();
  if(page==="account")updateAccount();
  window.scrollTo({top:0,behavior:"instant"});
