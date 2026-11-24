@@ -578,7 +578,7 @@ document.querySelectorAll(".overlay").forEach(o=>o.addEventListener("click",e=>{
 syncMobileNav();
 $("loginBtn").onclick=()=>open("authOverlay");
 $("searchInput").oninput=()=>{if($("headerSearch"))$("headerSearch").value=$("searchInput").value;renderProducts()};if($("headerSearch"))$("headerSearch").oninput=()=>{$("searchInput").value=$("headerSearch").value;renderProducts()};$("brandFilter").onchange=renderProducts;$("priceFilter").onchange=renderProducts;$("clearFilters").onclick=()=>{$("brandFilter").value="";$("priceFilter").value="";$("searchInput").value="";if($("headerSearch"))$("headerSearch").value="";category="الكل";document.querySelectorAll("[data-cat]").forEach(x=>x.classList.toggle("active",x.dataset.cat==="الكل"));renderProducts()};document.querySelectorAll("[data-jump-cat]").forEach(a=>a.onclick=()=>{category=a.dataset.jumpCat;document.querySelectorAll("[data-cat]").forEach(x=>x.classList.toggle("active",x.dataset.cat===category));renderProducts()});$("sortSelect").onchange=renderProducts;
-document.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{category=b.dataset.cat;document.querySelectorAll("[data-cat]").forEach(x=>x.classList.toggle("active",x===b));setAppPage("categories");renderProducts();const h=document.querySelector("#shop .section-head h2");if(h)h.textContent=category==="الكل"?"كل العطور":"عطور "+(category==="يونيسكس"?"للجنسين":category);window.scrollTo({top:0,behavior:"instant"})});
+document.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{category=b.dataset.cat;document.querySelectorAll("[data-cat]").forEach(x=>x.classList.toggle("active",x===b));renderProducts()});
 $("year").textContent=new Date().getFullYear();cartCount();
 onAuthStateChanged(auth,u=>{user=u;updateAccount();if(u&&u.uid===ADMIN_UID){$("loginBtn").textContent="لوحة التحكم";$("loginBtn").onclick=()=>{renderAdmin();open("adminOverlay")}}else $("loginBtn").textContent=u?"حسابي":"تسجيل الدخول"});
 const demoProducts=[
@@ -591,7 +591,7 @@ const demoProducts=[
 {id:"demo-velvet-iris",name:"إيريس مخملي",brand:"MAISON RAHAF",price:2950,category:"حريمي",description:"السوسن البنفسجي مع البنفسج وخشب الكشمير ولمسة بودرية راقية. ناعم وأنيق. الحجم: 100 مل.",image:"https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=800&q=85",active:true,demo:true},
 {id:"demo-midnight-cedar",name:"خشب منتصف الليل",brand:"NOIR ATELIER",price:2650,category:"رجالي",description:"خشب الأرز والفيتيفر مع الهيل واللابدانوم. رائحة خشبية عميقة ومتوازنة. الحجم: 100 مل.",image:"https://images.unsplash.com/photo-1595425970377-c9703cf48b6d?auto=format&fit=crop&w=800&q=85",active:true,demo:true}
 ];
-unsubProducts=onSnapshot(collection(db,"zeinRahafV2Products"),snap=>{const liveProducts=snap.docs.map(d=>({id:d.id,...d.data()})).filter(p=>p.active!==false).sort((a,b)=>{const av=a.createdAt?.toMillis?.()||0,bv=b.createdAt?.toMillis?.()||0;return bv-av});products=[...liveProducts,...demoProducts.filter(d=>!liveProducts.some(p=>p.id===d.id))];const brands=[...new Set(products.map(p=>p.brand).filter(Boolean))].sort();const bf=$("brandFilter"),selected=bf.value;bf.innerHTML='<option value="">كل الماركات</option>'+brands.map(b=>`<option value="${escapeHtml(b)}">${escapeHtml(b)}</option>`).join("");bf.value=brands.includes(selected)?selected:"";renderProducts();if(user&&user.uid===ADMIN_UID)renderAdmin();$("productStatus").textContent=products.length+" عطر"},err=>{products=demoProducts;renderProducts();$("productStatus").textContent=products.length+" منتجات تجريبية";console.error(err)});
+unsubProducts=onSnapshot(query(collection(db,"zeinRahafV2Products"),orderBy("createdAt","desc")),snap=>{const liveProducts=snap.docs.map(d=>({id:d.id,...d.data()})).filter(p=>p.active!==false);products=[...liveProducts,...demoProducts.filter(d=>!liveProducts.some(p=>p.id===d.id))];const brands=[...new Set(products.map(p=>p.brand).filter(Boolean))].sort();const bf=$("brandFilter"),selected=bf.value;bf.innerHTML='<option value="">كل الماركات</option>'+brands.map(b=>`<option value="${escapeHtml(b)}">${escapeHtml(b)}</option>`).join("");bf.value=brands.includes(selected)?selected:"";renderProducts();if(user&&user.uid===ADMIN_UID)renderAdmin();$("productStatus").textContent=products.length+" عطر"},err=>{products=demoProducts;renderProducts();$("productStatus").textContent=products.length+" منتجات تجريبية";console.error(err)});
 
 /* Real page navigation for all four bottom tabs */
 const appPages=["home","categories","purchases","account"];
@@ -612,8 +612,8 @@ function setAppPage(page,updateHistory=true){
  window.scrollTo({top:0,behavior:"instant"});
 }
 function pageFromHash(){const p=location.hash.replace("#","");setAppPage(appPages.includes(p)?p:"home",false)}
-$("mobileHome").onclick=()=>{category="الكل";document.querySelectorAll("[data-cat]").forEach(x=>x.classList.toggle("active",x.dataset.cat==="الكل"));const h=document.querySelector("#shop .section-head h2");if(h)h.textContent="اكتشف مجموعتنا";setAppPage("home")};
-$("mobileCategories").onclick=()=>{category="الكل";document.querySelectorAll("[data-cat]").forEach(x=>x.classList.toggle("active",x.dataset.cat==="الكل"));const h=document.querySelector("#shop .section-head h2");if(h)h.textContent="كل العطور";setAppPage("categories")};
+$("mobileHome").onclick=()=>setAppPage("home");
+$("mobileCategories").onclick=()=>setAppPage("categories");
 $("mobileCart").onclick=$("cartBtn").onclick=()=>setAppPage("purchases");
 $("mobileAccount").onclick=$("accountBtn").onclick=()=>setAppPage("account");
 $("favoriteBtn").onclick=()=>{setAppPage("categories");showFavorites();$("productStatus").textContent="المفضلة"};
