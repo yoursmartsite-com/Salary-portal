@@ -428,7 +428,7 @@ header .actions .icon-btn,.bar .actions .icon-btn{
 <div class="top-strip"><div class="shell top-strip-inner"><span>تجربة تسوق أسهل من زين ورهف</span><span>خدمة العملاء عبر واتساب: 01108169740</span></div></div>
 <header><div class="shell bar">
 <a class="brand" href="#"><span class="brand-mark">Z<span style="font-size:14px">&</span>R</span><span class="brand-name">زَيْن وَرَهَف<small>ZEIN & RAHAF · LUXURY PERFUMES</small></span></a>
-<label class="header-search">⌕ <input id="headerSearch" placeholder="بتدور على عطر إيه؟"></label><nav class="nav"><a href="#categories">كل العطور</a><a href="#categories" data-jump-cat="رجالي">رجالي</a><a href="#categories" data-jump-cat="حريمي">حريمي</a><a href="#categories" data-jump-cat="يونيسكس">للجنسين</a><a href="#categories" data-jump-cat="عروض">العروض</a></nav>
+<label class="header-search">⌕ <input id="headerSearch" placeholder="بتدور على عطر إيه؟"></label><nav class="nav"><a href="#categories">كل العطور</a><a href="#men" data-jump-cat="رجالي">رجالي</a><a href="#women" data-jump-cat="حريمي">حريمي</a><a href="#unisex" data-jump-cat="يونيسكس">للجنسين</a><a href="#offers" data-jump-cat="عروض">العروض</a></nav>
 <div class="actions"><button class="icon-btn" id="favoriteBtn" aria-label="المفضلة"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 8.8c0 5-8.8 11-8.8 11s-8.8-6-8.8-11A4.8 4.8 0 0 1 12 6.2a4.8 4.8 0 0 1 8.8 2.6Z"/></svg></button><button class="icon-btn" id="cartBtn" aria-label="السلة"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.1 11.2a2 2 0 0 0 2 1.6h8.8a2 2 0 0 0 2-1.6L21 8H6"/><path d="M10 21h.01M18 21h.01"/></svg><span class="count" id="cartCount">0</span></button><button class="btn gold login-label" id="loginBtn">تسجيل الدخول</button><button class="icon-btn" id="accountBtn" aria-label="حسابي"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg></button></div>
 </div></header>
 <main class="shell" id="home">
@@ -438,7 +438,7 @@ header .actions .icon-btn,.bar .actions .icon-btn{
 <section class="story" id="story"><div class="story-art"></div><div><span class="section-kicker">OUR SIGNATURE</span><h2>الفخامة لها اسم.</h2><p>في زين ورهف، نؤمن إن العطر مش مجرد رائحة؛ هو حضور وذكرى وبصمة بتفضل. اختارنا لك مجموعة بعناية تجمع بين الجودة والأناقة والتفاصيل اللي تفرق.</p><a class="btn dark" href="#categories">تصفّح العطور</a></div></section>
 </main>
 <main class="shell app-page" id="categoriesPage" hidden>
-<section class="section" id="shop"><div class="section-head"><div><span class="section-kicker">THE COLLECTION</span><h2>اكتشف مجموعتنا</h2><p>عطور مختارة لكل لحظة ولكل شخصية.</p></div><span class="muted" id="productStatus">جاري تحميل العطور...</span></div>
+<section class="section" id="shop"><div class="section-head"><div><span class="section-kicker">THE COLLECTION</span><h2 id="catalogTitle">اكتشف مجموعتنا</h2><p>عطور مختارة لكل لحظة ولكل شخصية.</p></div><span class="muted" id="productStatus">جاري تحميل العطور...</span></div>
 <div class="catalog-tools"><label class="search">⌕ <input id="searchInput" placeholder="ابحث عن اسم العطر أو الماركة..."></label><select class="select" id="sortSelect"><option value="featured">الأكثر تميزًا</option><option value="low">السعر: الأقل</option><option value="high">السعر: الأعلى</option></select></div>
 <div class="categories" id="categories"><button class="chip active" data-cat="الكل">كل العطور</button><button class="chip" data-cat="رجالي">رجالي</button><button class="chip" data-cat="حريمي">حريمي</button><button class="chip" data-cat="يونيسكس">للجنسين</button><button class="chip" data-cat="عروض">عروض خاصة</button></div>
 <div class="advanced-filters" id="advancedFilters">
@@ -571,8 +571,8 @@ $("resetProduct").onclick=()=>{$("editId").value=""};
 $("checkoutBtn").onclick=()=>{if(!cart.length)return toast("الحقيبة فاضية");if(!user){close("cartOverlay");open("authOverlay");return toast("سجّل الدخول الأول")};close("cartOverlay");open("checkoutOverlay")};
 $("checkoutForm").onsubmit=async e=>{e.preventDefault();const submit=e.submitter;submit.disabled=true;const order={uid:user.uid,customerName:$("buyerName").value.trim(),phone:$("buyerPhone").value.trim(),address:$("buyerAddress").value.trim(),items:cart.map(p=>({productId:p.id,name:p.name,sizeMl:Number(p.selectedMl||100),price:Number(p.price),quantity:p.qty,image:p.image||""})),total:Math.max(0,cartSubtotal()-cartDiscount()),status:"new",createdAt:serverTimestamp()};try{const ref=await addDoc(collection(db,"zeinRahafV2Orders"),order);cart=[];cartCouponApplied=false;persistCart();cartCount();renderCart();close("checkoutOverlay");$("checkoutForm").reset();toast("وصل طلبك بنجاح. رقم الطلب: "+ref.id.slice(-7).toUpperCase())}catch(err){$("checkoutMessage").textContent="تعذر إرسال الطلب. راجع قواعد Firestore.";console.error(err)}finally{submit.disabled=false}};
 $("loginBtn").onclick=()=>open("authOverlay");
-$("searchInput").oninput=()=>{if($("headerSearch"))$("headerSearch").value=$("searchInput").value;renderProducts()};if($("headerSearch"))$("headerSearch").oninput=()=>{$("searchInput").value=$("headerSearch").value;renderProducts()};$("brandFilter").onchange=renderProducts;$("priceFilter").onchange=renderProducts;$("clearFilters").onclick=()=>{$("brandFilter").value="";$("priceFilter").value="";$("searchInput").value="";if($("headerSearch"))$("headerSearch").value="";category="الكل";document.querySelectorAll("[data-cat]").forEach(x=>x.classList.toggle("active",x.dataset.cat==="الكل"));renderProducts()};document.querySelectorAll("[data-jump-cat]").forEach(a=>a.onclick=e=>{e.preventDefault();category=a.dataset.jumpCat;document.querySelectorAll("[data-cat]").forEach(x=>x.classList.toggle("active",x.dataset.cat===category));setAppPage("categories");$("productStatus").textContent=category;renderProducts()});$("sortSelect").onchange=renderProducts;
-document.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{category=b.dataset.cat;document.querySelectorAll("[data-cat]").forEach(x=>x.classList.toggle("active",x===b));setAppPage("categories");$("productStatus").textContent=category==="الكل"?"كل العطور":category;renderProducts()});
+$("searchInput").oninput=()=>{if($("headerSearch"))$("headerSearch").value=$("searchInput").value;renderProducts()};if($("headerSearch"))$("headerSearch").oninput=()=>{$("searchInput").value=$("headerSearch").value;renderProducts()};$("brandFilter").onchange=renderProducts;$("priceFilter").onchange=renderProducts;$("clearFilters").onclick=()=>{$("brandFilter").value="";$("priceFilter").value="";$("searchInput").value="";if($("headerSearch"))$("headerSearch").value="";category="الكل";document.querySelectorAll("[data-cat]").forEach(x=>x.classList.toggle("active",x.dataset.cat==="الكل"));renderProducts()};document.querySelectorAll("[data-jump-cat]").forEach(a=>a.onclick=e=>{e.preventDefault();const value=a.dataset.jumpCat;setAppPage(({رجالي:"men",حريمي:"women",يونيسكس:"unisex",عروض:"offers"})[value]||"categories")});$("sortSelect").onchange=renderProducts;
+document.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{const value=b.dataset.cat;setAppPage(({رجالي:"men",حريمي:"women",يونيسكس:"unisex",عروض:"offers"})[value]||"categories")});
 $("year").textContent=new Date().getFullYear();cartCount();
 onAuthStateChanged(auth,u=>{user=u;updateAccount();if(u&&u.uid===ADMIN_UID){$("loginBtn").textContent="لوحة التحكم";$("loginBtn").onclick=()=>{renderAdmin();open("adminOverlay")}}else $("loginBtn").textContent=u?"حسابي":"تسجيل الدخول"});
 const demoProducts=[
@@ -588,19 +588,23 @@ const demoProducts=[
 unsubProducts=onSnapshot(query(collection(db,"zeinRahafV2Products"),orderBy("createdAt","desc")),snap=>{const liveProducts=snap.docs.map(d=>({id:d.id,...d.data()})).filter(p=>p.active!==false);products=[...liveProducts,...demoProducts.filter(d=>!liveProducts.some(p=>p.id===d.id))];const brands=[...new Set(products.map(p=>p.brand).filter(Boolean))].sort();const bf=$("brandFilter"),selected=bf.value;bf.innerHTML='<option value="">كل الماركات</option>'+brands.map(b=>`<option value="${escapeHtml(b)}">${escapeHtml(b)}</option>`).join("");bf.value=brands.includes(selected)?selected:"";renderProducts();if(user&&user.uid===ADMIN_UID)renderAdmin();$("productStatus").textContent=products.length+" عطر"},err=>{products=demoProducts;renderProducts();$("productStatus").textContent=products.length+" منتجات تجريبية";console.error(err)});
 
 /* Real page navigation for all four bottom tabs */
-const appPages=["home","categories","purchases","account"];
+const categoryPages={men:"رجالي",women:"حريمي",unisex:"يونيسكس",offers:"عروض"};
+const appPages=["home","categories",...Object.keys(categoryPages),"purchases","account"];
+const categoryPageTitles={الكل:"كل العطور",رجالي:"العطور الرجالي",حريمي:"العطور الحريمي",يونيسكس:"عطور للجنسين",عروض:"العروض الخاصة"};
 function setAppPage(page,updateHistory=true){
  if(!appPages.includes(page))page="home";
+ if(categoryPages[page])category=categoryPages[page];
+ else if(page==="categories")category="الكل";
  if(updateHistory&&location.hash!=="#"+page)history.pushState({page},"","#"+page);
   $("cartOverlay").classList.toggle("show",page==="purchases");
  $("accountOverlay").classList.toggle("show",page==="account");
  $("home").hidden=page!=="home";
- $("categoriesPage").hidden=page!=="categories";
+ $("categoriesPage").hidden=!(page==="categories"||!!categoryPages[page]);
  $("contact").style.display=page==="home"?"":"none";
  document.querySelectorAll(".mobile-nav button").forEach(b=>b.classList.toggle("active",
-  (page==="home"&&b.id==="mobileHome")||(page==="categories"&&b.id==="mobileCategories")||
+  (page==="home"&&b.id==="mobileHome")||((page==="categories"||!!categoryPages[page])&&b.id==="mobileCategories")||
   (page==="purchases"&&b.id==="mobileCart")||(page==="account"&&b.id==="mobileAccount")));
- if(page==="categories"){renderProducts();$("productStatus").textContent="كل العطور"}
+ if(page==="categories"||categoryPages[page]){document.querySelectorAll("[data-cat]").forEach(x=>x.classList.toggle("active",x.dataset.cat===category));$("catalogTitle").textContent=categoryPageTitles[category]||"اكتشف مجموعتنا";$("productStatus").textContent=categoryPageTitles[category]||"كل العطور";renderProducts()}
  if(page==="purchases")renderCart();
  if(page==="account")updateAccount();
  window.scrollTo({top:0,behavior:"instant"});
@@ -615,7 +619,7 @@ $("cartOverlay").querySelector("[data-close]").onclick=()=>setAppPage("home");
 $("accountOverlay").querySelector("[data-close]").onclick=()=>setAppPage("home");
 window.addEventListener("popstate",pageFromHash);
 window.addEventListener("hashchange",pageFromHash);
-if(["#home","#categories","#purchases","#account"].includes(location.hash))pageFromHash();
+if(appPages.some(p=>location.hash==="#"+p))pageFromHash();
 else setAppPage("home",false);
 
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
