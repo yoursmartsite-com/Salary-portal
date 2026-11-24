@@ -1,0 +1,20 @@
+ZEIN & RAHAF — MULTI-SHOP SUBSCRIPTIONS PREVIEW
+
+This preview is isolated on branch:
+backup/perfumes-before-subscriptions-2026-11-24
+
+Files:
+- index.html: shop-scoped storefront; reads ?shop=<shopId>; product/order queries are scoped by shopId; shows a lock when shopStatus is inactive or expired.
+- subscriptions-admin.html: owner-only dashboard; creates shop logins, creates shop records and membership records, renews/pauses subscriptions, copies each shop URL, and includes a one-time legacy migration for records without shopId.
+- firestore-subscriptions.rules: server-side tenant isolation and subscription expiry rules.
+
+IMPORTANT:
+1. Do not publish firestore-subscriptions.rules while the live main branch still uses the legacy global products/orders schema.
+2. Create the first shop from the owner dashboard, then run the one-time migration to assign legacy products and orders to that shop.
+3. Only after the app and rules are deployed together should the shop URL be shared.
+4. This preview uses the existing Firebase project. The rules are not deployed automatically by this branch.
+5. No Firebase Functions or paid Blaze-only backend is used. Subscription management is performed by the platform owner account.
+
+Validation:
+- JavaScript syntax is checked by .github/workflows/validate-perfume-subscriptions.yml.
+- Live Firebase/Auth/Firestore behavior still requires an isolated test before production release.
