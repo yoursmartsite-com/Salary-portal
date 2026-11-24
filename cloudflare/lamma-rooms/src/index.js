@@ -94,6 +94,11 @@ async function cloudinarySignature(params,secret){
 
 export default{async fetch(req,env){
  const url=new URL(req.url);
+ if(url.pathname==="/hide-and-seek"||url.pathname==="/hide-and-seek/"||url.pathname==="/hide-and-seek/index.html"){
+  const page=await fetch("https://raw.githubusercontent.com/yoursmartsite-com/Salary-portal/feature/hide-and-seek-prototype/hide-and-seek/index.html");
+  if(!page.ok)return new Response("Game page unavailable",{status:502,headers:{"Content-Type":"text/plain; charset=utf-8"}});
+  return new Response(page.body,{status:200,headers:{"Content-Type":"text/html; charset=utf-8","Cache-Control":"no-store","X-Content-Type-Options":"nosniff"}});
+ }
  if(url.pathname==="/media/upload"&&req.method==="POST"){
   const h=cors(req);
   try{
