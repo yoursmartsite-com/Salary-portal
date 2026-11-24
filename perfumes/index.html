@@ -347,6 +347,8 @@ body.page-categories .mobile-nav{display:grid!important}
 #cartOverlay .cart-note{text-align:center;margin:9px 0}
 #cartOverlay .cart-items .empty{padding:50px 12px;background:#fff;border:1px solid #e7e1d7;border-radius:25px;color:#82796e;text-align:center}
 @media(max-width:650px){#cartOverlay .cart-page{padding:17px 14px 105px!important}#cartOverlay .cart-line{grid-template-columns:70px minmax(0,1fr);padding:11px;border-radius:23px}#cartOverlay .cart-line img{width:70px;height:76px}}
+#cartOverlay .cart-line{padding-top:18px;padding-left:38px}
+#cartOverlay .cart-remove{position:absolute;top:9px;left:12px;width:24px;height:24px;border:0;background:transparent;color:#c8c5bf;font-size:22px;line-height:1}
 </style>
 </head>
 <body>
@@ -412,10 +414,11 @@ let cartCouponApplied=false;
 function cartSubtotal(){return cart.reduce((sum,p)=>sum+Number(p.price)*p.qty,0)}
 function cartDiscount(){return cartCouponApplied?Math.round(cartSubtotal()*.10):0}
 function renderCart(){
- $("cartItems").innerHTML=cart.length?cart.map(p=>`<div class="cart-line"><img src="${escapeHtml(p.image||"")}" alt=""><div><b>${escapeHtml(p.name)}</b><small>${money(p.price)}</small><div class="qty"><button data-dec="${p.id}">−</button><span>${p.qty}</span><button data-inc="${p.id}">+</button></div></div><b>${money(p.price*p.qty)}</b></div>`).join(""):'<div class="empty">سلتك لسه فاضية. اختار عطرك المفضل وهنضيفه هنا.</div>';
+ $("cartItems").innerHTML=cart.length?cart.map(p=>`<div class="cart-line"><button class="cart-remove" data-remove="${p.id}" aria-label="حذف المنتج">×</button><img src="${escapeHtml(p.image||"")}" alt=""><div><b>${escapeHtml(p.name)}</b><small>${money(p.price)}</small><div class="qty"><button data-dec="${p.id}">−</button><span>${p.qty}</span><button data-inc="${p.id}">+</button></div></div><b>${money(p.price*p.qty)}</b></div>`).join(""):'<div class="empty">سلتك لسه فاضية. اختار عطرك المفضل وهنضيفه هنا.</div>';
  const sub=cartSubtotal(),discount=cartDiscount();
  $("cartSubtotal").textContent=money(sub);$("cartShipping").textContent=sub>=3000?"مجاني ✨":"يُحدد عند التأكيد";
  $("cartDiscountRow").hidden=!cartCouponApplied;$("cartDiscount").textContent="-"+money(discount);$("cartTotal").textContent=money(Math.max(0,sub-discount));
+ document.querySelectorAll("[data-remove]").forEach(b=>b.onclick=()=>{cart=cart.filter(p=>p.id!==b.dataset.remove);persistCart();renderCart();cartCount()});
  document.querySelectorAll("[data-inc]").forEach(b=>b.onclick=()=>{cart.find(p=>p.id===b.dataset.inc).qty++;persistCart();renderCart();cartCount()});
  document.querySelectorAll("[data-dec]").forEach(b=>b.onclick=()=>{const p=cart.find(p=>p.id===b.dataset.dec);p.qty--;if(p.qty<=0)cart=cart.filter(x=>x.id!==p.id);persistCart();renderCart();cartCount()});
 }
