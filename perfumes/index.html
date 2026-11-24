@@ -243,6 +243,48 @@ button:disabled{opacity:.55;cursor:not-allowed;transform:none!important;box-shad
   .add{width:36px;height:36px}
 }
 
+
+/* Final pass: force the retail button look on every visible navigation/action control */
+button,.mobile-nav button,.nav button,.chips button,.category-list button{
+  -webkit-appearance:none!important;appearance:none!important;
+  font-family:Cairo,Arial,sans-serif!important;
+  box-shadow:none;
+}
+header .actions .icon-btn,.bar .actions .icon-btn{
+  width:42px!important;height:42px!important;min-width:42px;
+  padding:0!important;display:inline-flex!important;align-items:center;justify-content:center;
+  border:1px solid #d9e0e6!important;border-radius:6px!important;
+  background:#fff!important;color:#18344f!important;
+}
+.mobile-nav{
+  display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr));
+  align-items:stretch;gap:8px;padding:10px 12px!important;
+}
+.mobile-nav button{
+  min-width:0;min-height:58px!important;padding:8px 3px!important;
+  display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+  border:1px solid #d8e0e6!important;border-radius:6px!important;
+  background:#fff!important;color:#536477!important;
+  font-size:11px!important;font-weight:800!important;line-height:1.25;
+}
+.mobile-nav button span{font-size:20px!important;line-height:1}
+.mobile-nav button.active{
+  border:2px solid #f28c28!important;background:#fff!important;color:#e77d1d!important;
+}
+.hero .btn.gold,.hero a.btn.gold{
+  background:#f28c28!important;color:#fff!important;border:1px solid #f28c28!important;
+  border-radius:6px!important;box-shadow:none!important;
+}
+.chip,.clear-filters,.nav button{
+  -webkit-appearance:none!important;appearance:none!important;
+  border-radius:6px!important;
+}
+@media(max-width:650px){
+  .mobile-nav{padding:8px 10px!important;gap:6px}
+  .mobile-nav button{min-height:54px!important;font-size:10px!important}
+  header .actions .icon-btn,.bar .actions .icon-btn{width:38px!important;height:38px!important;min-width:38px}
+}
+
 </style>
 </head>
 <body>
