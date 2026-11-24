@@ -1,0 +1,41 @@
+name: Validate multi-store perfume app
+on:
+  push:
+    branches:
+      - feature/perfumes-multi-store-subscriptions
+  pull_request:
+    branches:
+      - main
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check embedded app JavaScript syntax
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const html = fs.readFileSync('perfumes/index.html', 'utf8');
+          const match = html.match(/<script type="module">([\s\S]*?)<\/script>/);
+          if (!match) throw new Error('Main module script not found');
+          fs.writeFileSync('/tmp/perfumes-app.mjs', match[1]);
+          NODE
+          node --check /tmp/perfumes-app.mjs
+      - name: Check tenant isolation wiring
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const html = fs.readFileSync('perfumes/index.html', 'utf8');
+          const required = [
+            'storeRequests', 'storeUsers', 'stores', 'storeCollection("products")',
+            'storeCollection("orders")', 'storeId:activeStoreId',
+            'subscriptionConfigured', 'approveStore', 'extendStore', 'setStoreActive'
+          ];
+          for (const token of required) {
+            if (!html.includes(token)) throw new Error('Missing multi-store feature: ' + token);
+          }
+          console.log('Multi-store wiring checks passed.');
+          NODE
