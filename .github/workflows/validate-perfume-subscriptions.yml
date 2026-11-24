@@ -1,0 +1,38 @@
+name: Validate perfume subscription preview
+
+on:
+  push:
+    branches:
+      - backup/perfumes-before-subscriptions-2026-11-24
+    paths:
+      - "perfumes/**"
+      - ".github/workflows/validate-perfume-subscriptions.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Check JavaScript syntax in preview pages
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          for filename in ["perfumes/index.html", "perfumes/subscriptions-admin.html"]:
+              html = Path(filename).read_text()
+              scripts = re.findall(r'<script type="module">(.*?)</script>', html, re.S)
+              if not scripts:
+                  raise SystemExit(f"No module script found in {filename}")
+              for i, script in enumerate(scripts):
+                  Path(f"/tmp/{Path(filename).stem}-{i}.mjs").write_text(script)
+          PY
+          node --check /tmp/index-0.mjs
+          node --check /tmp/subscriptions-admin-0.mjs
+          echo "Both preview pages passed JavaScript syntax checks."
