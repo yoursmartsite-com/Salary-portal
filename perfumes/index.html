@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#10100f">
+<meta name="theme-color" content="#faf4eb">
 <meta name="description" content="زين ورهف — عطور فاخرة بتفاصيل استثنائية">
 <title>زين ورهف | ZEIN & RAHAF — LUXURY PERFUMES</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -24,6 +24,45 @@ header{height:82px;position:sticky;top:0;z-index:30;background:#10100feF;border-
 .toast{position:fixed;z-index:150;bottom:25px;left:50%;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#e1b77f;color:#1b140c;padding:11px 18px;border-radius:30px;font-size:11px;font-weight:900;transition:.25s;box-shadow:0 8px 30px #0008;max-width:90%;text-align:center}.toast.show{opacity:1;transform:translate(-50%,0)}
 @media(max-width:900px){.nav{gap:14px}.grid{grid-template-columns:repeat(3,minmax(0,1fr))}.photo{height:220px}}
 @media(max-width:650px){.shell{width:min(100% - 24px,520px)}header{height:68px}.brand-mark{width:38px;height:38px}.brand-name{font-size:16px}.nav{display:none}.actions .login-label{display:none}.icon-btn{width:37px;height:37px}.hero{min-height:390px;margin:12px auto 20px;background-position:60% center;border-radius:18px}.hero-copy{width:100%;padding:27px 23px;align-self:end;margin-top:120px}.hero h1{font-size:43px}.hero p{font-size:11px;max-width:310px}.hero-note{display:none}.section{padding:17px 0 25px}.section-head h2{font-size:18px}.catalog-tools{gap:7px}.select{min-width:105px;width:110px;font-size:10px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.photo{height:190px}.product-info{padding:10px}.product h3{font-size:12px}.product-desc{font-size:9px;height:31px}.price{font-size:12px}.story{grid-template-columns:1fr;gap:16px;padding:25px 0;margin:8px 0 25px}.story-art{min-height:210px;order:2}.story h2{font-size:23px}.footer{padding-bottom:100px}.footer-inner{align-items:flex-start;flex-direction:column;gap:8px}.mobile-nav{display:flex;position:fixed;z-index:35;bottom:0;right:0;left:0;padding:9px 12px calc(8px + env(safe-area-inset-bottom));justify-content:space-around;background:#141411f5;border-top:1px solid #ffffff19;backdrop-filter:blur(16px)}.mobile-nav button{background:transparent;color:#a99e8f;display:grid;justify-items:center;gap:2px;font-size:9px}.mobile-nav button span{font-size:19px}.mobile-nav button.active{color:var(--gold2)}}
+
+/* ZEIN & RAHAF — warm ivory mobile redesign */
+:root{--bg:#faf4eb;--panel:#fffaf3;--panel2:#f4e9dc;--line:#ead8c4;--gold:#b9853d;--gold2:#d6a65d;--cream:#211d19;--muted:#81766b;--green:#547c5d;--red:#b65f58;--radius:22px}
+html{scroll-padding-top:105px}body{background:var(--bg);color:var(--cream)}
+header{height:auto;min-height:76px;padding-top:env(safe-area-inset-top);background:#fffaf2f2;border-bottom:1px solid #ead8c4;box-shadow:0 3px 18px #6b4b2510}
+.bar{min-height:76px}.brand{gap:9px}.brand-mark{width:48px;height:48px;border:0;border-radius:0;color:#b9853d;font-size:34px}.brand-name{font-size:21px;color:#211d19}.brand-name small{color:#a97838;letter-spacing:2.6px}
+.nav{color:#64594f}.icon-btn{background:#211f1b;color:#fffaf3;border:0;border-radius:50%;width:42px;height:42px}.count{background:#d6a65d;color:#211d19}.btn{border-radius:30px;border-color:#e5cfb5;color:#33271c}.btn.gold{background:linear-gradient(120deg,#c18b45,#e1bd7d);color:#21170d;box-shadow:0 5px 14px #9b6b3022}
+.hero{min-height:405px;margin:18px auto 25px;border:0;border-radius:28px;background:linear-gradient(90deg,#100e0bdc 0%,#100e0b9c 55%,#100e0b20 100%),url('https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=1800&q=90') center/cover;box-shadow:0 12px 28px #4e341b20}
+.hero-copy{width:min(600px,75%);padding:44px}.hero h1{color:#fff8ef}.hero p{color:#f4e6d5}.hero:after{border-color:#d6a65d55}
+.section{padding:22px 0 35px}.section-head h2{color:#211d19}.section-head p{color:#897d70}
+.search,.select{background:#fffaf3;border-color:#ead8c4;color:#2b241d;border-radius:30px}.search input{color:#2b241d}.search input::placeholder{color:#9a8d80}
+.chip{background:#fffaf3;border-color:#ead8c4;color:#5f554b;border-radius:30px;padding:10px 18px}.chip.active,.chip:hover{background:#211f1b;border-color:#c18b45;color:#e5bb79}
+.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.product{background:#fffaf3;border:1px solid #efdfce;border-radius:23px;box-shadow:0 5px 18px #75512a0c}.product:hover{border-color:#d2a86e;box-shadow:0 12px 28px #75512a18}.photo{height:245px;background:radial-gradient(ellipse,#e7d4bc,#f8eee2 72%)}.photo img{object-fit:contain;padding:8px}.heart{background:#fffaf0e8;border:0;color:#211d19}.tag{background:#fffaf0;color:#a57435;border-color:#e8d3b8}.product-info{padding:14px}.product-brand{color:#a97838}.product h3{color:#211d19;font-size:15px}.product-desc{color:#897d70}.price{color:#211d19}.price small{color:#8c8074}.add{border:0;border-radius:50%;background:#211f1b;color:#e8bd79;width:39px;height:39px}
+.story{border-color:#ead8c4}.story h2{color:#211d19}.story p{color:#7f7469}.story-art{border:1px solid #ead8c4}
+.footer{border-color:#ead8c4;color:#81766b}.footer strong{color:#9d7138}
+.dialog{background:#fffaf3;border-color:#e6d2b9;color:#211d19}.close{background:#f2e7da;color:#211d19;border-color:#e4d3c0}.field label{color:#75695d}.field input,.field textarea,.field select{background:#fff;color:#211d19;border-color:#e5d5c3}.muted{color:#82766b}.cart-line{border-color:#eee1d3}.qty button{background:#f4e9dc;color:#211d19;border-color:#e5d5c3}.auth-tabs button{background:#f4e9dc;color:#51463b;border-color:#e5d5c3}.auth-tabs button.active{border-color:#c18b45;color:#9d7138}.admin-row{background:#f4e9dc}.admin-row small{color:#81766b}
+.mobile-nav{background:#fffaf3f5;border-top:1px solid #ead8c4;box-shadow:0 -6px 22px #6b4b2510;padding:9px 10px calc(8px + env(safe-area-inset-bottom));justify-content:space-around}.mobile-nav button{color:#65594d;font-weight:700}.mobile-nav button span{font-size:22px}.mobile-nav button.active{color:#b9853d}
+.empty{border-color:#dfcbb3;color:#81766b;background:#fffaf380}
+.toast{background:#211f1b;color:#f0c783}
+@media(max-width:650px){
+ .shell{width:calc(100% - 26px);max-width:520px}
+ header{min-height:74px}
+ .bar{min-height:74px;gap:7px}
+ .brand{gap:6px}.brand-mark{width:35px;height:42px;font-size:27px}.brand-name{font-size:16px}.brand-name small{font-size:7px;letter-spacing:1.5px}
+ .actions{gap:6px}.icon-btn{width:36px;height:36px;font-size:17px}
+ .hero{min-height:370px;margin:13px auto 19px;border-radius:23px;background-position:57% center}
+ .hero-copy{width:100%;padding:24px 21px;margin-top:125px;align-self:end}
+ .hero h1{font-size:40px}.hero p{font-size:12px;max-width:300px}
+ .section-head{align-items:center}.section-head h2{font-size:21px}
+ .catalog-tools{gap:8px}.search{height:48px}.select{height:48px;min-width:105px;width:112px}
+ .categories{gap:8px;padding-bottom:14px}.chip{padding:9px 15px;font-size:11px}
+ .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .photo{height:190px}.product-info{padding:11px}.product h3{font-size:13px}
+ .product-desc{font-size:9px;height:32px}.price{font-size:13px}.add{width:35px;height:35px}
+ .story{grid-template-columns:1fr;padding:23px 0}.story-art{min-height:190px}
+ .mobile-nav{padding-top:8px}
+}
+@media(max-width:370px){.brand-name{font-size:14px}.brand-name small{letter-spacing:1px}.actions .icon-btn{width:33px;height:33px}.photo{height:165px}}
+
 </style>
 </head>
 <body>
