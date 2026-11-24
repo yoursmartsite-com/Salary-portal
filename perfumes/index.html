@@ -65,13 +65,13 @@ if(p==="account"){
 $("otherPage").innerHTML='<h1 class="page-title">حسابي</h1><p class="page-sub">بياناتك الشخصية وإعدادات حسابك.</p><div class="page-panel" style="text-align:center"><div class="profile-mark">♙</div><b>أهلاً بيك في زين ورهف</b><p class="hint">سجّل دخولك لمتابعة طلباتك وحفظ بياناتك.</p></div><div class="page-panel"><h3>تسجيل الدخول</h3><input class="field" id="accountEmail" placeholder="البريد الإلكتروني أو رقم الموبايل"><input class="field" id="accountPassword" type="password" placeholder="كلمة المرور"><button class="primary" id="login">تسجيل الدخول</button><p class="hint">تسجيل الدخول الفعلي يحتاج ربط Firebase؛ الواجهة حاليًا تجريبية.</p></div>';
 }
 }
-document.addEventListener("click",e=>{let b=e.target.closest("button,[data-open]");if(!b)return;
+document.addEventListener("click",e=>{const closeControl=e.target.closest("[data-close]");if(closeControl){e.preventDefault();close();return}let b=e.target.closest("button,[data-open]");if(!b)return;
 if(b.dataset.cat){cat=b.dataset.cat;document.querySelectorAll(".cat").forEach(x=>x.classList.toggle("active",x===b));draw()}
 if(b.dataset.open)detail(+b.dataset.open);
 if(b.dataset.fav){let id=+b.dataset.fav;fav=fav.includes(id)?fav.filter(x=>x!==id):fav.concat(id);if(page==="favorites")pageChange("favorites");else draw();toast(fav.includes(id)?"اتضاف للمفضلة":"اتشال من المفضلة")}
 if(b.dataset.size!==undefined){size=+b.dataset.size;document.querySelectorAll(".size").forEach((x,i)=>x.classList.toggle("active",i===size));$("add").textContent="أضف إلى السلة — "+money(current.prices[size])}
 if(b.id==="add"){let ml=[30,50,100][size],old=cart.find(x=>x.id===current.id&&x.size===ml);if(old)old.qty++;else cart.push({id:current.id,name:current.name,size:ml,price:current.prices[size],qty:1});close();draw();toast("تمت إضافة المنتج للسلة")}
-if(b.id==="cartOpen")cartView();if(b.dataset.close)close();
+if(b.id==="cartOpen")cartView();
 if(b.dataset.qty){let x=cart.find(x=>x.id===+b.dataset.id&&x.size===+b.dataset.size);if(x){x.qty+=+b.dataset.qty;if(x.qty<=0)cart=cart.filter(y=>y!==x)}cartView();draw()}
 if(b.id==="checkout")open('<button class="close" data-close>إغلاق ✕</button><div style="clear:both"></div><h2>بيانات التوصيل</h2><input class="field" id="customerName" placeholder="الاسم بالكامل" required><input class="field" id="customerPhone" placeholder="رقم الموبايل" inputmode="tel" required><textarea class="field" id="customerAddress" placeholder="العنوان بالتفصيل" rows="3"></textarea><p class="hint">هذه واجهة تجريبية؛ لن يتم إرسال طلب فعلي قبل ربط المتجر بالخلفية.</p><button class="primary" id="confirm">تأكيد تجريبي</button>');
 if(b.id==="confirm"){if(!$("customerName").value.trim()||!$("customerPhone").value.trim()||!$("customerAddress").value.trim()){toast("من فضلك أكمل بيانات التوصيل");return}orders.push({name:$("customerName").value.trim(),total:cart.reduce((s,x)=>s+x.price*x.qty,0)});cart=[];draw();open('<div class="empty"><h2>اكتملت تجربة الطلب ✓</h2><p>لم يتم حفظ الطلب على خادم أو إرساله للمتجر.</p><button class="primary" data-close>العودة للمتجر</button></div>')}
