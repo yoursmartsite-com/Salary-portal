@@ -26,7 +26,7 @@
         ".read": "auth != null && (auth.uid === $uid || auth.token.email === 'ADMIN_EMAIL_HERE')",
         "$orderId": {
           ".write": "auth != null && ((auth.uid === $uid && !data.exists() && newData.child('status').val() === 'new') || auth.token.email === 'ADMIN_EMAIL_HERE')",
-          ".validate": "newData.hasChildren(['id','name','phone','address','items','total','status','paymentMethod','createdAt']) && newData.child('status').val() === 'new' && newData.child('total').isNumber() && newData.child('total').val() >= 0 && newData.child('items').hasChildren()"
+          ".validate": "auth.token.email === 'ADMIN_EMAIL_HERE' || (newData.hasChildren(['id','name','phone','address','items','total','status','paymentMethod','createdAt']) && newData.child('status').val() === 'new' && newData.child('total').isNumber() && newData.child('total').val() >= 0 && newData.child('items').hasChildren())"
         }
       }
     }
