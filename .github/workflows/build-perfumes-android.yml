@@ -3,6 +3,7 @@ name: Build ZEIN & RAHAF Android APK
 on:
   workflow_dispatch:
   push:
+    branches: [main]
     paths:
       - "perfumes/**"
       - ".github/workflows/build-perfumes-android.yml"
