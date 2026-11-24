@@ -385,9 +385,17 @@ $("productForm").onsubmit=async e=>{e.preventDefault();if(!user||user.uid!==ADMI
 $("resetProduct").onclick=()=>{$("editId").value=""};
 $("checkoutBtn").onclick=()=>{if(!cart.length)return toast("الحقيبة فاضية");if(!user){close("cartOverlay");open("authOverlay");return toast("سجّل الدخول الأول")};close("cartOverlay");open("checkoutOverlay")};
 $("checkoutForm").onsubmit=async e=>{e.preventDefault();const submit=e.submitter;submit.disabled=true;const order={uid:user.uid,customerName:$("buyerName").value.trim(),phone:$("buyerPhone").value.trim(),address:$("buyerAddress").value.trim(),items:cart.map(p=>({productId:p.id,name:p.name,price:Number(p.price),quantity:p.qty,image:p.image||""})),total:cart.reduce((s,p)=>s+p.price*p.qty,0),status:"new",createdAt:serverTimestamp()};try{const ref=await addDoc(collection(db,"zeinRahafV2Orders"),order);cart=[];persistCart();cartCount();renderCart();close("checkoutOverlay");$("checkoutForm").reset();toast("وصل طلبك بنجاح. رقم الطلب: "+ref.id.slice(-7).toUpperCase())}catch(err){$("checkoutMessage").textContent="تعذر إرسال الطلب. راجع قواعد Firestore.";console.error(err)}finally{submit.disabled=false}};
-$("cartBtn").onclick=$("mobileCart").onclick=()=>{renderCart();open("cartOverlay")};
-$("favoriteBtn").onclick=$("mobileFav").onclick=()=>{showFavorites();document.querySelector("#shop").scrollIntoView({behavior:"smooth"})};
-$("accountBtn").onclick=$("mobileAccount").onclick=()=>{updateAccount();open("accountOverlay")};
+$("cartBtn").onclick=$("mobileCart").onclick=()=>{renderCart();setMobileActive("mobileCart");open("cartOverlay")};
+$("favoriteBtn").onclick=()=>{showFavorites();setMobileActive("mobileCategories");document.querySelector("#shop").scrollIntoView({behavior:"smooth"})};
+$("accountBtn").onclick=$("mobileAccount").onclick=()=>{updateAccount();setMobileActive("mobileAccount");open("accountOverlay")};
+function setMobileActive(id){document.querySelectorAll(".mobile-nav button").forEach(b=>b.classList.toggle("active",b.id===id))}
+function syncMobileNav(){const h=location.hash;setMobileActive(h==="#shop"||h==="#story"?"mobileCategories":"mobileHome")}
+window.addEventListener("hashchange",syncMobileNav);
+$("mobileHome").onclick=()=>{location.hash="home";setMobileActive("mobileHome")};
+$("mobileCategories").onclick=()=>{location.hash="shop";setMobileActive("mobileCategories")};
+document.querySelectorAll("[data-close]").forEach(b=>b.addEventListener("click",()=>setTimeout(syncMobileNav,0)));
+document.querySelectorAll(".overlay").forEach(o=>o.addEventListener("click",e=>{if(e.target===o)setTimeout(syncMobileNav,0)}));
+syncMobileNav();
 $("loginBtn").onclick=()=>open("authOverlay");
 $("searchInput").oninput=()=>{if($("headerSearch"))$("headerSearch").value=$("searchInput").value;renderProducts()};if($("headerSearch"))$("headerSearch").oninput=()=>{$("searchInput").value=$("headerSearch").value;renderProducts()};$("brandFilter").onchange=renderProducts;$("priceFilter").onchange=renderProducts;$("clearFilters").onclick=()=>{$("brandFilter").value="";$("priceFilter").value="";$("searchInput").value="";if($("headerSearch"))$("headerSearch").value="";category="الكل";document.querySelectorAll("[data-cat]").forEach(x=>x.classList.toggle("active",x.dataset.cat==="الكل"));renderProducts()};document.querySelectorAll("[data-jump-cat]").forEach(a=>a.onclick=()=>{category=a.dataset.jumpCat;document.querySelectorAll("[data-cat]").forEach(x=>x.classList.toggle("active",x.dataset.cat===category));renderProducts()});$("sortSelect").onchange=renderProducts;
 document.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{category=b.dataset.cat;document.querySelectorAll("[data-cat]").forEach(x=>x.classList.toggle("active",x===b));renderProducts()});
