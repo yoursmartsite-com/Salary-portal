@@ -20,7 +20,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Check JavaScript syntax in preview pages
+      - name: Check JavaScript and tenant wiring
         run: |
           python3 - <<'PY'
           import re
@@ -32,7 +32,25 @@ jobs:
                   raise SystemExit(f"No module script found in {filename}")
               for i, script in enumerate(scripts):
                   Path(f"/tmp/{Path(filename).stem}-{i}.mjs").write_text(script)
+          app = Path("perfumes/index.html").read_text()
+          admin = Path("perfumes/subscriptions-admin.html").read_text()
+          rules = Path("perfumes/firestore-subscriptions.rules").read_text()
+          required = [
+              ('shop-scoped product query', 'where("shopId","==",SHOP_ID)' in app),
+              ('shop-scoped order creation', '{shopId:SHOP_ID,userId:currentUser.uid' in app),
+              ('subscription lock', 'subscriptionLock' in app and 'shopStatus' in app),
+              ('owner dashboard migration', 'migrateLegacy' in admin),
+              ('shop account membership', 'shopMembers' in admin),
+              ('public status read', 'match /shopStatus/{shopId}' in rules and 'allow read: if true;' in rules),
+              ('server-side expiry enforcement', 'expiresAt > request.time' in rules),
+              ('owner-only subscription changes', 'allow create, update, delete: if isOwner();' in rules),
+          ]
+          failed = [name for name, ok in required if not ok]
+          for name, ok in required:
+              print(("PASS" if ok else "FAIL") + ": " + name)
+          if failed:
+              raise SystemExit("Missing required tenant wiring: " + ", ".join(failed))
           PY
           node --check /tmp/index-0.mjs
           node --check /tmp/subscriptions-admin-0.mjs
-          echo "Both preview pages passed JavaScript syntax checks."
+          echo "Both preview pages passed JavaScript syntax and tenant-wiring checks."
