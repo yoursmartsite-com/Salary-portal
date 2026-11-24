@@ -1,0 +1,106 @@
+// SUBSCRIPTION RULES — DO NOT PUBLISH UNTIL THE APP MIGRATION IS COMPLETE.
+// The app must write shopId on every product/order and query each shop by shopId.
+// Existing legacy products/orders without shopId must be migrated before these rules go live.
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner() {
+      return signedIn()
+        && request.auth.uid == "Isjbto8GuLdkyh0W5VDJSfYSZF43";
+    }
+
+    function hasShopMembership(shopId) {
+      return signedIn()
+        && exists(/databases/$(database)/documents/shopMembers/$(request.auth.uid))
+        && get(/databases/$(database)/documents/shopMembers/$(request.auth.uid)).data.shopId == shopId
+        && get(/databases/$(database)/documents/shopMembers/$(request.auth.uid)).data.active == true;
+    }
+
+    function shopIsActive(shopId) {
+      return exists(/databases/$(database)/documents/shops/$(shopId))
+        && get(/databases/$(database)/documents/shops/$(shopId)).data.active == true
+        && get(/databases/$(database)/documents/shops/$(shopId)).data.expiresAt > request.time;
+    }
+
+    function canManageShop(shopId) {
+      return isOwner() || (hasShopMembership(shopId) && shopIsActive(shopId));
+    }
+
+    match /shops/{shopId} {
+      allow read: if isOwner() || hasShopMembership(shopId);
+      allow create, update, delete: if isOwner();
+    }
+
+    match /shopMembers/{memberUid} {
+      allow read: if isOwner() || (signedIn() && request.auth.uid == memberUid);
+      allow create, update, delete: if isOwner();
+    }
+
+    match /products/{productId} {
+      allow read: if isOwner()
+        || (resource.data.shopId is string && shopIsActive(resource.data.shopId));
+      allow create: if isOwner()
+        || (request.resource.data.shopId is string
+          && hasShopMembership(request.resource.data.shopId)
+          && shopIsActive(request.resource.data.shopId));
+      allow update: if isOwner()
+        || (resource.data.shopId is string
+          && request.resource.data.shopId == resource.data.shopId
+          && canManageShop(resource.data.shopId));
+      allow delete: if isOwner()
+        || (resource.data.shopId is string && canManageShop(resource.data.shopId));
+    }
+
+    match /offers/{offerId} {
+      allow read: if isOwner()
+        || (resource.data.shopId is string && shopIsActive(resource.data.shopId));
+      allow create: if isOwner()
+        || (request.resource.data.shopId is string
+          && hasShopMembership(request.resource.data.shopId)
+          && shopIsActive(request.resource.data.shopId));
+      allow update, delete: if isOwner()
+        || (resource.data.shopId is string && canManageShop(resource.data.shopId));
+    }
+
+    match /categories/{categoryId} {
+      allow read: if isOwner()
+        || (resource.data.shopId is string && shopIsActive(resource.data.shopId));
+      allow create: if isOwner()
+        || (request.resource.data.shopId is string
+          && hasShopMembership(request.resource.data.shopId)
+          && shopIsActive(request.resource.data.shopId));
+      allow update, delete: if isOwner()
+        || (resource.data.shopId is string && canManageShop(resource.data.shopId));
+    }
+
+    match /orders/{orderId} {
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.shopId is string
+        && shopIsActive(request.resource.data.shopId);
+
+      allow read: if isOwner()
+        || (resource.data.shopId is string
+          && shopIsActive(resource.data.shopId)
+          && (resource.data.userId == request.auth.uid
+            || hasShopMembership(resource.data.shopId)));
+
+      allow update, delete: if isOwner()
+        || (resource.data.shopId is string && canManageShop(resource.data.shopId));
+    }
+
+    match /admins/{adminId} {
+      allow read, write: if false;
+    }
+
+    match /users/{userId} {
+      allow read, write: if signedIn() && request.auth.uid == userId;
+    }
+  }
+}
