@@ -1,0 +1,9 @@
+{
+  "name": "fakretak-android",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Android wrapper for FAKRETAK",
+  "scripts": {
+    "android": "cap sync android"
+  }
+}
