@@ -349,6 +349,49 @@ body.page-categories .mobile-nav{display:grid!important}
 @media(max-width:650px){#cartOverlay .cart-page{padding:17px 14px 105px!important}#cartOverlay .cart-line{grid-template-columns:70px minmax(0,1fr);padding:11px;border-radius:23px}#cartOverlay .cart-line img{width:70px;height:76px}}
 #cartOverlay .cart-line{padding-top:18px;padding-left:38px}
 #cartOverlay .cart-remove{position:absolute;top:9px;left:12px;width:24px;height:24px;border:0;background:transparent;color:#c8c5bf;font-size:22px;line-height:1}
+
+/* Account page layout inspired by the user's reference */
+#accountOverlay.page-screen{position:fixed!important;inset:0!important;z-index:121!important;display:none;align-items:stretch!important;justify-content:stretch!important;padding:0!important;background:#f7f6f2!important;backdrop-filter:none!important}
+#accountOverlay.page-screen.show{display:flex!important}
+#accountOverlay .account-page{width:100%!important;max-width:680px!important;height:100%!important;max-height:none!important;overflow-y:auto!important;margin:0 auto!important;padding:22px 18px 105px!important;border:0!important;border-radius:0!important;background:#faf9f6!important;color:#171614!important;box-shadow:none!important}
+#accountOverlay .account-page-head{display:flex;align-items:center;justify-content:space-between;padding:6px 0 14px;border:0;margin:0 0 10px;background:transparent}
+#accountOverlay .account-kicker{font-size:10px;letter-spacing:2px;font-weight:900;color:#a88748}
+#accountOverlay .account-page-head .close{width:38px;height:38px;border:0;border-radius:50%;background:#eeeae3;color:#28231d;font-size:24px}
+#accountOverlay .account-profile-card{display:flex;align-items:center;gap:16px;padding:26px 20px;border:1px solid #dacaa8;border-radius:36px;background:#171614;color:#fff;box-shadow:0 10px 24px #17161418}
+#accountOverlay .account-avatar{width:82px;height:82px;flex:0 0 82px;display:grid;place-items:center;border-radius:25px;background:#d0a34d;color:#171614;font-size:35px;font-weight:900}
+#accountOverlay .account-profile-copy{min-width:0}
+#accountOverlay .account-profile-copy h2{margin:0 0 4px;color:#fff;font-size:23px;font-weight:900}
+#accountOverlay .account-profile-copy p{margin:0 0 10px;color:#c9c4ba;font-size:13px}
+#accountOverlay .account-points{display:inline-block;padding:5px 12px;border-radius:22px;background:#302d29;color:#d7b66e;font-size:12px;font-weight:800}
+#accountOverlay .account-signin{width:100%;margin:12px 0 0;padding:13px;border:0;border-radius:16px;background:#d0a34d;color:#171614;font-weight:900}
+#accountOverlay .account-stats{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin:22px 0}
+#accountOverlay .account-stats>div{min-height:112px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;border:1px solid #e4dfd5;border-radius:27px;background:#fff}
+#accountOverlay .account-stats strong{font-size:28px;font-weight:900;color:#171614}
+#accountOverlay .account-stats span{font-size:14px;font-weight:700;color:#827b73}
+#accountOverlay .account-menu{overflow:hidden;border:1px solid #e4dfd5;border-radius:30px;background:#fff}
+#accountOverlay .account-menu-row{width:100%;min-height:78px;display:flex;align-items:center;gap:13px;padding:0 18px;border:0;border-bottom:1px solid #eeeae3;background:#fff;color:#171614;text-decoration:none;text-align:right;font:inherit}
+#accountOverlay .account-menu-row:last-of-type{border-bottom:0}
+#accountOverlay .account-menu-row span{width:27px;font-size:19px;text-align:center}
+#accountOverlay .account-menu-row b{flex:1;font-size:16px;font-weight:800}
+#accountOverlay .account-menu-row i{font-style:normal;color:#aaa;font-size:25px}
+#accountOverlay .account-expand{padding:15px 18px;border-bottom:1px solid #eeeae3;background:#fcfbf9}
+#accountOverlay .account-expand[hidden]{display:none!important}
+#accountOverlay .account-expand label{display:block;margin-bottom:8px;color:#756d62;font-size:13px;font-weight:700}
+#accountOverlay .account-expand textarea{width:100%;padding:12px;border:1px solid #e4dfd5;border-radius:14px;background:#fff;color:#171614;font:inherit;resize:vertical}
+#accountOverlay .account-expand button{margin-top:9px;padding:10px 18px;border:0;border-radius:13px;background:#171614;color:#d7b66e;font-weight:800}
+#accountOverlay .account-expand small{display:block;margin-top:7px;color:#17856d}
+#accountOverlay .account-order-section{margin-top:22px}
+#accountOverlay .account-order-section h3{margin:0 0 10px;font-size:18px;color:#171614}
+#accountOverlay .account-orders-list{padding:13px;border:1px solid #e4dfd5;border-radius:20px;background:#fff;color:#777;font-size:13px}
+#accountOverlay .account-order-row{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid #eeeae3}
+#accountOverlay .account-order-row:last-child{border-bottom:0}
+#accountOverlay .account-order-row b{display:block;color:#171614}
+#accountOverlay .account-order-row small{display:block;margin-top:4px;color:#827b73}
+#accountOverlay .account-order-row strong{color:#a88748;white-space:nowrap}
+#accountOverlay .account-admin,#accountOverlay .account-logout{width:100%;margin-top:12px;padding:13px;border-radius:15px;font:inherit;font-weight:800}
+#accountOverlay .account-admin{border:0;background:#d0a34d;color:#171614}
+#accountOverlay .account-logout{border:1px solid #e4dfd5;background:#fff;color:#8a3939}
+@media(max-width:650px){#accountOverlay .account-page{padding:17px 14px 105px!important}#accountOverlay .account-profile-card{padding:23px 17px;border-radius:32px}#accountOverlay .account-avatar{width:74px;height:74px;flex-basis:74px}#accountOverlay .account-profile-copy h2{font-size:20px}#accountOverlay .account-menu-row{min-height:75px}}
 </style>
 </head>
 <body>
@@ -378,7 +421,7 @@ body.page-categories .mobile-nav{display:grid!important}
 <div class="overlay" id="productOverlay"><div class="dialog wide"><div class="dialog-head"><h3 id="detailTitle">تفاصيل العطر</h3><button class="close" data-close="productOverlay">×</button></div><div id="detailContent"></div></div></div>
 <div class="overlay page-screen" id="cartOverlay"><div class="dialog cart-page"><div class="dialog-head cart-page-head"><div><small class="cart-kicker">ZEIN & RAHAF</small><h3>سلة المشتريات</h3></div><button class="close" data-close="cartOverlay" aria-label="رجوع">×</button></div><div id="cartItems" class="cart-items"></div><section class="cart-coupon"><b>لديك كود خصم؟ <span>(جرّب: VIP10)</span></b><div class="coupon-row"><input id="cartCoupon" placeholder="أدخل الكود هنا..." autocomplete="off"><button id="applyCoupon" type="button">تطبيق</button></div><small id="couponMessage"></small></section><section class="cart-summary"><div><span>المجموع الفرعي</span><b id="cartSubtotal">0 ج.م</b></div><div><span>الشحن</span><b id="cartShipping">يُحدد عند التأكيد</b></div><div id="cartDiscountRow" hidden><span>خصم الكوبون</span><b id="cartDiscount">0 ج.م</b></div><div class="cart-grand"><strong>الإجمالي النهائي</strong><strong id="cartTotal">0 ج.م</strong></div><p>✨ الشحن مجاني للطلبات فوق 3000 ج.م</p></section><button class="btn gold cart-checkout" id="checkoutBtn">إتمام الطلب الآن <span>←</span></button><p class="muted cart-note">تأكيد الطلب يرسل تفاصيله للمتجر، وسيتم التواصل معك لتأكيد التوصيل والدفع.</p></div></div>
 <div class="overlay" id="authOverlay"><div class="dialog"><div class="dialog-head"><h3>حسابك في زين ورهف</h3><button class="close" data-close="authOverlay">×</button></div><div class="auth-tabs"><button class="active" data-auth="login">تسجيل الدخول</button><button data-auth="register">حساب جديد</button></div><form id="authForm"><div class="field" id="nameWrap" style="display:none"><label>الاسم</label><input id="authName" autocomplete="name"></div><div class="field"><label>البريد الإلكتروني</label><input id="authEmail" type="email" required autocomplete="email"></div><div class="field"><label>كلمة المرور</label><input id="authPassword" type="password" minlength="6" required autocomplete="current-password"></div><button class="btn gold" style="width:100%" id="authSubmit">دخول</button><p class="muted" id="authMessage"></p></form></div></div>
-<div class="overlay" id="accountOverlay"><div class="dialog"><div class="dialog-head"><h3>حسابي</h3><button class="close" data-close="accountOverlay">×</button></div><div id="accountContent" class="muted">سجّل الدخول لإدارة حسابك.</div></div></div>
+<div class="overlay page-screen" id="accountOverlay"><div class="dialog account-page"><div class="dialog-head account-page-head"><small class="account-kicker">ZEIN & RAHAF</small><button class="close" data-close="accountOverlay" aria-label="رجوع">×</button></div><div id="accountContent" class="account-content">جارٍ تحميل حسابك...</div></div></div>
 <div class="overlay" id="adminOverlay"><div class="dialog wide"><div class="dialog-head"><h3>إدارة متجر زين ورهف</h3><button class="close" data-close="adminOverlay">×</button></div><form id="productForm"><input type="hidden" id="editId"><div class="field"><label>اسم العطر</label><input id="pName" required></div><div class="field"><label>الماركة</label><input id="pBrand" placeholder="مثال: Dior"></div><div class="field"><label>السعر بالجنيه</label><input id="pPrice" type="number" min="0" required></div><div class="field"><label>التصنيف</label><select id="pCategory"><option>رجالي</option><option>حريمي</option><option>يونيسكس</option><option>عروض</option></select></div><div class="field"><label>وصف العطر</label><textarea id="pDescription"></textarea></div><div class="field"><label>رابط صورة العطر</label><input id="pImage" type="url" placeholder="https://..."></div><div class="form-actions"><button class="btn gold" type="submit">حفظ العطر</button><button class="btn" type="reset" id="resetProduct">تفريغ</button></div></form><hr style="border:0;border-top:1px solid #ffffff18;margin:20px 0"><h3 style="font-size:13px">العطور الحالية</h3><div class="admin-list" id="adminProducts"></div></div></div>
 <div class="overlay" id="checkoutOverlay"><div class="dialog"><div class="dialog-head"><h3>بيانات التوصيل</h3><button class="close" data-close="checkoutOverlay">×</button></div><form id="checkoutForm"><div class="field"><label>الاسم بالكامل</label><input id="buyerName" required></div><div class="field"><label>رقم الهاتف</label><input id="buyerPhone" type="tel" required></div><div class="field"><label>العنوان بالتفصيل</label><textarea id="buyerAddress" required></textarea></div><button class="btn gold" style="width:100%">إرسال الطلب</button><p class="muted" id="checkoutMessage"></p></form></div></div>
 <div class="toast" id="toast"></div>
@@ -429,19 +472,45 @@ function setAuthMode(mode){authMode=mode;document.querySelectorAll("[data-auth]"
 document.querySelectorAll("[data-auth]").forEach(b=>b.onclick=()=>setAuthMode(b.dataset.auth));
 $("authForm").onsubmit=async e=>{e.preventDefault();$("authSubmit").disabled=true;$("authMessage").textContent="جارٍ الاتصال...";try{await setPersistence(auth,browserLocalPersistence);let cred;if(authMode==="register"){cred=await createUserWithEmailAndPassword(auth,$("authEmail").value.trim(),$("authPassword").value);if($("authName").value.trim())await updateProfile(cred.user,{displayName:$("authName").value.trim()})}else cred=await signInWithEmailAndPassword(auth,$("authEmail").value.trim(),$("authPassword").value);close("authOverlay");toast("أهلًا بيك في زين ورهف")}catch(err){$("authMessage").textContent=err.code==="auth/operation-not-allowed"?"فعّل تسجيل البريد وكلمة المرور من Firebase Authentication.":err.message}finally{$("authSubmit").disabled=false}};
 async function updateAccount(){
- if(!user){
-  $("accountContent").innerHTML='<p>سجّل الدخول لمتابعة حسابك وطلباتك.</p><button class="btn gold" id="accountLogin">تسجيل الدخول</button>';
-  $("accountLogin").onclick=()=>{close("accountOverlay");open("authOverlay")};
-  return;
- }
- $("accountContent").innerHTML=`<div class="account-summary"><p style="color:var(--gold2);font-size:15px;font-weight:800">${escapeHtml(user.displayName||user.email)}</p><p>${escapeHtml(user.email||"")}</p></div><div class="account-orders"><h4 style="margin:16px 0 8px;color:var(--cream)">طلباتي السابقة</h4><div id="myOrders" class="muted">جارٍ تحميل طلباتك...</div></div>${user.uid===ADMIN_UID?'<button class="btn gold" id="openAdmin">لوحة إدارة المنتجات</button>':""}<button class="btn" id="logout" style="margin:10px 7px 0 0">تسجيل الخروج</button>`;
- $("logout").onclick=async()=>{await signOut(auth);close("accountOverlay");toast("تم تسجيل الخروج")};
- if(user.uid===ADMIN_UID)$("openAdmin").onclick=()=>{close("accountOverlay");renderAdmin();open("adminOverlay")};
+ const displayName=user?.displayName||user?.email?.split("@")[0]||"ضيف زين ورهف";
+ const initials=[...displayName.trim()].slice(0,1).join("").toUpperCase()||"ز";
+ const addressKey="zeinRahafDeliveryAddress_"+(user?.uid||"guest");
+ const savedAddress=localStorage.getItem(addressKey)||"";
+ const favCount=favorites.size;
+ $("accountContent").innerHTML=`
+  <section class="account-profile-card">
+   <div class="account-avatar">${escapeHtml(initials)}</div>
+   <div class="account-profile-copy"><h2>${escapeHtml(displayName)}</h2><p>${user?"عضو زين ورهف":"ضيف — سجّل الدخول لحفظ بياناتك"}</p><span class="account-points">✦ ${user?"حسابك الشخصي":"أهلاً بيك في زين ورهف"}</span></div>
+  </section>
+  ${user?"":'<button class="account-signin" id="accountLogin">تسجيل الدخول / إنشاء حساب</button>'}
+  <section class="account-stats">
+   <div><strong id="accountOrderCount">—</strong><span>طلبات مكتملة</span></div>
+   <div><strong>${favCount}</strong><span>العطور المفضلة ♥</span></div>
+  </section>
+  <section class="account-menu">
+   <button class="account-menu-row" id="addressToggle"><span>📍</span><b>عناوين التوصيل</b><i>‹</i></button>
+   <div class="account-expand" id="addressPanel" hidden><label for="accountAddress">عنوان التوصيل المفضل</label><textarea id="accountAddress" rows="3" placeholder="اكتب المحافظة والمنطقة والشارع ورقم العقار...">${escapeHtml(savedAddress)}</textarea><button id="saveAccountAddress">حفظ العنوان</button><small id="addressSaved"></small></div>
+   <button class="account-menu-row" id="scentToggle"><span>🧪</span><b>اشتراكك العطري الشخصي</b><i>‹</i></button>
+   <div class="account-expand" id="scentPanel" hidden><p>قريبًا تقدر تختار تفضيلاتك العطرية وتتابع اشتراكك من هنا.</p></div>
+   <a class="account-menu-row" href="https://wa.me/201108169740" target="_blank" rel="noopener"><span>💬</span><b>تواصل معنا</b><i>‹</i></a>
+  </section>
+  <section class="account-order-section"><h3>طلباتي السابقة</h3><div id="myOrders" class="account-orders-list">${user?"جارٍ تحميل طلباتك...":"سجّل الدخول لعرض طلباتك السابقة."}</div></section>
+  ${user?.uid===ADMIN_UID?'<button class="account-admin" id="openAdmin">لوحة إدارة المنتجات</button>':""}
+  ${user?'<button class="account-logout" id="logout">تسجيل الخروج</button>':""}
+ `;
+ const toggle=(button,panel)=>$(button).onclick=()=>{$(panel).hidden=!$(panel).hidden};
+ toggle("addressToggle","addressPanel");toggle("scentToggle","scentPanel");
+ $("saveAccountAddress").onclick=()=>{localStorage.setItem(addressKey,$("accountAddress").value.trim());$("addressSaved").textContent="تم حفظ العنوان على هذا الجهاز";};
+ if(!user){$("accountLogin").onclick=()=>open("authOverlay");return}
+ $("logout").onclick=async()=>{await signOut(auth);setAppPage("home");toast("تم تسجيل الخروج")};
+ if(user.uid===ADMIN_UID)$("openAdmin").onclick=()=>{setAppPage("home");renderAdmin();open("adminOverlay")};
  try{
   const snap=await getDocs(query(collection(db,"zeinRahafV2Orders"),where("uid","==",user.uid)));
   const orders=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+  const count=orders.filter(o=>o.status==="delivered").length;
+  const countNode=$("accountOrderCount");if(countNode)countNode.textContent=count;
   const host=$("myOrders");if(!host)return;
-  host.innerHTML=orders.length?orders.map(o=>`<div class="order-history-row" style="border:1px solid var(--line);border-radius:8px;padding:10px;margin:7px 0"><div style="display:flex;justify-content:space-between;gap:8px"><b>طلب #${escapeHtml(o.id.slice(-7).toUpperCase())}</b><strong>${money(o.total)}</strong></div><small class="muted">${(o.items||[]).length} منتج · الحالة: ${escapeHtml(({new:"جديد",confirmed:"تم التأكيد",preparing:"قيد التجهيز",shipped:"تم الشحن",delivered:"تم التسليم",cancelled:"ملغي"})[o.status]||"قيد المراجعة")}</small></div>`).join(""):'<p class="muted">لسه معندكش طلبات سابقة.</p>';
+  host.innerHTML=orders.length?orders.map(o=>`<div class="account-order-row"><div><b>طلب #${escapeHtml(o.id.slice(-7).toUpperCase())}</b><small>${(o.items||[]).length} منتج · الحالة: ${escapeHtml(({new:"جديد",confirmed:"تم التأكيد",preparing:"قيد التجهيز",shipped:"تم الشحن",delivered:"تم التسليم",cancelled:"ملغي"})[o.status]||"قيد المراجعة")}</small></div><strong>${money(o.total)}</strong></div>`).join(""):'<p>لسه معندكش طلبات سابقة.</p>';
  }catch(err){const host=$("myOrders");if(host)host.textContent="تعذر تحميل الطلبات حاليًا."}
 }
 function renderAdmin(){$("adminProducts").innerHTML=products.length?products.map(p=>`<div class="admin-row"><img src="${escapeHtml(p.image||"")}" alt=""><div><b>${escapeHtml(p.name)}</b><small>${money(p.price)} · ${escapeHtml(p.category||"")}</small></div><div><button class="btn" data-edit="${p.id}">تعديل</button><button class="btn" data-delete="${p.id}">حذف</button></div></div>`).join(""):'<p class="muted">لا توجد منتجات حتى الآن.</p>';document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>{const p=products.find(x=>x.id===b.dataset.edit);$("editId").value=p.id;$("pName").value=p.name||"";$("pBrand").value=p.brand||"";$("pPrice").value=p.price||"";$("pCategory").value=p.category||"رجالي";$("pDescription").value=p.description||"";$("pImage").value=p.image||""});document.querySelectorAll("[data-delete]").forEach(b=>b.onclick=async()=>{if(!confirm("متأكد من حذف العطر؟"))return;try{await deleteDoc(doc(db,"zeinRahafV2Products",b.dataset.delete));toast("تم حذف العطر")}catch(e){toast("تعذر الحذف: راجع قواعد Firestore")}})}
