@@ -3,6 +3,7 @@
     <application
         android:allowBackup="true"
         android:label="زين ورهف"
+        android:icon="@drawable/ic_launcher"
         android:usesCleartextTraffic="false"
         android:theme="@android:style/Theme.Material.Light.NoActionBar"
         android:hardwareAccelerated="true">
