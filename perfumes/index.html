@@ -79,5 +79,8 @@ if(b.id==="discover")$("products").scrollIntoView({behavior:"smooth"});if(b.id==
 $("search").addEventListener("input",draw);$("modal").addEventListener("click",e=>{if(e.target===$("modal"))close()});draw();
 })();
 </script>
+<script type="module">
+document.addEventListener("click",event=>{const button=event.target.closest("#login");if(!button)return;event.preventDefault();event.stopImmediatePropagation();location.href="account.html";},true);
+</script>
 </body>
 </html>
