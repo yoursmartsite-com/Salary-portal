@@ -29,7 +29,7 @@ jobs:
           node <<'NODE'
           const fs = require('fs');
           const html = fs.readFileSync('perfumes/index.html', 'utf8');
-          for (const token of ['appConfig","subscription', 'onSnapshot(subscriptionRef', 'subscriptionLock', 'subscriptionRenew', 'ADMIN_UID']) {
+          for (const token of ['appConfig","subscription', 'onSnapshot(ref', 'subscriptionLock', 'subscriptionRenew', 'ADMIN_UID']) {
             if (!html.includes(token)) throw new Error('Missing expected subscription feature: ' + token);
           }
           if (html.includes('SHOP_ID') || html.includes('shopId')) throw new Error('Multi-shop identifiers must not be added to the single-store app');
