@@ -459,9 +459,10 @@ const ADMIN_UID="Isjbto8GuLdkyh0W5VDJSfYSZF43";
 const app=getApps().length?getApps()[0]:initializeApp(firebaseConfig),db=getFirestore(app),auth=getAuth(app);
 const $=id=>document.getElementById(id),money=n=>Number(n||0).toLocaleString("ar-EG")+" ج.م",toast=m=>{const t=$("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2600)};
 let user=null,products=[],cart=JSON.parse(localStorage.getItem("zeinRahafV2Cart")||"[]"),category="الكل",favorites=new Set(JSON.parse(localStorage.getItem("zeinRahafV2Favorites")||"[]")),authMode="login",unsubProducts=null;
+let returnToAccountAfterAuth=false;
 const open=id=>$(id).classList.add("show"),close=id=>$(id).classList.remove("show");
-document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>close(b.dataset.close));
-document.querySelectorAll(".overlay").forEach(o=>o.addEventListener("click",e=>{if(e.target===o)close(o.id)}));
+document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>{const id=b.dataset.close;close(id);if(id==="authOverlay"&&returnToAccountAfterAuth){returnToAccountAfterAuth=false;setAppPage("account")}});
+document.querySelectorAll(".overlay").forEach(o=>o.addEventListener("click",e=>{if(e.target===o){close(o.id);if(o.id==="authOverlay"&&returnToAccountAfterAuth){returnToAccountAfterAuth=false;setAppPage("account")}}}));
 function persistFavorites(){localStorage.setItem("zeinRahafV2Favorites",JSON.stringify([...favorites]))}
 function persistCart(){localStorage.setItem("zeinRahafV2Cart",JSON.stringify(cart))}
 function cartCount(){ $("cartCount").textContent=cart.reduce((s,p)=>s+p.qty,0)}
@@ -495,7 +496,7 @@ $("applyCoupon").onclick=()=>{const code=$("cartCoupon").value.trim().toUpperCas
 function showFavorites(){const fav=products.filter(p=>favorites.has(p.id));$("productsGrid").innerHTML=fav.length?fav.map(p=>`<article class="product"><div class="photo"><img src="${escapeHtml(p.image||"")}" alt=""></div><div class="product-info"><h3>${escapeHtml(p.name)}</h3><div class="product-bottom"><span class="price">${money(p.price)}</span><button class="add" data-add="${p.id}">+</button></div></div></article>`).join(""):'<div class="empty">لسه مفيش عطور في المفضلة.</div>';document.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>addToCart(b.dataset.add));$("productStatus").textContent="المفضلة"}
 function setAuthMode(mode){authMode=mode;document.querySelectorAll("[data-auth]").forEach(b=>b.classList.toggle("active",b.dataset.auth===mode));$("nameWrap").style.display=mode==="register"?"grid":"none";$("authSubmit").textContent=mode==="register"?"إنشاء الحساب":"دخول"}
 document.querySelectorAll("[data-auth]").forEach(b=>b.onclick=()=>setAuthMode(b.dataset.auth));
-$("authForm").onsubmit=async e=>{e.preventDefault();$("authSubmit").disabled=true;$("authMessage").textContent="جارٍ الاتصال...";try{await setPersistence(auth,browserLocalPersistence);let cred;if(authMode==="register"){cred=await createUserWithEmailAndPassword(auth,$("authEmail").value.trim(),$("authPassword").value);if($("authName").value.trim())await updateProfile(cred.user,{displayName:$("authName").value.trim()})}else cred=await signInWithEmailAndPassword(auth,$("authEmail").value.trim(),$("authPassword").value);close("authOverlay");toast("أهلًا بيك في زين ورهف")}catch(err){$("authMessage").textContent=err.code==="auth/operation-not-allowed"?"فعّل تسجيل البريد وكلمة المرور من Firebase Authentication.":err.message}finally{$("authSubmit").disabled=false}};
+$("authForm").onsubmit=async e=>{e.preventDefault();$("authSubmit").disabled=true;$("authMessage").textContent="جارٍ الاتصال...";try{await setPersistence(auth,browserLocalPersistence);let cred;if(authMode==="register"){cred=await createUserWithEmailAndPassword(auth,$("authEmail").value.trim(),$("authPassword").value);if($("authName").value.trim())await updateProfile(cred.user,{displayName:$("authName").value.trim()})}else cred=await signInWithEmailAndPassword(auth,$("authEmail").value.trim(),$("authPassword").value);close("authOverlay");if(returnToAccountAfterAuth){returnToAccountAfterAuth=false;setAppPage("account")}toast("أهلًا بيك في زين ورهف")}catch(err){$("authMessage").textContent=err.code==="auth/operation-not-allowed"?"فعّل تسجيل البريد وكلمة المرور من Firebase Authentication.":err.message}finally{$("authSubmit").disabled=false}};
 async function updateAccount(){
  const displayName=user?.displayName||user?.email?.split("@")[0]||"ضيف زين ورهف";
  const initials=[...displayName.trim()].slice(0,1).join("").toUpperCase()||"ز";
@@ -527,7 +528,7 @@ async function updateAccount(){
  toggle("addressToggle","addressPanel");toggle("scentToggle","scentPanel");
  $("openOrderTracking").onclick=()=>{$("orderTrackingPanel").hidden=!$("orderTrackingPanel").hidden};
  $("saveAccountAddress").onclick=()=>{localStorage.setItem(addressKey,$("accountAddress").value.trim());$("addressSaved").textContent="تم حفظ العنوان على هذا الجهاز";};
- if(!user){$("accountLogin").onclick=()=>open("authOverlay");return}
+ if(!user){$("accountLogin").onclick=()=>{returnToAccountAfterAuth=true;close("accountOverlay");setAuthMode("login");$("authMessage").textContent="";open("authOverlay")};return}
  $("logout").onclick=async()=>{await signOut(auth);setAppPage("home");toast("تم تسجيل الخروج")};
  if(user.uid===ADMIN_UID)$("openAdmin").onclick=()=>{setAppPage("home");renderAdmin();open("adminOverlay")};
  try{
