@@ -1,7 +1,3 @@
-// SUBSCRIPTION RULES — DO NOT PUBLISH UNTIL THE APP MIGRATION IS COMPLETE.
-// The app must write shopId on every product/order and query each shop by shopId.
-// Existing legacy products/orders without shopId must be migrated before these rules go live.
-
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -19,7 +15,8 @@ service cloud.firestore {
       return signedIn()
         && exists(/databases/$(database)/documents/shopMembers/$(request.auth.uid))
         && get(/databases/$(database)/documents/shopMembers/$(request.auth.uid)).data.shopId == shopId
-        && get(/databases/$(database)/documents/shopMembers/$(request.auth.uid)).data.active == true;
+        && get(/databases/$(database)/documents/shopMembers/$(request.auth.uid)).data.active == true
+        && get(/databases/$(database)/documents/shopMembers/$(request.auth.uid)).data.role == "admin";
     }
 
     function shopIsActive(shopId) {
@@ -37,9 +34,19 @@ service cloud.firestore {
       allow create, update, delete: if isOwner();
     }
 
+    match /shopStatus/{shopId} {
+      // Only public availability fields belong here; never store customer or login data.
+      allow read: if true;
+      allow create, update, delete: if isOwner();
+    }
+
     match /shopMembers/{memberUid} {
       allow read: if isOwner() || (signedIn() && request.auth.uid == memberUid);
       allow create, update, delete: if isOwner();
+    }
+
+    match /system/{docId} {
+      allow read, write: if isOwner();
     }
 
     match /products/{productId} {
@@ -64,7 +71,11 @@ service cloud.firestore {
         || (request.resource.data.shopId is string
           && hasShopMembership(request.resource.data.shopId)
           && shopIsActive(request.resource.data.shopId));
-      allow update, delete: if isOwner()
+      allow update: if isOwner()
+        || (resource.data.shopId is string
+          && request.resource.data.shopId == resource.data.shopId
+          && canManageShop(resource.data.shopId));
+      allow delete: if isOwner()
         || (resource.data.shopId is string && canManageShop(resource.data.shopId));
     }
 
@@ -75,7 +86,11 @@ service cloud.firestore {
         || (request.resource.data.shopId is string
           && hasShopMembership(request.resource.data.shopId)
           && shopIsActive(request.resource.data.shopId));
-      allow update, delete: if isOwner()
+      allow update: if isOwner()
+        || (resource.data.shopId is string
+          && request.resource.data.shopId == resource.data.shopId
+          && canManageShop(resource.data.shopId));
+      allow delete: if isOwner()
         || (resource.data.shopId is string && canManageShop(resource.data.shopId));
     }
 
@@ -91,7 +106,11 @@ service cloud.firestore {
           && (resource.data.userId == request.auth.uid
             || hasShopMembership(resource.data.shopId)));
 
-      allow update, delete: if isOwner()
+      allow update: if isOwner()
+        || (resource.data.shopId is string
+          && request.resource.data.shopId == resource.data.shopId
+          && canManageShop(resource.data.shopId));
+      allow delete: if isOwner()
         || (resource.data.shopId is string && canManageShop(resource.data.shopId));
     }
 
