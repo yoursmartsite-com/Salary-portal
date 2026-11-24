@@ -125,6 +125,70 @@ header{height:auto;min-height:76px;padding-top:env(safe-area-inset-top);backgrou
 }
 @media(max-width:370px){.brand-name{font-size:14px}.brand-name small{letter-spacing:1px}.actions .icon-btn{width:33px;height:33px}.photo{height:165px}}
 
+
+/* Complete retail storefront layout — B.TECH-inspired, Zein & Rahaf identity */
+:root{--bg:#f3f5f7;--panel:#fff;--panel2:#f7f8fa;--line:#dfe4e8;--gold:#f28c28;--gold2:#ff9d3d;--cream:#202b36;--muted:#687785}
+body{background:#f3f5f7;color:#202b36}
+.top-strip{background:#132d49;color:#fff}
+header{background:#fff;border-bottom:1px solid #e1e6eb;box-shadow:0 2px 10px #132d4910}
+.brand-mark{background:#132d49;color:#fff;border:0;border-radius:8px}
+.brand-name{color:#132d49}.brand-name small{color:#e77c1d}
+.header-search{background:#f3f5f7;border:1px solid #dfe4e8;border-radius:7px}
+.header-search input{color:#202b36}
+.nav{color:#24384c;border-top:1px solid #edf0f2}
+.nav a:hover{color:#e77c1d}
+.icon-btn{background:#fff;border:1px solid #dfe4e8;color:#18344f;border-radius:8px}
+.count{background:#f28c28;color:#fff}
+.btn{border-radius:7px}.btn.gold{background:#f28c28;color:#fff}
+.promo-ribbon{background:#132d49;border-radius:7px}.promo-ribbon b{color:#ffb15f}
+.hero{border:0;border-radius:9px;min-height:285px;background:linear-gradient(90deg,#102944ed,#10294480 60%,#10294410),url('https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=1800&q=85') center/cover}
+.hero h1{color:#fff}.hero p{color:#f0f3f6}
+.section-head h2{color:#172e45}.section-head p{color:#71808d}.section-kicker{color:#e77c1d}
+.catalog-tools{background:#fff;border:1px solid #e1e6eb;border-radius:8px;padding:10px}
+.search,.select{background:#fff;border:1px solid #dce2e7;border-radius:7px;color:#25384a}
+.search input{color:#25384a}.search input::placeholder{color:#8a96a1}
+.categories{background:#fff;border:1px solid #e1e6eb;border-radius:8px;padding:10px;margin-bottom:10px}
+.chip{background:#f5f7f9;border:1px solid #e1e6eb;color:#34495c;border-radius:6px}
+.chip.active,.chip:hover{background:#fff2e6;border-color:#f28c28;color:#c96c16}
+.advanced-filters{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#fff;border:1px solid #e1e6eb;border-radius:8px;padding:10px;margin:0 0 10px}
+.advanced-filters label{display:flex;align-items:center;gap:7px;color:#637180;font-size:10px}
+.advanced-filters select{border:1px solid #dce2e7;border-radius:6px;background:#fff;color:#24384b;padding:8px;font:inherit;min-width:120px}
+.clear-filters{border:0;background:transparent;color:#d56e18;font-size:10px;font-weight:800}
+.shop-benefits{display:flex;justify-content:space-around;gap:8px;flex-wrap:wrap;background:#edf5f0;border:1px solid #dcebe1;border-radius:7px;padding:11px;margin-bottom:14px;color:#3f7254;font-size:10px;font-weight:700}
+.grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}
+.product{background:#fff;border:1px solid #e2e7eb;border-radius:8px;box-shadow:0 2px 8px #132d4909}
+.product:hover{border-color:#f0a15a;box-shadow:0 7px 18px #132d4914}
+.photo{height:230px;background:#f6f7f8}.photo img{object-fit:contain;padding:12px}
+.heart{background:#fff;border:1px solid #e4e8ec;color:#263d52}
+.tag{background:#fff1e4;border:0;color:#c76c19;border-radius:4px}
+.product-info{padding:12px}.product-brand{color:#df781d}.product h3{color:#202b36}.product-desc{color:#75818c}
+.price{color:#132d49}.price small{color:#7c8791}.add{background:#f28c28;color:#fff;border:0;border-radius:6px}
+.story{background:#fff;border:1px solid #e1e6eb;border-radius:9px;padding:22px}.story h2{color:#132d49}.story p{color:#6e7b87}
+.footer{background:#132d49;color:#d8e1e9;border:0}.footer strong{color:#ffb15f}
+.dialog{background:#fff;color:#202b36;border:1px solid #dfe5e9;border-radius:10px}
+.close{background:#f3f5f7;color:#23394d;border:1px solid #dfe4e8}
+.field label{color:#536474}.field input,.field textarea,.field select{background:#fff;color:#202b36;border:1px solid #dce2e7;border-radius:7px}
+.muted{color:#71808d}.cart-line{border-color:#e8ecef}.qty button{background:#f3f5f7;color:#263b50;border-color:#dfe4e8}
+.auth-tabs button{background:#f3f5f7;color:#34495c;border-radius:6px}.auth-tabs button.active{border-color:#f28c28;color:#c96c16}
+.admin-row{background:#f4f6f8}.admin-row small{color:#71808d}
+.mobile-nav{background:#fff;border-top:1px solid #dfe4e8;box-shadow:0 -2px 12px #132d4910}.mobile-nav button{color:#526477}.mobile-nav button.active{color:#e77c1d}
+.toast{background:#132d49;color:#fff}
+.empty{background:#fff;border-color:#dfe4e8;color:#71808d}
+@media(max-width:900px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:650px){
+ .bar{display:grid;grid-template-columns:1fr auto;gap:8px;padding:9px 0;min-height:0}
+ .brand-mark{width:36px;height:36px;font-size:20px}.brand-name{font-size:15px}.brand-name small{font-size:7px}
+ .header-search{grid-column:1/-1;grid-row:2;height:42px}
+ .nav{grid-column:1/-1;display:flex;overflow:auto;gap:20px;padding:10px 0;white-space:nowrap;scrollbar-width:none}
+ .actions{grid-column:2;grid-row:1}.actions .login-label{display:none}
+ .hero{min-height:255px;margin:10px auto 15px}.hero-copy{width:100%;padding:20px;margin-top:70px}.hero h1{font-size:34px}.hero p{font-size:10px}
+ .catalog-tools{padding:8px}.search{height:42px}.select{height:42px;min-width:100px;width:105px}
+ .advanced-filters{gap:7px;padding:8px}.advanced-filters label{flex:1;display:grid;gap:4px}.advanced-filters select{width:100%;min-width:0}
+ .shop-benefits{font-size:9px;justify-content:space-between;padding:9px 7px}
+ .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.photo{height:175px}
+ .product-info{padding:9px}.product h3{font-size:12px}.product-desc{font-size:9px;height:30px}.price{font-size:12px}
+}
+
 </style>
 </head>
 <body>
@@ -140,6 +204,12 @@ header{height:auto;min-height:76px;padding-top:env(safe-area-inset-top);backgrou
 <section class="section" id="shop"><div class="section-head"><div><span class="section-kicker">THE COLLECTION</span><h2>اكتشف مجموعتنا</h2><p>عطور مختارة لكل لحظة ولكل شخصية.</p></div><span class="muted" id="productStatus">جاري تحميل العطور...</span></div>
 <div class="catalog-tools"><label class="search">⌕ <input id="searchInput" placeholder="ابحث عن اسم العطر أو الماركة..."></label><select class="select" id="sortSelect"><option value="featured">الأكثر تميزًا</option><option value="low">السعر: الأقل</option><option value="high">السعر: الأعلى</option></select></div>
 <div class="categories" id="categories"><button class="chip active" data-cat="الكل">كل العطور</button><button class="chip" data-cat="رجالي">رجالي</button><button class="chip" data-cat="حريمي">حريمي</button><button class="chip" data-cat="يونيسكس">للجنسين</button><button class="chip" data-cat="عروض">عروض خاصة</button></div>
+<div class="advanced-filters" id="advancedFilters">
+ <label>الماركة <select id="brandFilter"><option value="">كل الماركات</option></select></label>
+ <label>السعر <select id="priceFilter"><option value="">كل الأسعار</option><option value="0-1000">أقل من 1,000 ج.م</option><option value="1000-2500">1,000 – 2,500 ج.م</option><option value="2500-5000">2,500 – 5,000 ج.م</option><option value="5000-9999999">أكثر من 5,000 ج.م</option></select></label>
+ <button class="clear-filters" id="clearFilters" type="button">مسح الفلاتر</button>
+</div>
+<div class="shop-benefits"><span>✓ منتجات مختارة بعناية</span><span>✓ طلب سهل وآمن</span><span>✓ خدمة عملاء عبر واتساب</span></div>
 <div class="grid" id="productsGrid"><div class="empty">جاري تحميل المجموعة...</div></div></section>
 <section class="story" id="story"><div class="story-art"></div><div><span class="section-kicker">OUR SIGNATURE</span><h2>الفخامة لها اسم.</h2><p>في زين ورهف، نؤمن إن العطر مش مجرد رائحة؛ هو حضور وذكرى وبصمة بتفضل. اختارنا لك مجموعة بعناية تجمع بين الجودة والأناقة والتفاصيل اللي تفرق.</p><a class="btn dark" href="#shop">تصفّح العطور</a></div></section>
 </main>
@@ -168,7 +238,7 @@ function persistFavorites(){localStorage.setItem("zeinRahafV2Favorites",JSON.str
 function cartCount(){ $("cartCount").textContent=cart.reduce((s,p)=>s+p.qty,0)}
 function renderProducts(){
  const q=$("searchInput").value.trim().toLowerCase(),sort=$("sortSelect").value;
- let list=products.filter(p=>(category==="الكل"||p.category===category)&&(!q||[p.name,p.brand,p.description].join(" ").toLowerCase().includes(q)));
+ const brand=$("brandFilter")?.value||"",range=$("priceFilter")?.value||"";let list=products.filter(p=>(category==="الكل"||p.category===category)&&(!q||[p.name,p.brand,p.description].join(" ").toLowerCase().includes(q))&&(!brand||p.brand===brand)&&(!range||(()=>{const [lo,hi]=range.split("-").map(Number);return Number(p.price)>=lo&&Number(p.price)<=hi})()));
  if(sort==="low")list.sort((a,b)=>Number(a.price)-Number(b.price));if(sort==="high")list.sort((a,b)=>Number(b.price)-Number(a.price));
  $("productStatus").textContent=list.length+" عطر";
  $("productsGrid").innerHTML=list.length?list.map(p=>`<article class="product"><div class="photo"><img loading="lazy" src="${escapeHtml(p.image||"https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=700&q=80")}" alt="${escapeHtml(p.name)}"><span class="tag">${escapeHtml(p.category||"عطور فاخرة")}</span><button class="heart ${favorites.has(p.id)?"on":""}" data-heart="${p.id}">${favorites.has(p.id)?"♥":"♡"}</button></div><div class="product-info"><span class="product-brand">${escapeHtml(p.brand||"ZEIN & RAHAF")}</span><h3>${escapeHtml(p.name||"عطر فاخر")}</h3><div class="product-desc">${escapeHtml(p.description||"اختيار راقٍ من مجموعة زين ورهف.")}</div><div class="product-bottom"><span class="price">${money(p.price)}</span><button class="add" data-add="${p.id}" aria-label="أضف للسلة">+</button></div></div></article>`).join(""):'<div class="empty">المجموعة بتتجهز حاليًا. تابعنا قريبًا.</div>';
@@ -194,11 +264,11 @@ $("cartBtn").onclick=$("mobileCart").onclick=()=>{renderCart();open("cartOverlay
 $("favoriteBtn").onclick=$("mobileFav").onclick=()=>{showFavorites();document.querySelector("#shop").scrollIntoView({behavior:"smooth"})};
 $("accountBtn").onclick=$("mobileAccount").onclick=()=>{updateAccount();open("accountOverlay")};
 $("loginBtn").onclick=()=>open("authOverlay");
-$("searchInput").oninput=()=>{if($("headerSearch"))$("headerSearch").value=$("searchInput").value;renderProducts};if($("headerSearch"))$("headerSearch").oninput=()=>{$("searchInput").value=$("headerSearch").value;renderProducts()};document.querySelectorAll("[data-jump-cat]").forEach(a=>a.onclick=()=>{category=a.dataset.jumpCat;document.querySelectorAll("[data-cat]").forEach(x=>x.classList.toggle("active",x.dataset.cat===category));renderProducts()});$("sortSelect").onchange=renderProducts;
+$("searchInput").oninput=()=>{if($("headerSearch"))$("headerSearch").value=$("searchInput").value;renderProducts()};if($("headerSearch"))$("headerSearch").oninput=()=>{$("searchInput").value=$("headerSearch").value;renderProducts()};$("brandFilter").onchange=renderProducts;$("priceFilter").onchange=renderProducts;$("clearFilters").onclick=()=>{$("brandFilter").value="";$("priceFilter").value="";$("searchInput").value="";if($("headerSearch"))$("headerSearch").value="";category="الكل";document.querySelectorAll("[data-cat]").forEach(x=>x.classList.toggle("active",x.dataset.cat==="الكل"));renderProducts()};document.querySelectorAll("[data-jump-cat]").forEach(a=>a.onclick=()=>{category=a.dataset.jumpCat;document.querySelectorAll("[data-cat]").forEach(x=>x.classList.toggle("active",x.dataset.cat===category));renderProducts()});$("sortSelect").onchange=renderProducts;
 document.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{category=b.dataset.cat;document.querySelectorAll("[data-cat]").forEach(x=>x.classList.toggle("active",x===b));renderProducts()});
 $("year").textContent=new Date().getFullYear();cartCount();
 onAuthStateChanged(auth,u=>{user=u;updateAccount();if(u&&u.uid===ADMIN_UID){$("loginBtn").textContent="لوحة التحكم";$("loginBtn").onclick=()=>{renderAdmin();open("adminOverlay")}}else $("loginBtn").textContent=u?"حسابي":"تسجيل الدخول"});
-unsubProducts=onSnapshot(query(collection(db,"zeinRahafV2Products"),orderBy("createdAt","desc")),snap=>{products=snap.docs.map(d=>({id:d.id,...d.data()})).filter(p=>p.active!==false);renderProducts();if(user&&user.uid===ADMIN_UID)renderAdmin();$("productStatus").textContent=products.length+" عطر"},err=>{$("productStatus").textContent="تعذر الاتصال بقاعدة المنتجات";$("productsGrid").innerHTML='<div class="empty">راجع اتصال Firebase وقواعد Firestore لمجموعة zeinRahafV2Products.</div>';console.error(err)});
+unsubProducts=onSnapshot(query(collection(db,"zeinRahafV2Products"),orderBy("createdAt","desc")),snap=>{products=snap.docs.map(d=>({id:d.id,...d.data()})).filter(p=>p.active!==false);const brands=[...new Set(products.map(p=>p.brand).filter(Boolean))].sort();const bf=$("brandFilter"),selected=bf.value;bf.innerHTML='<option value="">كل الماركات</option>'+brands.map(b=>`<option value="${escapeHtml(b)}">${escapeHtml(b)}</option>`).join("");bf.value=brands.includes(selected)?selected:"";renderProducts();if(user&&user.uid===ADMIN_UID)renderAdmin();$("productStatus").textContent=products.length+" عطر"},err=>{$("productStatus").textContent="تعذر الاتصال بقاعدة المنتجات";$("productsGrid").innerHTML='<div class="empty">راجع اتصال Firebase وقواعد Firestore لمجموعة zeinRahafV2Products.</div>';console.error(err)});
 </script>
 </body>
 </html>
