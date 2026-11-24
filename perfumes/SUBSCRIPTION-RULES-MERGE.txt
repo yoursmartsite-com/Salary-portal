@@ -1,0 +1,64 @@
+SINGLE-STORE SUBSCRIPTION — FIRESTORE RULES MERGE NOTES
+=====================================================
+
+The app now watches this public status document:
+  appConfig/subscription
+
+Expected fields:
+  active: boolean
+  expiresAt: Firestore Timestamp
+  updatedAt: server timestamp
+  updatedBy: owner UID
+
+Owner UID:
+  Isjbto8GuLdkyh0W5VDJSfYSZF43
+
+MERGE THIS MATCH INTO THE EXISTING service cloud.firestore / documents block.
+Do NOT replace the existing Firestore rules with this file.
+
+function isPerfumesSubscriptionOwner() {
+  return request.auth != null
+    && request.auth.uid == "Isjbto8GuLdkyh0W5VDJSfYSZF43";
+}
+
+match /appConfig/subscription {
+  // Only public status fields should ever be stored in this document.
+  allow read: if true;
+  allow create, update, delete: if isPerfumesSubscriptionOwner();
+}
+
+IMPORTANT SECURITY LIMITATION
+-----------------------------
+The website overlay is a client-side user experience gate. It is NOT a security
+boundary by itself. Firestore rules are evaluated independently and existing
+allow rules may still permit reads/writes after expiry.
+
+Before enforcing the paid subscription, inspect the live Firestore rules and
+preserve all current product, order, customer-account, and admin permissions.
+Then add a helper such as:
+
+function perfumesSubscriptionActive() {
+  return exists(/databases/\$(database)/documents/appConfig/subscription)
+    && get(/databases/\$(database)/documents/appConfig/subscription).data.active == true
+    && get(/databases/\$(database)/documents/appConfig/subscription).data.expiresAt > request.time;
+}
+
+Add && perfumesSubscriptionActive() to the existing allow conditions for
+protected store operations (products and order creation/management), while
+keeping customer login/authentication and customer-owned account records usable.
+Do not add shopId to any existing product or order documents.
+
+SAFE INITIALIZATION
+-------------------
+The app intentionally remains open when the subscription document is missing
+or cannot be read. This avoids locking the live store before the owner initializes
+the document and merges the rules. Once the document exists, active=false or an
+expired/missing expiresAt displays the full-screen lock to non-owner visitors.
+The owner UID remains able to access the admin panel to renew.
+
+Suggested initial trial:
+  active = true
+  expiresAt = a Firestore Timestamp 30 days in the future
+
+Do not publish restrictive rules until they have been tested in Firebase Rules
+Playground or Emulator against existing customer and admin flows.
