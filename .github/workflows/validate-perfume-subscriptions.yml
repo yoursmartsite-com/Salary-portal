@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - backup/perfumes-before-subscriptions-2026-11-24
+      - feature/perfumes-subscriptions-preview
     paths:
       - "perfumes/**"
       - ".github/workflows/validate-perfume-subscriptions.yml"
