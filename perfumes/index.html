@@ -298,6 +298,19 @@ header .actions .icon-btn,.bar .actions .icon-btn{
 .mobile-nav button.active span{background:#f5f1ef;border-radius:24px;color:#160c08}
 .mobile-nav button.active svg{fill:#160c08;stroke:#160c08}
 @media(max-width:650px){.mobile-nav{display:grid!important}body{padding-bottom:82px}header .actions{gap:2px}header .actions .icon-btn{width:38px!important;height:38px!important;min-width:38px}header .actions .icon-btn svg{width:23px;height:23px}.footer{padding-bottom:30px}}
+
+/* Dedicated app sections: home, categories, purchases and account */
+body.page-categories .promo-ribbon,body.page-categories .hero,body.page-categories #contact{display:none!important}
+body.page-categories main#home{min-height:calc(100vh - 150px);padding-top:18px}
+body.page-categories #shop{display:block!important;margin-top:0}
+body.page-categories .mobile-nav{display:grid!important}
+#cartOverlay.page-screen,#accountOverlay.page-screen{position:fixed!important;inset:0!important;z-index:120!important;display:none;align-items:stretch!important;justify-content:stretch!important;padding:0!important;background:#f5f6f8!important;backdrop-filter:none!important}
+#cartOverlay.page-screen.show,#accountOverlay.page-screen.show{display:flex!important}
+#cartOverlay.page-screen>.dialog,#accountOverlay.page-screen>.dialog{width:100%!important;max-width:none!important;height:100%!important;max-height:none!important;overflow-y:auto!important;border:0!important;border-radius:0!important;padding:22px max(18px,calc((100vw - 680px)/2)) 110px!important;background:#fff!important;box-shadow:none!important}
+#cartOverlay.page-screen .dialog-head,#accountOverlay.page-screen .dialog-head{position:sticky;top:-22px;z-index:3;padding:16px 0;background:#fff;border-bottom:1px solid #eee;margin-bottom:20px}
+#cartOverlay.page-screen .dialog-head h3,#accountOverlay.page-screen .dialog-head h3{font-size:22px;color:#172f43}
+#cartOverlay.page-screen .close,#accountOverlay.page-screen .close{width:40px;height:40px;border-radius:50%;background:#f4f4f4;color:#222}
+@media(max-width:650px){#cartOverlay.page-screen>.dialog,#accountOverlay.page-screen>.dialog{padding:16px 16px 105px!important}}
 </style>
 </head>
 <body>
@@ -402,6 +415,37 @@ document.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{category=b.dat
 $("year").textContent=new Date().getFullYear();cartCount();
 onAuthStateChanged(auth,u=>{user=u;updateAccount();if(u&&u.uid===ADMIN_UID){$("loginBtn").textContent="لوحة التحكم";$("loginBtn").onclick=()=>{renderAdmin();open("adminOverlay")}}else $("loginBtn").textContent=u?"حسابي":"تسجيل الدخول"});
 unsubProducts=onSnapshot(query(collection(db,"zeinRahafV2Products"),orderBy("createdAt","desc")),snap=>{products=snap.docs.map(d=>({id:d.id,...d.data()})).filter(p=>p.active!==false);const brands=[...new Set(products.map(p=>p.brand).filter(Boolean))].sort();const bf=$("brandFilter"),selected=bf.value;bf.innerHTML='<option value="">كل الماركات</option>'+brands.map(b=>`<option value="${escapeHtml(b)}">${escapeHtml(b)}</option>`).join("");bf.value=brands.includes(selected)?selected:"";renderProducts();if(user&&user.uid===ADMIN_UID)renderAdmin();$("productStatus").textContent=products.length+" عطر"},err=>{$("productStatus").textContent="تعذر الاتصال بقاعدة المنتجات";$("productsGrid").innerHTML='<div class="empty">راجع اتصال Firebase وقواعد Firestore لمجموعة zeinRahafV2Products.</div>';console.error(err)});
+
+/* Real page navigation for all four bottom tabs */
+const appPages=["home","categories","purchases","account"];
+function setAppPage(page,updateHistory=true){
+ if(!appPages.includes(page))page="home";
+ if(updateHistory&&location.hash!=="#"+page)history.pushState({page},"","#"+page);
+ document.body.classList.toggle("page-categories",page==="categories");
+ $("cartOverlay").classList.toggle("show",page==="purchases");
+ $("accountOverlay").classList.toggle("show",page==="account");
+ $("home").style.display=(page==="home"||page==="categories")?"":"none";
+ $("contact").style.display=page==="home"?"":"none";
+ document.querySelectorAll(".mobile-nav button").forEach(b=>b.classList.toggle("active",
+  (page==="home"&&b.id==="mobileHome")||(page==="categories"&&b.id==="mobileCategories")||
+  (page==="purchases"&&b.id==="mobileCart")||(page==="account"&&b.id==="mobileAccount")));
+ if(page==="purchases")renderCart();
+ if(page==="account")updateAccount();
+ window.scrollTo({top:0,behavior:"instant"});
+}
+function pageFromHash(){const p=location.hash.replace("#","");setAppPage(appPages.includes(p)?p:"home",false)}
+$("mobileHome").onclick=()=>setAppPage("home");
+$("mobileCategories").onclick=()=>setAppPage("categories");
+$("mobileCart").onclick=$("cartBtn").onclick=()=>setAppPage("purchases");
+$("mobileAccount").onclick=$("accountBtn").onclick=()=>setAppPage("account");
+$("favoriteBtn").onclick=()=>{setAppPage("categories");showFavorites();$("productStatus").textContent="المفضلة"};
+$("cartOverlay").querySelector("[data-close]").onclick=()=>setAppPage("home");
+$("accountOverlay").querySelector("[data-close]").onclick=()=>setAppPage("home");
+window.addEventListener("popstate",pageFromHash);
+window.addEventListener("hashchange",pageFromHash);
+if(["#home","#categories","#purchases","#account"].includes(location.hash))pageFromHash();
+else setAppPage("home",false);
+
 </script>
 </body>
 </html>
