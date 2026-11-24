@@ -1,0 +1,37 @@
+// أضف هذا المقطع داخل service cloud.firestore { match /databases/{database}/documents { ... }
+// لا تستبدل قواعد متجر العطور بالكامل بهذا المقطع.
+// مجموعة الطلبات: developerRequests
+match /developerRequests/{requestId} {
+  // أي زائر يقدر يرسل طلبًا جديدًا بالحقول المحددة فقط.
+  allow create: if request.resource.data.keys().hasOnly([
+      'name', 'phone', 'type', 'budget', 'description', 'status', 'createdAt'
+    ])
+    && request.resource.data.name is string
+    && request.resource.data.name.size() >= 2
+    && request.resource.data.name.size() <= 80
+    && request.resource.data.phone is string
+    && request.resource.data.phone.size() >= 7
+    && request.resource.data.phone.size() <= 25
+    && request.resource.data.type is string
+    && request.resource.data.type.size() >= 2
+    && request.resource.data.type.size() <= 60
+    && request.resource.data.budget is string
+    && request.resource.data.budget.size() <= 60
+    && request.resource.data.description is string
+    && request.resource.data.description.size() >= 5
+    && request.resource.data.description.size() <= 2500
+    && request.resource.data.status == 'جديد'
+    && request.resource.data.createdAt == request.time;
+
+  // المالك الأساسي فقط يقرأ الطلبات ويغيّر حالتها.
+  allow read, delete: if request.auth != null
+    && request.auth.uid == 'Isjbto8GuLdkyh0W5VDJSfYSZF43';
+
+  allow update: if request.auth != null
+    && request.auth.uid == 'Isjbto8GuLdkyh0W5VDJSfYSZF43'
+    && request.resource.data.diff(resource.data).affectedKeys()
+      .hasOnly(['status', 'updatedAt'])
+    && request.resource.data.status in [
+      'جديد', 'تم التواصل', 'قيد التنفيذ', 'مكتمل', 'مرفوض'
+    ];
+}
