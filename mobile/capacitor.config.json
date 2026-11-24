@@ -1,0 +1,10 @@
+{
+  "appId": "com.fakretak.app",
+  "appName": "فكرتك",
+  "webDir": "www",
+  "server": {
+    "url": "https://yoursmartsite-com.github.io/Salary-portal/developer/",
+    "cleartext": false,
+    "androidScheme": "https"
+  }
+}
