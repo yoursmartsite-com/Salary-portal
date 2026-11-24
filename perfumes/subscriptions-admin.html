@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#090909">
+<title>إدارة اشتراكات زين و رهف</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#090909;--panel:#151515;--gold:#c9a45c;--gold2:#f0d99c;--muted:#aaa08f;--line:#3b3020}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#f7f2e8;font-family:Cairo,Arial,sans-serif}.wrap{max-width:980px;margin:auto;padding:22px}.head{display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid var(--line);padding-bottom:18px}.brand{font-weight:900;color:var(--gold2);font-size:21px}.brand small{display:block;font-size:11px;color:var(--muted);font-weight:400}.panel{background:var(--panel);border:1px solid var(--line);padding:20px;margin:22px 0}.panel h2{margin:0 0 14px;color:var(--gold2);font-size:19px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{display:grid;gap:5px}.field label{font-size:12px;color:#cabb9f}.field input{width:100%;background:#090909;color:white;border:1px solid #51432c;padding:12px;border-radius:3px;font:inherit}.btn{border:1px solid var(--gold);background:transparent;color:var(--gold2);padding:10px 15px;font:inherit;cursor:pointer;border-radius:3px}.btn.gold{background:linear-gradient(120deg,#a77d37,#e3c47e);color:#17120a;border:0;font-weight:800}.btn:disabled{opacity:.5;cursor:wait}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.hint{color:var(--muted);font-size:12px;line-height:1.9}.shop{border:1px solid #403522;background:#0d0d0d;padding:14px;margin:12px 0}.shop-top{display:flex;justify-content:space-between;gap:12px;align-items:center}.shop h3{margin:0;color:var(--gold2)}.meta{font-size:12px;color:#c8bdab;line-height:2;margin-top:8px}.status{font-size:11px;border:1px solid #806333;color:var(--gold2);padding:3px 8px;white-space:nowrap}.status.off{border-color:#914747;color:#ffaaaa}.toast{position:fixed;bottom:18px;left:18px;right:18px;max-width:560px;margin:auto;background:#c9a45c;color:#17120a;padding:12px 16px;display:none;z-index:5}.toast.show{display:block}.hidden{display:none!important}.empty{text-align:center;padding:25px;color:var(--muted)}@media(max-width:600px){.wrap{padding:14px}.grid{grid-template-columns:1fr}.panel{padding:14px}.head{align-items:flex-start}.brand{font-size:17px}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<header class="head"><div class="brand">ZEIN & RAHAF<small>لوحة مالك البرنامج · إدارة المحلات والاشتراكات</small></div><button id="logout" class="btn hidden">تسجيل الخروج</button></header>
+<section id="loginPanel" class="panel"><h2>دخول مالك البرنامج</h2><div class="grid"><div class="field"><label>البريد الإلكتروني</label><input id="email" type="email" autocomplete="username"></div><div class="field"><label>كلمة المرور</label><input id="password" type="password" autocomplete="current-password"></div></div><div class="actions"><button id="login" class="btn gold">دخول</button></div><p class="hint">الدخول مخصص لحساب مالك البرنامج فقط.</p></section>
+<div id="dashboard" class="hidden">
+<section class="panel"><h2>إضافة محل جديد</h2><div class="grid">
+<div class="field"><label>اسم المحل</label><input id="shopName" placeholder="مثال: عطور النور"></div>
+<div class="field"><label>بريد حساب المحل</label><input id="shopEmail" type="email" placeholder="shop@example.com"></div>
+<div class="field"><label>كلمة مرور مؤقتة للحساب</label><input id="shopPassword" type="text" minlength="6" placeholder="6 أحرف على الأقل"></div>
+<div class="field"><label>تاريخ انتهاء الاشتراك</label><input id="expiresAt" type="date"></div>
+</div><div class="actions"><button id="createShop" class="btn gold">إنشاء المحل والاشتراك</button></div>
+<p class="hint">سيتم إنشاء حساب دخول مستقل للمحل وربطه باشتراكه. التجديد والإيقاف من اللوحة دي. النظام لا يسحب فلوس تلقائيًا.</p></section>
+<section class="panel"><h2>المحلات والاشتراكات</h2><div id="shopsList"><div class="empty">جاري تحميل المحلات…</div></div></section>
+</div>
+</main><div id="toast" class="toast"></div>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
+import {getFirestore,collection,doc,setDoc,onSnapshot,serverTimestamp,Timestamp,writeBatch} from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from "https://www.gstatic.com/firebasejs/13.4.0/firebase-auth.js";
+const config={apiKey:"AIzaSyDDHhjq64f-fau6nkFJYiogiuYlRQFPDss",authDomain:"perfumes-12f57.firebaseapp.com",projectId:"perfumes-12f57",storageBucket:"perfumes-12f57.firebasestorage.app",messagingSenderId:"204218273808",appId:"1:204218273808:web:1473df15998131a905fa95"};
+const OWNER_UID="Isjbto8GuLdkyh0W5VDJSfYSZF43";
+const app=initializeApp(config),db=getFirestore(app),auth=getAuth(app);
+const provisionApp=initializeApp(config,"shop-account-provisioner"),provisionAuth=getAuth(provisionApp);
+const $=id=>document.getElementById(id);
+let stopShops=null,shops=[];
+function say(m){$("toast").textContent=m;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),3500)}
+function dateValue(d){const x=d?.toDate?d.toDate():new Date(d);return Number.isNaN(x.getTime())?"—":x.toLocaleDateString("ar-EG")}
+function daysLeft(d){const x=d?.toDate?d.toDate():new Date(d);return Math.ceil((x.getTime()-Date.now())/86400000)}
+function esc(s=""){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function render(){const el=$("shopsList");if(!shops.length){el.innerHTML='<div class="empty">لم تتم إضافة محلات حتى الآن.</div>';return}el.innerHTML=shops.map(s=>{const days=daysLeft(s.expiresAt),active=s.active!==false&&days>=0;return '<article class="shop"><div class="shop-top"><h3>'+esc(s.name||"محل بدون اسم")+'</h3><span class="status '+(active?"":"off")+'">'+(active?"اشتراك نشط":"موقوف / منتهي")+'</span></div><div class="meta">البريد: '+esc(s.email||"—")+'<br>تاريخ الانتهاء: '+dateValue(s.expiresAt)+'<br>المتبقي: '+(days>=0?days+" يوم":"منتهي منذ "+Math.abs(days)+" يوم")+'<br>معرّف المحل: '+esc(s.id)+'</div><div class="actions"><button class="btn gold" data-renew="'+esc(s.id)+'">تجديد 30 يوم</button><button class="btn" data-toggle="'+esc(s.id)+'">'+(s.active===false?"تفعيل المحل":"إيقاف المحل")+'</button></div></article>'}).join("");el.querySelectorAll("[data-renew]").forEach(b=>b.onclick=()=>renew(b.dataset.renew));el.querySelectorAll("[data-toggle]").forEach(b=>b.onclick=()=>toggle(b.dataset.toggle))}
+function listen(){if(stopShops)stopShops();stopShops=onSnapshot(collection(db,"shops"),snap=>{shops=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>String(a.name||"").localeCompare(String(b.name||""),"ar"));render()},e=>{console.error(e);say("تعذر تحميل المحلات. راجع قواعد Firestore الجديدة.")})}
+async function renew(id){const s=shops.find(x=>x.id===id);if(!s)return;const old=s.expiresAt?.toDate?s.expiresAt.toDate():new Date(s.expiresAt);const base=old>new Date()?old:new Date();base.setDate(base.getDate()+30);try{await setDoc(doc(db,"shops",id),{expiresAt:Timestamp.fromDate(base),active:true,updatedAt:serverTimestamp()},{merge:true});say("تم تجديد الاشتراك 30 يومًا")}catch(e){console.error(e);say("فشل التجديد: "+e.message)}}
+async function toggle(id){const s=shops.find(x=>x.id===id);if(!s)return;try{await setDoc(doc(db,"shops",id),{active:s.active===false,updatedAt:serverTimestamp()},{merge:true});say(s.active===false?"تم تفعيل المحل":"تم إيقاف المحل")}catch(e){console.error(e);say("فشل تغيير الحالة: "+e.message)}}
+$("login").onclick=async()=>{try{await signInWithEmailAndPassword(auth,$("email").value.trim(),$("password").value)}catch(e){say("تعذر الدخول. راجع البريد وكلمة المرور.")}};
+$("logout").onclick=()=>signOut(auth);
+onAuthStateChanged(auth,u=>{const owner=!!u&&u.uid===OWNER_UID;$("loginPanel").classList.toggle("hidden",owner);$("dashboard").classList.toggle("hidden",!owner);$("logout").classList.toggle("hidden",!owner);if(owner)listen();else if(stopShops){stopShops();stopShops=null}});
+$("createShop").onclick=async()=>{const name=$("shopName").value.trim(),email=$("shopEmail").value.trim(),password=$("shopPassword").value,date=$("expiresAt").value;if(!auth.currentUser||auth.currentUser.uid!==OWNER_UID)return say("غير مصرح");if(!name||!email||password.length<6||!date)return say("أكمل البيانات، وكلمة المرور 6 أحرف على الأقل");const expiry=new Date(date+"T23:59:59");if(Number.isNaN(expiry.getTime())||expiry<=new Date())return say("اختار تاريخ انتهاء في المستقبل");const b=$("createShop");b.disabled=true;try{const credential=await createUserWithEmailAndPassword(provisionAuth,email,password);const uid=credential.user.uid;await signOut(provisionAuth);const shopRef=doc(collection(db,"shops")),batch=writeBatch(db);batch.set(shopRef,{name,email,adminUid:uid,active:true,expiresAt:Timestamp.fromDate(expiry),createdAt:serverTimestamp(),updatedAt:serverTimestamp()});batch.set(doc(db,"shopMembers",uid),{shopId:shopRef.id,role:"admin",active:true,createdAt:serverTimestamp()});await batch.commit();$("shopName").value="";$("shopEmail").value="";$("shopPassword").value="";$("expiresAt").value="";say("تم إنشاء المحل وحساب الدخول بنجاح")}catch(e){console.error(e);try{await signOut(provisionAuth)}catch{}say("فشل إنشاء المحل: "+e.message+" — لو الحساب اتعمل قبل الخطأ، راجع Firebase Authentication")}finally{b.disabled=false}};
+const d=new Date();d.setDate(d.getDate()+30);$("expiresAt").value=d.toISOString().slice(0,10);
+</script></body></html>
