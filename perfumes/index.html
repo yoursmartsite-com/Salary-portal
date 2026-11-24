@@ -479,8 +479,8 @@ async function updateAccount(){
  const favCount=favorites.size;
  $("accountContent").innerHTML=`
   <section class="account-profile-card">
-   <div class="account-avatar">${escapeHtml(initials)}</div>
-   <div class="account-profile-copy"><h2>${escapeHtml(displayName)}</h2><p>${user?"عضو زين ورهف":"ضيف — سجّل الدخول لحفظ بياناتك"}</p><span class="account-points">✦ ${user?"حسابك الشخصي":"أهلاً بيك في زين ورهف"}</span></div>
+   <div class="account-avatar" id="accountAvatarInitial">${escapeHtml(initials)}</div>
+   <div class="account-profile-copy"><h2 id="accountCustomerName">${escapeHtml(displayName)}</h2><p>${user?"عضو زين ورهف":"ضيف — سجّل الدخول لحفظ بياناتك"}</p><span class="account-points">✦ ${user?"حسابك الشخصي":"أهلاً بيك في زين ورهف"}</span></div>
   </section>
   ${user?"":'<button class="account-signin" id="accountLogin">تسجيل الدخول / إنشاء حساب</button>'}
   <section class="account-stats">
@@ -507,6 +507,7 @@ async function updateAccount(){
  try{
   const snap=await getDocs(query(collection(db,"zeinRahafV2Orders"),where("uid","==",user.uid)));
   const orders=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+  if(!user.displayName){const savedCustomerName=orders.find(o=>o.customerName)?.customerName?.trim();if(savedCustomerName){const nameNode=$("accountCustomerName");const avatarNode=$("accountAvatarInitial");if(nameNode)nameNode.textContent=savedCustomerName;if(avatarNode)avatarNode.textContent=[...savedCustomerName][0].toUpperCase()}}
   const count=orders.filter(o=>o.status==="delivered").length;
   const countNode=$("accountOrderCount");if(countNode)countNode.textContent=count;
   const host=$("myOrders");if(!host)return;
