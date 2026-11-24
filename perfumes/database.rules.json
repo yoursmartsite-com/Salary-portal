@@ -21,18 +21,18 @@
       }
     },
     "orders": {
-      ".read": "auth != null && auth.token.email === 'ADMIN_EMAIL_HERE'",
+      ".read": "auth != null && auth.token.email === 'fibrahem865@gmail.com'",
       "$uid": {
-        ".read": "auth != null && (auth.uid === $uid || auth.token.email === 'ADMIN_EMAIL_HERE')",
+        ".read": "auth != null && (auth.uid === $uid || auth.token.email === 'fibrahem865@gmail.com')",
         "$orderId": {
-          ".write": "auth != null && ((auth.uid === $uid && !data.exists() && newData.child('status').val() === 'new') || auth.token.email === 'ADMIN_EMAIL_HERE')",
-          ".validate": "auth.token.email === 'ADMIN_EMAIL_HERE' || (newData.hasChildren(['id','name','phone','address','items','total','status','paymentMethod','createdAt']) && newData.child('status').val() === 'new' && newData.child('total').isNumber() && newData.child('total').val() >= 0 && newData.child('items').hasChildren())"
+          ".write": "auth != null && ((auth.uid === $uid && !data.exists() && newData.child('status').val() === 'new') || auth.token.email === 'fibrahem865@gmail.com')",
+          ".validate": "auth.token.email === 'fibrahem865@gmail.com' || (newData.hasChildren(['id','name','phone','address','items','total','status','paymentMethod','createdAt']) && newData.child('status').val() === 'new' && newData.child('total').isNumber() && newData.child('total').val() >= 0 && newData.child('items').hasChildren())"
         }
       }
     },
     "products": {
       ".read": true,
-      ".write": "auth != null && auth.token.email === 'ADMIN_EMAIL_HERE'"
+      ".write": "auth != null && auth.token.email === 'fibrahem865@gmail.com'"
     }
   }
 }
