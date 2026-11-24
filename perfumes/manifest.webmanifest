@@ -1,0 +1,22 @@
+{
+  "id": "./",
+  "name": "زين ورهف | ZEIN & RAHAF",
+  "short_name": "زين ورهف",
+  "description": "متجر زين ورهف للعطور",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#faf4eb",
+  "theme_color": "#faf4eb",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
