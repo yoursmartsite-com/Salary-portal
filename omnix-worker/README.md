@@ -32,6 +32,9 @@ The non-secret variables are in `wrangler.toml`. `ALLOWED_ORIGIN` is restricted 
 
 Every `/api/*` route requires `Authorization: Bearer <Firebase ID token>` from the signed-in owner account.
 - `GET /api/bootstrap` — read customers, assignments, subscriptions, notifications, releases and settings.
+- `GET /api/program-admins?programId=zein-rahaf-store` — list assigned store managers.
+- `POST /api/program-admins` — assign an existing Firebase Authentication user by email. Body: `{email,programId:"zein-rahaf-store"}`. Sets the `zeinRahafStoreAdmin` custom claim.
+- `DELETE /api/program-admins/{uid}` — revoke the store-manager claim and remove the assignment.
 - `POST /api/customers` — create an Auth user through Firebase sign-up, then securely save its profile/program assignment. Body: `{name,email,password,phone,program:{id,name,url}}`.
 - `PATCH /api/customers/:uid` — update email/display name/password, set `disabled`, or patch `profile`.
 - `DELETE /api/customers/:uid` — delete Auth user and related OMNIX records.
@@ -48,6 +51,7 @@ Every `/api/*` route requires `Authorization: Bearer <Firebase ID token>` from t
 - Notifications: `/omnix/notifications`
 - Releases: `/omnix/releases`
 - Settings: `/omnix/settings`
+- Program managers: `/omnix/programAdmins/zein-rahaf-store/{uid}`
 
 ## Important
-This Worker is not deployed merely because the source is in GitHub. The service-account secret must be added in Cloudflare and the Worker deployed. The OMNIX dashboard must then be configured with the resulting Worker URL and its UI actions wired to these endpoints. Do not loosen Firebase rules to compensate for missing backend permissions.
+This Worker is not deployed merely because the source is in GitHub. The service-account secret must be added in Cloudflare and the Worker deployed. The OMNIX dashboard includes a Program Managers section. After deployment, copy the Worker `workers.dev` URL into that section on the owner device. Publish `perfumes/database.rules.json` to the `perfumes-12f57` Realtime Database before granting a manager. The rules allow only the `zeinRahafStoreAdmin` custom claim to manage the perfume store's products, orders and customer profiles; `/omnix/**` remains owner-only. A manager must sign out and sign in again after assignment or revocation so Firebase refreshes the ID token. Revocation may take effect for an already-issued ID token only after that token expires. Do not loosen Firebase rules to compensate for missing backend permissions.
