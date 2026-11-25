@@ -96,7 +96,9 @@ async function route(request,env) {
   if(path==="/api/customers"&&request.method==="POST"){
     const body=await request.json(),email=String(body.email||"").trim().toLowerCase(),password=String(body.password||""),name=String(body.name||"").trim();
     if(!/^\S+@\S+\.\S+$/.test(email)||password.length<8||!name) return json({error:"أدخل اسمًا وبريدًا صحيحًا وكلمة مرور 8 أحرف على الأقل"},400,origin);
-    const created=await adminFetch(env,"/accounts","POST",{email,password,displayName:name,emailVerified:false,disabled:false});
+    const createResponse=await fetch("https://identitytoolkit.googleapis.com/v1/accounts:signUp?key="+encodeURIComponent(env.FIREBASE_API_KEY),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email,password,displayName:name,returnSecureToken:true})});
+    const created=await createResponse.json();
+    if(!createResponse.ok) throw new Error(created.error?.message||"تعذر إنشاء حساب Firebase");
     const uid=created.localId,now=Date.now();
     const profile={uid,email,name,phone:String(body.phone||""),createdAt:now,createdBy:env.OWNER_UID};
     const program=body.program||{};
@@ -104,7 +106,7 @@ async function route(request,env) {
       await db(env,"users/"+uid,"PUT",profile);
       if(program.id) await db(env,"omnix/customerPrograms/"+uid,"PUT",{programId:program.id,programName:program.name||"",url:program.url||"",updatedAt:now,createdBy:env.OWNER_UID});
     }catch(error){
-      try{await adminFetch(env,"/accounts","DELETE",{localId:uid});}catch(_){}
+      try{await adminFetch(env,"/accounts:delete","POST",{localId:uid});}catch(_){}
       throw error;
     }
     return json({ok:true,uid,email,name},201,origin);
@@ -118,12 +120,14 @@ async function route(request,env) {
       if(body.email) update.email=String(body.email).trim().toLowerCase();
       if(body.displayName) update.displayName=String(body.displayName).trim();
       if(body.password){if(String(body.password).length<8)return json({error:"كلمة المرور 8 أحرف على الأقل"},400,origin);update.password=String(body.password);}
-      const account=await adminFetch(env,"/accounts","PATCH",update);
+      if(typeof body.disabled==="boolean") update.disableUser=body.disabled;
+      delete update.disabled;
+      const account=await adminFetch(env,"/accounts:update","POST",update);
       if(body.profile) await db(env,"users/"+uid,"PATCH",body.profile);
       return json({ok:true,uid,disabled:account.disabled===true},200,origin);
     }
     if(request.method==="DELETE"){
-      await adminFetch(env,"/accounts","DELETE",{localId:uid});
+      await adminFetch(env,"/accounts:delete","POST",{localId:uid});
       await db(env,"users/"+uid,"DELETE");
       await db(env,"omnix/customerPrograms/"+uid,"DELETE");
       await db(env,"omnix/subscriptions/"+uid,"DELETE");
@@ -165,6 +169,6 @@ async function route(request,env) {
 export default {
   async fetch(request,env){
     try{return await route(request,env);}
-    catch(error){return json({error:safeError(error)},400,request.headers.get("Origin")||"");}
+    catch(error){const origin=request.headers.get("Origin")||"";return json({error:safeError(error)},400,origin===env.ALLOWED_ORIGIN?origin:"");}
   }
 };
