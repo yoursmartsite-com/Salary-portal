@@ -13,7 +13,8 @@ OMNIX is a separate owner-only control center, hosted under `/omnix/` in this re
 - Customer list reads `/users` and program assignments read `/omnix/customerPrograms`.
 - The owner page can create a normal email/password Firebase Auth account using a separate, in-memory Firebase Auth instance, write the customer's own profile to `/users/{uid}`, and save the program assignment with the owner's existing session.
 - The separate customer Auth instance is signed out after creation so the owner's OMNIX session is not replaced.
-- Subscription administration and privileged Firebase Auth administration are not implemented.
+- Program manager assignment is available through the Cloudflare Worker API after its secrets are configured and the Worker is deployed.
+- The manager role is scoped to the perfume store using a Firebase custom claim; it does not grant OMNIX access.
 
 ## Security boundary — important
 The email allowlist in browser code is only a first-stage interface gate. It is **not** sufficient protection for sensitive data because browser code can be inspected or modified. Before connecting any customer or subscription data, establish a trusted owner identity (Firebase UID / custom claim or a trusted backend) and enforce access in Firebase Security Rules. Never rely on a hidden button or client-side email check to secure database writes.
