@@ -2,10 +2,21 @@
 
 This is the trusted server-side layer for OMNIX. It uses Firebase Identity Toolkit Admin REST endpoints and Realtime Database REST with a Google service-account OAuth token. No service-account private key belongs in the browser or GitHub.
 
-## Required Cloudflare Worker secrets
+## One-time account setup
 
-Set these as Worker secrets (never commit them):
-- `FIREBASE_SERVICE_ACCOUNT`: the complete JSON key for a service account in Firebase project `perfumes-12f57`. The service account must have permissions to manage Firebase Authentication users and read/write the Realtime Database (Firebase Admin / appropriate IAM roles).
+### 1) Firebase service account
+1. Open Firebase Console → project **perfumes-12f57** → Project settings → Service accounts.
+2. Generate a new private key and download the JSON file.
+3. In Google Cloud Console → IAM, grant that service account only the roles needed for this Worker: **Firebase Authentication Admin** and **Firebase Realtime Database Admin** (or the equivalent narrow permissions available in the project).
+4. Keep the JSON file private. Never upload it to the repository or send it in chat.
+
+### 2) GitHub Actions secrets
+In the repository Settings → Secrets and variables → Actions, add:
+- `CLOUDFLARE_API_TOKEN`: a Cloudflare API token with Workers Scripts Edit permission for this account.
+- `CLOUDFLARE_ACCOUNT_ID`: the Cloudflare account ID.
+- `FIREBASE_SERVICE_ACCOUNT`: paste the entire contents of the downloaded service-account JSON file as the secret value.
+
+The workflow creates the Worker, uploads the service-account JSON as a Worker secret, and deploys it. The private key is never written to repository files.
 
 The non-secret variables are in `wrangler.toml`. `ALLOWED_ORIGIN` is restricted to the GitHub Pages origin.
 
@@ -21,7 +32,7 @@ The non-secret variables are in `wrangler.toml`. `ALLOWED_ORIGIN` is restricted 
 
 Every `/api/*` route requires `Authorization: Bearer <Firebase ID token>` from the signed-in owner account.
 - `GET /api/bootstrap` — read customers, assignments, subscriptions, notifications, releases and settings.
-- `POST /api/customers` — create an Auth user and its profile/program assignment. Body: `{name,email,password,phone,program:{id,name,url}}`.
+- `POST /api/customers` — create an Auth user through Firebase sign-up, then securely save its profile/program assignment. Body: `{name,email,password,phone,program:{id,name,url}}`.
 - `PATCH /api/customers/:uid` — update email/display name/password, set `disabled`, or patch `profile`.
 - `DELETE /api/customers/:uid` — delete Auth user and related OMNIX records.
 - `PUT /api/subscriptions/:uid` — create/update a subscription. Body may include `days`, `status`, `startAt`, `programId`, `notes`.
