@@ -1,0 +1,11 @@
+name = "omnix-api"
+main = "src/index.js"
+compatibility_date = "2026-11-25"
+
+[vars]
+FIREBASE_PROJECT_ID = "perfumes-12f57"
+FIREBASE_API_KEY = "AIzaSyDDHhjq64f-fau6nkFJYiogiuYlRQFPDss"
+FIREBASE_DATABASE_URL = "https://perfumes-12f57-default-rtdb.europe-west1.firebasedatabase.app"
+OWNER_UID = "Isjbto8GuLdkyh0W5VDJSfYSZF43"
+OWNER_EMAIL = "fibrahem865@gmail.com"
+ALLOWED_ORIGIN = "https://yoursmartsite-com.github.io"
