@@ -14,7 +14,7 @@
 body{margin:0;min-height:100vh;min-height:100svh;padding:22px;display:grid;place-items:center;background:radial-gradient(ellipse at 50% 0%,#40331c 0,transparent 46%),linear-gradient(145deg,#0d0c0b,#171511 60%,#0d0c0b);font-family:Cairo,Arial,sans-serif;color:var(--text)}
 .wrap{width:100%;max-width:440px}
 .brand{text-align:center;margin:0 0 24px}
-.logo{width:68px;height:68px;margin:0 auto 12px;border:1px solid #94753a;border-radius:20px;display:grid;place-items:center;color:var(--gold2);font:700 38px Amiri,serif;box-shadow:0 0 35px #c9a34d18,inset 0 0 18px #c9a34d0c}
+.logo{width:min(100%,270px);height:auto;margin:0 auto 10px;display:block;filter:drop-shadow(0 8px 24px #c9a34d28)}.logo svg{display:block;width:100%;height:auto;overflow:visible}.brand h1{font:700 27px Amiri,serif;margin:0;color:var(--gold2)}
 .brand h1{font:700 30px Amiri,serif;margin:0;letter-spacing:.2px}
 .brand p{font-size:12px;color:var(--muted);margin:3px 0 0}
 .panel{background:linear-gradient(150deg,#211e19,#181613);border:1px solid #4b402d;border-radius:24px;padding:25px;box-shadow:0 25px 75px #0008}
@@ -46,7 +46,30 @@ input::placeholder{color:#777166}
 <body>
 <main class="wrap">
 <header class="brand">
-<div class="logo">ز</div>
+<div class="logo" role="img" aria-label="شعار زين ورهف">
+<svg viewBox="0 0 520 310" xmlns="http://www.w3.org/2000/svg">
+<defs>
+ <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff0ae"/><stop offset=".42" stop-color="#d7a943"/><stop offset="1" stop-color="#8f6420"/></linearGradient>
+ <radialGradient id="bgm"><stop stop-color="#38291a"/><stop offset="1" stop-color="#11100e"/></radialGradient>
+ <filter id="glow"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<path d="M260 12 L275 42 L310 24 L305 60 L345 58 L320 86 L200 86 L175 58 L215 60 L210 24 L245 42Z" fill="url(#lg)" stroke="#f8df9a" stroke-width="2"/>
+<path d="M115 85 Q260 25 405 85 L430 125 L430 222 Q260 280 90 222 L90 125Z" fill="url(#bgm)" stroke="url(#lg)" stroke-width="5"/>
+<path d="M130 102 Q260 52 390 102" fill="none" stroke="#8e6b32" stroke-width="2"/>
+<text x="260" y="195" text-anchor="middle" font-family="Georgia,serif" font-size="112" font-weight="bold" fill="url(#lg)" stroke="#f9df9c" stroke-width="1">Z&amp;R</text>
+<g transform="translate(82 174)" filter="url(#glow)">
+ <path d="M0 22 Q-28 -8 -43 12 Q-20 35 0 22 M0 22 Q12 -18 35 -10 Q27 17 0 22" fill="#52713b" stroke="#c5a45b" stroke-width="2"/>
+ <path d="M0 20 C-38 8 -24 54 0 48 C24 54 38 8 0 20Z" fill="#a51f5a" stroke="#e9a0bc" stroke-width="2"/>
+ <path d="M0 22 C-16 16 -13 40 0 39 C13 40 16 16 0 22Z" fill="#e56a9b"/>
+</g>
+<g transform="translate(420 148)" filter="url(#glow)">
+ <path d="M-13 -28 H13 V-12 L22 0 V46 Q0 56 -22 46 V0 L-13 -12Z" fill="#5b214e" stroke="url(#lg)" stroke-width="3"/>
+ <rect x="-9" y="-43" width="18" height="15" rx="3" fill="url(#lg)"/><path d="M-8 -7 H8" stroke="#f7d98b" stroke-width="2"/>
+</g>
+<path d="M72 236 Q260 278 448 236" fill="none" stroke="url(#lg)" stroke-width="3"/>
+<text x="260" y="278" text-anchor="middle" font-family="serif" font-size="36" font-weight="bold" fill="url(#lg)">زين ورهف</text>
+<text x="260" y="302" text-anchor="middle" font-family="Georgia,serif" font-size="14" letter-spacing="4" fill="#e7c878">ZEIN &amp; RAHAF</text>
+</svg></div>
 <h1>بوابة البرامج</h1>
 <p>حساب واحد للوصول إلى خدماتك</p>
 </header>
