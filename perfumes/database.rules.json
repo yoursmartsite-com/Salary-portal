@@ -3,10 +3,10 @@
     ".read": false,
     ".write": false,
     "users": {
-      ".read": "auth != null && auth.uid === 'Isjbto8GuLdkyh0W5VDJSfYSZF43'",
+      ".read": "auth != null && (auth.uid === 'Isjbto8GuLdkyh0W5VDJSfYSZF43' || auth.token.zeinRahafStoreAdmin === true)",
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
-        ".write": "auth != null && auth.uid === $uid"
+        ".write": "auth != null && (auth.uid === $uid || auth.token.zeinRahafStoreAdmin === true)"
       }
     },
     "cart": {
@@ -22,18 +22,18 @@
       }
     },
     "orders": {
-      ".read": "auth != null && auth.uid === 'Isjbto8GuLdkyh0W5VDJSfYSZF43'",
+      ".read": "auth != null && (auth.uid === 'Isjbto8GuLdkyh0W5VDJSfYSZF43' || auth.token.zeinRahafStoreAdmin === true)",
       "$uid": {
-        ".read": "auth != null && (auth.uid === $uid || auth.uid === 'Isjbto8GuLdkyh0W5VDJSfYSZF43')",
+        ".read": "auth != null && (auth.uid === $uid || auth.uid === 'Isjbto8GuLdkyh0W5VDJSfYSZF43' || auth.token.zeinRahafStoreAdmin === true)",
         "$orderId": {
-          ".write": "auth != null && ((auth.uid === $uid && !data.exists() && newData.child('status').val() === 'new') || auth.uid === 'Isjbto8GuLdkyh0W5VDJSfYSZF43')",
-          ".validate": "auth != null && (auth.uid === 'Isjbto8GuLdkyh0W5VDJSfYSZF43' || (newData.hasChildren(['id','name','phone','address','items','total','status','paymentMethod','createdAt']) && newData.child('status').val() === 'new' && newData.child('total').isNumber() && newData.child('total').val() >= 0 && newData.child('items').hasChildren()))"
+          ".write": "auth != null && (auth.uid === 'Isjbto8GuLdkyh0W5VDJSfYSZF43' || auth.token.zeinRahafStoreAdmin === true || (auth.uid === $uid && !data.exists() && newData.child('status').val() === 'new'))",
+          ".validate": "auth != null && (auth.uid === 'Isjbto8GuLdkyh0W5VDJSfYSZF43' || auth.token.zeinRahafStoreAdmin === true || (newData.hasChildren(['id','name','phone','address','items','total','status','paymentMethod','createdAt']) && newData.child('status').val() === 'new' && newData.child('total').isNumber() && newData.child('total').val() >= 0 && newData.child('items').hasChildren()))"
         }
       }
     },
     "products": {
       ".read": true,
-      ".write": "auth != null && auth.uid === 'Isjbto8GuLdkyh0W5VDJSfYSZF43'"
+      ".write": "auth != null && (auth.uid === 'Isjbto8GuLdkyh0W5VDJSfYSZF43' || auth.token.zeinRahafStoreAdmin === true)"
     },
     "omnix": {
       ".read": "auth != null && auth.uid === 'Isjbto8GuLdkyh0W5VDJSfYSZF43'",
