@@ -13,14 +13,15 @@ export const firebaseConfig = {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import {
   getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
-  sendPasswordResetEmail, signOut, onAuthStateChanged, updateProfile
+  sendPasswordResetEmail, signOut, onAuthStateChanged, updateProfile,
+  RecaptchaVerifier, signInWithPhoneNumber, linkWithPhoneNumber, updatePassword
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import { getDatabase, ref, set, get, update, onValue, push } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getDatabase(app);
-export { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signOut, onAuthStateChanged, updateProfile, ref, set, get, update, onValue, push };
+export { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signOut, onAuthStateChanged, updateProfile, RecaptchaVerifier, signInWithPhoneNumber, linkWithPhoneNumber, updatePassword, ref, set, get, update, onValue, push };
 
 export function authMessage(error) {
   const code = error?.code || "";
