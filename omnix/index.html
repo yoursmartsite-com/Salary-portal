@@ -145,8 +145,18 @@ function connectOwnerData(){
  const customerList=$("customerList"),customerCount=$("customerCount");
  let customers={},assignments={};
  function drawCustomers(){
-  const q=String($("customerSearch")?.value||"").trim().toLowerCase();
-  const entries=Object.entries(customers).filter(([uid,u])=>[uid,u?.name,u?.email,u?.phone].join(" ").toLowerCase().includes(q)).sort((a,b)=>(b[1]?.lastLoginAt||b[1]?.createdAt||0)-(a[1]?.lastLoginAt||a[1]?.createdAt||0));
+  const normalizeSearch=value=>String(value??"").toLowerCase()
+   .replace(/[٠-٩]/g,d=>String("٠١٢٣٤٥٦٧٨٩".indexOf(d)))
+   .replace(/[۰-۹]/g,d=>String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)))
+   .replace(/[\\u064B-\\u065F\\u0670]/g,"")
+   .replace(/ـ/g,"").trim();
+  const q=normalizeSearch($("customerSearch")?.value||"");
+  const searchable=value=>{
+   if(value===null||value===undefined)return "";
+   if(typeof value==="object")return Object.values(value).map(searchable).join(" ");
+   return String(value);
+  };
+  const entries=Object.entries(customers).filter(([uid,u])=>!q||normalizeSearch(uid+" "+searchable(u)).includes(q)).sort((a,b)=>(Number(b[1]?.lastLoginAt||b[1]?.createdAt||0))-(Number(a[1]?.lastLoginAt||a[1]?.createdAt||0)));
   customerCount.textContent=entries.length+" عميل";
   customerList.innerHTML=entries.length?entries.map(([uid,u])=>{
    const assigned=assignments[uid]||{},options='<option value="">اختر البرنامج المخصص للعميل</option>'+programCatalog.map(p=>'<option value="'+escapeHtml(p.id)+'" '+(assigned.programId===p.id?'selected':'')+'>'+escapeHtml(p.name)+'</option>').join("");
