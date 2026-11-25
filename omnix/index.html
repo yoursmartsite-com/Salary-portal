@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080b12">
+<meta name="description" content="OMNIX — مركز التحكم المركزي للمالك">
+<title>OMNIX | مركز التحكم</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#080b12;--panel:#101722;--panel2:#141e2b;--line:#263345;--gold:#d6b56e;--gold2:#f2d99a;--text:#f3f5f8;--muted:#8c9aaa;--green:#69d5a4;--red:#f28e8e}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 70% -20%,#4d3a1b55,transparent 38%),var(--bg);color:var(--text);font-family:Cairo,Arial,sans-serif}button,input{font:inherit}button{cursor:pointer}
+.hidden{display:none!important}.login-wrap{min-height:100vh;display:grid;place-items:center;padding:22px}.login-card{width:min(100%,440px);padding:30px;border:1px solid #57482c;border-radius:24px;background:linear-gradient(145deg,#171d25,#10151d);box-shadow:0 25px 80px #0009}.brand{text-align:center;margin-bottom:25px}.brand-mark{width:76px;height:76px;margin:0 auto 13px;border:1px solid #a9884e;border-radius:22px;display:grid;place-items:center;background:linear-gradient(145deg,#332919,#14171b);color:var(--gold2);font-size:28px;font-weight:900;letter-spacing:2px;box-shadow:0 0 35px #d6b56e1c}.brand h1{margin:0;font-size:30px;letter-spacing:4px;color:var(--gold2)}.brand p{margin:3px 0;color:var(--muted);font-size:12px}.owner-tag{display:inline-flex;align-items:center;gap:7px;margin-top:12px;padding:5px 11px;border:1px solid #3b493d;border-radius:30px;color:#a9dfbf;font-size:11px}.owner-tag i{width:7px;height:7px;border-radius:50%;background:var(--green)}.login-card h2{font-size:19px;margin:0 0 5px}.login-card .sub{font-size:12px;color:var(--muted);margin:0 0 20px;line-height:1.8}.field{margin:14px 0}.field label{display:block;font-size:12px;color:#c5ced8;margin-bottom:7px}.field input{width:100%;height:49px;padding:0 13px;border:1px solid #354252;border-radius:12px;background:#0a1018;color:white;outline:none;direction:ltr;text-align:left}.field input:focus{border-color:var(--gold);box-shadow:0 0 0 3px #d6b56e18}.submit{width:100%;height:49px;border:0;border-radius:12px;margin-top:7px;background:linear-gradient(110deg,#9e793c,#ead092);color:#17130c;font-weight:900}.submit:disabled{opacity:.6}.message{display:none;margin-top:13px;padding:11px;border-radius:10px;font-size:12px;line-height:1.8}.message.show{display:block}.message.error{background:#442624;color:#ffd2cc;border:1px solid #70413b}.message.ok{background:#19372c;color:#c6f1d8;border:1px solid #315e49}.login-note{font-size:10px;color:#778493;line-height:1.9;text-align:center;margin:18px 5px 0}
+.shell{min-height:100vh;display:grid;grid-template-columns:248px minmax(0,1fr);max-width:1800px;margin:auto;padding:16px;gap:16px}.sidebar{position:sticky;top:16px;height:calc(100vh - 32px);min-height:600px;padding:18px 13px;border:1px solid var(--line);border-radius:19px;background:linear-gradient(180deg,#111a26,#0d131d);display:flex;flex-direction:column}.side-brand{display:flex;align-items:center;gap:11px;padding:4px 7px 20px;border-bottom:1px solid var(--line)}.side-logo{width:43px;height:43px;border:1px solid #9d804b;border-radius:13px;display:grid;place-items:center;color:var(--gold2);font-weight:900;font-size:15px;background:#292317}.side-brand b{font-size:20px;letter-spacing:2px;color:var(--gold2)}.side-brand small{display:block;color:var(--muted);font-size:9px;letter-spacing:1.3px}.nav{display:grid;gap:6px;margin-top:20px}.nav button{width:100%;display:flex;align-items:center;gap:12px;text-align:right;padding:12px;border:1px solid transparent;border-radius:11px;background:transparent;color:#aab6c5;font-size:12px}.nav button .ico{width:22px;text-align:center;color:var(--gold);font-size:16px}.nav button.active,.nav button:hover{background:#d6b56e12;border-color:#78613b55;color:#fff}.side-bottom{margin-top:auto;padding:13px;border:1px solid #314035;border-radius:13px;background:#142019}.side-bottom b{display:block;color:#b8e5c8;font-size:11px}.side-bottom small{color:#819889;font-size:10px}.logout{width:100%;margin-top:12px;padding:10px;border:1px solid #65413c;border-radius:10px;background:#2b1b1b;color:#f0b0a7;font-size:11px}
+.main{min-width:0;padding:5px 4px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 22px}.eyebrow{font-size:10px;color:var(--gold);letter-spacing:1.5px}.topbar h1{font-size:24px;margin:3px 0 0}.owner-chip{display:flex;align-items:center;gap:9px;padding:8px 12px;border:1px solid var(--line);border-radius:12px;background:#111925}.avatar{width:31px;height:31px;border-radius:10px;display:grid;place-items:center;background:#3b3020;color:var(--gold2);font-weight:900}.owner-chip b{display:block;font-size:11px}.owner-chip small{display:block;color:var(--muted);font-size:9px}
+.welcome{padding:23px 25px;border:1px solid #655235;border-radius:18px;background:radial-gradient(ellipse at 10% 0%,#b48b3c22,transparent 45%),linear-gradient(115deg,#1b2026,#151a20);margin-bottom:17px;position:relative;overflow:hidden}.welcome:after{content:"O";position:absolute;left:25px;top:-48px;font-size:190px;font-weight:900;color:#d6b56e0a;line-height:1}.welcome small{color:var(--gold2);font-size:10px;letter-spacing:1px}.welcome h2{font-size:22px;margin:6px 0}.welcome p{font-size:12px;color:#aab4bf;margin:0;max-width:640px;line-height:1.9}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:16px 0}.stat{padding:16px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(145deg,#131d29,#0e151f)}.stat .top{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:10px}.stat .symbol{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:#d6b56e14;color:var(--gold2);font-size:15px}.stat strong{display:block;font-size:24px;margin-top:9px}.stat small{font-size:9px;color:#778696}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin:24px 0 12px}.section-head h3{font-size:15px;margin:0}.section-head span{font-size:10px;color:var(--muted)}
+.modules{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.module{min-height:148px;padding:16px;border:1px solid var(--line);border-radius:14px;background:#111a25;display:flex;flex-direction:column}.module .module-icon{width:36px;height:36px;display:grid;place-items:center;border:1px solid #75603a66;border-radius:11px;background:#d6b56e12;color:var(--gold2);font-size:17px}.module b{font-size:12px;margin-top:12px}.module p{font-size:10px;line-height:1.8;color:var(--muted);margin:4px 0 0}.module em{font-style:normal;margin-top:auto;padding-top:11px;color:#d5bd88;font-size:9px}
+.notice{padding:13px 15px;border:1px solid #51462e;border-radius:12px;background:#211d15;color:#d8c69d;font-size:11px;line-height:1.9;margin-top:16px}.view{display:none}.view.active{display:block}
+@media(max-width:1050px){.shell{grid-template-columns:205px minmax(0,1fr)}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.modules{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.shell{display:block;padding:10px}.sidebar{position:static;height:auto;min-height:0;padding:11px;margin-bottom:13px}.side-brand{padding:1px 4px 9px;border:0}.side-logo{width:36px;height:36px}.side-brand b{font-size:17px}.nav{display:flex;overflow-x:auto;gap:5px;margin-top:9px;padding-bottom:2px}.nav button{flex:0 0 auto;width:auto;padding:8px 10px;font-size:10px;gap:6px}.nav button .ico{width:auto}.side-bottom,.logout{display:none}.main{padding:2px}.topbar{margin-bottom:13px}.topbar h1{font-size:20px}.owner-chip{padding:6px 8px}.owner-chip small{max-width:125px;overflow:hidden;text-overflow:ellipsis;direction:ltr}.welcome{padding:18px}.welcome h2{font-size:19px}.welcome p{font-size:11px}.stats{gap:8px}.stat{padding:12px}.stat strong{font-size:21px}.modules{grid-template-columns:1fr 1fr;gap:8px}.module{padding:12px;min-height:145px}.module b{font-size:11px}.module p{font-size:9px}.notice{font-size:10px}}
+@media(max-width:390px){.modules{grid-template-columns:1fr}.owner-chip{max-width:160px}.owner-chip small{max-width:95px}}
+</style>
+</head>
+<body>
+<section class="login-wrap" id="loginScreen">
+ <div class="login-card">
+  <header class="brand"><div class="brand-mark">OX</div><h1>OMNIX</h1><p>CENTRAL CONTROL SYSTEM</p><span class="owner-tag"><i></i> دخول المالك فقط</span></header>
+  <h2>تسجيل دخول المالك</h2><p class="sub">استخدم حساب المالك المعتمد للوصول إلى مركز التحكم.</p>
+  <form id="loginForm">
+   <div class="field"><label for="email">البريد الإلكتروني</label><input id="email" type="email" autocomplete="username" placeholder="Owner email" required></div>
+   <div class="field"><label for="password">كلمة المرور</label><input id="password" type="password" autocomplete="current-password" placeholder="كلمة المرور" required></div>
+   <button class="submit" id="loginButton" type="submit">دخول إلى OMNIX</button>
+   <div class="message" id="loginMessage" role="status" aria-live="polite"></div>
+  </form>
+  <p class="login-note">لا يوجد إنشاء حساب من هذه الصفحة. إذا لم يكن حساب المالك مسجلًا في Firebase Authentication، يجب إنشاؤه من لوحة Firebase أولًا.</p>
+ </div>
+</section>
+<div class="shell hidden" id="appShell">
+ <aside class="sidebar">
+  <div class="side-brand"><div class="side-logo">OX</div><div><b>OMNIX</b><small>CENTRAL CONTROL</small></div></div>
+  <nav class="nav" aria-label="القائمة الرئيسية">
+   <button class="active" data-view="overview"><span class="ico">◈</span> نظرة عامة</button>
+   <button data-view="programs"><span class="ico">▦</span> البرامج</button>
+   <button data-view="customers"><span class="ico">♙</span> العملاء</button>
+   <button data-view="subscriptions"><span class="ico">◇</span> الاشتراكات</button>
+   <button data-view="updates"><span class="ico">↻</span> التحديثات</button>
+   <button data-view="notifications"><span class="ico">◎</span> الإشعارات</button>
+   <button data-view="settings"><span class="ico">⚙</span> الإعدادات</button>
+  </nav>
+  <div class="side-bottom"><b>● وضع المالك</b><small>هذا المركز مخصص لحساب المالك المعتمد.</small></div>
+  <button class="logout" id="logoutButton">تسجيل الخروج</button>
+ </aside>
+ <main class="main">
+  <header class="topbar"><div><div class="eyebrow">CONTROL CENTER / OWNER</div><h1 id="pageTitle">نظرة عامة</h1></div><div class="owner-chip"><div class="avatar">O</div><div><b>المالك</b><small id="ownerEmail"></small></div></div></header>
+  <section class="view active" id="view-overview">
+   <div class="welcome"><small>OMNIX · YOUR CONTROL SPACE</small><h2>كل برامجك في مكان واحد.</h2><p>من هنا هتتابع برامجك وتدير المستخدمين والاشتراكات والتحديثات. هنربط كل قسم بمصدر بياناته بعد تأمين صلاحيات المالك.</p></div>
+   <div class="stats">
+    <article class="stat"><div class="top"><span>البرامج</span><span class="symbol">▦</span></div><strong>—</strong><small>بانتظار ربط البرامج</small></article>
+    <article class="stat"><div class="top"><span>العملاء</span><span class="symbol">♙</span></div><strong>—</strong><small>بانتظار ربط حسابات العملاء</small></article>
+    <article class="stat"><div class="top"><span>الاشتراكات النشطة</span><span class="symbol">◇</span></div><strong>—</strong><small>بانتظار ربط نظام الاشتراكات</small></article>
+    <article class="stat"><div class="top"><span>التحديثات</span><span class="symbol">↻</span></div><strong>—</strong><small>بانتظار إعداد إدارة الإصدارات</small></article>
+   </div>
+   <div class="section-head"><h3>أقسام مركز التحكم</h3><span>OWNER WORKSPACE</span></div>
+   <div class="modules">
+    <article class="module"><div class="module-icon">▦</div><b>إدارة البرامج</b><p>إضافة البرامج وربط روابط المواقع والتطبيقات.</p><em>قيد التجهيز</em></article>
+    <article class="module"><div class="module-icon">♙</div><b>إدارة العملاء</b><p>عرض حسابات العملاء وربطها بالبرامج.</p><em>قيد التجهيز</em></article>
+    <article class="module"><div class="module-icon">◇</div><b>الاشتراكات</b><p>متابعة حالة الاشتراكات ومددها وتفعيلها.</p><em>قيد التجهيز</em></article>
+    <article class="module"><div class="module-icon">↻</div><b>التحديثات</b><p>إدارة إصدارات البرامج وروابط التحميل.</p><em>قيد التجهيز</em></article>
+    <article class="module"><div class="module-icon">◎</div><b>الإشعارات</b><p>إرسال تنبيهات مرتبطة بالبرامج.</p><em>قيد التجهيز</em></article>
+    <article class="module"><div class="module-icon">⚙</div><b>إعدادات النظام</b><p>إعدادات OMNIX وربط مصادر البيانات.</p><em>قيد التجهيز</em></article>
+   </div>
+   <div class="notice">تنبيه أمان: النسخة الحالية هي الهيكل الأولي وتسجيل دخول المالك. لم يتم توصيل بيانات العملاء أو تنفيذ تغييرات على الاشتراكات بعد. لن يتم تفعيل أي تحكم فعلي قبل إعداد قواعد Firebase التي تمنع أي حساب آخر من قراءة البيانات أو تعديلها.</div>
+  </section>
+  <section class="view" id="view-programs"><div class="welcome"><small>PROGRAMS</small><h2>إدارة البرامج</h2><p>سيتم هنا تسجيل كل برنامج وروابط الموقع والتطبيق وحالة الربط.</p></div><div class="notice">لا توجد برامج مربوطة بعد. سنضيف البرامج تدريجيًا بعد تجهيز الحماية.</div></section>
+  <section class="view" id="view-customers"><div class="welcome"><small>CUSTOMERS</small><h2>إدارة العملاء</h2><p>مكان موحد لمتابعة العملاء المرتبطين بكل برنامج.</p></div><div class="notice">بيانات العملاء غير متصلة بهذا الإصدار.</div></section>
+  <section class="view" id="view-subscriptions"><div class="welcome"><small>SUBSCRIPTIONS</small><h2>إدارة الاشتراكات</h2><p>متابعة التفعيل والانتهاء وحالة كل اشتراك.</p></div><div class="notice">لن يتم تعديل أي اشتراك قبل تأمين صلاحيات الإدارة.</div></section>
+  <section class="view" id="view-updates"><div class="welcome"><small>RELEASES</small><h2>التحديثات والإصدارات</h2><p>إدارة أرقام الإصدارات وروابط التحميل لاحقًا.</p></div><div class="notice">إدارة التحديثات لم يتم ربطها بعد.</div></section>
+  <section class="view" id="view-notifications"><div class="welcome"><small>NOTIFICATIONS</small><h2>الإشعارات</h2><p>إعداد وإرسال إشعارات البرامج من مكان واحد.</p></div><div class="notice">إرسال الإشعارات غير مفعّل في النسخة الأولية.</div></section>
+  <section class="view" id="view-settings"><div class="welcome"><small>SYSTEM SETTINGS</small><h2>إعدادات OMNIX</h2><p>مركز مستقل لإعدادات النظام وربط الخدمات.</p></div><div class="notice">حساب المالك المعتمد: <b dir="ltr">fibrahem865@gmail.com</b></div></section>
+ </main>
+</div>
+<script type="module">
+import {auth,signInWithEmailAndPassword,onAuthStateChanged,signOut} from "../perfumes/firebase.js";
+const OWNER_EMAIL="fibrahem865@gmail.com";
+const $=id=>document.getElementById(id);
+let busy=false;
+function message(text,type="error"){const el=$("loginMessage");el.textContent=text;el.className="message show "+type;}
+function showLogin(){ $("loginScreen").classList.remove("hidden");$("appShell").classList.add("hidden"); }
+function showApp(user){$("loginScreen").classList.add("hidden");$("appShell").classList.remove("hidden");$("ownerEmail").textContent=user.email||OWNER_EMAIL;}
+function friendlyError(error){const map={"auth/invalid-credential":"البريد الإلكتروني أو كلمة المرور غير صحيحة.","auth/user-not-found":"حساب المالك غير موجود في Firebase Authentication. أنشئ الحساب أولًا من لوحة Firebase.","auth/wrong-password":"كلمة المرور غير صحيحة.","auth/too-many-requests":"محاولات كثيرة. انتظر قليلًا ثم حاول.","auth/network-request-failed":"تعذر الاتصال بالإنترنت.","auth/unauthorized-domain":"أضف دومين OMNIX إلى Authorized domains في إعدادات Firebase Authentication."};return map[error.code]||"تعذر تسجيل الدخول: "+(error.message||error.code||"خطأ غير معروف");}
+$("loginForm").addEventListener("submit",async e=>{e.preventDefault();if(busy)return;busy=true;$("loginButton").disabled=true;$("loginButton").textContent="جاري التحقق...";try{const email=$("email").value.trim().toLowerCase();if(email!==OWNER_EMAIL){message("هذا الحساب غير مصرح له بدخول OMNIX.");return;}await signInWithEmailAndPassword(auth,email,$("password").value);}catch(error){message(friendlyError(error));}finally{busy=false;$("loginButton").disabled=false;$("loginButton").textContent="دخول إلى OMNIX";}});
+onAuthStateChanged(auth,async user=>{if(!user){showLogin();return;}if((user.email||"").toLowerCase()!==OWNER_EMAIL){await signOut(auth);showLogin();message("تم رفض الدخول: هذا المركز مخصص لحساب المالك فقط.");return;}showApp(user);});
+$("logoutButton").addEventListener("click",()=>signOut(auth));
+document.querySelectorAll("[data-view]").forEach(button=>button.addEventListener("click",()=>{document.querySelectorAll("[data-view]").forEach(x=>x.classList.toggle("active",x===button));document.querySelectorAll(".view").forEach(x=>x.classList.toggle("active",x.id==="view-"+button.dataset.view));const titles={overview:"نظرة عامة",programs:"البرامج",customers:"العملاء",subscriptions:"الاشتراكات",updates:"التحديثات",notifications:"الإشعارات",settings:"الإعدادات"};$("pageTitle").textContent=titles[button.dataset.view]||"OMNIX";}));
+</script>
+</body>
+</html>
