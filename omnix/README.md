@@ -8,15 +8,17 @@ OMNIX is a separate owner-only control center, hosted under `/omnix/` in this re
 - The owner account must already exist in Firebase Authentication for the configured Firebase project.
 
 ## Current phase
-- Responsive Arabic RTL owner sign-in screen.
-- Initial dashboard shell and navigation.
-- No customer, subscription, or program data is read or modified yet.
-- Existing perfume portal, perfume storefront, and Android app files are not changed by this initial setup.
+- Responsive Arabic RTL owner sign-in screen and dashboard.
+- Program catalog is loaded from `programs.json`.
+- Customer list reads `/users` and program assignments read `/omnix/customerPrograms`.
+- The owner page can create a normal email/password Firebase Auth account using a separate, in-memory Firebase Auth instance, write the customer's own profile to `/users/{uid}`, and save the program assignment with the owner's existing session.
+- The separate customer Auth instance is signed out after creation so the owner's OMNIX session is not replaced.
+- Subscription administration and privileged Firebase Auth administration are not implemented.
 
 ## Security boundary — important
 The email allowlist in browser code is only a first-stage interface gate. It is **not** sufficient protection for sensitive data because browser code can be inspected or modified. Before connecting any customer or subscription data, establish a trusted owner identity (Firebase UID / custom claim or a trusted backend) and enforce access in Firebase Security Rules. Never rely on a hidden button or client-side email check to secure database writes.
 
-Firebase Authentication Admin actions (such as deleting or disabling users) must run in a trusted server environment; do not put Admin SDK credentials in this static site.
+Creating an ordinary customer account through the public Firebase email/password sign-up capability does not grant OMNIX Admin privileges. The browser-side owner check is an interface gate, not a trusted security boundary. Database reads/writes must still be enforced by Firebase Security Rules. Privileged Firebase Authentication Admin actions (such as deleting, disabling, or changing another user's password) require a trusted server environment; do not put Admin SDK credentials in this static site.
 
 ## Deployment
 If GitHub Pages is already publishing the repository root, the initial page will be available at:
