@@ -1,0 +1,60 @@
+name: Build OMNIX Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "omnix-android/**"
+      - ".github/workflows/build-omnix-android.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: "platform-tools"
+
+      - name: Install Android platform and Gradle
+        run: |
+          sdkmanager "platforms;android-35" "build-tools;35.0.0"
+          curl -L --retry 3 -o /tmp/gradle.zip https://services.gradle.org/distributions/gradle-8.9-bin.zip
+          unzip -q /tmp/gradle.zip -d /tmp
+
+      - name: Build OMNIX debug APK
+        working-directory: omnix-android
+        run: /tmp/gradle-8.9/bin/gradle --no-daemon clean assembleDebug
+
+      - name: Prepare APK
+        run: cp omnix-android/app/build/outputs/apk/debug/app-debug.apk OMNIX.apk
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: OMNIX-Android
+          path: OMNIX.apk
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publish public APK
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: omnix-android-latest
+          name: OMNIX Android
+          body: "Official OMNIX owner control-center Android app."
+          files: OMNIX.apk
+          overwrite_files: true
+          make_latest: false
