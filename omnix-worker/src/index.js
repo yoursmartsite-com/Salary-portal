@@ -86,6 +86,44 @@ async function route(request,env) {
   if(origin!==env.ALLOWED_ORIGIN) return json({error:"Origin not allowed"},403,origin);
   if(path==="/health"&&request.method==="GET") return json({ok:true,service:"OMNIX API",version:"1.0.0"},200,origin);
   await verifyOwner(request,env);
+  const managerCollection="/omnix/programAdmins/zein-rahaf-store";
+  if(path==="/api/program-admins"&&request.method==="GET"){
+    const programId=url.searchParams.get("programId")||"zein-rahaf-store";
+    if(programId!=="zein-rahaf-store") return json({error:"البرنامج غير مدعوم"},400,origin);
+    const managers=await db(env,managerCollection)||{};
+    return json({ok:true,programId,managers},200,origin);
+  }
+  if(path==="/api/program-admins"&&request.method==="POST"){
+    const body=await request.json(),email=String(body.email||"").trim().toLowerCase();
+    const programId=String(body.programId||"");
+    if(programId!=="zein-rahaf-store"||!/^\\S+@\\S+\\.\\S+$/.test(email)) return json({error:"اختر برنامج عطور زين ورهف واكتب بريدًا صحيحًا"},400,origin);
+    const lookup=await adminFetch(env,"/accounts:lookup","POST",{email:[email]});
+    const account=lookup.users?.find(u=>(u.email||"").toLowerCase()===email&&!u.disabled);
+    if(!account) return json({error:"البريد غير موجود في Firebase Authentication أو الحساب معطل"},404,origin);
+    let claims={};
+    try{claims=account.customAttributes?JSON.parse(account.customAttributes):{};}catch(_){}
+    claims.zeinRahafStoreAdmin=true;
+    await adminFetch(env,"/accounts:update","POST",{localId:account.localId,customAttributes:JSON.stringify(claims)});
+    const record={uid:account.localId,email,name:account.displayName||email,programId,programName:"عطور زين ورهف",role:"manager",active:true,updatedAt:Date.now(),updatedBy:env.OWNER_UID};
+    await db(env,managerCollection+"/"+account.localId,"PUT",record);
+    return json({ok:true,manager:record,refreshTokenRequired:true},200,origin);
+  }
+  const managerMatch=path.match(/^\\/api\\/program-admins\\/([^/]+)$/);
+  if(managerMatch&&request.method==="DELETE"){
+    const uid=decodeURIComponent(managerMatch[1]);
+    const record=await db(env,managerCollection+"/"+uid);
+    if(!record) return json({error:"المدير غير موجود"},404,origin);
+    const lookup=await adminFetch(env,"/accounts:lookup","POST",{localId:[uid]});
+    const account=lookup.users?.[0];
+    if(account){
+      let claims={};
+      try{claims=account.customAttributes?JSON.parse(account.customAttributes):{};}catch(_){}
+      delete claims.zeinRahafStoreAdmin;
+      await adminFetch(env,"/accounts:update","POST",{localId:uid,customAttributes:JSON.stringify(claims)});
+    }
+    await db(env,managerCollection+"/"+uid,"DELETE");
+    return json({ok:true,uid,revoked:true},200,origin);
+  }
   if(path==="/api/bootstrap"&&request.method==="GET"){
     const [users,customerPrograms,subscriptions,notifications,releases,settings]=await Promise.all([
       db(env,"users"),db(env,"omnix/customerPrograms"),db(env,"omnix/subscriptions"),
