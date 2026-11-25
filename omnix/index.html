@@ -39,6 +39,8 @@
 @media(max-width:1050px){.shell{grid-template-columns:205px minmax(0,1fr)}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.modules{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:700px){.shell{display:block;padding:10px}.sidebar{position:static;height:auto;min-height:0;padding:11px;margin-bottom:13px}.side-brand{padding:1px 4px 9px;border:0}.side-logo{width:36px;height:36px}.side-brand b{font-size:17px}.nav{display:flex;overflow-x:auto;gap:5px;margin-top:9px;padding-bottom:2px}.nav button{flex:0 0 auto;width:auto;padding:8px 10px;font-size:10px;gap:6px}.nav button .ico{width:auto}.side-bottom,.logout{display:none}.main{padding:2px}.topbar{margin-bottom:13px}.topbar h1{font-size:20px}.owner-chip{padding:6px 8px}.owner-chip small{max-width:125px;overflow:hidden;text-overflow:ellipsis;direction:ltr}.welcome{padding:18px}.welcome h2{font-size:19px}.welcome p{font-size:11px}.stats{gap:8px}.stat{padding:12px}.stat strong{font-size:21px}.modules{grid-template-columns:1fr 1fr;gap:8px}.module{padding:12px;min-height:145px}.module b{font-size:11px}.module p{font-size:9px}.notice{font-size:10px}}
 @media(max-width:390px){.modules{grid-template-columns:1fr}.owner-chip{max-width:160px}.owner-chip small{max-width:95px}}
+
+.customer-tools{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin-top:12px;align-items:center}.customer-tools select{min-width:0;width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:#0b121b;color:#f3f5f8;font:inherit;font-size:11px}.customer-tools button,.qr-actions button{padding:9px 12px;border:1px solid #80683e;border-radius:9px;background:#302719;color:#f3d99c;font:inherit;font-size:10px}.customer-tools button:disabled{opacity:.5}.qr-panel{display:none;margin-top:12px;padding:13px;border:1px dashed #75603a;border-radius:12px;background:#0c121a;text-align:center}.qr-panel.show{display:block}.qr-panel canvas,.qr-panel img{display:block;margin:0 auto 9px;background:white;padding:8px;border-radius:8px;max-width:100%;height:auto}.qr-caption{font-size:10px;color:var(--muted);overflow-wrap:anywhere;line-height:1.8}.qr-actions{display:flex;justify-content:center;gap:8px;margin-top:9px;flex-wrap:wrap}@media(max-width:420px){.customer-tools{grid-template-columns:1fr}.customer-tools button{width:100%}}
 </style>
 </head>
 <body>
@@ -97,18 +99,20 @@
    <div class="program-grid" id="programGrid"><div class="program-empty">جاري قراءة سجل البرامج…</div></div>
    <div class="notice">ملاحظة: البيانات هنا سجل تعريفي محفوظ داخل المشروع، وليست قراءة مباشرة لحالة تشغيل التطبيقات أو عدد مستخدميها. لم يتم ربط Firebase أو تغيير قواعده في هذه الخطوة حفاظًا على المتجر والتطبيق الحاليين.</div>
   </section>
-  <section class="view" id="view-customers"><div class="welcome"><small>CUSTOMERS</small><h2>إدارة العملاء</h2><p>حسابات العملاء المسجلة في متجر زين ورهف، مع بيانات التواصل وآخر نشاط متاح.</p></div><div class="program-toolbar"><span class="program-count" id="customerCount">جاري الاتصال بقاعدة البيانات…</span><input id="customerSearch" type="search" placeholder="ابحث بالاسم أو البريد أو الهاتف" style="max-width:340px;width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:#0d141e;color:white"></div><div id="customerList" class="program-grid"><div class="program-empty">جاري تحميل العملاء…</div></div><div class="notice">البيانات للعرض فقط في هذه المرحلة؛ لن يتم تعديل حسابات العملاء أو كلمات المرور من OMNIX.</div></section>
+  <section class="view" id="view-customers"><div class="welcome"><small>CUSTOMERS</small><h2>إدارة العملاء</h2><p>حسابات العملاء المسجلة في متجر زين ورهف، مع بيانات التواصل وآخر نشاط متاح.</p></div><div class="program-toolbar"><span class="program-count" id="customerCount">جاري الاتصال بقاعدة البيانات…</span><input id="customerSearch" type="search" placeholder="ابحث بالاسم أو البريد أو الهاتف" style="max-width:340px;width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:#0d141e;color:white"></div><div id="customerList" class="program-grid"><div class="program-empty">جاري تحميل العملاء…</div></div><div class="notice">اختار البرنامج المخصص لكل عميل واحفظه. بعد الحفظ تقدر تنشئ QR خاص به يفتح رابط البرنامج. رمز QR يفتح الموقع فقط ولا ينشئ حسابًا أو يفعّل اشتراكًا بمفرده.</div></section>
   <section class="view" id="view-subscriptions"><div class="welcome"><small>SUBSCRIPTIONS</small><h2>إدارة الاشتراكات</h2><p>متابعة التفعيل والانتهاء وحالة كل اشتراك.</p></div><div class="notice">لن يتم تعديل أي اشتراك قبل تأمين صلاحيات الإدارة.</div></section>
   <section class="view" id="view-updates"><div class="welcome"><small>RELEASES</small><h2>التحديثات والإصدارات</h2><p>إدارة أرقام الإصدارات وروابط التحميل لاحقًا.</p></div><div class="notice">إدارة التحديثات لم يتم ربطها بعد.</div></section>
   <section class="view" id="view-notifications"><div class="welcome"><small>NOTIFICATIONS</small><h2>الإشعارات</h2><p>إعداد وإرسال إشعارات البرامج من مكان واحد.</p></div><div class="notice">إرسال الإشعارات غير مفعّل في النسخة الأولية.</div></section>
   <section class="view" id="view-settings"><div class="welcome"><small>SYSTEM SETTINGS</small><h2>إعدادات OMNIX</h2><p>مركز مستقل لإعدادات النظام وربط الخدمات.</p></div><div class="notice">حساب المالك المعتمد: <b dir="ltr">fibrahem865@gmail.com</b></div></section>
  </main>
 </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script type="module">
-import {auth,signInWithEmailAndPassword,onAuthStateChanged,signOut,db,ref,onValue} from "../perfumes/firebase.js";
+import {auth,signInWithEmailAndPassword,onAuthStateChanged,signOut,db,ref,onValue,set} from "../perfumes/firebase.js";
 const OWNER_EMAIL="fibrahem865@gmail.com";
 const OWNER_UID="Isjbto8GuLdkyh0W5VDJSfYSZF43";
 let dataStops=[];
+let programCatalog=[];
 const $=id=>document.getElementById(id);
 let busy=false;
 function message(text,type="error"){const el=$("loginMessage");el.textContent=text;el.className="message show "+type;}
@@ -122,6 +126,7 @@ async function loadPrograms(){
   if(!response.ok)throw new Error("تعذر قراءة سجل البرامج");
   const data=await response.json();
   const items=Array.isArray(data.programs)?data.programs:[];
+  programCatalog=items.filter(p=>p.url);
   count.textContent=items.length+" برامج مسجلة";$("statPrograms").textContent=items.length;
   if(!items.length){grid.innerHTML='<div class="program-empty">لا توجد برامج مسجلة حاليًا.</div>';return;}
   const esc=value=>String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
@@ -138,22 +143,50 @@ function escapeHtml(value){return String(value??"").replace(/[&<>"']/g,ch=>({"&"
 function connectOwnerData(){
  dataStops.forEach(stop=>{try{stop();}catch(e){}});dataStops=[];
  const customerList=$("customerList"),customerCount=$("customerCount");
- let customers={};
+ let customers={},assignments={};
  function drawCustomers(){
   const q=String($("customerSearch")?.value||"").trim().toLowerCase();
   const entries=Object.entries(customers).filter(([uid,u])=>[uid,u?.name,u?.email,u?.phone].join(" ").toLowerCase().includes(q)).sort((a,b)=>(b[1]?.lastLoginAt||b[1]?.createdAt||0)-(a[1]?.lastLoginAt||a[1]?.createdAt||0));
   customerCount.textContent=entries.length+" عميل";
-  customerList.innerHTML=entries.length?entries.map(([uid,u])=>'<article class="program-card"><div class="program-card-head"><div class="program-logo">♙</div><div><h3>'+escapeHtml(u?.name||"عميل بدون اسم")+'</h3><div class="kind">'+escapeHtml(u?.email||"لا يوجد بريد مسجل")+'</div></div></div><p class="program-details">الهاتف: '+escapeHtml(u?.phone||"غير مسجل")+'<br>UID: <span dir="ltr">'+escapeHtml(uid)+'</span><br>آخر دخول: '+(u?.lastLoginAt?new Date(u.lastLoginAt).toLocaleString("ar-EG"):"غير متاح")+'</p></article>').join(""):'<div class="program-empty">لا توجد نتائج مطابقة.</div>';
+  customerList.innerHTML=entries.length?entries.map(([uid,u])=>{
+   const assigned=assignments[uid]||{},options='<option value="">اختر البرنامج المخصص للعميل</option>'+programCatalog.map(p=>'<option value="'+escapeHtml(p.id)+'" '+(assigned.programId===p.id?'selected':'')+'>'+escapeHtml(p.name)+'</option>').join("");
+   const qrId="customer-qr-"+uid.replace(/[^a-zA-Z0-9_-]/g,"");
+   return '<article class="program-card" data-customer-card="'+escapeHtml(uid)+'"><div class="program-card-head"><div class="program-logo">♙</div><div><h3>'+escapeHtml(u?.name||"عميل بدون اسم")+'</h3><div class="kind">'+escapeHtml(u?.email||"لا يوجد بريد مسجل")+'</div></div></div><p class="program-details">الهاتف: '+escapeHtml(u?.phone||"غير مسجل")+'<br>UID: <span dir="ltr">'+escapeHtml(uid)+'</span><br>آخر دخول: '+(u?.lastLoginAt?new Date(u.lastLoginAt).toLocaleString("ar-EG"):"غير متاح")+'</p><div class="customer-tools"><select data-program-select="'+escapeHtml(uid)+'">'+options+'</select><button type="button" data-save-program="'+escapeHtml(uid)+'">حفظ البرنامج</button></div><div class="customer-tools"><button type="button" data-generate-qr="'+escapeHtml(uid)+'" '+(!assigned.url?'disabled':'')+'>إنشاء QR Code</button><span class="program-count">'+(assigned.programName?'البرنامج: '+escapeHtml(assigned.programName):'لم يتم تخصيص برنامج بعد')+'</span></div><div class="qr-panel" id="'+qrId+'"><div class="qr-code"></div><div class="qr-caption"></div><div class="qr-actions"><button type="button" data-download-qr="'+escapeHtml(uid)+'">حفظ صورة QR</button></div></div></article>';
+  }).join(""):'<div class="program-empty">لا توجد نتائج مطابقة.</div>';
+  customerList.querySelectorAll("[data-save-program]").forEach(button=>button.addEventListener("click",async()=>{
+   const uid=button.dataset.saveProgram,select=customerList.querySelector('[data-program-select="'+CSS.escape(uid)+'"]'),program=programCatalog.find(p=>p.id===select?.value);
+   if(!program){alert("اختار البرنامج الأول.");return;}
+   button.disabled=true;button.textContent="جاري الحفظ…";
+   try{const record={programId:program.id,programName:program.name,url:program.url,updatedAt:Date.now()};await set(ref(db,"omnix/customerPrograms/"+uid),record);assignments[uid]=record;drawCustomers();}
+   catch(error){alert("تعذر حفظ تخصيص البرنامج. تأكد من نشر قواعد Firebase الخاصة بـ OMNIX. "+(error.message||""));}
+   finally{button.disabled=false;}
+  }));
+  customerList.querySelectorAll("[data-generate-qr]").forEach(button=>button.addEventListener("click",()=>{
+   const uid=button.dataset.generateQr,assigned=assignments[uid];if(!assigned?.url)return;
+   const panel=$( "customer-qr-"+uid.replace(/[^a-zA-Z0-9_-]/g,""));
+   if(!window.QRCode){alert("تعذر تحميل مولّد QR. تحقق من الاتصال بالإنترنت.");return;}
+   const target=panel.querySelector(".qr-code");target.innerHTML="";
+   new QRCode(target,{text:assigned.url,width:190,height:190,colorDark:"#000000",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.H});
+   panel.querySelector(".qr-caption").textContent=assigned.programName+" — "+assigned.url;
+   panel.classList.add("show");
+  }));
+  customerList.querySelectorAll("[data-download-qr]").forEach(button=>button.addEventListener("click",()=>{
+   const uid=button.dataset.downloadQr,panel=$("customer-qr-"+uid.replace(/[^a-zA-Z0-9_-]/g,"")),img=panel?.querySelector("canvas")||panel?.querySelector("img");
+   if(!img){alert("أنشئ رمز QR الأول.");return;}
+   const a=document.createElement("a");a.download="OMNIX-QR-"+uid+".png";a.href=img.tagName==="CANVAS"?img.toDataURL("image/png"):img.src;a.click();
+  }));
  }
  const usersStop=onValue(ref(db,"users"),snap=>{customers=snap.val()||{};$("statCustomers").textContent=Object.keys(customers).length;drawCustomers();},err=>{customerCount.textContent="تعذر قراءة العملاء";customerList.innerHTML='<div class="program-empty">صلاحيات قراءة قائمة العملاء غير مفعّلة بعد. يلزم السماح للمالك بقراءة المسار users بالكامل.</div>';console.error("OMNIX users:",err);});
  dataStops.push(usersStop);
+ const assignmentsStop=onValue(ref(db,"omnix/customerPrograms"),snap=>{assignments=snap.val()||{};drawCustomers();},err=>{console.error("OMNIX assignments:",err);customerCount.textContent="تعذر قراءة تخصيصات البرامج";});
+ dataStops.push(assignmentsStop);
  const ordersStop=onValue(ref(db,"orders"),snap=>{let count=0;const all=snap.val()||{};for(const uid of Object.keys(all))count+=Object.keys(all[uid]||{}).length;$("statOrders").textContent=count;},err=>{$("statOrders").textContent="—";console.error("OMNIX orders:",err);});
  dataStops.push(ordersStop);
  $("customerSearch").oninput=drawCustomers;
 }
 function friendlyError(error){const map={"auth/invalid-credential":"البريد الإلكتروني أو كلمة المرور غير صحيحة.","auth/user-not-found":"حساب المالك غير موجود في Firebase Authentication. أنشئ الحساب أولًا من لوحة Firebase.","auth/wrong-password":"كلمة المرور غير صحيحة.","auth/too-many-requests":"محاولات كثيرة. انتظر قليلًا ثم حاول.","auth/network-request-failed":"تعذر الاتصال بالإنترنت.","auth/unauthorized-domain":"أضف دومين OMNIX إلى Authorized domains في إعدادات Firebase Authentication."};return map[error.code]||"تعذر تسجيل الدخول: "+(error.message||error.code||"خطأ غير معروف");}
 $("loginForm").addEventListener("submit",async e=>{e.preventDefault();if(busy)return;busy=true;$("loginButton").disabled=true;$("loginButton").textContent="جاري التحقق...";try{const email=$("email").value.trim().toLowerCase();if(email!==OWNER_EMAIL){message("هذا الحساب غير مصرح له بدخول OMNIX.");return;}await signInWithEmailAndPassword(auth,email,$("password").value);}catch(error){message(friendlyError(error));}finally{busy=false;$("loginButton").disabled=false;$("loginButton").textContent="دخول إلى OMNIX";}});
-onAuthStateChanged(auth,user=>{if(!user){showLogin();return;}if(user.uid!==OWNER_UID){showLogin();message("الحساب الحالي غير مصرح له بدخول OMNIX. سجّل دخولك بحساب المالك المعتمد.");return;}showApp(user);loadPrograms();connectOwnerData();});
+onAuthStateChanged(auth,user=>{if(!user){showLogin();return;}if(user.uid!==OWNER_UID){showLogin();message("الحساب الحالي غير مصرح له بدخول OMNIX. سجّل دخولك بحساب المالك المعتمد.");return;}showApp(user);await loadPrograms();connectOwnerData();});
 $("logoutButton").addEventListener("click",()=>signOut(auth));
 document.querySelectorAll("[data-view]").forEach(button=>button.addEventListener("click",()=>{document.querySelectorAll("[data-view]").forEach(x=>x.classList.toggle("active",x===button));document.querySelectorAll(".view").forEach(x=>x.classList.toggle("active",x.id==="view-"+button.dataset.view));const titles={overview:"نظرة عامة",programs:"البرامج",customers:"العملاء",subscriptions:"الاشتراكات",updates:"التحديثات",notifications:"الإشعارات",settings:"الإعدادات"};$("pageTitle").textContent=titles[button.dataset.view]||"OMNIX";}));
 </script>
