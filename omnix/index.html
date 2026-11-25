@@ -135,11 +135,11 @@ async function loadPrograms(){
   if(!response.ok)throw new Error("تعذر قراءة سجل البرامج");
   const data=await response.json();
   const items=Array.isArray(data.programs)?data.programs:[];
+  const esc=value=>String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
   programCatalog=items.filter(p=>p.url);
   const customerProgramSelect=$("newCustomerProgram");if(customerProgramSelect)customerProgramSelect.innerHTML='<option value="">اختار برنامج العميل</option>'+programCatalog.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.name)+'</option>').join("");
   count.textContent=items.length+" برامج مسجلة";$("statPrograms").textContent=items.length;
   if(!items.length){grid.innerHTML='<div class="program-empty">لا توجد برامج مسجلة حاليًا.</div>';return;}
-  const esc=value=>String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
   grid.innerHTML=items.map(p=>{
    const stateClass=p.stateType==="source"?"source":"";
    const action=p.url?'<a class="program-link" href="'+esc(p.url)+'" target="_blank" rel="noopener">فتح البرنامج ↗</a>':'';
