@@ -192,10 +192,33 @@ function connectOwnerData(){
    panel.querySelector(".qr-caption").textContent=program.name+" — "+url;
    panel.classList.add("show");
   }));
-  customerList.querySelectorAll("[data-download-qr]").forEach(button=>button.addEventListener("click",()=>{
-   const uid=button.dataset.downloadQr,panel=$("customer-qr-"+uid.replace(/[^a-zA-Z0-9_-]/g,"")),img=panel?.querySelector("canvas")||panel?.querySelector("img");
-   if(!img){alert("أنشئ رمز QR الأول.");return;}
-   const a=document.createElement("a");a.download="OMNIX-QR-"+uid+".png";a.href=img.tagName==="CANVAS"?img.toDataURL("image/png"):img.src;a.click();
+  customerList.querySelectorAll("[data-download-qr]").forEach(button=>button.addEventListener("click",async()=>{
+   const uid=button.dataset.downloadQr,panel=$("customer-qr-"+uid.replace(/[^a-zA-Z0-9_-]/g,"")),canvas=panel?.querySelector("canvas"),img=panel?.querySelector("img");
+   if(!canvas&&!img){alert("أنشئ رمز QR الأول.");return;}
+   const filename="OMNIX-QR-"+uid+".png";
+   try{
+    let blob;
+    if(canvas){
+     blob=await new Promise((resolve,reject)=>canvas.toBlob(value=>value?resolve(value):reject(new Error("تعذر تجهيز صورة QR")),"image/png"));
+    }else{
+     const response=await fetch(img.src);if(!response.ok)throw new Error("تعذر قراءة صورة QR");blob=await response.blob();
+    }
+    const file=new File([blob],filename,{type:"image/png"});
+    if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+     await navigator.share({files:[file],title:"صورة QR"});
+     return;
+    }
+    const objectUrl=URL.createObjectURL(blob),a=document.createElement("a");
+    a.href=objectUrl;a.download=filename;a.style.display="none";document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(objectUrl),60000);
+   }catch(error){
+    if(error?.name==="AbortError")return;
+    try{
+     const dataUrl=canvas?canvas.toDataURL("image/png"):img.src;
+     const win=window.open();if(win){win.document.write('<title>حفظ صورة QR</title><img style="max-width:100%;height:auto" src="'+dataUrl+'">');win.document.close();alert("الصورة اتفتحت. اضغط عليها ضغطة مطولة ثم اختر تنزيل الصورة.");}
+     else alert("المتصفح منع فتح الصورة. افتح OMNIX في Chrome ثم جرّب الحفظ مرة أخرى.");
+    }catch(e){alert("تعذر حفظ الصورة. افتح OMNIX في Chrome وجرّب مرة أخرى.");}
+   }
   }));
  }
  const usersStop=onValue(ref(db,"users"),snap=>{customers=snap.val()||{};$("statCustomers").textContent=Object.keys(customers).length;drawCustomers();},err=>{customerCount.textContent="تعذر قراءة العملاء";customerList.innerHTML='<div class="program-empty">صلاحيات قراءة قائمة العملاء غير مفعّلة بعد. يلزم السماح للمالك بقراءة المسار users بالكامل.</div>';console.error("OMNIX users:",err);});
