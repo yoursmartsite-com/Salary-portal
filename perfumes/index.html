@@ -81,7 +81,7 @@ $("search").addEventListener("input",draw);$("modal").addEventListener("click",e
 document.addEventListener("click",event=>{const button=event.target.closest("#login");if(!button)return;event.preventDefault();event.stopImmediatePropagation();location.href="account.html";},true);
 </script>
 <script type="module">
-import {auth,db,onAuthStateChanged,ref,get,set,onValue} from "./firebase.js";
+import {auth,db,onAuthStateChanged,ref,get,set,onValue,getIdTokenResult} from "./firebase.js";
 const CLOUDINARY_CLOUD_NAME="g21wbsl1",CLOUDINARY_UPLOAD_PRESET="zein_rahaf_products";
 function uploadProductImage(file,onProgress=()=>{}){return new Promise((resolve,reject)=>{const xhr=new XMLHttpRequest(),form=new FormData();form.append("file",file);form.append("upload_preset",CLOUDINARY_UPLOAD_PRESET);form.append("folder","zein-rahaf/products");xhr.open("POST","https://api.cloudinary.com/v1_1/"+CLOUDINARY_CLOUD_NAME+"/image/upload");xhr.upload.onprogress=e=>{if(e.lengthComputable)onProgress(Math.round(e.loaded/e.total*100),e.loaded,e.total);};xhr.onload=()=>{let result={};try{result=JSON.parse(xhr.responseText||"{}");}catch(_){ }if(xhr.status>=200&&xhr.status<300&&result.secure_url)resolve(result.secure_url);else reject(new Error(result.error?.message||("Cloudinary upload failed ("+xhr.status+")")));};xhr.onerror=()=>reject(new Error("تعذر الاتصال بخدمة رفع الصور. افحص الإنترنت وحاول مرة أخرى."));xhr.onabort=()=>reject(new Error("تم إلغاء رفع الصورة."));xhr.send(form);});}
 let activeUid=null,loading=true;
