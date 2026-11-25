@@ -98,5 +98,5 @@ el("adminSave").addEventListener("click",async()=>{if(String(auth.currentUser?.e
 onValue(ref(db,"products"),snap=>{if(window.__zrSetProducts){const rows=Object.values(snap.val()||{}).sort((a,b)=>(a.id||0)-(b.id||0));window.__zrSetProducts(rows);}},err=>{window.__zrSetProducts?.([]);console.warn("Products sync unavailable",err)});
 window.addEventListener("zr:datachange",async event=>{if(!activeUid||loading)return;const key=event.detail?.key;if(!paths[key])return;try{await set(ref(db,paths[key]+"/"+activeUid),event.detail.value);}catch(e){console.error("Firebase save failed",e);alert("لم يتم حفظ التعديل على حسابك. راجع قواعد Realtime Database.");}});
 </script>
-</body>
+<script src="./download-gate.js" defer></script></body>
 </html>
