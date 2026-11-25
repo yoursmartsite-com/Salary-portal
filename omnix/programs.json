@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-11-25",
+  "programs": [
+    {
+      "id": "lamma",
+      "name": "لَمّة",
+      "mark": "LM",
+      "kind": "منصة ألعاب ومجتمع",
+      "state": "ملفات الموقع موجودة في المشروع",
+      "stateType": "active",
+      "description": "منصة لَمّة الرئيسية. تم العثور على الصفحة الرئيسية وملف تعريف التطبيق داخل المستودع.",
+      "url": "https://yoursmartsite-com.github.io/Salary-portal/",
+      "repositoryPath": "index.html"
+    },
+    {
+      "id": "zein-rahaf-store",
+      "name": "عطور زين ورهف",
+      "mark": "ZR",
+      "kind": "متجر إلكتروني",
+      "state": "ملفات المتجر موجودة في المشروع",
+      "stateType": "active",
+      "description": "المتجر الإلكتروني وملفات الحساب والطلبات وسلة التسوق والتثبيت موجودة داخل مجلد perfumes.",
+      "url": "https://yoursmartsite-com.github.io/Salary-portal/perfumes/",
+      "repositoryPath": "perfumes"
+    },
+    {
+      "id": "zein-rahaf-portal",
+      "name": "بوابة برامج زين ورهف",
+      "mark": "ZP",
+      "kind": "بوابة دخول البرامج",
+      "state": "ملف البوابة موجود في المشروع",
+      "stateType": "active",
+      "description": "بوابة البرامج المستقلة، وملفها الرئيسي موجود داخل مجلد portal.",
+      "url": "https://yoursmartsite-com.github.io/Salary-portal/portal/",
+      "repositoryPath": "portal/index.html"
+    },
+    {
+      "id": "zein-rahaf-android",
+      "name": "تطبيق زين ورهف Android",
+      "mark": "APK",
+      "kind": "تطبيق Android",
+      "state": "ملفات المصدر موجودة — رابط APK غير متحقق",
+      "stateType": "source",
+      "description": "تم العثور على مشروع Android داخل android-app. لم يتم اعتماد رابط تحميل APK من سجل المشروع.",
+      "repositoryPath": "android-app"
+    }
+  ]
+}
