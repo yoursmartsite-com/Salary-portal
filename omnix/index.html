@@ -10,6 +10,22 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
+.program-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:18px 0 12px;flex-wrap:wrap}
+.program-count{font-size:11px;color:var(--muted)}
+.program-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.program-card{border:1px solid var(--line);border-radius:15px;background:linear-gradient(145deg,#141e2a,#0e151f);padding:16px;min-width:0}
+.program-card-head{display:flex;align-items:center;gap:11px}
+.program-logo{width:43px;height:43px;flex:0 0 43px;border-radius:12px;display:grid;place-items:center;background:#d6b56e16;border:1px solid #80683e66;color:var(--gold2);font-weight:900;font-size:12px}
+.program-card h3{font-size:14px;margin:0}.program-card .kind{font-size:10px;color:var(--muted);margin-top:2px}
+.program-state{display:inline-flex;align-items:center;gap:6px;margin-top:13px;padding:5px 9px;border:1px solid #315b48;border-radius:20px;background:#14271e;color:#a9e1bf;font-size:10px}
+.program-state.source{border-color:#655331;background:#282215;color:#e4cd96}
+.program-details{margin:11px 0 0;color:#a8b4c2;font-size:10px;line-height:1.9;overflow-wrap:anywhere}
+.program-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
+.program-link{display:inline-flex;align-items:center;justify-content:center;padding:8px 12px;border-radius:9px;border:1px solid #80683e;background:#302719;color:#f3d99c;text-decoration:none;font-size:10px}
+.program-link.secondary{border-color:var(--line);background:#111a25;color:#c5cfda}
+.program-empty{padding:18px;border:1px dashed var(--line);border-radius:12px;color:var(--muted);font-size:11px;line-height:1.9}
+@media(max-width:700px){.program-grid{grid-template-columns:1fr}.program-card{padding:13px}}
+
 :root{color-scheme:dark;--bg:#080b12;--panel:#101722;--panel2:#141e2b;--line:#263345;--gold:#d6b56e;--gold2:#f2d99a;--text:#f3f5f8;--muted:#8c9aaa;--green:#69d5a4;--red:#f28e8e}
 *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 70% -20%,#4d3a1b55,transparent 38%),var(--bg);color:var(--text);font-family:Cairo,Arial,sans-serif}button,input{font:inherit}button{cursor:pointer}
 .hidden{display:none!important}.login-wrap{min-height:100vh;display:grid;place-items:center;padding:22px}.login-card{width:min(100%,440px);padding:30px;border:1px solid #57482c;border-radius:24px;background:linear-gradient(145deg,#171d25,#10151d);box-shadow:0 25px 80px #0009}.brand{text-align:center;margin-bottom:25px}.brand-mark{width:76px;height:76px;margin:0 auto 13px;border:1px solid #a9884e;border-radius:22px;display:grid;place-items:center;background:linear-gradient(145deg,#332919,#14171b);color:var(--gold2);font-size:28px;font-weight:900;letter-spacing:2px;box-shadow:0 0 35px #d6b56e1c}.brand h1{margin:0;font-size:30px;letter-spacing:4px;color:var(--gold2)}.brand p{margin:3px 0;color:var(--muted);font-size:12px}.owner-tag{display:inline-flex;align-items:center;gap:7px;margin-top:12px;padding:5px 11px;border:1px solid #3b493d;border-radius:30px;color:#a9dfbf;font-size:11px}.owner-tag i{width:7px;height:7px;border-radius:50%;background:var(--green)}.login-card h2{font-size:19px;margin:0 0 5px}.login-card .sub{font-size:12px;color:var(--muted);margin:0 0 20px;line-height:1.8}.field{margin:14px 0}.field label{display:block;font-size:12px;color:#c5ced8;margin-bottom:7px}.field input{width:100%;height:49px;padding:0 13px;border:1px solid #354252;border-radius:12px;background:#0a1018;color:white;outline:none;direction:ltr;text-align:left}.field input:focus{border-color:var(--gold);box-shadow:0 0 0 3px #d6b56e18}.submit{width:100%;height:49px;border:0;border-radius:12px;margin-top:7px;background:linear-gradient(110deg,#9e793c,#ead092);color:#17130c;font-weight:900}.submit:disabled{opacity:.6}.message{display:none;margin-top:13px;padding:11px;border-radius:10px;font-size:12px;line-height:1.8}.message.show{display:block}.message.error{background:#442624;color:#ffd2cc;border:1px solid #70413b}.message.ok{background:#19372c;color:#c6f1d8;border:1px solid #315e49}.login-note{font-size:10px;color:#778493;line-height:1.9;text-align:center;margin:18px 5px 0}
@@ -75,7 +91,12 @@
    </div>
    <div class="notice">تنبيه أمان: النسخة الحالية هي الهيكل الأولي وتسجيل دخول المالك. لم يتم توصيل بيانات العملاء أو تنفيذ تغييرات على الاشتراكات بعد. لن يتم تفعيل أي تحكم فعلي قبل إعداد قواعد Firebase التي تمنع أي حساب آخر من قراءة البيانات أو تعديلها.</div>
   </section>
-  <section class="view" id="view-programs"><div class="welcome"><small>PROGRAMS</small><h2>إدارة البرامج</h2><p>سيتم هنا تسجيل كل برنامج وروابط الموقع والتطبيق وحالة الربط.</p></div><div class="notice">لا توجد برامج مربوطة بعد. سنضيف البرامج تدريجيًا بعد تجهيز الحماية.</div></section>
+  <section class="view" id="view-programs">
+   <div class="welcome"><small>PROGRAMS DIRECTORY</small><h2>إدارة البرامج</h2><p>سجل البرامج الموجودة فعليًا في مستودع المشروع، مع روابط الوصول ونوع كل إصدار.</p></div>
+   <div class="program-toolbar"><span class="program-count" id="programCount">جاري تحميل سجل البرامج…</span><span class="program-count">مصدر السجل: ملفات المشروع</span></div>
+   <div class="program-grid" id="programGrid"><div class="program-empty">جاري قراءة سجل البرامج…</div></div>
+   <div class="notice">ملاحظة: البيانات هنا سجل تعريفي محفوظ داخل المشروع، وليست قراءة مباشرة لحالة تشغيل التطبيقات أو عدد مستخدميها. لم يتم ربط Firebase أو تغيير قواعده في هذه الخطوة حفاظًا على المتجر والتطبيق الحاليين.</div>
+  </section>
   <section class="view" id="view-customers"><div class="welcome"><small>CUSTOMERS</small><h2>إدارة العملاء</h2><p>مكان موحد لمتابعة العملاء المرتبطين بكل برنامج.</p></div><div class="notice">بيانات العملاء غير متصلة بهذا الإصدار.</div></section>
   <section class="view" id="view-subscriptions"><div class="welcome"><small>SUBSCRIPTIONS</small><h2>إدارة الاشتراكات</h2><p>متابعة التفعيل والانتهاء وحالة كل اشتراك.</p></div><div class="notice">لن يتم تعديل أي اشتراك قبل تأمين صلاحيات الإدارة.</div></section>
   <section class="view" id="view-updates"><div class="welcome"><small>RELEASES</small><h2>التحديثات والإصدارات</h2><p>إدارة أرقام الإصدارات وروابط التحميل لاحقًا.</p></div><div class="notice">إدارة التحديثات لم يتم ربطها بعد.</div></section>
@@ -91,9 +112,29 @@ let busy=false;
 function message(text,type="error"){const el=$("loginMessage");el.textContent=text;el.className="message show "+type;}
 function showLogin(){ $("loginScreen").classList.remove("hidden");$("appShell").classList.add("hidden"); }
 function showApp(user){$("loginScreen").classList.add("hidden");$("appShell").classList.remove("hidden");$("ownerEmail").textContent=user.email||OWNER_EMAIL;}
+async function loadPrograms(){
+ const grid=$("programGrid"),count=$("programCount");
+ if(!grid||grid.dataset.loaded==="1")return;
+ try{
+  const response=await fetch("./programs.json",{cache:"no-store"});
+  if(!response.ok)throw new Error("تعذر قراءة سجل البرامج");
+  const data=await response.json();
+  const items=Array.isArray(data.programs)?data.programs:[];
+  count.textContent=items.length+" برامج مسجلة";
+  if(!items.length){grid.innerHTML='<div class="program-empty">لا توجد برامج مسجلة حاليًا.</div>';return;}
+  const esc=value=>String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+  grid.innerHTML=items.map(p=>{
+   const stateClass=p.stateType==="source"?"source":"";
+   const action=p.url?'<a class="program-link" href="'+esc(p.url)+'" target="_blank" rel="noopener">فتح البرنامج ↗</a>':'';
+   const repo=p.repositoryPath?'<a class="program-link secondary" href="https://github.com/yoursmartsite-com/Salary-portal/tree/main/'+esc(p.repositoryPath)+'" target="_blank" rel="noopener">ملفات المشروع ↗</a>':'';
+   return '<article class="program-card"><div class="program-card-head"><div class="program-logo">'+esc(p.mark||"APP")+'</div><div><h3>'+esc(p.name)+'</h3><div class="kind">'+esc(p.kind)+'</div></div></div><div class="program-state '+stateClass+'">● '+esc(p.state)+'</div><p class="program-details">'+esc(p.description)+'</p><div class="program-actions">'+action+repo+'</div></article>';
+  }).join("");
+  grid.dataset.loaded="1";
+ }catch(error){count.textContent="تعذر تحميل السجل";grid.innerHTML='<div class="program-empty">'+String(error.message||"حدث خطأ")+' — حدّث الصفحة وحاول مرة أخرى.</div>';}
+}
 function friendlyError(error){const map={"auth/invalid-credential":"البريد الإلكتروني أو كلمة المرور غير صحيحة.","auth/user-not-found":"حساب المالك غير موجود في Firebase Authentication. أنشئ الحساب أولًا من لوحة Firebase.","auth/wrong-password":"كلمة المرور غير صحيحة.","auth/too-many-requests":"محاولات كثيرة. انتظر قليلًا ثم حاول.","auth/network-request-failed":"تعذر الاتصال بالإنترنت.","auth/unauthorized-domain":"أضف دومين OMNIX إلى Authorized domains في إعدادات Firebase Authentication."};return map[error.code]||"تعذر تسجيل الدخول: "+(error.message||error.code||"خطأ غير معروف");}
 $("loginForm").addEventListener("submit",async e=>{e.preventDefault();if(busy)return;busy=true;$("loginButton").disabled=true;$("loginButton").textContent="جاري التحقق...";try{const email=$("email").value.trim().toLowerCase();if(email!==OWNER_EMAIL){message("هذا الحساب غير مصرح له بدخول OMNIX.");return;}await signInWithEmailAndPassword(auth,email,$("password").value);}catch(error){message(friendlyError(error));}finally{busy=false;$("loginButton").disabled=false;$("loginButton").textContent="دخول إلى OMNIX";}});
-onAuthStateChanged(auth,user=>{if(!user){showLogin();return;}if((user.email||"").toLowerCase()!==OWNER_EMAIL){showLogin();message("الحساب الحالي غير مصرح له بدخول OMNIX. سجّل دخولك بحساب المالك.");return;}showApp(user);});
+onAuthStateChanged(auth,user=>{if(!user){showLogin();return;}if((user.email||"").toLowerCase()!==OWNER_EMAIL){showLogin();message("الحساب الحالي غير مصرح له بدخول OMNIX. سجّل دخولك بحساب المالك.");return;}showApp(user);loadPrograms();});
 $("logoutButton").addEventListener("click",()=>signOut(auth));
 document.querySelectorAll("[data-view]").forEach(button=>button.addEventListener("click",()=>{document.querySelectorAll("[data-view]").forEach(x=>x.classList.toggle("active",x===button));document.querySelectorAll(".view").forEach(x=>x.classList.toggle("active",x.id==="view-"+button.dataset.view));const titles={overview:"نظرة عامة",programs:"البرامج",customers:"العملاء",subscriptions:"الاشتراكات",updates:"التحديثات",notifications:"الإشعارات",settings:"الإعدادات"};$("pageTitle").textContent=titles[button.dataset.view]||"OMNIX";}));
 </script>
