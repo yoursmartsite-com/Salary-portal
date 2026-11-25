@@ -79,10 +79,19 @@ input::placeholder{color:#777166}
 </section>
 <section class="panel signed" id="signedPanel">
 <div class="mark">✓</div>
-<h2>أنت مسجل الدخول</h2>
+<h2>أهلًا بيك في بوابة البرامج</h2>
 <p id="signedEmail"></p>
-<p>تم تسجيل الدخول بنجاح. ربط الحساب ببرامجك واختيارات الاشتراك هي الخطوة التالية.</p>
-<button class="secondary" id="logoutBtn" type="button">تسجيل الخروج</button>
+<div style="text-align:right;border-top:1px solid var(--line);padding-top:16px;margin-top:16px">
+<h3 style="font-size:15px;margin:0 0 12px">اختار البرنامج</h3>
+<a href="../perfumes/" style="display:flex;align-items:center;justify-content:space-between;gap:12px;text-decoration:none;color:var(--text);background:#11100e;border:1px solid #756039;border-radius:14px;padding:15px;margin-bottom:10px">
+<span><b style="display:block;font-size:14px">عطور زين ورهف</b><small style="color:var(--muted);font-size:11px">الدخول إلى المتجر</small></span><span style="color:var(--gold2);font-size:22px">←</span>
+</a>
+<div style="background:#15130f;border:1px solid var(--line);border-radius:14px;padding:14px;color:var(--muted);font-size:12px">
+<b style="display:block;color:#d8cfbd;margin-bottom:4px">برامج أخرى</b>
+هنضيفها هنا عند تجهيزها.
+</div>
+</div>
+<button class="secondary" id="logoutBtn" type="button" style="margin-top:17px">تسجيل الخروج</button>
 </section>
 <p class="hint">بيانات الدخول تُدار من خلال Firebase Authentication. لا تشارك كلمة المرور مع أي شخص.</p>
 <footer class="foot">PROGRAM PORTAL · ZEIN &amp; RAHAF</footer>
@@ -142,9 +151,10 @@ $("authForm").addEventListener("submit",async e=>{
 onAuthStateChanged(auth,user=>{
  if(user){
   $("authPanel").style.display="none";$("signedPanel").classList.add("show");
-  $("signedEmail").textContent=user.email||"";
+  $("signedEmail").textContent=(user.displayName?user.displayName+" · ":"")+(user.email||"");
  }else{
   $("authPanel").style.display="block";$("signedPanel").classList.remove("show");
+  $("email").value="";$("password").value="";
  }
 });
 $("logoutBtn").addEventListener("click",async()=>{try{await signOut(auth);}catch(e){showMessage("تعذر تسجيل الخروج: "+e.message);}});
