@@ -2,41 +2,152 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#101114">
-<title>بوابة البرامج | ZEIN & RAHAF</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#11100e">
+<title>تسجيل الدخول | بوابة البرامج</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{color-scheme:dark;--bg:#101114;--panel:#191b20;--gold:#d7b45b;--muted:#a5a6ad;--line:#30323a}
-*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -20%,#3b3020 0,transparent 55%),var(--bg);color:#f7f4ed;font-family:Cairo,Arial,sans-serif;padding:24px}
-main{max-width:920px;margin:0 auto}.brand{text-align:center;padding:38px 10px 30px}.mark{width:66px;height:66px;border:1px solid #9e8042;border-radius:20px;margin:0 auto 15px;display:grid;place-items:center;color:var(--gold);font-size:29px}.brand h1{font-size:clamp(25px,5vw,38px);margin:0;font-weight:800}.brand p{color:var(--muted);margin:8px 0 0;font-size:13px}.section-title{font-size:18px;margin:12px 0 14px}.programs{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:14px}.card{background:linear-gradient(145deg,#202229,#17191e);border:1px solid var(--line);border-radius:20px;padding:22px;min-height:210px;display:flex;flex-direction:column}.card.active{border-color:#8f743b}.tag{color:var(--gold);font-size:11px;font-weight:800;letter-spacing:.5px}.card h2{font-size:21px;margin:12px 0 4px}.card p{font-size:12px;line-height:1.9;color:var(--muted);margin:0 0 18px}.action{margin-top:auto;display:block;text-align:center;text-decoration:none;background:linear-gradient(110deg,#b18b3e,#e2c77d);color:#17140d;padding:11px 15px;border-radius:12px;font-weight:800;font-size:13px}.soon{opacity:.65}.soon .action{background:#30323a;color:#c7c7ca}.note{margin:22px 0 0;padding:14px 17px;border:1px solid var(--line);border-radius:14px;color:var(--muted);font-size:11px;line-height:1.9;text-align:center}.foot{text-align:center;color:#777982;font-size:10px;margin:22px 0 8px}
+:root{--bg:#11100e;--panel:#1b1916;--gold:#c9a34d;--gold2:#ead18a;--text:#f8f3e8;--muted:#aaa397;--line:#39342a;--danger:#ff9b91;--ok:#9ed6aa}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;min-height:100svh;padding:22px;display:grid;place-items:center;background:radial-gradient(ellipse at 50% 0%,#40331c 0,transparent 46%),linear-gradient(145deg,#0d0c0b,#171511 60%,#0d0c0b);font-family:Cairo,Arial,sans-serif;color:var(--text)}
+.wrap{width:100%;max-width:440px}
+.brand{text-align:center;margin:0 0 24px}
+.logo{width:68px;height:68px;margin:0 auto 12px;border:1px solid #94753a;border-radius:20px;display:grid;place-items:center;color:var(--gold2);font:700 38px Amiri,serif;box-shadow:0 0 35px #c9a34d18,inset 0 0 18px #c9a34d0c}
+.brand h1{font:700 30px Amiri,serif;margin:0;letter-spacing:.2px}
+.brand p{font-size:12px;color:var(--muted);margin:3px 0 0}
+.panel{background:linear-gradient(150deg,#211e19,#181613);border:1px solid #4b402d;border-radius:24px;padding:25px;box-shadow:0 25px 75px #0008}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:5px;background:#11100e;border:1px solid var(--line);border-radius:14px;margin-bottom:22px}
+.tab{border:0;border-radius:10px;background:transparent;color:var(--muted);padding:10px 6px;font:700 13px Cairo;cursor:pointer}
+.tab.active{background:linear-gradient(110deg,#a77f32,#e2c779);color:#17130b}
+h2{font-size:21px;margin:0 0 4px}
+.sub{font-size:12px;color:var(--muted);margin:0 0 20px}
+.field{margin:0 0 14px}
+label{display:block;font-size:12px;color:#d8cfbd;margin:0 0 7px}
+input{width:100%;height:48px;border:1px solid #464034;border-radius:12px;background:#11100e;color:#fff;padding:0 14px;font:13px Cairo;outline:none;direction:rtl}
+input:focus{border-color:var(--gold);box-shadow:0 0 0 3px #c9a34d18}
+input::placeholder{color:#777166}
+.password-wrap{position:relative}
+.password-wrap input{padding-left:55px}
+.show{position:absolute;left:7px;top:7px;height:34px;padding:0 10px;border:0;border-radius:8px;background:#29251e;color:var(--gold2);font:600 11px Cairo;cursor:pointer}
+.submit{width:100%;height:49px;margin-top:5px;border:0;border-radius:13px;background:linear-gradient(110deg,#a77f32,#e5ca7c);color:#17130b;font:800 14px Cairo;cursor:pointer;box-shadow:0 8px 24px #c9a34d22}
+.submit:disabled{opacity:.65;cursor:wait}
+.message{display:none;margin:14px 0 0;padding:11px 12px;border-radius:10px;font-size:12px;line-height:1.8}
+.message.show{display:block}.message.error{background:#542a25;color:#ffd5ce;border:1px solid #81433a}.message.success{background:#1c3b2a;color:#c8f2d2;border:1px solid #356447}
+.hint{text-align:center;color:#8f887b;font-size:10px;line-height:1.8;margin:17px 8px 0}
+.signed{display:none;text-align:center}.signed.show{display:block}.signed .mark{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:#293a2a;color:#a9e2b1;font-size:25px;margin:4px auto 14px}
+.signed p{font-size:12px;color:var(--muted);line-height:1.9;overflow-wrap:anywhere}
+.secondary{border:1px solid #615237;background:transparent;color:var(--gold2);padding:10px 18px;border-radius:11px;font:700 12px Cairo;cursor:pointer}
+.foot{text-align:center;color:#716b60;font-size:10px;margin:19px 0 0}
+@media(max-width:420px){body{padding:16px}.panel{padding:20px;border-radius:20px}.brand h1{font-size:27px}}
 </style>
 </head>
 <body>
-<main>
+<main class="wrap">
 <header class="brand">
-<div class="mark">✦</div>
+<div class="logo">ز</div>
 <h1>بوابة البرامج</h1>
-<p>مكان واحد للوصول إلى برامجك وخدماتك</p>
+<p>حساب واحد للوصول إلى خدماتك</p>
 </header>
-<h2 class="section-title">اختار البرنامج</h2>
-<section class="programs">
-<article class="card active">
-<span class="tag">متاح الآن</span>
-<h2>عطور زين ورهف</h2>
-<p>متجر العطور وإدارة المنتجات والطلبات.</p>
-<a class="action" href="../perfumes/">فتح برنامج العطور</a>
-</article>
-<article class="card soon">
-<span class="tag">قريبًا</span>
-<h2>برامج أخرى</h2>
-<p>هنضيف برامج جديدة للبوابة، وكل برنامج هيكون له حساب واشتراك مستقل.</p>
-<span class="action">قريبًا</span>
-</article>
+<section class="panel" id="authPanel">
+<div class="tabs" role="tablist" aria-label="نوع الحساب">
+<button class="tab active" id="loginTab" type="button">تسجيل الدخول</button>
+<button class="tab" id="signupTab" type="button">إنشاء حساب</button>
+</div>
+<h2 id="formTitle">أهلًا بعودتك</h2>
+<p class="sub" id="formSub">سجّل الدخول باستخدام بريدك الإلكتروني وكلمة المرور.</p>
+<form id="authForm">
+<div class="field" id="nameField" hidden>
+<label for="fullName">الاسم</label>
+<input id="fullName" type="text" autocomplete="name" placeholder="اكتب اسمك">
+</div>
+<div class="field">
+<label for="email">البريد الإلكتروني</label>
+<input id="email" type="email" autocomplete="email" placeholder="name@example.com" required>
+</div>
+<div class="field">
+<label for="password">كلمة المرور</label>
+<div class="password-wrap">
+<input id="password" type="password" autocomplete="current-password" placeholder="6 أحرف على الأقل" minlength="6" required>
+<button class="show" id="togglePassword" type="button">إظهار</button>
+</div>
+</div>
+<button class="submit" id="submitBtn" type="submit">تسجيل الدخول</button>
+<div class="message" id="message" role="status" aria-live="polite"></div>
+</form>
 </section>
-<div class="note">دي صفحة الوصول الموحدة. تسجيل الحسابات وأكواد التفعيل وإدارة مدد الاشتراك لسه محتاجين ربط آمن بقاعدة البيانات قبل تشغيلهم؛ مش هنطلب منك كود أو كلمة مرور على صفحة غير مجهزة.</div>
-<footer class="foot">ZEIN & RAHAF · PROGRAM PORTAL</footer>
+<section class="panel signed" id="signedPanel">
+<div class="mark">✓</div>
+<h2>أنت مسجل الدخول</h2>
+<p id="signedEmail"></p>
+<p>تم تسجيل الدخول بنجاح. ربط الحساب ببرامجك واختيارات الاشتراك هي الخطوة التالية.</p>
+<button class="secondary" id="logoutBtn" type="button">تسجيل الخروج</button>
+</section>
+<p class="hint">بيانات الدخول تُدار من خلال Firebase Authentication. لا تشارك كلمة المرور مع أي شخص.</p>
+<footer class="foot">PROGRAM PORTAL · ZEIN &amp; RAHAF</footer>
 </main>
+<script type="module">
+import {auth,createUserWithEmailAndPassword,signInWithEmailAndPassword,onAuthStateChanged,updateProfile,signOut} from "../perfumes/firebase.js";
+const $=id=>document.getElementById(id);
+let mode="login",busy=false;
+function showMessage(text,type="error"){const el=$("message");el.textContent=text;el.className="message show "+type;}
+function clearMessage(){$("message").className="message";$("message").textContent="";}
+function setMode(next){
+ mode=next;clearMessage();
+ const signup=mode==="signup";
+ $("loginTab").classList.toggle("active",!signup);
+ $("signupTab").classList.toggle("active",signup);
+ $("nameField").hidden=!signup;
+ $("fullName").required=signup;
+ $("formTitle").textContent=signup?"إنشاء حساب جديد":"أهلًا بعودتك";
+ $("formSub").textContent=signup?"أنشئ حسابك باستخدام بريدك الإلكتروني وكلمة مرور.":"سجّل الدخول باستخدام بريدك الإلكتروني وكلمة المرور.";
+ $("submitBtn").textContent=signup?"إنشاء الحساب":"تسجيل الدخول";
+ $("password").autocomplete=signup?"new-password":"current-password";
+}
+$("loginTab").addEventListener("click",()=>setMode("login"));
+$("signupTab").addEventListener("click",()=>setMode("signup"));
+$("togglePassword").addEventListener("click",()=>{const p=$("password");p.type=p.type==="password"?"text":"password";$("togglePassword").textContent=p.type==="password"?"إظهار":"إخفاء";});
+$("authForm").addEventListener("submit",async e=>{
+ e.preventDefault();if(busy)return;clearMessage();
+ const email=$("email").value.trim(),password=$("password").value,name=$("fullName").value.trim();
+ if(mode==="signup"&&!name){showMessage("اكتب اسمك الأول.");return;}
+ if(password.length<6){showMessage("كلمة المرور لازم تكون 6 أحرف على الأقل.");return;}
+ busy=true;$("submitBtn").disabled=true;$("submitBtn").textContent="جاري التنفيذ...";
+ try{
+  if(mode==="signup"){
+   const credential=await createUserWithEmailAndPassword(auth,email,password);
+   if(name)await updateProfile(credential.user,{displayName:name});
+   showMessage("تم إنشاء الحساب بنجاح.","success");
+  }else{
+   await signInWithEmailAndPassword(auth,email,password);
+   showMessage("تم تسجيل الدخول بنجاح.","success");
+  }
+ }catch(error){
+  const messages={
+   "auth/email-already-in-use":"البريد الإلكتروني مسجل بالفعل. جرّب تسجيل الدخول.",
+   "auth/invalid-email":"صيغة البريد الإلكتروني غير صحيحة.",
+   "auth/weak-password":"كلمة المرور ضعيفة؛ استخدم 6 أحرف على الأقل.",
+   "auth/user-not-found":"لا يوجد حساب بهذا البريد الإلكتروني.",
+   "auth/wrong-password":"كلمة المرور غير صحيحة.",
+   "auth/invalid-credential":"البريد الإلكتروني أو كلمة المرور غير صحيحة.",
+   "auth/too-many-requests":"محاولات كثيرة. انتظر قليلًا ثم حاول.",
+   "auth/network-request-failed":"تعذر الاتصال بالإنترنت.",
+   "auth/operation-not-allowed":"تسجيل البريد وكلمة المرور غير مفعّل في Firebase Authentication.",
+   "auth/unauthorized-domain":"لازم تضيف دومين الموقع في Authorized domains داخل Firebase."
+  };
+  showMessage(messages[error.code]||"حصل خطأ أثناء تسجيل الحساب. "+(error.message||""));
+ }finally{busy=false;$("submitBtn").disabled=false;$("submitBtn").textContent=mode==="signup"?"إنشاء الحساب":"تسجيل الدخول";}
+});
+onAuthStateChanged(auth,user=>{
+ if(user){
+  $("authPanel").style.display="none";$("signedPanel").classList.add("show");
+  $("signedEmail").textContent=user.email||"";
+ }else{
+  $("authPanel").style.display="block";$("signedPanel").classList.remove("show");
+ }
+});
+$("logoutBtn").addEventListener("click",async()=>{try{await signOut(auth);}catch(e){showMessage("تعذر تسجيل الخروج: "+e.message);}});
+</script>
 </body>
 </html>
