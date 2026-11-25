@@ -12,22 +12,20 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 
 public class MainActivity extends Activity {
     private static final int FILE_CHOOSER_REQUEST = 41;
-    private static final String STORE_URL = "https://yoursmartsite-com.github.io/Salary-portal/perfumes/";
+    private static final String PORTAL_URL = "https://yoursmartsite-com.github.io/Salary-portal/portal/";
     private WebView webView;
     private ValueCallback<Uri[]> fileCallback;
 
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().setStatusBarColor(android.graphics.Color.rgb(250,244,235));
-        getWindow().setNavigationBarColor(android.graphics.Color.rgb(250,244,235));
-        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
+        getWindow().setStatusBarColor(android.graphics.Color.rgb(11,16,32));
+        getWindow().setNavigationBarColor(android.graphics.Color.rgb(11,16,32));
+        getWindow().getDecorView().setSystemUiVisibility(0);
         webView = new WebView(this);
-        webView.setBackgroundColor(android.graphics.Color.rgb(250,244,235));
+        webView.setBackgroundColor(android.graphics.Color.rgb(11,16,32));
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
         webView.getSettings().setDatabaseEnabled(true);
@@ -64,7 +62,7 @@ public class MainActivity extends Activity {
             }
         });
         setContentView(webView);
-        if (savedInstanceState == null) webView.loadUrl(STORE_URL);
+        if (savedInstanceState == null) webView.loadUrl(PORTAL_URL);
         else webView.restoreState(savedInstanceState);
     }
 
