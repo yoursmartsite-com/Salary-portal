@@ -166,8 +166,10 @@ async function route(request,env) {
   if(path==="/api/access"&&request.method==="GET"){
     const user=await verifySignedInUser(request,env);
     const expectedProgramId=String(url.searchParams.get("programId")||"zein-rahaf-store");
-    const programAccess=await db(env,"omnix/programAccess/"+expectedProgramId);
-    if(programAccess?.enabled===false)
+    const [programAccess,programRecord]=await Promise.all([
+      db(env,"omnix/programAccess/"+expectedProgramId),db(env,"omnix/programs/"+expectedProgramId)
+    ]);
+    if(programAccess?.enabled===false||programRecord?.active===false)
       return json({ok:true,allowed:false,reason:"program_disabled",program:{programId:expectedProgramId,programName:"عطور زين ورهف"}},200,origin);
     if(user.localId===env.OWNER_UID)
       return json({ok:true,allowed:true,owner:true,role:"owner",program:{programId:expectedProgramId,programName:"عطور زين ورهف",url:"https://yoursmartsite-com.github.io/Salary-portal/perfumes/"}},200,origin);
