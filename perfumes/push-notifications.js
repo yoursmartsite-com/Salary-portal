@@ -12,10 +12,12 @@ async function saveToken(token,platform){
 }
 export async function registerStorePush(){
   if(!auth.currentUser)throw new Error("سجّل الدخول أولًا لتفعيل الإشعارات");
-  const cap=window.Capacitor,plugins=cap?.Plugins||{};
+  const cap=window.Capacitor;
   const native=!!(cap?.isNativePlatform?.()||cap?.getPlatform?.()==="android");
-  if(native&&plugins.PushNotifications){
-    const push=plugins.PushNotifications;
+  if(native){
+    let push=cap?.Plugins?.PushNotifications;
+    if(!push){const pluginModule=await import("https://esm.sh/@capacitor/push-notifications@7.0.0?bundle");push=pluginModule.PushNotifications;}
+    if(!push)throw new Error("إضافة إشعارات أندرويد غير موجودة في نسخة التطبيق. حدّث التطبيق لآخر إصدار.");
     let permission=await push.checkPermissions();
     if(permission.receive!=="granted")permission=await push.requestPermissions();
     if(permission.receive!=="granted")throw new Error("لم تسمح بتفعيل إشعارات التطبيق");
