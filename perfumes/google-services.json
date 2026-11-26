@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "204218273808",
+    "firebase_url": "https://perfumes-12f57-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "perfumes-12f57",
+    "storage_bucket": "perfumes-12f57.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:204218273808:android:16db88fb5cf6395e05fa95",
+        "android_client_info": {
+          "package_name": "com.zeinrahaf.perfumes"
+        }
+      },
+      "api_key": [
+        {
+          "current_key": "AIzaSyD6c0Lox71SP1qoVmrla5UuPOmn7wB4D4M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
