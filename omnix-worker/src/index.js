@@ -71,11 +71,11 @@ async function sendFcm(env,tokens,title,body,data={}) {
     const results=await Promise.all(batch.map(async item=>{
       const response=await fetch("https://fcm.googleapis.com/v1/projects/"+project+"/messages:send",{
         method:"POST",headers:{"Authorization":"Bearer "+access,"Content-Type":"application/json"},
-        body:JSON.stringify({message:{token:item.token,notification:{title,body},data:Object.fromEntries(Object.entries(data).map(([k,v])=>[k,String(v)])),android:{priority:"HIGH",notification:{channel_id:"zein_rahaf_orders",sound:"default"}},webpush:{headers:{Urgency:"high"},notification:{icon:"/Salary-portal/perfumes/app-icon.png",badge:"/Salary-portal/perfumes/app-icon.png"},fcm_options:{link:"https://yoursmartsite-com.github.io/Salary-portal/perfumes/orders.html"}}}})
+        body:JSON.stringify({message:{token:item.token,notification:{title,body},data:Object.fromEntries(Object.entries(data).map(([k,v])=>[k,String(v)])),android:{priority:"HIGH",notification:{sound:"default"}},webpush:{headers:{Urgency:"high"},notification:{icon:"/Salary-portal/perfumes/app-icon.png",badge:"/Salary-portal/perfumes/app-icon.png"},fcm_options:{link:"https://yoursmartsite-com.github.io/Salary-portal/perfumes/orders.html"}}}})
       });
       if(response.ok)return true;
       const err=await response.json().catch(()=>({}));
-      if(err.error?.details?.some(d=>d.errorCode==="UNREGISTERED"||d.errorCode==="INVALID_ARGUMENT")){await db(env,"perfumesPushTokens/"+item.uid+"/"+item.key,"DELETE").catch(()=>{});}
+      if(err.error?.details?.some(d=>d.errorCode==="UNREGISTERED")){await db(env,"perfumesPushTokens/"+item.uid+"/"+item.key,"DELETE").catch(()=>{});}
       return false;
     }));
     sent+=results.filter(Boolean).length;failed+=results.length-results.filter(Boolean).length;
