@@ -76,7 +76,7 @@ input::placeholder{color:#777166}
 <section class="panel" id="authPanel">
 <div class="tabs" role="tablist" aria-label="نوع الحساب">
 <button class="tab active" id="loginTab" type="button">تسجيل الدخول</button>
-<button class="tab" id="signupTab" type="button">إنشاء حساب</button>
+<button class="tab" id="signupTab" type="button" hidden>إنشاء حساب</button>
 </div>
 <h2 id="formTitle">أهلًا بعودتك</h2>
 <p class="sub" id="formSub">سجّل الدخول باستخدام بريدك الإلكتروني وكلمة المرور.</p>
@@ -104,16 +104,7 @@ input::placeholder{color:#777166}
 <div class="mark">✓</div>
 <h2>أهلًا بيك في بوابة البرامج</h2>
 <p id="signedEmail"></p>
-<div style="text-align:right;border-top:1px solid var(--line);padding-top:16px;margin-top:16px">
-<h3 style="font-size:15px;margin:0 0 12px">اختار البرنامج</h3>
-<a href="../perfumes/" style="display:flex;align-items:center;justify-content:space-between;gap:12px;text-decoration:none;color:var(--text);background:#11100e;border:1px solid #756039;border-radius:14px;padding:15px;margin-bottom:10px">
-<span><b style="display:block;font-size:14px">عطور زين ورهف</b><small style="color:var(--muted);font-size:11px">فتح البرنامج بنفس الحساب</small></span><span style="color:var(--gold2);font-size:22px">←</span>
-</a>
-<div style="background:#15130f;border:1px solid var(--line);border-radius:14px;padding:14px;color:var(--muted);font-size:12px">
-<b style="display:block;color:#d8cfbd;margin-bottom:4px">برامج أخرى</b>
-هنضيفها هنا عند تجهيزها.
-</div>
-</div>
+<div id="programAccess" style="text-align:right;border-top:1px solid var(--line);padding-top:16px;margin-top:16px"><h3 style="font-size:15px;margin:0 0 12px">برامجك</h3><div id="accessMessage" style="background:#15130f;border:1px solid var(--line);border-radius:14px;padding:14px;color:var(--muted);font-size:12px">جارٍ التحقق من صلاحية الاشتراك…</div><div id="assignedProgramLinks"></div></div>
 <button class="secondary" id="logoutBtn" type="button" style="margin-top:17px">تسجيل الخروج</button>
 </section>
 
@@ -172,14 +163,22 @@ $("authForm").addEventListener("submit",async e=>{
   showMessage(messages[error.code]||"حصل خطأ أثناء تسجيل الحساب. "+(error.message||""));
  }finally{busy=false;$("submitBtn").disabled=false;$("submitBtn").textContent=mode==="signup"?"إنشاء الحساب":"تسجيل الدخول";}
 });
+async function checkProgramAccess(user){
+ const box=$("accessMessage"),links=$("assignedProgramLinks");box.textContent="جارٍ التحقق من الاشتراك…";links.innerHTML="";
+ try{
+  const token=await user.getIdToken();
+  const response=await fetch("https://omnix-api.fibrahem865.workers.dev/api/access",{headers:{Authorization:"Bearer "+token}});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(data.error||"تعذر التحقق من صلاحية الحساب.");
+  if(!data.allowed){const reasons={not_assigned:"لم يتم تخصيص برنامج لهذا الحساب بعد.",no_subscription:"لا يوجد اشتراك مسجل لهذا الحساب.",subscription_inactive:"الاشتراك موقوف أو ملغي.",expired:"انتهت مدة الاشتراك."};box.textContent=reasons[data.reason]||"لا يوجد وصول نشط. تواصل مع مسؤول البرنامج.";return;}
+  box.textContent=data.owner?"تم الدخول بحساب المالك.":"اشتراكك نشط.";
+  if(data.program?.url){const a=document.createElement("a");a.href=data.program.url;a.target="_blank";a.rel="noopener";a.style.cssText="display:flex;align-items:center;justify-content:space-between;gap:12px;text-decoration:none;color:var(--text);background:#11100e;border:1px solid #756039;border-radius:14px;padding:15px;margin-top:10px";const span=document.createElement("span"),b=document.createElement("b"),small=document.createElement("small");b.textContent=data.program.programName||data.program.name||"البرنامج";b.style.display="block";small.textContent="فتح البرنامج المخصص";small.style.color="var(--muted)";span.append(b,small);const arrow=document.createElement("span");arrow.textContent="←";arrow.style.color="var(--gold2)";a.append(span,arrow);links.append(a);}
+  if(data.subscription?.expiresAt){const expiry=document.createElement("p");expiry.textContent="تاريخ انتهاء الاشتراك: "+new Date(data.subscription.expiresAt).toLocaleDateString("ar-EG");expiry.style.cssText="font-size:11px;color:var(--muted);margin-top:10px";links.append(expiry);}
+ }catch(error){box.textContent=error.message||"تعذر الاتصال بخدمة التحقق.";}
+}
 onAuthStateChanged(auth,user=>{
- if(user){
-  $("authPanel").style.display="none";$("signedPanel").classList.add("is-visible");
-  $("signedEmail").textContent=(user.displayName?user.displayName+" · ":"")+(user.email||"");
- }else{
-  $("authPanel").style.display="block";$("signedPanel").classList.remove("is-visible");
-  $("email").value="";$("password").value="";
- }
+ if(user){$("authPanel").style.display="none";$("signedPanel").classList.add("is-visible");$("signedEmail").textContent=(user.displayName?user.displayName+" · ":"")+(user.email||"");checkProgramAccess(user);}
+ else{$("authPanel").style.display="block";$("signedPanel").classList.remove("is-visible");$("email").value="";$("password").value="";}
 });
 $("logoutBtn").addEventListener("click",async()=>{try{await signOut(auth);}catch(e){showMessage("تعذر تسجيل الخروج: "+e.message);}});
 </script>
