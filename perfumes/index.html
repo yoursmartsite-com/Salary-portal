@@ -98,14 +98,5 @@ el("adminSave").addEventListener("click",async()=>{const signedUser=auth.current
 onValue(ref(db,"products"),snap=>{if(window.__zrSetProducts){const rows=Object.values(snap.val()||{}).sort((a,b)=>(a.id||0)-(b.id||0));window.__zrSetProducts(rows);}},err=>{window.__zrSetProducts?.([]);console.warn("Products sync unavailable",err)});
 window.addEventListener("zr:datachange",async event=>{if(!activeUid||loading)return;const key=event.detail?.key;if(!paths[key])return;try{await set(ref(db,paths[key]+"/"+activeUid),event.detail.value);}catch(e){console.error("Firebase save failed",e);alert("لم يتم حفظ التعديل على حسابك. راجع قواعد Realtime Database.");}});
 </script>
-<script src="./download-gate.js" defer></script><script type="module" id="ZR_LOGIN_GATE_SCRIPT">
-import {auth,onAuthStateChanged} from "./firebase.js";
-onAuthStateChanged(auth,user=>{
- if(user){document.body.style.visibility="visible";}
- else{location.replace("./login-preview.html");}
-},error=>{
- console.error("Auth gate error:",error);
- location.replace("./login-preview.html");
-});
-</script></body>
+<script src="./download-gate.js" defer></script><script type="module" src="./omnix-access-gate.js"></script></body>
 </html>
