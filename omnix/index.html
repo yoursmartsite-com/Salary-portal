@@ -424,35 +424,21 @@ function connectOwnerData(){
    panel.querySelector(".qr-caption").textContent=program.name+" — "+url;
    panel.classList.add("show");
   }));
-  customerList.querySelectorAll("[data-download-qr]").forEach(button=>button.addEventListener("click",async()=>{
-   const uid=button.dataset.downloadQr,panel=$("customer-qr-"+uid.replace(/[^a-zA-Z0-9_-]/g,"")),canvas=panel?.querySelector("canvas"),img=panel?.querySelector("img");
-   if(!canvas&&!img){alert("أنشئ رمز QR الأول.");return;}
-   const filename="OMNIX-QR-"+uid+".png";
-   try{
-    let blob;
-    if(canvas){
-     blob=await new Promise((resolve,reject)=>canvas.toBlob(value=>value?resolve(value):reject(new Error("تعذر تجهيز صورة QR")),"image/png"));
-    }else{
-     const response=await fetch(img.src);if(!response.ok)throw new Error("تعذر قراءة صورة QR");blob=await response.blob();
-    }
-    const file=new File([blob],filename,{type:"image/png"});
-    if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
-     await navigator.share({files:[file],title:"صورة QR"});
-     return;
-    }
-    const objectUrl=URL.createObjectURL(blob),a=document.createElement("a");
-    a.href=objectUrl;a.download=filename;a.style.display="none";document.body.appendChild(a);a.click();a.remove();
-    setTimeout(()=>URL.revokeObjectURL(objectUrl),60000);
-   }catch(error){
-    if(error?.name==="AbortError")return;
+  customerList.querySelectorAll("[data-download-qr]").forEach(button=>button.addEventListener("click",()=>{
+    const uid=button.dataset.downloadQr,panel=$("customer-qr-"+uid.replace(/[^a-zA-Z0-9_-]/g,"")),canvas=panel?.querySelector("canvas"),img=panel?.querySelector("img");
+    if(!canvas&&!img){alert("أنشئ رمز QR الأول.");return;}
     try{
      const dataUrl=canvas?canvas.toDataURL("image/png"):img.src;
-     const win=window.open();if(win){win.document.write('<title>حفظ صورة QR</title><img style="max-width:100%;height:auto" src="'+dataUrl+'">');win.document.close();alert("الصورة اتفتحت. اضغط عليها ضغطة مطولة ثم اختر تنزيل الصورة.");}
-     else alert("المتصفح منع فتح الصورة. افتح OMNIX في Chrome ثم جرّب الحفظ مرة أخرى.");
-    }catch(e){alert("تعذر حفظ الصورة. افتح OMNIX في Chrome وجرّب مرة أخرى.");}
-   }
-  }));
-   customerList.querySelectorAll("[data-edit-customer]").forEach(button=>button.addEventListener("click",async()=>{
+     const filename="OMNIX-QR-"+uid+".png";
+     const link=document.createElement("a");link.href=dataUrl;link.download=filename;link.rel="noopener";link.style.display="none";
+     document.body.appendChild(link);link.click();link.remove();
+     const actions=panel.querySelector(".qr-actions");
+     let fallback=actions.querySelector(".qr-save-fallback");
+     if(!fallback){fallback=document.createElement("a");fallback.className="qr-save-fallback";fallback.textContent="لو التنزيل لم يبدأ: افتح الصورة واحفظها بالضغط المطوّل";fallback.target="_blank";fallback.rel="noopener";fallback.style.cssText="display:block;margin-top:10px;color:var(--gold,#c9a45c);text-decoration:underline;font-size:13px";actions.appendChild(fallback);}
+     fallback.href=dataUrl;
+    }catch(error){alert("تعذر تجهيز صورة QR. جرّب فتح OMNIX في Chrome.");}
+   }));
+customerList.querySelectorAll("[data-edit-customer]").forEach(button=>button.addEventListener("click",async()=>{
     const uid=button.dataset.editCustomer,u=customers[uid]||{},name=prompt("اسم العميل",u.name||""),email=prompt("البريد الإلكتروني",u.email||""),phone=prompt("رقم الهاتف",u.phone||"");
     if(name===null||email===null||phone===null)return;
     try{await managerApi("/api/customers/"+encodeURIComponent(uid),{method:"PATCH",body:JSON.stringify({email:email.trim(),displayName:name.trim(),profile:{name:name.trim(),email:email.trim(),phone:phone.trim()}})});alert("تم تحديث بيانات العميل.");}
