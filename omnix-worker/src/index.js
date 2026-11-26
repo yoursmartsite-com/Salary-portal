@@ -86,6 +86,17 @@ async function db(env,path,method="GET",body) {
   });
   const data=await response.json().catch(()=>null);
   if(!response.ok) throw new Error(data?.error||"فشلت عملية قاعدة البيانات");
+  if(method!=="GET"&&!path.startsWith("omnix/auditLog")){
+    try{
+      const auditToken=await googleAccessToken(env);
+      const auditBase=env.FIREBASE_DATABASE_URL.replace(/\/$/,"");
+      await fetch(auditBase+"/omnix/auditLog.json",{
+        method:"POST",
+        headers:{"Authorization":"Bearer "+auditToken,"Content-Type":"application/json"},
+        body:JSON.stringify({action:method+" "+path,actor:env.OWNER_UID||"owner",createdAt:Date.now()})
+      });
+    }catch(_){}
+  }
   return data;
 }
 const json=(data,status=200,origin="")=>new Response(JSON.stringify(data),{status,headers:{...corsHeaders(origin),"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store"}});
@@ -187,6 +198,19 @@ async function route(request,env) {
     if(!old)return json({error:"البرنامج غير موجود"},404,origin);
     await db(env,"omnix/programs/"+id,"DELETE");
     return json({ok:true,id},200,origin);
+  }
+  if(path==="/api/audit"&&request.method==="GET"){
+    const rows=await db(env,"omnix/auditLog")||{};
+    const limit=Math.min(200,Math.max(1,Number(url.searchParams.get("limit")||100)));
+    const items=Object.entries(rows).map(([id,item])=>({id,...item})).sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0)).slice(0,limit);
+    return json({ok:true,items},200,origin);
+  }
+  if(path==="/api/backup"&&request.method==="GET"){
+    const names=["users","omnix/customerPrograms","omnix/subscriptions","omnix/notifications","omnix/releases","omnix/settings","omnix/programs","omnix/programAdmins","omnix/auditLog"];
+    const values=await Promise.all(names.map(name=>db(env,name)));
+    const data={};
+    names.forEach((name,index)=>{data[name]=values[index]||{};});
+    return json({ok:true,product:"OMNIX",formatVersion:1,createdAt:Date.now(),data},200,origin);
   }
   if(path==="/api/bootstrap"&&request.method==="GET"){
     const [users,customerPrograms,subscriptions,notifications,releases,settings,programs]=await Promise.all([
