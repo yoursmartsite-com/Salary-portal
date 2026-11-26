@@ -350,20 +350,21 @@ let busy=false;
 function message(text,type="error"){const el=$("loginMessage");el.textContent=text;el.className="message show "+type;}
 function showLogin(){ $("loginScreen").classList.remove("hidden");$("appShell").classList.add("hidden"); }
 function showApp(user){$("loginScreen").classList.add("hidden");$("appShell").classList.remove("hidden");$("ownerEmail").textContent=user.email||OWNER_EMAIL;}
-async function loadPrograms(){
+async function loadPrograms(force=false){
  const grid=$("programGrid"),count=$("programCount");
- if(!grid||grid.dataset.loaded==="1")return;
+ if(!grid||(grid.dataset.loaded==="1"&&!force))return;
  try{
   const response=await fetch("./programs.json",{cache:"no-store"});
   if(!response.ok)throw new Error("تعذر قراءة سجل البرامج");
   const data=await response.json();
   const items=Array.isArray(data.programs)?data.programs:[];
   const esc=value=>String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
-  programCatalog=items.filter(p=>p.url);\n  try{const extra=await managerApi("/api/programs");const managed=Object.values(extra.programs||{}).filter(p=>p.active!==false&&p.url);programCatalog=[...programCatalog.filter(p=>!managed.some(x=>x.id===p.id)),...managed];}catch(e){console.warn("Custom program list:",e.message);}
+  programCatalog=items.filter(p=>p.url);
+  try{const extra=await managerApi("/api/programs");const managed=Object.values(extra.programs||{}).filter(p=>p.active!==false&&p.url);programCatalog=[...programCatalog.filter(p=>!managed.some(x=>x.id===p.id)),...managed];}catch(e){console.warn("Custom program list:",e.message);}
   const customerProgramSelect=$("newCustomerProgram");if(customerProgramSelect)customerProgramSelect.innerHTML='<option value="">اختار برنامج العميل</option>'+programCatalog.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.name)+'</option>').join("");
-  count.textContent=items.length+" برامج مسجلة";$("statPrograms").textContent=items.length;
-  if(!items.length){grid.innerHTML='<div class="program-empty">لا توجد برامج مسجلة حاليًا.</div>';return;}
-  grid.innerHTML=items.map(p=>{
+  count.textContent=programCatalog.length+" برامج مسجلة";$("statPrograms").textContent=programCatalog.length;
+  if(!programCatalog.length){grid.innerHTML='<div class="program-empty">لا توجد برامج مسجلة حاليًا.</div>';return;}
+  grid.innerHTML=programCatalog.map(p=>{
    const stateClass=p.stateType==="source"?"source":"";
    const action=p.url?'<a class="program-link" href="'+esc(p.url)+'" target="_blank" rel="noopener">فتح البرنامج ↗</a>':'';
    const repo=p.repositoryPath?'<a class="program-link secondary" href="https://github.com/yoursmartsite-com/Salary-portal/tree/main/'+esc(p.repositoryPath)+'" target="_blank" rel="noopener">ملفات المشروع ↗</a>':'';
