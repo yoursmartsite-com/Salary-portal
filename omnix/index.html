@@ -303,7 +303,7 @@ button,input,select{font-family:Cairo,Arial,sans-serif}
    </div>
    <div class="notice">إدارة OMNIX متاحة لحساب المالك فقط. عمليات الحسابات والاشتراكات والإصدارات تمر عبر خادم موثوق يتحقق من هوية المالك قبل التنفيذ.</div>
   </section>
-  <section class="view" id="view-programs"><div class="welcome"><small>PROGRAMS DIRECTORY</small><h2>إدارة البرامج</h2><p>إضافة برامج العملاء وربطها بروابطها ومتابعة البرامج الموجودة.</p></div><form id="programForm" class="program-card"><h3>＋ إضافة برنامج جديد</h3><div class="admin-form"><label>معرّف البرنامج<input id="programId" required pattern="[a-z0-9][a-z0-9-]{1,49}" placeholder="my-app" dir="ltr"></label><label>اسم البرنامج<input id="programName" required maxlength="100"></label><label>نوع البرنامج<input id="programKind" maxlength="100"></label><label>رابط البرنامج<input id="programUrl" type="url" required placeholder="https://" dir="ltr"></label><label class="wide">الوصف<textarea id="programDescription" maxlength="1000"></textarea></label></div><div class="admin-actions"><button type="submit" id="saveProgramButton">حفظ البرنامج</button><span id="programMessage" class="program-count"></span></div></form><div class="admin-section-title"><b>البرامج المسجلة في المشروع</b><span id="programCount" class="program-count">جاري تحميل البرامج…</span></div><div id="programGrid" class="program-grid"><div class="program-empty">جاري تحميل سجل البرامج…</div></div><div class="admin-section-title"><b>البرامج المضافة من OMNIX</b><button type="button" id="refreshPrograms" class="program-link secondary">تحديث</button></div><div id="managedPrograms" class="admin-list"><div class="program-empty">جاري التحميل…</div></div><div class="notice">البرامج الأساسية تُقرأ من سجل المشروع، والبرامج الجديدة تُحفظ في قاعدة بيانات OMNIX.</div></section>
+  <section class="view" id="view-programs"><div class="program-card" style="margin-bottom:14px;border-color:#8b3333"><h3 style="margin:0 0 8px">التحكم العام في عطور زين ورهف</h3><p class="program-details">إيقاف البرنامج يمنع المالك والمديرين والعملاء من الدخول إلى المتجر، دون حذف بيانات أو اشتراكات.</p><div class="admin-actions"><strong id="storeAccessState">جاري قراءة حالة البرنامج…</strong><button type="button" id="toggleStoreAccess" class="danger" disabled>إيقاف البرنامج</button></div></div><div class="welcome"><small>PROGRAMS DIRECTORY</small><h2>إدارة البرامج</h2><p>إضافة برامج العملاء وربطها بروابطها ومتابعة البرامج الموجودة.</p></div><form id="programForm" class="program-card"><h3>＋ إضافة برنامج جديد</h3><div class="admin-form"><label>معرّف البرنامج<input id="programId" required pattern="[a-z0-9][a-z0-9-]{1,49}" placeholder="my-app" dir="ltr"></label><label>اسم البرنامج<input id="programName" required maxlength="100"></label><label>نوع البرنامج<input id="programKind" maxlength="100"></label><label>رابط البرنامج<input id="programUrl" type="url" required placeholder="https://" dir="ltr"></label><label class="wide">الوصف<textarea id="programDescription" maxlength="1000"></textarea></label></div><div class="admin-actions"><button type="submit" id="saveProgramButton">حفظ البرنامج</button><span id="programMessage" class="program-count"></span></div></form><div class="admin-section-title"><b>البرامج المسجلة في المشروع</b><span id="programCount" class="program-count">جاري تحميل البرامج…</span></div><div id="programGrid" class="program-grid"><div class="program-empty">جاري تحميل سجل البرامج…</div></div><div class="admin-section-title"><b>البرامج المضافة من OMNIX</b><button type="button" id="refreshPrograms" class="program-link secondary">تحديث</button></div><div id="managedPrograms" class="admin-list"><div class="program-empty">جاري التحميل…</div></div><div class="notice">البرامج الأساسية تُقرأ من سجل المشروع، والبرامج الجديدة تُحفظ في قاعدة بيانات OMNIX.</div></section>
   <section class="view" id="view-managers">
    <div class="welcome"><small>PROGRAM ACCESS CONTROL</small><h2>مديرو البرامج</h2><p>عيّن مديرًا لبرنامج محدد. المدير يستطيع إدارة المتجر والطلبات والعملاء، ولا يحصل على صلاحية دخول OMNIX.</p></div>
    <div class="program-card">
@@ -536,6 +536,23 @@ function fillAdminSelects(){
  ["subscriptionCustomer","notificationCustomer"].forEach(id=>fillSelect(id,users,"اختار العميل"));
  ["subscriptionProgram","releaseProgram","notificationProgram"].forEach(id=>fillSelect(id,programs,"اختار البرنامج"));
 }
+async function refreshStoreAccess(){
+ const state=$("storeAccessState"),button=$("toggleStoreAccess");if(!state||!button)return;
+ try{const result=await managerApi("/api/program-access/zein-rahaf-store");const enabled=result.enabled!==false;
+ state.textContent=enabled?"● البرنامج يعمل":"● البرنامج متوقف";
+ state.style.color=enabled?"#9ed6ad":"#f0a29a";
+ button.textContent=enabled?"إيقاف البرنامج":"إعادة تشغيل البرنامج";
+ button.classList.toggle("danger",enabled);button.disabled=false;button.dataset.enabled=String(enabled);
+ }catch(error){state.textContent="تعذر قراءة حالة البرنامج";button.disabled=true;}
+}
+$("toggleStoreAccess")?.addEventListener("click",async()=>{
+ const button=$("toggleStoreAccess"),enabled=button.dataset.enabled!=="false";
+ const next=!enabled;
+ if(!confirm(next?"تأكيد إعادة تشغيل برنامج عطور زين ورهف؟":"تأكيد إيقاف برنامج عطور زين ورهف عن جميع المستخدمين؟"))return;
+ button.disabled=true;button.textContent="جارٍ التنفيذ…";
+ try{await managerApi("/api/program-access/zein-rahaf-store",{method:"PATCH",body:JSON.stringify({enabled:next})});await refreshStoreAccess();alert(next?"تم تشغيل البرنامج.":"تم إيقاف البرنامج عن الجميع.");}
+ catch(error){alert(error.message||"تعذر تغيير حالة البرنامج.");button.disabled=false;await refreshStoreAccess();}
+});
 function renderManagedPrograms(){
  const host=$("managedPrograms");if(!host)return;const rows=Object.entries(omnixData.programs||{});
  host.innerHTML=rows.length?rows.map(([id,p])=>'<article class="admin-item"><h4>'+escapeHtml(p.name||id)+'</h4><p dir="ltr">'+escapeHtml(p.url||"")+'</p><p>'+escapeHtml(p.kind||"برنامج")+' · '+escapeHtml(p.description||"")+'</p><span class="admin-status '+(p.active?"":"off")+'">'+(p.active?"نشط":"متوقف")+'</span><div class="admin-actions" style="margin-top:10px"><button data-edit-program="'+escapeHtml(id)+'">تعديل</button><button class="danger" data-delete-program="'+escapeHtml(id)+'">حذف</button></div></article>').join(""):'<div class="program-empty">لا توجد برامج مخصصة مضافة.</div>';
@@ -628,7 +645,8 @@ $("forgotPasswordButton").addEventListener("click",async()=>{
  }finally{button.disabled=false;button.textContent="نسيت كلمة المرور؟";}
 });
 $("loginForm").addEventListener("submit",async e=>{e.preventDefault();if(busy)return;busy=true;$("loginButton").disabled=true;$("loginButton").textContent="جاري التحقق...";try{const email=$("email").value.trim().toLowerCase();if(email!==OWNER_EMAIL){message("هذا الحساب غير مصرح له بدخول OMNIX.");return;}await signInWithEmailAndPassword(auth,email,$("password").value);}catch(error){message(friendlyError(error));}finally{busy=false;$("loginButton").disabled=false;$("loginButton").textContent="دخول إلى OMNIX";}});
-onAuthStateChanged(auth,async user=>{if(!user){dataStops.forEach(stop=>{try{stop();}catch(e){}});dataStops=[];showLogin();return;}if(user.uid!==OWNER_UID){showLogin();message("الحساب الحالي غير مصرح له بدخول OMNIX. سجّل دخولك بحساب المالك المعتمد.");return;}showApp(user);await loadPrograms();initManagerPanel();connectOwnerData();initAdminForms();try{await refreshAdminData();}catch(e){console.error("OMNIX bootstrap:",e);}});
+onAuthStateChanged(auth,async user=>{if(!user){dataStops.forEach(stop=>{try{stop();}catch(e){}});dataStops=[];showLogin();return;}if(user.uid!==OWNER_UID){refreshStoreAccess();
+showLogin();message("الحساب الحالي غير مصرح له بدخول OMNIX. سجّل دخولك بحساب المالك المعتمد.");return;}showApp(user);await loadPrograms();initManagerPanel();connectOwnerData();initAdminForms();try{await refreshAdminData();}catch(e){console.error("OMNIX bootstrap:",e);}});
 $("logoutButton").addEventListener("click",()=>signOut(auth));
 const sectionMenuToggle=$("sectionMenuToggle"),sectionMenuOverlay=$("sectionMenuOverlay"),sectionSidebar=document.querySelector(".sidebar");
 function closeSectionMenu(){sectionSidebar?.classList.remove("drawer-open");sectionMenuOverlay?.classList.remove("show");sectionMenuToggle?.setAttribute("aria-expanded","false");}
