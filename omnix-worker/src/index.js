@@ -96,7 +96,7 @@ async function route(request,env) {
   if(path==="/api/program-admins"&&request.method==="POST"){
     const body=await request.json(),email=String(body.email||"").trim().toLowerCase();
     const programId=String(body.programId||"");
-    if(programId!=="zein-rahaf-store"||!/^\\S+@\\S+\\.\\S+$/.test(email)) return json({error:"اختر برنامج عطور زين ورهف واكتب بريدًا صحيحًا"},400,origin);
+    if(programId!=="zein-rahaf-store"||!/^\S+@\S+\.\S+$/.test(email)) return json({error:"اختر برنامج عطور زين ورهف واكتب بريدًا صحيحًا"},400,origin);
     const lookup=await adminFetch(env,"/accounts:lookup","POST",{email:[email]});
     const account=lookup.users?.find(u=>(u.email||"").toLowerCase()===email&&!u.disabled);
     if(!account) return json({error:"البريد غير موجود في Firebase Authentication أو الحساب معطل"},404,origin);
@@ -108,7 +108,7 @@ async function route(request,env) {
     await db(env,managerCollection+"/"+account.localId,"PUT",record);
     return json({ok:true,manager:record,refreshTokenRequired:true},200,origin);
   }
-  const managerMatch=path.match(/^\\/api\\/program-admins\\/([^/]+)$/);
+  const managerMatch=path.match(/^\/api\/program-admins\/([^/]+)$/);
   if(managerMatch&&request.method==="DELETE"){
     const uid=decodeURIComponent(managerMatch[1]);
     const record=await db(env,managerCollection+"/"+uid);
