@@ -33,6 +33,15 @@ public class MainActivity extends BridgeActivity {
         mainHandler.postDelayed(this::checkMandatoryUpdate, 500);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (updateDialogShown) {
+            updateDialogShown = false;
+            mainHandler.postDelayed(this::checkMandatoryUpdate, 350);
+        }
+    }
+
     private long installedVersionCode() {
         try {
             PackageInfo info = getPackageManager().getPackageInfo(getPackageName(), 0);
