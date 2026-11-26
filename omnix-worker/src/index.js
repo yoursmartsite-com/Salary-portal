@@ -125,6 +125,43 @@ async function route(request,env) {
     await db(env,managerCollection+"/"+uid,"DELETE");
     return json({ok:true,uid,revoked:true},200,origin);
   }
+  // Owner-managed program directory stored separately from the public source catalog.
+  if(path==="/api/programs"&&request.method==="GET"){
+    const programs=await db(env,"omnix/programs")||{};
+    return json({ok:true,programs},200,origin);
+  }
+  if(path==="/api/programs"&&request.method==="POST"){
+    const body=await request.json(),id=String(body.id||"").trim().toLowerCase();
+    const name=String(body.name||"").trim(),urlValue=String(body.url||"").trim();
+    if(!/^[a-z0-9][a-z0-9-]{1,49}$/.test(id)||!name||name.length>100||!/^https:\/\//i.test(urlValue))
+      return json({error:"أدخل معرفًا إنجليزيًا صحيحًا واسم البرنامج ورابط HTTPS"},400,origin);
+    const exists=await db(env,"omnix/programs/"+id);
+    if(exists)return json({error:"معرف البرنامج مستخدم بالفعل"},409,origin);
+    const record={id,name,url:urlValue,kind:String(body.kind||"برنامج").slice(0,100),description:String(body.description||"").slice(0,1000),active:body.active!==false,createdAt:Date.now(),updatedAt:Date.now(),updatedBy:env.OWNER_UID};
+    await db(env,"omnix/programs/"+id,"PUT",record);
+    return json({ok:true,program:record},201,origin);
+  }
+  const programMatch=path.match(/^\/api\/programs\/([a-z0-9-]+)$/);
+  if(programMatch&&request.method==="PATCH"){
+    const id=programMatch[1],body=await request.json(),old=await db(env,"omnix/programs/"+id);
+    if(!old)return json({error:"البرنامج غير موجود"},404,origin);
+    const next={...old};
+    if(body.name!==undefined)next.name=String(body.name).trim().slice(0,100);
+    if(body.url!==undefined){const value=String(body.url).trim();if(!/^https:\/\//i.test(value))return json({error:"رابط HTTPS مطلوب"},400,origin);next.url=value;}
+    if(body.kind!==undefined)next.kind=String(body.kind).slice(0,100);
+    if(body.description!==undefined)next.description=String(body.description).slice(0,1000);
+    if(typeof body.active==="boolean")next.active=body.active;
+    if(!next.name)return json({error:"اسم البرنامج مطلوب"},400,origin);
+    next.updatedAt=Date.now();next.updatedBy=env.OWNER_UID;
+    await db(env,"omnix/programs/"+id,"PUT",next);
+    return json({ok:true,program:next},200,origin);
+  }
+  if(programMatch&&request.method==="DELETE"){
+    const id=programMatch[1],old=await db(env,"omnix/programs/"+id);
+    if(!old)return json({error:"البرنامج غير موجود"},404,origin);
+    await db(env,"omnix/programs/"+id,"DELETE");
+    return json({ok:true,id},200,origin);
+  }
   if(path==="/api/bootstrap"&&request.method==="GET"){
     const [users,customerPrograms,subscriptions,notifications,releases,settings]=await Promise.all([
       db(env,"users"),db(env,"omnix/customerPrograms"),db(env,"omnix/subscriptions"),
@@ -196,6 +233,14 @@ async function route(request,env) {
     const record={programId:String(body.programId||""),programName:String(body.programName||""),version,notes:String(body.notes||"").slice(0,3000),url:urlValue,forceUpdate:body.forceUpdate===true,createdAt:Date.now(),createdBy:env.OWNER_UID};
     const result=await db(env,"omnix/releases","POST",record);
     return json({ok:true,id:result.name,release:record},201,origin);
+  }
+  const releaseMatch=path.match(/^\/api\/releases\/([^/]+)$/);
+  if(releaseMatch&&request.method==="DELETE"){
+    const id=decodeURIComponent(releaseMatch[1]);
+    const existing=await db(env,"omnix/releases/"+id);
+    if(!existing)return json({error:"الإصدار غير موجود"},404,origin);
+    await db(env,"omnix/releases/"+id,"DELETE");
+    return json({ok:true,id},200,origin);
   }
   if(path==="/api/settings"&&request.method==="PUT"){
     const body=await request.json();
