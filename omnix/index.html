@@ -645,8 +645,7 @@ $("forgotPasswordButton").addEventListener("click",async()=>{
  }finally{button.disabled=false;button.textContent="نسيت كلمة المرور؟";}
 });
 $("loginForm").addEventListener("submit",async e=>{e.preventDefault();if(busy)return;busy=true;$("loginButton").disabled=true;$("loginButton").textContent="جاري التحقق...";try{const email=$("email").value.trim().toLowerCase();if(email!==OWNER_EMAIL){message("هذا الحساب غير مصرح له بدخول OMNIX.");return;}await signInWithEmailAndPassword(auth,email,$("password").value);}catch(error){message(friendlyError(error));}finally{busy=false;$("loginButton").disabled=false;$("loginButton").textContent="دخول إلى OMNIX";}});
-onAuthStateChanged(auth,async user=>{if(!user){dataStops.forEach(stop=>{try{stop();}catch(e){}});dataStops=[];showLogin();return;}if(user.uid!==OWNER_UID){refreshStoreAccess();
-showLogin();message("الحساب الحالي غير مصرح له بدخول OMNIX. سجّل دخولك بحساب المالك المعتمد.");return;}showApp(user);await loadPrograms();initManagerPanel();connectOwnerData();initAdminForms();try{await refreshAdminData();}catch(e){console.error("OMNIX bootstrap:",e);}});
+onAuthStateChanged(auth,async user=>{if(!user){dataStops.forEach(stop=>{try{stop();}catch(e){}});dataStops=[];showLogin();return;}if(user.uid!==OWNER_UID){showLogin();message("الحساب الحالي غير مصرح له بدخول OMNIX. سجّل دخولك بحساب المالك المعتمد.");return;}showApp(user);await refreshStoreAccess();await loadPrograms();initManagerPanel();connectOwnerData();initAdminForms();try{await refreshAdminData();}catch(e){console.error("OMNIX bootstrap:",e);}});
 $("logoutButton").addEventListener("click",()=>signOut(auth));
 const sectionMenuToggle=$("sectionMenuToggle"),sectionMenuOverlay=$("sectionMenuOverlay"),sectionSidebar=document.querySelector(".sidebar");
 function closeSectionMenu(){sectionSidebar?.classList.remove("drawer-open");sectionMenuOverlay?.classList.remove("show");sectionMenuToggle?.setAttribute("aria-expanded","false");}
