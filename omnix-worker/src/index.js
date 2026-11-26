@@ -83,8 +83,9 @@ async function route(request,env) {
   const url=new URL(request.url),path=url.pathname.replace(/\/+$/,"")||"/";
   const origin=request.headers.get("Origin")||"";
   if(request.method==="OPTIONS") return new Response(null,{status:204,headers:corsHeaders(origin)});
-  if(origin!==env.ALLOWED_ORIGIN) return json({error:"Origin not allowed"},403,origin);
+  // Public, non-sensitive health check: allow opening the Worker URL directly in a browser.
   if(path==="/health"&&request.method==="GET") return json({ok:true,service:"OMNIX API",version:"1.0.0"},200,origin);
+  if(origin!==env.ALLOWED_ORIGIN) return json({error:"Origin not allowed"},403,origin);
   await verifyOwner(request,env);
   const managerCollection="/omnix/programAdmins/zein-rahaf-store";
   if(path==="/api/program-admins"&&request.method==="GET"){
