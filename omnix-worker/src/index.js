@@ -169,8 +169,10 @@ async function route(request,env) {
     const [programAccess,programRecord]=await Promise.all([
       db(env,"omnix/programAccess/"+expectedProgramId),db(env,"omnix/programs/"+expectedProgramId)
     ]);
-    if(programAccess?.enabled===false||programRecord?.active===false)
-      return json({ok:true,allowed:false,reason:"program_disabled",program:{programId:expectedProgramId,programName:"عطور زين ورهف"}},200,origin);
+    const programExpiry=Number(programAccess?.expiresAt||0);
+    const programExpired=programExpiry>0&&programExpiry<=Date.now();
+    if(programAccess?.enabled===false||programRecord?.active===false||programExpired)
+      return json({ok:true,allowed:false,reason:programExpired?"program_subscription_expired":"program_disabled",program:{programId:expectedProgramId,programName:"عطور زين ورهف"},programSubscription:programAccess?{startAt:programAccess.startAt||null,expiresAt:programAccess.expiresAt||null}:null},200,origin);
     if(user.localId===env.OWNER_UID)
       return json({ok:true,allowed:true,owner:true,role:"owner",program:{programId:expectedProgramId,programName:"عطور زين ورهف",url:"https://yoursmartsite-com.github.io/Salary-portal/perfumes/"}},200,origin);
     let claims={};
@@ -195,6 +197,22 @@ async function route(request,env) {
     return json({ok:true,allowed,reason,program:assignment||null,subscription:safeSubscription,notifications,release:safeRelease},200,origin);
   }
   await verifyOwner(request,env);
+  const programSubscriptionMatch=path.match(/^\/api\/program-subscription\/([a-z0-9-]+)$/);
+  if(programSubscriptionMatch&&request.method==="GET"){
+    const id=programSubscriptionMatch[1],record=await db(env,"omnix/programAccess/"+id),now=Date.now();
+    const expiresAt=Number(record?.expiresAt||0);
+    return json({ok:true,programId:id,enabled:record?.enabled!==false&&(!expiresAt||expiresAt>now),startAt:record?.startAt||null,expiresAt:record?.expiresAt||null,days:record?.days||null,expired:!!expiresAt&&expiresAt<=now},200,origin);
+  }
+  if(programSubscriptionMatch&&request.method==="PUT"){
+    const id=programSubscriptionMatch[1],body=await request.json(),now=Date.now();
+    const days=Number(body.days),startAt=body.startAt?Date.parse(body.startAt):now;
+    if(!Number.isInteger(days)||days<1||days>3650)return json({error:"مدة الاشتراك من يوم واحد إلى 10 سنوات"},400,origin);
+    if(!Number.isFinite(startAt)||startAt<now-60000||startAt>now+86400000)return json({error:"تاريخ بداية الاشتراك غير صحيح"},400,origin);
+    const old=await db(env,"omnix/programAccess/"+id)||{};
+    const record={...old,programId:id,enabled:true,days,startAt,expiresAt:startAt+days*86400000,updatedAt:now,updatedBy:env.OWNER_UID};
+    await db(env,"omnix/programAccess/"+id,"PUT",record);
+    return json({ok:true,subscription:record},200,origin);
+  }
   const accessControlMatch=path.match(/^\/api\/program-access\/([a-z0-9-]+)$/);
   if(accessControlMatch&&request.method==="GET"){
     const id=accessControlMatch[1],record=await db(env,"omnix/programAccess/"+id);
