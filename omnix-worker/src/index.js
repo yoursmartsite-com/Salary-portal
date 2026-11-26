@@ -103,9 +103,9 @@ async function route(request,env) {
     const [assignment,subscription,allNotifications,allReleases]=await Promise.all([
       db(env,"omnix/customerPrograms/"+user.localId),db(env,"omnix/subscriptions/"+user.localId),db(env,"omnix/notifications"),db(env,"omnix/releases")
     ]);
-    const now=Date.now(),expiresAt=Number(subscription?.expiresAt||0),programMismatch=!!subscription?.programId&&subscription.programId!==assignment?.programId;
-    const allowed=!!assignment&&subscription?.status==="active"&&expiresAt>now&&!programMismatch;
-    const reason=!assignment?"not_assigned":!subscription?"no_subscription":subscription.status!=="active"?"subscription_inactive":expiresAt<=now?"expired":programMismatch?"program_mismatch":"";
+    const now=Date.now(),startsAt=Number(subscription?.startAt||0),expiresAt=Number(subscription?.expiresAt||0),programMismatch=!!subscription?.programId&&subscription.programId!==assignment?.programId;
+    const allowed=!!assignment&&subscription?.status==="active"&&startsAt<=now&&expiresAt>now&&!programMismatch;
+    const reason=!assignment?"not_assigned":!subscription?"no_subscription":subscription.status!=="active"?"subscription_inactive":startsAt>now?"not_started":expiresAt<=now?"expired":programMismatch?"program_mismatch":"";
     const notifications=Object.entries(allNotifications||{}).filter(([,n])=>n.target==="all"||(n.target==="program"&&n.programId===assignment?.programId)||(n.target==="customer"&&n.customerUid===user.localId)).map(([id,n])=>({id,title:String(n.title||"إشعار"),message:String(n.message||""),createdAt:Number(n.createdAt||0)})).sort((a,b)=>b.createdAt-a.createdAt).slice(0,30);
     const safeSubscription=subscription?{status:subscription.status,days:subscription.days,startAt:subscription.startAt,expiresAt:subscription.expiresAt,programId:subscription.programId}:null;
     const release=Object.values(allReleases||{}).filter(r=>r.programId===assignment?.programId).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0))[0]||null;
