@@ -260,6 +260,17 @@ async function route(request,env) {
       return json({ok:true,uid},200,origin);
     }
   }
+  const assignmentMatch=path.match(/^\/api\/assignments\/([^/]+)$/);
+  if(assignmentMatch&&request.method==="PUT"){
+    const uid=decodeURIComponent(assignmentMatch[1]),body=await request.json();
+    const programId=String(body.programId||"").trim(),program=await db(env,"omnix/programs/"+programId)||null;
+    const profile=await db(env,"users/"+uid)||null;
+    if(!profile)return json({error:"العميل غير موجود"},404,origin);
+    if(!programId||!program)return json({error:"البرنامج المحدد غير موجود في سجل OMNIX"},404,origin);
+    const record={programId,programName:program.name||String(body.programName||""),url:String(body.url||program.url||""),updatedAt:Date.now(),updatedBy:env.OWNER_UID};
+    await db(env,"omnix/customerPrograms/"+uid,"PUT",record);
+    return json({ok:true,assignment:record},200,origin);
+  }
   const subscriptionMatch=path.match(/^\/api\/subscriptions\/([^/]+)$/);
   if(subscriptionMatch&&(request.method==="PUT"||request.method==="PATCH")){
     const uid=decodeURIComponent(subscriptionMatch[1]),body=await request.json(),now=Date.now();
