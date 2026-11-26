@@ -547,8 +547,23 @@ function renderAdminLists(){
  const subs=Object.entries(omnixData.subscriptions||{}),users=omnixData.users||{};
  $("statSubscriptions").textContent=subs.filter(([,v])=>v.status==="active"&&Number(v.expiresAt)>Date.now()).length;
  const subHost=$("subscriptionList");
- if(subHost)subHost.innerHTML=subs.length?subs.map(([uid,v])=>{const u=users[uid]||{},expired=Number(v.expiresAt)<=Date.now(),active=v.status==="active"&&!expired;return '<article class="admin-item"><h4>'+escapeHtml(u.name||u.email||uid)+'</h4><p>'+escapeHtml(u.email||uid)+'<br>البرنامج: '+escapeHtml(programCatalog.find(p=>p.id===v.programId)?.name||v.programId||"غير محدد")+'<br>المدة: '+Number(v.days||0)+' يوم · النهاية: '+(v.expiresAt?new Date(v.expiresAt).toLocaleDateString("ar-EG"):"—")+'</p><span class="admin-status '+(active?"":"off")+'">'+(expired?"منتهي":v.status==="active"?"نشط":v.status==="paused"?"موقوف":"ملغي")+'</span><div class="admin-actions" style="margin-top:10px"><button data-renew-sub="'+escapeHtml(uid)+'">تجديد / تعديل</button></div></article>';}).join(""):'<div class="program-empty">لا توجد اشتراكات مسجلة.</div>';
+ if(subHost)subHost.innerHTML=subs.length?subs.map(([uid,v])=>{const u=users[uid]||{},expired=Number(v.expiresAt)<=Date.now(),active=v.status==="active"&&!expired;return '<article class="admin-item"><h4>'+escapeHtml(u.name||u.email||uid)+'</h4><p>'+escapeHtml(u.email||uid)+'<br>البرنامج: '+escapeHtml(programCatalog.find(p=>p.id===v.programId)?.name||v.programId||"غير محدد")+'<br>المدة: '+Number(v.days||0)+' يوم · النهاية: '+(v.expiresAt?new Date(v.expiresAt).toLocaleDateString("ar-EG"):"—")+'</p><span class="admin-status '+(active?"":"off")+'">'+(expired?"منتهي":v.status==="active"?"نشط":v.status==="paused"?"موقوف":"ملغي")+'</span><div class="admin-actions" style="margin-top:10px"><button data-renew-sub="'+escapeHtml(uid)+'">تجديد / تعديل</button><button class="danger" data-delete-sub="'+escapeHtml(uid)+'">حذف الاشتراك الحالي</button></div></article>';}).join(""):'<div class="program-empty">لا توجد اشتراكات مسجلة.</div>';
  subHost?.querySelectorAll("[data-renew-sub]").forEach(btn=>btn.addEventListener("click",()=>{const v=omnixData.subscriptions[btn.dataset.renewSub]||{};$("subscriptionCustomer").value=btn.dataset.renewSub;$("subscriptionProgram").value=v.programId||"";$("subscriptionDays").value=v.days||30;$("subscriptionStatus").value=v.status||"active";$("subscriptionNotes").value=v.notes||"";}));
+ subHost?.querySelectorAll("[data-delete-sub]").forEach(btn=>btn.addEventListener("click",async()=>{
+  const uid=btn.dataset.deleteSub,u=users[uid]||{};
+  if(!confirm("حذف الاشتراك الحالي للعميل "+(u.name||u.email||uid)+"؟ سيتم حذف سجل الاشتراك فقط، ولن يتم حذف حساب العميل أو تخصيص البرنامج."))return;
+  btn.disabled=true;btn.textContent="جاري الحذف…";
+  try{
+   await managerApi("/api/subscriptions/"+encodeURIComponent(uid),{method:"DELETE"});
+   $("subscriptionCustomer").value=uid;
+   $("subscriptionProgram").value="";
+   $("subscriptionDays").value=30;
+   $("subscriptionStatus").value="active";
+   $("subscriptionNotes").value="";
+   statusText("subscriptionMessage","تم حذف الاشتراك القديم. اختار البرنامج والمدة لإنشاء اشتراك جديد.",true);
+   await refreshAdminData();
+  }catch(error){alert(error.message||"تعذر حذف الاشتراك.");btn.disabled=false;btn.textContent="حذف الاشتراك الحالي";}
+ }));
  const rels=Object.entries(omnixData.releases||{}).sort((a,b)=>(b[1].createdAt||0)-(a[1].createdAt||0)),relHost=$("releaseList");
  if(relHost)relHost.innerHTML=rels.length?rels.map(([id,v])=>'<article class="admin-item"><h4>'+escapeHtml(v.programName||v.programId)+' · '+escapeHtml(v.version)+'</h4><p>'+escapeHtml(v.notes||"بدون تفاصيل")+'<br>'+new Date(v.createdAt||Date.now()).toLocaleString("ar-EG")+'</p><span class="admin-status">'+(v.forceUpdate?"إجباري":"عادي")+'</span><p><a href="'+escapeHtml(v.url)+'" target="_blank" rel="noopener" style="color:#f2d99a">رابط التحميل ↗</a></p><div class="admin-actions"><button class="danger" data-delete-release="'+escapeHtml(id)+'">حذف</button></div></article>').join(""):'<div class="program-empty">لا توجد إصدارات منشورة.</div>';
  relHost?.querySelectorAll("[data-delete-release]").forEach(btn=>btn.addEventListener("click",async()=>{if(!confirm("حذف سجل الإصدار؟"))return;try{await managerApi("/api/releases/"+encodeURIComponent(btn.dataset.deleteRelease),{method:"DELETE"});await refreshAdminData();}catch(e){alert(e.message);}}));
