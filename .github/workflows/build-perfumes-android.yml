@@ -36,8 +36,7 @@ jobs:
         working-directory: perfumes
         run: |
           mkdir -p www
-          cp index.html www/index.html
-          cp firebase.js www/firebase.js
+          cp *.html *.js *.webmanifest *.png *.svg www/
 
       - name: Generate Android project
         working-directory: perfumes
