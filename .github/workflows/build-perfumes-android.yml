@@ -37,12 +37,17 @@ jobs:
         run: |
           mkdir -p www
           cp index.html www/index.html
+          cp firebase.js www/firebase.js
+          cp google-services.json google-services.json
 
       - name: Generate Android project
         working-directory: perfumes
         run: |
           npx cap add android
           npx cap sync android
+          cp google-services.json android/app/google-services.json
+          sed -i '/classpath.*com.android.tools.build:gradle/a\        classpath "com.google.gms:google-services:4.4.2"' android/build.gradle
+          printf '\napply plugin: "com.google.gms.google-services"\n' >> android/app/build.gradle
 
       - name: Apply ZEIN & RAHAF perfume bottle app icon
         working-directory: perfumes
