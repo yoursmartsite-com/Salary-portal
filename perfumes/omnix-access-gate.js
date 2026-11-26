@@ -15,28 +15,39 @@ async function verifyOmnixAccess(user){
   return data;
 }
 
-onAuthStateChanged(auth,async user=>{
-  document.body.style.visibility="hidden";
-  if(!user){
-    location.replace("./login-preview.html");
-    return;
-  }
+let accessCheckBusy=false,accessLocked=false;
+async function enforceStoreAccess(user){
+  if(accessCheckBusy||accessLocked||!user)return;
+  accessCheckBusy=true;
   try{
     const access=await verifyOmnixAccess(user);
     if(!access.allowed){
-      location.replace(PORTAL);
+      accessLocked=true;
+      document.body.style.visibility="hidden";
+      location.replace(PORTAL+"?reason="+encodeURIComponent(access.reason||"program_disabled"));
       return;
     }
     document.body.style.visibility="visible";
   }catch(error){
     console.error("OMNIX access verification failed:",error);
-    const message=document.createElement("div");
-    message.dir="rtl";
-    message.style.cssText="position:fixed;inset:0;z-index:99999;display:grid;place-content:center;text-align:center;padding:24px;background:#171614;color:#e6c875;font:16px Arial;line-height:2";
-    message.textContent="تعذر التحقق من صلاحية الدخول عبر OMNIX. تأكد من الاتصال وحاول مرة أخرى.";
-    document.body.appendChild(message);
-  }
+    if(document.body.style.visibility==="hidden"){
+      const message=document.createElement("div");
+      message.dir="rtl";
+      message.style.cssText="position:fixed;inset:0;z-index:99999;display:grid;place-content:center;text-align:center;padding:24px;background:#171614;color:#e6c875;font:16px Arial;line-height:2";
+      message.textContent="تعذر التحقق من صلاحية الدخول عبر OMNIX. تأكد من الاتصال وحاول مرة أخرى.";
+      if(!document.getElementById("omnixAccessError")){message.id="omnixAccessError";document.body.appendChild(message);}
+    }
+  }finally{accessCheckBusy=false;}
+}
+onAuthStateChanged(auth,async user=>{
+  document.body.style.visibility="hidden";
+  if(!user){location.replace("./login-preview.html");return;}
+  await enforceStoreAccess(user);
 },error=>{
   console.error("Firebase session check failed:",error);
   location.replace("./login-preview.html");
 });
+// Recheck active sessions so disabling the program also locks pages already open.
+setInterval(()=>{if(auth.currentUser)enforceStoreAccess(auth.currentUser);},10000);
+window.addEventListener("focus",()=>{if(auth.currentUser)enforceStoreAccess(auth.currentUser);});
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&auth.currentUser)enforceStoreAccess(auth.currentUser);});
