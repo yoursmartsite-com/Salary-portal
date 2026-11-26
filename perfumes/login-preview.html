@@ -68,26 +68,45 @@ onValue(ref(db,"products"),snap=>{
 });
 </script>
 <script type="module">
-import {auth,db,ref,set,createUserWithEmailAndPassword,signInWithEmailAndPassword,updateProfile,GoogleAuthProvider,OAuthProvider,signInWithRedirect,getRedirectResult,onAuthStateChanged} from "./firebase.js";
+import {auth,db,ref,set,createUserWithEmailAndPassword,signInWithEmailAndPassword,updateProfile,GoogleAuthProvider,OAuthProvider,signInWithPopup,getRedirectResult,onAuthStateChanged} from "./firebase.js";
 const $=id=>document.getElementById(id);
 const msg=(id,text,bad=false)=>{const el=$(id);if(el){el.textContent=text;el.style.color=bad?"#ff9b9b":"#d8c9a4";}};
 const busy=(id,on,text)=>{const b=$(id);if(b){b.disabled=on;if(text)b.textContent=text;}};
+
+let oauthBusy=false;
 async function finish(user,name="",phone=""){
  const profile={name:name||user.displayName||"",phone,email:user.email||"",lastLoginAt:Date.now()};
- try{await set(ref(db,"users/"+user.uid),profile);}catch(e){console.warn("Profile save:",e);}
+ set(ref(db,"users/"+user.uid),profile).catch(e=>console.warn("Profile save:",e));
  location.replace("./index.html");
 }
 try{
  const result=await getRedirectResult(auth);
- if(result?.user) await finish(result.user);
-}catch(e){msg("authMessage",e.message||"تعذر إكمال تسجيل الدخول.",true);}
-onAuthStateChanged(auth,user=>{if(user)location.replace("./index.html");});
+ if(result?.user) finish(result.user);
+}catch(e){
+ console.error("OAuth return error:",e);
+ msg("authMessage",oauthError(e),true);
+}
+onAuthStateChanged(auth,user=>{
+ if(user&&!oauthBusy) location.replace("./index.html");
+});
+function oauthError(e){
+ const code=e?.code||"";
+ const messages={
+  "auth/unauthorized-domain":"النطاق غير مسموح به في Firebase Authentication.",
+  "auth/operation-not-allowed":"فعّل مزوّد تسجيل الدخول من Firebase Authentication > Sign-in method.",
+  "auth/popup-blocked":"المتصفح منع نافذة تسجيل الدخول. اسمح بالنوافذ المنبثقة وحاول مرة أخرى.",
+  "auth/popup-closed-by-user":"تم إغلاق نافذة تسجيل الدخول قبل اكتمال العملية.",
+  "auth/cancelled-popup-request":"فيه محاولة تسجيل دخول أخرى مفتوحة بالفعل.",
+  "auth/account-exists-with-different-credential":"البريد مسجل بطريقة دخول مختلفة. سجّل بالطريقة الأصلية أولًا."
+ };
+ return messages[code]||("تعذر تسجيل الدخول: "+(e?.message||code||"خطأ غير معروف"));
+}
 $("loginSubmit").addEventListener("click",async()=>{
  const email=$("loginEmail").value.trim(),password=$("loginPassword").value;
  if(!email||!password){msg("authMessage","اكتب البريد الإلكتروني وكلمة المرور.",true);return;}
  busy("loginSubmit",true,"جارٍ التحقق…");
- try{const cred=await signInWithEmailAndPassword(auth,email,password);await finish(cred.user);}
- catch(e){msg("authMessage",e.code==="auth/invalid-credential"?"البريد الإلكتروني أو كلمة المرور غير صحيحة.":e.message,true);}
+ try{const cred=await signInWithEmailAndPassword(auth,email,password);finish(cred.user);}
+ catch(e){msg("authMessage",e.code==="auth/invalid-credential"?"البريد الإلكتروني أو كلمة المرور غير صحيحة.":oauthError(e),true);}
  finally{busy("loginSubmit",false,"تسجيل الدخول");}
 });
 $("registerSubmit").addEventListener("click",async()=>{
@@ -96,16 +115,25 @@ $("registerSubmit").addEventListener("click",async()=>{
  if(password.length<6){msg("registerMessage","كلمة المرور لازم تكون 6 أحرف على الأقل.",true);return;}
  if(password!==confirm){msg("registerMessage","كلمتا المرور غير متطابقتين.",true);return;}
  busy("registerSubmit",true,"جارٍ إنشاء الحساب…");
- try{const cred=await createUserWithEmailAndPassword(auth,email,password);await updateProfile(cred.user,{displayName:name});await finish(cred.user,name,phone);}
- catch(e){msg("registerMessage",e.code==="auth/email-already-in-use"?"البريد ده مسجل بالفعل. سجّل الدخول.":e.message,true);}
+ try{const cred=await createUserWithEmailAndPassword(auth,email,password);await updateProfile(cred.user,{displayName:name});finish(cred.user,name,phone);}
+ catch(e){msg("registerMessage",e.code==="auth/email-already-in-use"?"البريد ده مسجل بالفعل. سجّل الدخول.":oauthError(e),true);}
  finally{busy("registerSubmit",false,"إنشاء حساب جديد");}
 });
-async function oauth(provider,id){
- msg("authMessage","جارٍ تحويلك إلى تسجيل الدخول الآمن…");
- try{await signInWithRedirect(auth,provider);}
- catch(e){msg("authMessage",e.code==="auth/unauthorized-domain"?"لازم إضافة نطاق الموقع إلى Authorized domains في Firebase.":e.message,true);}
+async function oauth(provider){
+ oauthBusy=true;
+ msg("authMessage","جارٍ فتح نافذة تسجيل الدخول الآمن…");
+ try{
+  const result=await signInWithPopup(auth,provider);
+  finish(result.user);
+ }catch(e){
+  oauthBusy=false;
+  msg("authMessage",oauthError(e),true);
+  console.error("OAuth popup failed:",e);
+ }
 }
-$("login").querySelector(".google").addEventListener("click",()=>oauth(new GoogleAuthProvider(),"google"));
-$("login").querySelector(".apple").addEventListener("click",()=>{const p=new OAuthProvider("apple.com");p.addScope("email");p.addScope("name");oauth(p,"apple");});
+$("login").querySelector(".google").addEventListener("click",()=>oauth(new GoogleAuthProvider()));
+$("login").querySelector(".apple").addEventListener("click",()=>{
+ const p=new OAuthProvider("apple.com");p.addScope("email");p.addScope("name");oauth(p);
+});
 $("forgotSubmit").addEventListener("click",()=>{msg("authMessage","استعادة كلمة المرور متاحة من صفحة حسابي بعد الدخول أو عبر دعم المتجر.",true);document.querySelector('[data-view="login"]').click();});
 </script></body></html>
