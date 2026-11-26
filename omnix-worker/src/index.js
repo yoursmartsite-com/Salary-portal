@@ -43,6 +43,17 @@ async function googleAccessToken(env) {
   cachedToken=data.access_token;cachedTokenExpiry=Date.now()+Number(data.expires_in||3600)*1000;
   return cachedToken;
 }
+async function verifySignedInUser(request,env) {
+  const header=request.headers.get("Authorization")||"";
+  const idToken=header.startsWith("Bearer ")?header.slice(7):"";
+  if(!idToken) throw new Error("يلزم تسجيل الدخول");
+  const response=await fetch("https://identitytoolkit.googleapis.com/v1/accounts:lookup?key="+encodeURIComponent(env.FIREBASE_API_KEY),{
+    method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({idToken})
+  });
+  const data=await response.json(),user=data.users?.[0];
+  if(!response.ok||!user||user.disabled) throw new Error("جلسة المستخدم غير صالحة أو الحساب موقوف");
+  return user;
+}
 async function verifyOwner(request,env) {
   const header=request.headers.get("Authorization")||"";
   const idToken=header.startsWith("Bearer ")?header.slice(7):"";
@@ -86,6 +97,17 @@ async function route(request,env) {
   // Public, non-sensitive health check: allow opening the Worker URL directly in a browser.
   if(path==="/health"&&request.method==="GET") return json({ok:true,service:"OMNIX API",version:"1.0.0"},200,origin);
   if(origin!==env.ALLOWED_ORIGIN) return json({error:"Origin not allowed"},403,origin);
+  if(path==="/api/access"&&request.method==="GET"){
+    const user=await verifySignedInUser(request,env);
+    if(user.localId===env.OWNER_UID)return json({ok:true,allowed:true,owner:true},200,origin);
+    const [assignment,subscription]=await Promise.all([
+      db(env,"omnix/customerPrograms/"+user.localId),db(env,"omnix/subscriptions/"+user.localId)
+    ]);
+    const now=Date.now(),expiresAt=Number(subscription?.expiresAt||0);
+    const allowed=!!assignment&&subscription?.status==="active"&&expiresAt>now;
+    const reason=!assignment?"not_assigned":!subscription?"no_subscription":subscription.status!=="active"?"subscription_inactive":expiresAt<=now?"expired":"";
+    return json({ok:true,allowed,reason,program:assignment||null,subscription:subscription||null},200,origin);
+  }
   await verifyOwner(request,env);
   const managerCollection="/omnix/programAdmins/zein-rahaf-store";
   if(path==="/api/program-admins"&&request.method==="GET"){
@@ -214,9 +236,13 @@ async function route(request,env) {
   if(subscriptionMatch&&(request.method==="PUT"||request.method==="PATCH")){
     const uid=decodeURIComponent(subscriptionMatch[1]),body=await request.json(),now=Date.now();
     const old=await db(env,"omnix/subscriptions/"+uid)||{};
-    const days=Math.max(0,Math.min(3650,Number(body.days??old.days??30)));
+    const days=Number(body.days??old.days??30);
+    const status=String(body.status??old.status??"active");
+    if(!Number.isInteger(days)||days<1||days>3650)return json({error:"مدة الاشتراك من يوم واحد إلى 10 سنوات"},400,origin);
+    if(!["active","paused","cancelled"].includes(status))return json({error:"حالة الاشتراك غير صحيحة"},400,origin);
     const startAt=Number(body.startAt||old.startAt||now);
-    const record={...old,...body,uid,days,startAt,expiresAt:startAt+days*86400000,status:body.status||"active",updatedAt:now,updatedBy:env.OWNER_UID};
+    if(!Number.isFinite(startAt)||startAt>now+86400000)return json({error:"تاريخ بداية الاشتراك غير صحيح"},400,origin);
+    const record={...old,uid,days,startAt,expiresAt:startAt+days*86400000,status,programId:String(body.programId??old.programId??""),notes:String(body.notes??old.notes??"").slice(0,1000),updatedAt:now,updatedBy:env.OWNER_UID};
     await db(env,"omnix/subscriptions/"+uid,"PUT",record);
     return json({ok:true,subscription:record},200,origin);
   }
