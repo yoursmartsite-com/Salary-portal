@@ -38,7 +38,6 @@ jobs:
           mkdir -p www
           cp index.html www/index.html
           cp firebase.js www/firebase.js
-          cp google-services.json google-services.json
 
       - name: Generate Android project
         working-directory: perfumes
