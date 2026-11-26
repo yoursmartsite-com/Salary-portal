@@ -133,6 +133,9 @@ async function route(request,env) {
   const url=new URL(request.url),path=url.pathname.replace(/\/+$/,"")||"/";
   const origin=request.headers.get("Origin")||"";
   if(request.method==="OPTIONS") return new Response(null,{status:204,headers:corsHeaders(origin)});
+  // Public, non-sensitive health check: allow opening the Worker URL directly in a browser.
+  if(path==="/health"&&request.method==="GET") return json({ok:true,service:"OMNIX API",version:"1.0.0"},200,origin);
+  if(origin!==env.ALLOWED_ORIGIN) return json({error:"Origin not allowed"},403,origin);
   if(path==="/api/push/register"&&request.method==="POST"){
     const user=await verifySignedInUser(request,env),body=await request.json();
     const token=String(body.token||"").trim(),platform=String(body.platform||"web");
@@ -151,9 +154,6 @@ async function route(request,env) {
     const result=await sendFcm(env,tokens,title,message,body.data&&typeof body.data==="object"?body.data:{});
     return json({ok:true,targetUid,...result},200,origin);
   }
-  // Public, non-sensitive health check: allow opening the Worker URL directly in a browser.
-  if(path==="/health"&&request.method==="GET") return json({ok:true,service:"OMNIX API",version:"1.0.0"},200,origin);
-  if(origin!==env.ALLOWED_ORIGIN) return json({error:"Origin not allowed"},403,origin);
   if(path==="/api/access"&&request.method==="GET"){
     const user=await verifySignedInUser(request,env);
     if(user.localId===env.OWNER_UID)return json({ok:true,allowed:true,owner:true},200,origin);
