@@ -185,6 +185,22 @@ button,input,select{font-family:Cairo,Arial,sans-serif}
 .logout:hover{background:#ffe4e6;border-color:#fda4af}
 @media(max-width:700px){.logout{display:flex!important;flex:0 0 auto;width:auto;min-width:112px;min-height:38px;margin:8px 0 3px;padding:8px 12px;font-size:11px}.sidebar{display:flex;flex-direction:column}.nav{order:2}.logout{order:3;align-self:flex-start}}
 
+
+/* Right-side section drawer */
+@media(min-width:0px){
+ .shell{display:block!important;max-width:1500px!important;padding:16px 22px!important}
+ .sidebar{position:fixed!important;z-index:1002!important;top:0!important;right:0!important;left:auto!important;width:min(310px,86vw)!important;height:100dvh!important;min-height:0!important;margin:0!important;border-radius:0 0 0 0!important;transform:translateX(110%)!important;transition:transform .28s ease!important;overflow-y:auto!important;box-shadow:-22px 0 60px rgba(0,0,0,.28)!important}
+ .sidebar.drawer-open{transform:translateX(0)!important}
+ .section-menu-overlay{position:fixed;inset:0;background:rgba(5,10,18,.48);backdrop-filter:blur(3px);z-index:1001;opacity:0;visibility:hidden;transition:opacity .22s ease,visibility .22s ease}
+ .section-menu-overlay.show{opacity:1;visibility:visible}
+ .topbar-heading{display:flex;align-items:center;gap:14px;min-width:0}
+ .section-menu-toggle{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:44px;padding:0 15px;border:1px solid rgba(201,164,94,.35);border-radius:12px;background:linear-gradient(145deg,#192536,#101824);color:#e6c783;font:700 12px inherit;cursor:pointer;box-shadow:0 7px 20px rgba(0,0,0,.12)}
+ .section-menu-toggle span{font-size:19px;line-height:1}
+ .section-menu-toggle:hover{border-color:#d8b56e;background:#202d3d}
+ .side-brand{padding-top:10px}
+}
+@media(max-width:700px){.shell{padding:10px!important}.topbar-heading{gap:9px}.section-menu-toggle{min-height:40px;padding:0 11px;font-size:11px}.topbar{align-items:center}.topbar h1{font-size:20px!important}}
+@media(prefers-reduced-motion:reduce){.sidebar,.section-menu-overlay{transition:none!important}}
 </style>
 </head>
 <body>
@@ -214,6 +230,8 @@ button,input,select{font-family:Cairo,Arial,sans-serif}
  </div>
 </section>
 <div class="shell hidden" id="appShell">
+ <div class="section-menu-overlay" id="sectionMenuOverlay"></div>
+
  <aside class="sidebar">
   <div class="side-brand"><div class="side-logo">OX</div><div><b>OMNIX</b><small>CENTRAL CONTROL</small></div></div>
   <nav class="nav" aria-label="القائمة الرئيسية">
@@ -230,7 +248,7 @@ button,input,select{font-family:Cairo,Arial,sans-serif}
   <button class="logout" id="logoutButton">تسجيل الخروج</button>
  </aside>
  <main class="main">
-  <header class="topbar"><div><div class="eyebrow">CONTROL CENTER / OWNER</div><h1 id="pageTitle">نظرة عامة</h1></div><div class="owner-chip"><div class="avatar">O</div><div><b>المالك</b><small id="ownerEmail"></small></div></div></header>
+  <header class="topbar"><div class="topbar-heading"><button type="button" class="section-menu-toggle" id="sectionMenuToggle" aria-label="فتح قائمة الأقسام" aria-expanded="false"><span>☰</span><b>الأقسام</b></button><div><div class="eyebrow">CONTROL CENTER / OWNER</div><h1 id="pageTitle">نظرة عامة</h1></div></div><div class="owner-chip"><div class="avatar">O</div><div><b>المالك</b><small id="ownerEmail"></small></div></div></header>
   <section class="view active" id="view-overview">
    <div class="welcome"><small>OMNIX · YOUR CONTROL SPACE</small><h2>كل برامجك في مكان واحد.</h2><p>من هنا هتتابع برامجك وتدير المستخدمين والاشتراكات والتحديثات. هنربط كل قسم بمصدر بياناته بعد تأمين صلاحيات المالك.</p></div>
    <div class="stats">
@@ -486,7 +504,12 @@ $("createCustomerForm").addEventListener("submit",async e=>{
 $("loginForm").addEventListener("submit",async e=>{e.preventDefault();if(busy)return;busy=true;$("loginButton").disabled=true;$("loginButton").textContent="جاري التحقق...";try{const email=$("email").value.trim().toLowerCase();if(email!==OWNER_EMAIL){message("هذا الحساب غير مصرح له بدخول OMNIX.");return;}await signInWithEmailAndPassword(auth,email,$("password").value);}catch(error){message(friendlyError(error));}finally{busy=false;$("loginButton").disabled=false;$("loginButton").textContent="دخول إلى OMNIX";}});
 onAuthStateChanged(auth,async user=>{if(!user){showLogin();return;}if(user.uid!==OWNER_UID){showLogin();message("الحساب الحالي غير مصرح له بدخول OMNIX. سجّل دخولك بحساب المالك المعتمد.");return;}showApp(user);await loadPrograms();initManagerPanel();connectOwnerData();});
 $("logoutButton").addEventListener("click",()=>signOut(auth));
-document.querySelectorAll("[data-view]").forEach(button=>button.addEventListener("click",()=>{document.querySelectorAll("[data-view]").forEach(x=>x.classList.toggle("active",x===button));document.querySelectorAll(".view").forEach(x=>x.classList.toggle("active",x.id==="view-"+button.dataset.view));const titles={overview:"نظرة عامة",programs:"البرامج",managers:"مديرو البرامج",customers:"العملاء",subscriptions:"الاشتراكات",updates:"التحديثات",notifications:"الإشعارات",settings:"الإعدادات"};$("pageTitle").textContent=titles[button.dataset.view]||"OMNIX";}));
+const sectionMenuToggle=$("sectionMenuToggle"),sectionMenuOverlay=$("sectionMenuOverlay"),sectionSidebar=document.querySelector(".sidebar");
+function closeSectionMenu(){sectionSidebar?.classList.remove("drawer-open");sectionMenuOverlay?.classList.remove("show");sectionMenuToggle?.setAttribute("aria-expanded","false");}
+function toggleSectionMenu(){const open=!sectionSidebar?.classList.contains("drawer-open");sectionSidebar?.classList.toggle("drawer-open",open);sectionMenuOverlay?.classList.toggle("show",open);sectionMenuToggle?.setAttribute("aria-expanded",String(open));}
+sectionMenuToggle?.addEventListener("click",toggleSectionMenu);sectionMenuOverlay?.addEventListener("click",closeSectionMenu);
+
+document.querySelectorAll("[data-view]").forEach(button=>button.addEventListener("click",()=>{closeSectionMenu();document.querySelectorAll("[data-view]").forEach(x=>x.classList.toggle("active",x===button));document.querySelectorAll(".view").forEach(x=>x.classList.toggle("active",x.id==="view-"+button.dataset.view));const titles={overview:"نظرة عامة",programs:"البرامج",managers:"مديرو البرامج",customers:"العملاء",subscriptions:"الاشتراكات",updates:"التحديثات",notifications:"الإشعارات",settings:"الإعدادات"};$("pageTitle").textContent=titles[button.dataset.view]||"OMNIX";}));
 </script>
 </body>
 </html>
