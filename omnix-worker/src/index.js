@@ -145,6 +145,15 @@ async function route(request,env) {
     await db(env,"perfumesPushTokens/"+user.localId+"/"+key,"PUT",{token,platform,updatedAt:Date.now(),uid:user.localId});
     return json({ok:true,registered:true},200,origin);
   }
+  if(path==="/api/push/order"&&request.method==="POST"){
+    const user=await verifySignedInUser(request,env),body=await request.json();
+    const orderId=String(body.orderId||"").slice(0,80),customerName=String(body.customerName||"عميل").slice(0,100),total=String(body.total||"").slice(0,40);
+    if(!orderId)return json({error:"رقم الطلب مطلوب"},400,origin);
+    const rows=await db(env,"perfumesPushTokens/"+env.OWNER_UID)||{};
+    const tokens=Object.entries(rows).map(([key,value])=>({key,uid:env.OWNER_UID,token:value?.token})).filter(x=>x.token);
+    const result=await sendFcm(env,tokens,"طلب جديد – زين ورهف","وصل طلب جديد من "+customerName+(total?" بقيمة "+total+" ج.م":""),{orderId});
+    return json({ok:true,...result},200,origin);
+  }
   if(path==="/api/push/notify"&&request.method==="POST"){
     const user=await verifyStoreAdmin(request,env),body=await request.json();
     const targetUid=String(body.targetUid||"").trim(),title=String(body.title||"إشعار زين ورهف").trim().slice(0,100),message=String(body.body||"").trim().slice(0,500);
