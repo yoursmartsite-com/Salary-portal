@@ -26,7 +26,7 @@ async function googleAccessToken(env) {
   const head = b64url(JSON.stringify({alg:"RS256",typ:"JWT"}));
   const claim = b64url(JSON.stringify({
     iss:sa.client_email,
-    scope:"https://www.googleapis.com/auth/identitytoolkit https://www.googleapis.com/auth/firebase.database https://www.googleapis.com/auth/userinfo.email",
+    scope:"https://www.googleapis.com/auth/identitytoolkit https://www.googleapis.com/auth/firebase.database https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/firebase.messaging",
     aud:"https://oauth2.googleapis.com/token",
     iat:now,exp:now+3600
   }));
@@ -53,6 +53,34 @@ async function verifySignedInUser(request,env) {
   const data=await response.json(),user=data.users?.[0];
   if(!response.ok||!user||user.disabled) throw new Error("جلسة المستخدم غير صالحة أو الحساب موقوف");
   return user;
+}
+async function verifyStoreAdmin(request,env) {
+  const user=await verifySignedInUser(request,env);
+  let claims={};
+  try{claims=user.customAttributes?JSON.parse(user.customAttributes):{};}catch(_){}
+  if(user.localId!==env.OWNER_UID&&(user.email||"").toLowerCase()!==(env.OWNER_EMAIL||"").toLowerCase()&&claims.zeinRahafStoreAdmin!==true)
+    throw new Error("غير مصرح: إدارة عطور زين ورهف فقط");
+  return user;
+}
+async function sendFcm(env,tokens,title,body,data={}) {
+  if(!tokens.length)return {sent:0};
+  const access=await googleAccessToken(env),project=env.FIREBASE_PROJECT_ID;
+  let sent=0,failed=0;
+  for(let i=0;i<tokens.length;i+=400){
+    const batch=tokens.slice(i,i+400);
+    const results=await Promise.all(batch.map(async item=>{
+      const response=await fetch("https://fcm.googleapis.com/v1/projects/"+project+"/messages:send",{
+        method:"POST",headers:{"Authorization":"Bearer "+access,"Content-Type":"application/json"},
+        body:JSON.stringify({message:{token:item.token,notification:{title,body},data:Object.fromEntries(Object.entries(data).map(([k,v])=>[k,String(v)])),android:{priority:"HIGH",notification:{channel_id:"zein_rahaf_orders",sound:"default"}},webpush:{headers:{Urgency:"high"},notification:{icon:"/Salary-portal/perfumes/app-icon.png",badge:"/Salary-portal/perfumes/app-icon.png"},fcm_options:{link:"https://yoursmartsite-com.github.io/Salary-portal/perfumes/orders.html"}}}})
+      });
+      if(response.ok)return true;
+      const err=await response.json().catch(()=>({}));
+      if(err.error?.details?.some(d=>d.errorCode==="UNREGISTERED"||d.errorCode==="INVALID_ARGUMENT")){await db(env,"perfumesPushTokens/"+item.uid+"/"+item.key,"DELETE").catch(()=>{});}
+      return false;
+    }));
+    sent+=results.filter(Boolean).length;failed+=results.length-results.filter(Boolean).length;
+  }
+  return {sent,failed};
 }
 async function verifyOwner(request,env) {
   const header=request.headers.get("Authorization")||"";
@@ -105,6 +133,24 @@ async function route(request,env) {
   const url=new URL(request.url),path=url.pathname.replace(/\/+$/,"")||"/";
   const origin=request.headers.get("Origin")||"";
   if(request.method==="OPTIONS") return new Response(null,{status:204,headers:corsHeaders(origin)});
+  if(path==="/api/push/register"&&request.method==="POST"){
+    const user=await verifySignedInUser(request,env),body=await request.json();
+    const token=String(body.token||"").trim(),platform=String(body.platform||"web");
+    if(token.length<30||token.length>4096||!["web","android","ios"].includes(platform))return json({error:"بيانات جهاز الإشعارات غير صحيحة"},400,origin);
+    const digest=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(token));
+    const key=Array.from(new Uint8Array(digest)).map(x=>x.toString(16).padStart(2,"0")).join("");
+    await db(env,"perfumesPushTokens/"+user.localId+"/"+key,"PUT",{token,platform,updatedAt:Date.now(),uid:user.localId});
+    return json({ok:true,registered:true},200,origin);
+  }
+  if(path==="/api/push/notify"&&request.method==="POST"){
+    const user=await verifyStoreAdmin(request,env),body=await request.json();
+    const targetUid=String(body.targetUid||"").trim(),title=String(body.title||"إشعار زين ورهف").trim().slice(0,100),message=String(body.body||"").trim().slice(0,500);
+    if(!targetUid||!message)return json({error:"المستلم ونص الإشعار مطلوبان"},400,origin);
+    const rows=await db(env,"perfumesPushTokens/"+targetUid)||{};
+    const tokens=Object.entries(rows).map(([key,value])=>({key,uid:targetUid,token:value?.token})).filter(x=>x.token);
+    const result=await sendFcm(env,tokens,title,message,body.data&&typeof body.data==="object"?body.data:{});
+    return json({ok:true,targetUid,...result},200,origin);
+  }
   // Public, non-sensitive health check: allow opening the Worker URL directly in a browser.
   if(path==="/health"&&request.method==="GET") return json({ok:true,service:"OMNIX API",version:"1.0.0"},200,origin);
   if(origin!==env.ALLOWED_ORIGIN) return json({error:"Origin not allowed"},403,origin);
