@@ -228,6 +228,12 @@ button,input,select{font-family:Cairo,Arial,sans-serif}
  .sidebar .nav button .ico{width:22px!important;flex:0 0 22px!important}
  .sidebar{overflow-y:auto!important}
 }
+
+/* Keep authentication and the application as two completely separate screens */
+#loginScreen{position:fixed!important;inset:0!important;z-index:2000!important;width:100%!important;height:100dvh!important;min-height:100dvh!important;overflow-y:auto!important;background:var(--bg)!important}
+#loginScreen.hidden{display:none!important}
+#appShell.hidden{display:none!important}
+#appShell:not(.hidden){display:flex}
 </style>
 </head>
 <body>
