@@ -104,20 +104,106 @@ body{background:radial-gradient(900px 520px at 82% -12%,rgba(185,142,65,.16),tra
 @keyframes omnixEnter{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:700px){.shell{padding:10px}.sidebar{border-radius:17px}.side-brand{padding-bottom:10px}.nav button{min-height:39px}.topbar h1{font-size:22px}.welcome{padding:21px;border-radius:18px}.welcome h2{font-size:21px}.welcome:after{width:150px;height:150px;left:-45px}.stat{padding:14px}.stat strong{font-size:23px}.module{padding:13px;border-radius:14px}.program-card{padding:14px}}
 
+
+/* OMNIX Cloud Portal — frosty enterprise redesign (keeps existing Firebase/Worker logic) */
+:root{color-scheme:light;--bg:#f4f7fb;--panel:#fff;--panel2:#f8fbff;--line:#dce5ef;--gold:#0ea5e9;--gold2:#4f46e5;--text:#0f172a;--muted:#64748b;--green:#059669;--red:#e11d48}
+html{background:#f4f7fb}
+body{background:radial-gradient(ellipse at 0% 0%,rgba(14,165,233,.12),transparent 38%),radial-gradient(ellipse at 100% 0%,rgba(99,102,241,.10),transparent 40%),linear-gradient(145deg,#f8fafc,#eef4fb);background-attachment:fixed;color:#0f172a}
+button,input,select{font-family:Cairo,Arial,sans-serif}
+.login-wrap{min-height:100vh;padding:26px;background:transparent}
+.login-card{width:min(100%,1050px);padding:0;display:grid;grid-template-columns:5fr 7fr;overflow:hidden;border:1px solid rgba(255,255,255,.9);border-radius:28px;background:rgba(255,255,255,.86);box-shadow:0 25px 70px rgba(15,23,42,.12),0 5px 18px rgba(14,165,233,.06);backdrop-filter:blur(20px)}
+.login-visual{min-height:570px;padding:38px 40px 25px;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;color:white;background:linear-gradient(145deg,#0284c7 0%,#0891b2 46%,#4338ca 100%)}
+.visual-glow{position:absolute;border-radius:50%;pointer-events:none;background:rgba(255,255,255,.12);filter:blur(2px)}
+.visual-glow.one{width:250px;height:250px;top:-100px;right:-95px}
+.visual-glow.two{width:280px;height:280px;bottom:-170px;left:-100px;background:rgba(129,140,248,.35)}
+.visual-kicker,.visual-brand,.login-visual h1,.login-visual p,.visual-feature,.visual-foot{position:relative;z-index:1}
+.visual-kicker{align-self:flex-start;padding:7px 12px;border:1px solid rgba(255,255,255,.24);border-radius:30px;background:rgba(255,255,255,.13);font-size:11px;font-weight:700}
+.visual-kicker span{color:#fde68a;margin-left:5px}
+.visual-brand{display:flex;align-items:center;gap:12px;margin-top:22px}
+.visual-mark{width:47px;height:47px;border-radius:15px;display:grid;place-items:center;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);font-weight:900;font-size:17px;letter-spacing:1px}
+.visual-brand b{font-size:24px;letter-spacing:3px}.visual-brand small{display:block;font-size:9px;letter-spacing:2px;color:#dbeafe}
+.login-visual h1{font-size:31px;line-height:1.5;margin:23px 0 8px;font-weight:900}
+.login-visual h1 span{color:#cffafe}
+.login-visual>p{font-size:12px;line-height:2;color:#e0f2fe;margin:0 0 22px;max-width:380px}
+.visual-feature{display:flex;align-items:center;gap:12px;margin:10px 0;padding:12px;border:1px solid rgba(255,255,255,.18);border-radius:14px;background:rgba(255,255,255,.11);backdrop-filter:blur(8px)}
+.visual-feature>span{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:rgba(255,255,255,.18);font-weight:900}
+.visual-feature b{display:block;font-size:11px}.visual-feature small{display:block;color:#dbeafe;font-size:10px;margin-top:2px}
+.visual-foot{display:flex;justify-content:space-between;gap:8px;border-top:1px solid rgba(255,255,255,.2);padding-top:15px;margin-top:20px;color:#dbeafe;font-size:9px;letter-spacing:1px}
+.login-form-panel{padding:55px 60px;display:flex;flex-direction:column;justify-content:center;background:rgba(255,255,255,.78)}
+.form-topline{display:flex;align-items:center;gap:8px;color:#0284c7;font-size:11px;font-weight:800;margin-bottom:16px}
+.form-dot{width:8px;height:8px;border-radius:50%;background:#10b981;box-shadow:0 0 0 4px #d1fae5}
+.login-form-panel h2{font-size:25px;font-weight:900;color:#0f172a;margin:0 0 5px}
+.login-form-panel .sub{font-size:12px;color:#64748b;margin:0 0 26px;line-height:1.9}
+.field{margin:16px 0}.field label{display:block;color:#334155;font-size:12px;font-weight:800;margin-bottom:7px}
+.field input{height:50px;border:1px solid #cbd5e1;border-radius:12px;background:#fff;color:#0f172a;box-shadow:0 2px 5px rgba(15,23,42,.025);transition:border .2s,box-shadow .2s}
+.field input:focus{border-color:#0ea5e9;box-shadow:0 0 0 4px rgba(14,165,233,.11)}
+.submit{height:51px;border-radius:12px;background:linear-gradient(100deg,#0284c7,#0891b2 55%,#4f46e5);color:white;box-shadow:0 10px 22px rgba(14,165,233,.22);transition:transform .2s,filter .2s}
+.submit:hover{filter:brightness(1.05);transform:translateY(-1px)}
+.login-note{color:#94a3b8;font-size:10px;line-height:1.9;margin:20px 0 0;text-align:center}
+.message.error{background:#fff1f2;color:#be123c;border-color:#fecdd3}.message.ok{background:#ecfdf5;color:#047857;border-color:#a7f3d0}
+.shell{grid-template-columns:255px minmax(0,1fr);gap:18px;padding:18px;max-width:1800px}
+.sidebar{background:rgba(255,255,255,.86);border:1px solid rgba(255,255,255,.95);border-radius:20px;box-shadow:0 12px 35px rgba(15,23,42,.07);backdrop-filter:blur(18px)}
+.side-brand{border-color:#e2e8f0}.side-logo{background:linear-gradient(135deg,#0284c7,#4f46e5);color:white;border:0;box-shadow:0 8px 18px rgba(14,165,233,.2)}
+.side-brand b{color:#0f172a}.side-brand small{color:#64748b}
+.nav button{color:#475569;border-radius:11px}.nav button .ico{color:#0284c7}
+.nav button.active{background:linear-gradient(100deg,#e0f2fe,#eef2ff);border-color:#bae6fd;color:#0f172a;box-shadow:inset -3px 0 #0ea5e9}
+.nav button:hover{background:#f1f5f9;color:#0f172a}
+.side-bottom{background:#ecfdf5;border-color:#bbf7d0}.side-bottom b{color:#047857}.side-bottom small{color:#64748b}
+.logout{background:#fff1f2;color:#be123c;border-color:#fecdd3}
+.main{padding:7px 5px}.eyebrow{color:#0284c7}.topbar h1{color:#0f172a}
+.owner-chip{background:rgba(255,255,255,.9);border-color:#e2e8f0;box-shadow:0 4px 14px rgba(15,23,42,.05)}
+.owner-chip b{color:#0f172a}.owner-chip small{color:#64748b}
+.avatar{background:linear-gradient(135deg,#e0f2fe,#e0e7ff);border:1px solid #bae6fd;color:#0369a1}
+.welcome{border-color:#dbeafe;background:radial-gradient(ellipse at 8% 8%,rgba(14,165,233,.13),transparent 46%),linear-gradient(115deg,#fff,#f0f7ff 68%,#f5f3ff);box-shadow:0 12px 30px rgba(15,23,42,.055)}
+.welcome:after{color:rgba(14,165,233,.04);border-color:rgba(14,165,233,.10);box-shadow:0 0 0 22px rgba(14,165,233,.025),0 0 0 48px rgba(79,70,229,.018)}
+.welcome small{color:#0284c7}.welcome h2{color:#0f172a}.welcome p{color:#64748b}
+.stat,.module,.program-card{background:rgba(255,255,255,.9);border-color:#e2e8f0;box-shadow:0 8px 22px rgba(15,23,42,.045)}
+.stat:hover,.module:hover,.program-card:hover{border-color:#bae6fd;box-shadow:0 15px 30px rgba(14,165,233,.09)}
+.stat .top{color:#64748b}.stat strong{color:#0f172a}.stat small{color:#64748b}
+.stat .symbol,.module .module-icon,.program-logo{background:linear-gradient(135deg,#e0f2fe,#eef2ff);border:1px solid #dbeafe;color:#0284c7}
+.module b,.program-card h3{color:#0f172a}.module p,.program-details{color:#64748b}
+.module em{color:#0284c7}.section-head h3{color:#0f172a}.section-head span{color:#64748b}
+.program-state{background:#ecfdf5;border-color:#bbf7d0;color:#047857}
+.program-state.source{background:#fffbeb;border-color:#fde68a;color:#a16207}
+.program-link{background:linear-gradient(100deg,#0284c7,#4f46e5);border:0;color:white}
+.program-link.secondary{background:#f1f5f9;border-color:#e2e8f0;color:#334155}
+.program-empty{border-color:#cbd5e1;color:#64748b}
+.notice{background:#eff6ff;border-color:#bfdbfe;color:#1e40af}
+.customer-create-grid label{color:#475569}
+.customer-create-grid input,.customer-create-grid select,.customer-tools select,.customer-url{background:#fff;border-color:#cbd5e1;color:#0f172a}
+.customer-tools button,.qr-actions button{background:linear-gradient(100deg,#0284c7,#4f46e5);border:0;color:white}
+.manager-actions button{background:#fff1f2;border-color:#fecdd3;color:#be123c}
+#customerSearch{background:#fff!important;color:#0f172a!important;border-color:#cbd5e1!important}
+@media(max-width:850px){.login-form-panel{padding:38px 32px}.login-visual{padding:30px 28px}}
+@media(max-width:700px){.login-wrap{padding:12px}.login-card{grid-template-columns:1fr;max-width:520px}.login-visual{min-height:300px;padding:23px 24px}.visual-brand{margin-top:15px}.login-visual h1{font-size:25px;margin:16px 0 5px}.login-visual>p{margin-bottom:10px}.visual-feature{margin:6px 0;padding:9px}.visual-foot{margin-top:12px;padding-top:10px}.login-form-panel{padding:30px 24px}.shell{padding:10px}.sidebar{background:rgba(255,255,255,.95)}.main{padding:2px}.welcome{padding:20px}.stats{gap:8px}.stat{padding:12px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
 </style>
 </head>
 <body>
 <section class="login-wrap" id="loginScreen">
  <div class="login-card">
-  <header class="brand"><div class="brand-mark">OX</div><h1>OMNIX</h1><p>CENTRAL CONTROL SYSTEM</p><span class="owner-tag"><i></i> دخول المالك فقط</span></header>
-  <h2>تسجيل دخول المالك</h2><p class="sub">استخدم حساب المالك المعتمد للوصول إلى مركز التحكم.</p>
-  <form id="loginForm">
-   <div class="field"><label for="email">البريد الإلكتروني</label><input id="email" type="email" autocomplete="username" placeholder="Owner email" required></div>
-   <div class="field"><label for="password">كلمة المرور</label><input id="password" type="password" autocomplete="current-password" placeholder="كلمة المرور" required></div>
-   <button class="submit" id="loginButton" type="submit">دخول إلى OMNIX</button>
-   <div class="message" id="loginMessage" role="status" aria-live="polite"></div>
-  </form>
-  <p class="login-note">لا يوجد إنشاء حساب من هذه الصفحة. إذا لم يكن حساب المالك مسجلًا في Firebase Authentication، يجب إنشاؤه من لوحة Firebase أولًا.</p>
+  <div class="login-visual">
+   <div class="visual-glow one"></div><div class="visual-glow two"></div>
+   <div class="visual-kicker"><span>✦</span> منصة الإدارة السحابية الموحدة</div>
+   <div class="visual-brand"><div class="visual-mark">OX</div><div><b>OMNIX</b><small>CENTRAL CONTROL</small></div></div>
+   <h1>كل أعمالك،<br><span>تحت سيطرتك.</span></h1>
+   <p>مركز موحّد لإدارة البرامج والعملاء والاشتراكات والتحديثات، من مكان واحد وبصلاحيات المالك.</p>
+   <div class="visual-feature"><span>✓</span><div><b>إدارة مركزية آمنة</b><small>دخول المالك المعتمد فقط</small></div></div>
+   <div class="visual-feature"><span>⌘</span><div><b>كل برامجك في مكان واحد</b><small>متابعة وإدارة من لوحة واحدة</small></div></div>
+   <div class="visual-foot"><span>OMNIX CLOUD PORTAL</span><span>OWNER ACCESS</span></div>
+  </div>
+  <div class="login-form-panel">
+   <div class="form-topline"><span class="form-dot"></span> بوابة المالك</div>
+   <h2>مرحبًا بعودتك</h2><p class="sub">سجّل الدخول للمتابعة إلى مركز التحكم الخاص بك.</p>
+   <form id="loginForm">
+    <div class="field"><label for="email">البريد الإلكتروني</label><input id="email" type="email" autocomplete="username" placeholder="Owner email" required></div>
+    <div class="field"><label for="password">كلمة المرور</label><input id="password" type="password" autocomplete="current-password" placeholder="كلمة المرور" required></div>
+    <button class="submit" id="loginButton" type="submit">دخول إلى OMNIX <span>←</span></button>
+    <div class="message" id="loginMessage" role="status" aria-live="polite"></div>
+   </form>
+   <p class="login-note">هذه البوابة مخصصة لحساب المالك المعتمد فقط. لا يوجد إنشاء حساب من هذه الصفحة.</p>
+  </div>
  </div>
 </section>
 <div class="shell hidden" id="appShell">
