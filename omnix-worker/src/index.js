@@ -172,7 +172,7 @@ async function route(request,env) {
     try{claims=user.customAttributes?JSON.parse(user.customAttributes):{};}catch(_){}
     if(claims.zeinRahafStoreAdmin===true){
       const manager=await db(env,"omnix/programAdmins/zein-rahaf-store/"+user.localId);
-      if(manager?.active!==false)
+      if(manager?.active===true)
         return json({ok:true,allowed:true,manager:true,role:"manager",program:{programId:"zein-rahaf-store",programName:"عطور زين ورهف",url:"https://yoursmartsite-com.github.io/Salary-portal/perfumes/"}},200,origin);
     }
     const [assignment,subscription,allNotifications,allReleases]=await Promise.all([
