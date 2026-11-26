@@ -395,7 +395,7 @@ function connectOwnerData(){
   customerList.innerHTML=entries.length?entries.map(([uid,u])=>{
    const assigned=assignments[uid]||{},options='<option value="">اختر البرنامج المخصص للعميل</option>'+programCatalog.map(p=>'<option value="'+escapeHtml(p.id)+'" '+(assigned.programId===p.id?'selected':'')+'>'+escapeHtml(p.name)+'</option>').join("");
    const qrId="customer-qr-"+uid.replace(/[^a-zA-Z0-9_-]/g,"");
-   return '<article class="program-card" data-customer-card="'+escapeHtml(uid)+'"><div class="program-card-head"><div class="program-logo">♙</div><div><h3>'+escapeHtml(u?.name||"عميل بدون اسم")+'</h3><div class="kind">'+escapeHtml(u?.email||"لا يوجد بريد مسجل")+'</div></div></div><p class="program-details">الهاتف: '+escapeHtml(u?.phone||"غير مسجل")+'<br>UID: <span dir="ltr">'+escapeHtml(uid)+'</span><br>آخر دخول: '+(u?.lastLoginAt?new Date(u.lastLoginAt).toLocaleString("ar-EG"):"غير متاح")+'</p><div class="customer-tools"><select data-program-select="'+escapeHtml(uid)+'">'+options+'</select><button type="button" data-save-program="'+escapeHtml(uid)+'">حفظ البرنامج</button></div><input class="customer-url" type="url" data-customer-url="'+escapeHtml(uid)+'" value="'+escapeHtml(assigned.url||programCatalog.find(p=>p.id===assigned.programId)?.url||"")+'" placeholder="رابط البرنامج (يُملأ تلقائيًا — التعديل اختياري)"><div class="customer-tools"><button type="button" data-generate-qr="'+escapeHtml(uid)+'" '+(!(assigned.url||programCatalog.find(p=>p.id===assigned.programId)?.url)?'disabled':'')+'>إنشاء QR Code</button><span class="program-count">'+(assigned.programName?'البرنامج: '+escapeHtml(assigned.programName):'لم يتم تخصيص برنامج بعد')+'</span></div><div class="qr-panel" id="'+qrId+'"><div class="qr-code"></div><div class="qr-caption"></div><div class="qr-actions"><button type="button" data-download-qr="'+escapeHtml(uid)+'">حفظ صورة QR</button></div></div></article>';
+   return '<article class="program-card" data-customer-card="'+escapeHtml(uid)+'"><div class="program-card-head"><div class="program-logo">♙</div><div><h3>'+escapeHtml(u?.name||"عميل بدون اسم")+'</h3><div class="kind">'+escapeHtml(u?.email||"لا يوجد بريد مسجل")+'</div></div></div><p class="program-details">الهاتف: '+escapeHtml(u?.phone||"غير مسجل")+'<br>UID: <span dir="ltr">'+escapeHtml(uid)+'</span><br>آخر دخول: '+(u?.lastLoginAt?new Date(u.lastLoginAt).toLocaleString("ar-EG"):"غير متاح")+'</p><div class="customer-tools"><select data-program-select="'+escapeHtml(uid)+'">'+options+'</select><button type="button" data-save-program="'+escapeHtml(uid)+'">حفظ البرنامج</button></div><input class="customer-url" type="url" data-customer-url="'+escapeHtml(uid)+'" value="'+escapeHtml(assigned.url||programCatalog.find(p=>p.id===assigned.programId)?.url||"")+'" placeholder="رابط البرنامج (يُملأ تلقائيًا — التعديل اختياري)"><div class="customer-tools"><button type="button" data-generate-qr="'+escapeHtml(uid)+'" '+(!(assigned.url||programCatalog.find(p=>p.id===assigned.programId)?.url)?'disabled':'')+'>إنشاء QR Code</button><span class="program-count">'+(assigned.programName?'البرنامج: '+escapeHtml(assigned.programName):'لم يتم تخصيص برنامج بعد')+'</span></div><div class="qr-panel" id="'+qrId+'"><div class="qr-code"></div><div class="qr-caption"></div><div class="qr-actions"><button type="button" data-download-qr="'+escapeHtml(uid)+'">حفظ صورة QR</button></div></div><div class="admin-actions" style="margin-top:12px"><button type="button" data-edit-customer="'+escapeHtml(uid)+'">تعديل البيانات</button><button type="button" data-toggle-customer="'+escapeHtml(uid)+'">'+(u?.disabled?'إعادة تفعيل الحساب':'إيقاف الحساب')+'</button><button type="button" class="danger" data-delete-customer="'+escapeHtml(uid)+'">حذف العميل</button></div></article>';
   }).join(""):'<div class="program-empty">لا توجد نتائج مطابقة.</div>';
   customerList.querySelectorAll("[data-program-select]").forEach(select=>select.addEventListener("change",()=>{const uid=select.dataset.programSelect,program=programCatalog.find(p=>p.id===select.value),urlInput=customerList.querySelector('[data-customer-url="'+CSS.escape(uid)+'"]'),qrButton=customerList.querySelector('[data-generate-qr="'+CSS.escape(uid)+'"]');if(urlInput)urlInput.value=program?.url||"";if(qrButton)qrButton.disabled=!program?.url;}));
   customerList.querySelectorAll("[data-save-program]").forEach(button=>button.addEventListener("click",async()=>{
@@ -444,6 +444,25 @@ function connectOwnerData(){
     }catch(e){alert("تعذر حفظ الصورة. افتح OMNIX في Chrome وجرّب مرة أخرى.");}
    }
   }));
+   customerList.querySelectorAll("[data-edit-customer]").forEach(button=>button.addEventListener("click",async()=>{
+    const uid=button.dataset.editCustomer,u=customers[uid]||{},name=prompt("اسم العميل",u.name||""),email=prompt("البريد الإلكتروني",u.email||""),phone=prompt("رقم الهاتف",u.phone||"");
+    if(name===null||email===null||phone===null)return;
+    try{await managerApi("/api/customers/"+encodeURIComponent(uid),{method:"PATCH",body:JSON.stringify({email:email.trim(),displayName:name.trim(),profile:{name:name.trim(),email:email.trim(),phone:phone.trim()}})});alert("تم تحديث بيانات العميل.");}
+    catch(error){alert(error.message||"تعذر تعديل العميل.");}
+   }));
+   customerList.querySelectorAll("[data-toggle-customer]").forEach(button=>button.addEventListener("click",async()=>{
+    const uid=button.dataset.toggleCustomer,u=customers[uid]||{},disabled=!u.disabled;
+    if(!confirm(disabled?"إيقاف حساب العميل ومنعه من الدخول؟":"إعادة تفعيل حساب العميل؟"))return;
+    button.disabled=true;
+    try{await managerApi("/api/customers/"+encodeURIComponent(uid),{method:"PATCH",body:JSON.stringify({disabled,profile:{disabled}})});alert(disabled?"تم إيقاف الحساب.":"تمت إعادة تفعيل الحساب.");}
+    catch(error){alert(error.message||"تعذر تغيير حالة الحساب.");}
+    finally{button.disabled=false;}
+   }));
+   customerList.querySelectorAll("[data-delete-customer]").forEach(button=>button.addEventListener("click",async()=>{
+    const uid=button.dataset.deleteCustomer;if(!confirm("حذف حساب العميل نهائيًا مع تخصيص البرنامج والاشتراك؟ لا يمكن التراجع."))return;
+    button.disabled=true;try{await managerApi("/api/customers/"+encodeURIComponent(uid),{method:"DELETE"});alert("تم حذف حساب العميل.");}catch(error){alert(error.message||"تعذر حذف العميل.");button.disabled=false;}
+   }));
+
  }
  const usersStop=onValue(ref(db,"users"),snap=>{customers=snap.val()||{};$("statCustomers").textContent=Object.keys(customers).length;drawCustomers();},err=>{customerCount.textContent="تعذر قراءة العملاء";customerList.innerHTML='<div class="program-empty">صلاحيات قراءة قائمة العملاء غير مفعّلة بعد. يلزم السماح للمالك بقراءة المسار users بالكامل.</div>';console.error("OMNIX users:",err);});
  dataStops.push(usersStop);
