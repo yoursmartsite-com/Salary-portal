@@ -252,7 +252,7 @@ function connectOwnerData(){
  dataStops.push(ordersStop);
  $("customerSearch").oninput=drawCustomers;
 }
-let managerApiBase=localStorage.getItem("omnix_api_base")||"";
+let managerApiBase=localStorage.getItem("omnix_api_base")||"https://omnix-api.fibrahem865.workers.dev";
 function managerMessage(text,type="error"){const el=$("managerMessage");el.textContent=text;el.className="message show "+type;}
 async function managerApi(path,options={}){
  if(!managerApiBase)throw new Error("احفظ رابط Cloudflare Worker أولًا.");
