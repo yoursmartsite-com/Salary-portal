@@ -256,6 +256,7 @@ button,input,select{font-family:Cairo,Arial,sans-serif}
     <div class="field"><label for="email">البريد الإلكتروني</label><input id="email" type="email" autocomplete="username" placeholder="Owner email" required></div>
     <div class="field"><label for="password">كلمة المرور</label><input id="password" type="password" autocomplete="current-password" placeholder="كلمة المرور" required></div>
     <button class="submit" id="loginButton" type="submit">دخول إلى OMNIX <span>←</span></button>
+    <button type="button" id="forgotPasswordButton" style="display:block;width:100%;margin-top:14px;padding:10px;border:0;background:transparent;color:#c8a85c;text-decoration:underline;cursor:pointer;font:inherit">نسيت كلمة المرور؟</button>
     <div class="message" id="loginMessage" role="status" aria-live="polite"></div>
    </form>
    <p class="login-note">هذه البوابة مخصصة لحساب المالك المعتمد فقط. لا يوجد إنشاء حساب من هذه الصفحة.</p>
@@ -339,7 +340,7 @@ button,input,select{font-family:Cairo,Arial,sans-serif}
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script type="module">
-import {auth,signInWithEmailAndPassword,onAuthStateChanged,signOut,db,ref,onValue,set} from "../perfumes/firebase.js";
+import {auth,signInWithEmailAndPassword,sendPasswordResetEmail,onAuthStateChanged,signOut,db,ref,onValue,set} from "../perfumes/firebase.js";
 import {firebaseConfig} from "../perfumes/firebase.js";
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import {getAuth,createUserWithEmailAndPassword,updateProfile,setPersistence,inMemoryPersistence,signOut as signOutCustomer} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
@@ -598,6 +599,19 @@ function initAdminForms(){
 }
 function friendlyError(error){const map={"auth/invalid-credential":"البريد الإلكتروني أو كلمة المرور غير صحيحة.","auth/user-not-found":"حساب المالك غير موجود في Firebase Authentication. أنشئ الحساب أولًا من لوحة Firebase.","auth/wrong-password":"كلمة المرور غير صحيحة.","auth/too-many-requests":"محاولات كثيرة. انتظر قليلًا ثم حاول.","auth/network-request-failed":"تعذر الاتصال بالإنترنت.","auth/unauthorized-domain":"أضف دومين OMNIX إلى Authorized domains في إعدادات Firebase Authentication."};return map[error.code]||"تعذر تسجيل الدخول: "+(error.message||error.code||"خطأ غير معروف");}
 $("createCustomerForm").addEventListener("submit",async e=>{e.preventDefault();const button=$("createCustomerButton"),status=$("createCustomerMessage"),name=$("newCustomerName").value.trim(),phone=$("newCustomerPhone").value.trim(),email=$("newCustomerEmail").value.trim().toLowerCase(),password=$("newCustomerPassword").value,program=programCatalog.find(p=>p.id===$("newCustomerProgram").value);if(!auth.currentUser||auth.currentUser.uid!==OWNER_UID){status.textContent="جلسة المالك غير صالحة.";status.className="message show error";return;}if(!program){status.textContent="اختار البرنامج المخصص للعميل.";status.className="message show error";return;}if(!name||!email||password.length<8){status.textContent="اكتب الاسم والبريد وكلمة مرور 8 أحرف على الأقل.";status.className="message show error";return;}button.disabled=true;button.textContent="جاري إنشاء الحساب…";status.className="message";status.textContent="";try{const result=await managerApi("/api/customers",{method:"POST",body:JSON.stringify({name,phone,email,password,program:{id:program.id,name:program.name,url:program.url}})});status.textContent="تم إنشاء الحساب وربطه بالبرنامج. UID: "+result.uid;status.className="message show ok";$("createCustomerForm").reset();await refreshAdminData();}catch(error){status.textContent=error.message||"تعذر إنشاء الحساب.";status.className="message show error";}finally{button.disabled=false;button.textContent="إنشاء الحساب وربط البرنامج";}});
+$("forgotPasswordButton").addEventListener("click",async()=>{
+ const email=$("email").value.trim().toLowerCase();
+ if(!email){message("اكتب بريد المالك أولاً، ثم اضغط نسيت كلمة المرور.");$("email").focus();return;}
+ if(email!==OWNER_EMAIL){message("استعادة كلمة المرور متاحة لبريد المالك المعتمد فقط.");return;}
+ const button=$("forgotPasswordButton");button.disabled=true;button.textContent="جاري إرسال رابط الاستعادة...";
+ try{
+  await sendPasswordResetEmail(auth,email,{url:"https://yoursmartsite-com.github.io/Salary-portal/omnix/"});
+  message("تم إرسال رابط إعادة تعيين كلمة المرور إلى بريد المالك. راجع الوارد والرسائل غير المرغوب فيها.","success");
+ }catch(error){
+  const map={"auth/user-not-found":"لا يوجد حساب بهذا البريد في Firebase Authentication.","auth/invalid-email":"البريد الإلكتروني غير صحيح.","auth/too-many-requests":"محاولات كثيرة. انتظر قليلًا ثم حاول.","auth/network-request-failed":"تعذر الاتصال بالإنترنت."};
+  message(map[error.code]||friendlyError(error));
+ }finally{button.disabled=false;button.textContent="نسيت كلمة المرور؟";}
+});
 $("loginForm").addEventListener("submit",async e=>{e.preventDefault();if(busy)return;busy=true;$("loginButton").disabled=true;$("loginButton").textContent="جاري التحقق...";try{const email=$("email").value.trim().toLowerCase();if(email!==OWNER_EMAIL){message("هذا الحساب غير مصرح له بدخول OMNIX.");return;}await signInWithEmailAndPassword(auth,email,$("password").value);}catch(error){message(friendlyError(error));}finally{busy=false;$("loginButton").disabled=false;$("loginButton").textContent="دخول إلى OMNIX";}});
 onAuthStateChanged(auth,async user=>{if(!user){dataStops.forEach(stop=>{try{stop();}catch(e){}});dataStops=[];showLogin();return;}if(user.uid!==OWNER_UID){showLogin();message("الحساب الحالي غير مصرح له بدخول OMNIX. سجّل دخولك بحساب المالك المعتمد.");return;}showApp(user);await loadPrograms();initManagerPanel();connectOwnerData();initAdminForms();try{await refreshAdminData();}catch(e){console.error("OMNIX bootstrap:",e);}});
 $("logoutButton").addEventListener("click",()=>signOut(auth));
