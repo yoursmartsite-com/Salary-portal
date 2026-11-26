@@ -100,15 +100,17 @@ async function route(request,env) {
   if(path==="/api/access"&&request.method==="GET"){
     const user=await verifySignedInUser(request,env);
     if(user.localId===env.OWNER_UID)return json({ok:true,allowed:true,owner:true},200,origin);
-    const [assignment,subscription,allNotifications]=await Promise.all([
-      db(env,"omnix/customerPrograms/"+user.localId),db(env,"omnix/subscriptions/"+user.localId),db(env,"omnix/notifications")
+    const [assignment,subscription,allNotifications,allReleases]=await Promise.all([
+      db(env,"omnix/customerPrograms/"+user.localId),db(env,"omnix/subscriptions/"+user.localId),db(env,"omnix/notifications"),db(env,"omnix/releases")
     ]);
     const now=Date.now(),expiresAt=Number(subscription?.expiresAt||0),programMismatch=!!subscription?.programId&&subscription.programId!==assignment?.programId;
     const allowed=!!assignment&&subscription?.status==="active"&&expiresAt>now&&!programMismatch;
     const reason=!assignment?"not_assigned":!subscription?"no_subscription":subscription.status!=="active"?"subscription_inactive":expiresAt<=now?"expired":programMismatch?"program_mismatch":"";
     const notifications=Object.entries(allNotifications||{}).filter(([,n])=>n.target==="all"||(n.target==="program"&&n.programId===assignment?.programId)||(n.target==="customer"&&n.customerUid===user.localId)).map(([id,n])=>({id,title:String(n.title||"إشعار"),message:String(n.message||""),createdAt:Number(n.createdAt||0)})).sort((a,b)=>b.createdAt-a.createdAt).slice(0,30);
     const safeSubscription=subscription?{status:subscription.status,days:subscription.days,startAt:subscription.startAt,expiresAt:subscription.expiresAt,programId:subscription.programId}:null;
-    return json({ok:true,allowed,reason,program:assignment||null,subscription:safeSubscription,notifications},200,origin);
+    const release=Object.values(allReleases||{}).filter(r=>r.programId===assignment?.programId).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0))[0]||null;
+    const safeRelease=release?{version:String(release.version||""),url:String(release.url||""),notes:String(release.notes||""),forceUpdate:release.forceUpdate===true,createdAt:Number(release.createdAt||0)}:null;
+    return json({ok:true,allowed,reason,program:assignment||null,subscription:safeSubscription,notifications,release:safeRelease},200,origin);
   }
   await verifyOwner(request,env);
   const managerCollection="/omnix/programAdmins/zein-rahaf-store";
