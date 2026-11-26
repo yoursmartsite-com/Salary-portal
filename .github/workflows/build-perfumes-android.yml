@@ -1,11 +1,7 @@
-name: Build ZEIN & RAHAF Android APK
+name: Build ZEIN & RAHAF Android Release APK
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - "perfumes/**"
-      - ".github/workflows/build-perfumes-android.yml"
 
 permissions:
   contents: write
@@ -63,26 +59,52 @@ jobs:
             convert app-icon.png -resize "${fg_size}x${fg_size}" "android/app/src/main/res/mipmap-$density/ic_launcher_foreground.png"
           done
 
-      - name: Build debug APK
-        working-directory: perfumes/android
+      - name: Configure release signing
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
-          chmod +x gradlew
-          ./gradlew assembleDebug
+          set -euo pipefail
+          for name in ANDROID_KEYSTORE_BASE64 ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_ALIAS ANDROID_KEY_PASSWORD; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Missing GitHub Actions secret: $name"
+              exit 1
+            fi
+          done
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/zein-rahaf-release.jks"
+          test -s "$RUNNER_TEMP/zein-rahaf-release.jks"
 
-      - name: Upload APK
+      - name: Build signed release APK
+        working-directory: perfumes/android
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew assembleRelease \
+            -Pandroid.injected.signing.store.file="$RUNNER_TEMP/zein-rahaf-release.jks" \
+            -Pandroid.injected.signing.store.password="$ANDROID_KEYSTORE_PASSWORD" \
+            -Pandroid.injected.signing.key.alias="$ANDROID_KEY_ALIAS" \
+            -Pandroid.injected.signing.key.password="$ANDROID_KEY_PASSWORD"
+
+      - name: Upload signed APK
         uses: actions/upload-artifact@v4
         with:
-          name: zein-rahaf-android-apk
-          path: perfumes/android/app/build/outputs/apk/debug/app-debug.apk
+          name: zein-rahaf-android-release-apk
+          path: perfumes/android/app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
           retention-days: 30
 
-      - name: Publish public APK download
+      - name: Publish signed APK download
         uses: softprops/action-gh-release@v2
         with:
           tag_name: android-latest
           name: ZEIN & RAHAF Android App
-          body: "Official Android installer for ZEIN & RAHAF PERFUMES."
-          files: perfumes/android/app/build/outputs/apk/debug/app-debug.apk
+          body: "Official signed Android release installer for ZEIN & RAHAF PERFUMES."
+          files: perfumes/android/app/build/outputs/apk/release/app-release.apk
           overwrite_files: true
           make_latest: true
