@@ -38,6 +38,14 @@
     "omnix": {
       ".read": "auth != null && auth.uid === 'Isjbto8GuLdkyh0W5VDJSfYSZF43'",
       ".write": "auth != null && auth.uid === 'Isjbto8GuLdkyh0W5VDJSfYSZF43'"
+    },
+    "notifications": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || auth.uid === 'Isjbto8GuLdkyh0W5VDJSfYSZF43' || auth.token.email === 'fibrahem865@gmail.com' || auth.token.zeinRahafStoreAdmin === true)",
+        "$notificationId": {
+          ".write": "auth != null && (auth.uid === 'Isjbto8GuLdkyh0W5VDJSfYSZF43' || auth.token.email === 'fibrahem865@gmail.com' || auth.token.zeinRahafStoreAdmin === true)"
+        }
+      }
     }
   }
 }
