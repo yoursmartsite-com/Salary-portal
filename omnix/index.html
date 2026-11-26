@@ -178,6 +178,13 @@ button,input,select{font-family:Cairo,Arial,sans-serif}
 @media(max-width:700px){.login-wrap{padding:12px}.login-card{grid-template-columns:1fr;max-width:520px}.login-visual{min-height:300px;padding:23px 24px}.visual-brand{margin-top:15px}.login-visual h1{font-size:25px;margin:16px 0 5px}.login-visual>p{margin-bottom:10px}.visual-feature{margin:6px 0;padding:9px}.visual-foot{margin-top:12px;padding-top:10px}.login-form-panel{padding:30px 24px}.shell{padding:10px}.sidebar{background:rgba(255,255,255,.95)}.main{padding:2px}.welcome{padding:20px}.stats{gap:8px}.stat{padding:12px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 
+
+/* Keep owner sign-out available on phones and desktop */
+.logout{display:flex!important;align-items:center;justify-content:center;gap:8px;width:100%;min-height:44px;margin:14px 0 4px;padding:11px 14px;border:1px solid #fecdd3;border-radius:12px;background:#fff1f2;color:#be123c;font-size:12px;font-weight:800;cursor:pointer}
+.logout:before{content:"↪";font-size:17px;line-height:1}
+.logout:hover{background:#ffe4e6;border-color:#fda4af}
+@media(max-width:700px){.logout{display:flex!important;flex:0 0 auto;width:auto;min-width:112px;min-height:38px;margin:8px 0 3px;padding:8px 12px;font-size:11px}.sidebar{display:flex;flex-direction:column}.nav{order:2}.logout{order:3;align-self:flex-start}}
+
 </style>
 </head>
 <body>
