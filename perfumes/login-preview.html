@@ -57,7 +57,7 @@ function showNextRealProductPhoto(){
 }
 onValue(ref(db,"products"),snap=>{
  const rows=Object.values(snap.val()||{});
- photoProducts=rows.filter(p=>p&&typeof p.image==="string"&&/^https?:\\/\\//i.test(p.image.trim()))
+ photoProducts=rows.filter(p=>p&&typeof p.image==="string"&&/^https?:\/\//i.test(p.image.trim()))
    .sort((a,b)=>Number(a.id||0)-Number(b.id||0));
  photoIndex=0;
  if(photoProducts.length){showNextRealProductPhoto();}
