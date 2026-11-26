@@ -37,19 +37,33 @@ h2{font:700 clamp(25px,3vw,33px) Amiri,serif;margin:0 0 5px}.sub{font-size:13px;
 <section class="view" id="forgot"><a class="back" data-view="login">← العودة لتسجيل الدخول</a><h2 style="margin-top:25px">استعادة كلمة المرور</h2><p class="sub">أدخل البريد الإلكتروني أو رقم الهاتف المسجل لاستعادة حسابك.</p><div class="field"><label>البريد الإلكتروني أو رقم الهاتف</label><input placeholder="بيانات الحساب"></div><button class="goldbtn" type="button">متابعة</button><p class="notice">سيتم تحديد طريقة الاستعادة وربطها لاحقًا.</p></section>
 <footer class="foot"><span>© 2026 زين ورهف. جميع الحقوق محفوظة.</span><span>تفاصيل تصنع الفخامة</span></footer>
 </section>
-<aside class="showcase"><div class="frame"></div><div class="badge">تجربة عطرية استثنائية · 2026</div><div class="bottle-wrap"><div class="ring"></div><img id="featuredProductImage" class="product-image" src="https://yoursmartsite-com.github.io/Salary-portal/perfumes/app-icon.png" alt="عطر من مجموعة زين ورهف"></div><div class="showcopy"><h3>«عطرك.. بصمتك الخاصة»</h3><p>اختيارات عطرية راقية، بتفاصيل تليق بك وتترك أثرًا لا يُنسى.</p><div class="notes"><span>عود فاخر</span><span>نفحات شرقية</span><span>ثبات وفوحان</span></div></div></aside>
+<aside class="showcase"><div class="frame"></div><div class="badge">تجربة عطرية استثنائية · 2026</div><div class="bottle-wrap"><div class="ring"></div><img id="featuredProductImage" class="product-image" src="" alt="صورة عطر حقيقي من منتجات زين ورهف"></div><div class="showcopy"><h3>«عطرك.. بصمتك الخاصة»</h3><p>اختيارات عطرية راقية، بتفاصيل تليق بك وتترك أثرًا لا يُنسى.</p><div class="notes"><span>عود فاخر</span><span>نفحات شرقية</span><span>ثبات وفوحان</span></div></div></aside>
 </main>
 <script>
 document.querySelectorAll("[data-view]").forEach(el=>el.addEventListener("click",()=>{const id=el.dataset.view;document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===id));document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("active",b.dataset.view===id));document.querySelector(".tabs").style.display=id==="forgot"?"none":"flex"}));
 const c=document.getElementById("particles"),ctx=c.getContext("2d");let pts=[];function resize(){c.width=innerWidth;c.height=innerHeight;pts=Array.from({length:Math.min(48,Math.floor(innerWidth/24))},()=>({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.5+.4,a:Math.random()*.5+.15,s:Math.random()*.3+.08}))}function tick(){ctx.clearRect(0,0,c.width,c.height);for(const p of pts){p.y-=p.s;if(p.y<0){p.y=c.height;p.x=Math.random()*c.width}ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle="rgba(212,175,55,"+p.a+")";ctx.fill()}requestAnimationFrame(tick)}addEventListener("resize",resize);resize();tick();
 </script>
 <script type="module">
-import {db,ref,get} from "./firebase.js";
+import {db,ref,onValue} from "./firebase.js";
 const featured=document.getElementById("featuredProductImage");
-try{
- const snap=await get(ref(db,"products"));
- const products=Object.values(snap.val()||{});
- const item=products.find(p=>p&&typeof p.image==="string"&&p.image.trim());
- if(item){featured.src=item.image;featured.alt=item.name||"عطر من مجموعة زين ورهف";}
-}catch(error){console.warn("تعذر تحميل صورة المنتج للمعاينة:",error);}
+let photoProducts=[],photoIndex=0;
+function showNextRealProductPhoto(){
+ if(!photoProducts.length){featured.style.visibility="hidden";return;}
+ if(photoIndex>=photoProducts.length){featured.style.visibility="hidden";console.warn("لم يتم العثور على رابط صورة صالح لأي منتج.");return;}
+ const item=photoProducts[photoIndex++];
+ featured.onload=()=>{featured.style.visibility="visible";featured.alt=item.name||"صورة عطر حقيقي من منتجات زين ورهف";};
+ featured.onerror=showNextRealProductPhoto;
+ featured.src=item.image;
+}
+onValue(ref(db,"products"),snap=>{
+ const rows=Object.values(snap.val()||{});
+ photoProducts=rows.filter(p=>p&&typeof p.image==="string"&&/^https?:\\/\\//i.test(p.image.trim()))
+   .sort((a,b)=>Number(a.id||0)-Number(b.id||0));
+ photoIndex=0;
+ if(photoProducts.length){showNextRealProductPhoto();}
+ else{featured.removeAttribute("src");featured.style.visibility="hidden";console.warn("لا توجد منتجات بصور محفوظة في Firebase.");}
+},error=>{
+ featured.style.visibility="hidden";
+ console.warn("تعذر قراءة صور المنتجات من Firebase:",error);
+});
 </script></body></html>
