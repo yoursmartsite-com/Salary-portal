@@ -27,14 +27,14 @@ h2{font:700 clamp(25px,3vw,33px) Amiri,serif;margin:0 0 5px}.sub{font-size:13px;
 <header class="brand"><div class="emblem">✧</div><div><h1>زين ورهف</h1><p>ZEIN & RAHAF · PERFUMES</p></div></header>
 <nav class="tabs"><button class="active" data-view="login">تسجيل الدخول</button><button data-view="register">إنشاء حساب جديد</button></nav>
 <section class="view active" id="login"><h2>أهلاً بعودتك</h2><p class="sub">سجّل دخولك إلى عالم زين ورهف واكتشف اختياراتك المفضلة.</p>
-<div class="field"><label>البريد الإلكتروني أو رقم الهاتف</label><input type="text" placeholder="أدخل البريد الإلكتروني أو رقم الهاتف"></div>
-<div class="field"><label>كلمة المرور</label><input type="password" placeholder="أدخل كلمة المرور"></div>
+<div class="field"><label>البريد الإلكتروني أو رقم الهاتف</label><input id="loginEmail" type="email" autocomplete="username" placeholder="أدخل البريد الإلكتروني"></div>
+<div class="field"><label>كلمة المرور</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="أدخل كلمة المرور"></div>
 <div class="between"><label class="remember"><input type="checkbox"> تذكرني على هذا الجهاز</label><a data-view="forgot">نسيت كلمة المرور؟</a></div>
-<button class="goldbtn" type="button">تسجيل الدخول</button><div class="divider">أو المتابعة عبر</div><div class="social"><button class="google" type="button" aria-label="المتابعة باستخدام Google"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#4285F4" d="M43.6 24.5c0-1.4-.1-2.8-.4-4.1H24v7.8h11a9.4 9.4 0 0 1-4.1 6.2v5.1h6.6c3.9-3.6 6.1-8.9 6.1-15z"/><path fill="#34A853" d="M24 44c5.5 0 10.1-1.8 13.5-4.9l-6.6-5.1c-1.8 1.2-4.1 2-6.9 2-5.3 0-9.8-3.6-11.4-8.4H5.8v5.3A20 20 0 0 0 24 44z"/><path fill="#FBBC05" d="M12.6 27.6a12 12 0 0 1 0-7.2v-5.3H5.8a20 20 0 0 0 0 17.8z"/><path fill="#EA4335" d="M24 12c3 0 5.7 1 7.8 3.1l5.8-5.8C34.1 6.1 29.5 4 24 4A20 20 0 0 0 5.8 15.1l6.8 5.3C14.2 15.6 18.7 12 24 12z"/></svg><span>Google</span></button><button class="apple" type="button" aria-label="المتابعة باستخدام Apple"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M16.37 12.24c.02 2.2 1.93 2.93 1.95 2.94-.02.05-.3 1.04-.99 2.06-.6.88-1.22 1.75-2.2 1.77-.96.02-1.27-.57-2.37-.57s-1.45.55-2.35.59c-.94.03-1.66-.95-2.27-1.82-1.24-1.8-2.19-5.1-.92-7.32.63-1.1 1.75-1.8 2.96-1.82.92-.02 1.8.62 2.37.62.56 0 1.62-.77 2.73-.66.46.02 1.76.19 2.6 1.43-.07.04-1.55.9-1.54 2.78ZM14.57 5.9c.5-.6.83-1.44.74-2.28-.72.03-1.59.48-2.1 1.08-.46.53-.86 1.38-.75 2.2.8.06 1.61-.4 2.11-1Z"/></svg><span>Apple</span></button></div>
-<p class="notice">هذه معاينة للتصميم فقط. لم يتم تفعيل تسجيل الدخول أو التحقق من الحسابات بعد.</p></section>
+<button class="goldbtn" id="loginSubmit" type="button">تسجيل الدخول</button><div class="divider">أو المتابعة عبر</div><div class="social"><button class="google" type="button" aria-label="المتابعة باستخدام Google"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#4285F4" d="M43.6 24.5c0-1.4-.1-2.8-.4-4.1H24v7.8h11a9.4 9.4 0 0 1-4.1 6.2v5.1h6.6c3.9-3.6 6.1-8.9 6.1-15z"/><path fill="#34A853" d="M24 44c5.5 0 10.1-1.8 13.5-4.9l-6.6-5.1c-1.8 1.2-4.1 2-6.9 2-5.3 0-9.8-3.6-11.4-8.4H5.8v5.3A20 20 0 0 0 24 44z"/><path fill="#FBBC05" d="M12.6 27.6a12 12 0 0 1 0-7.2v-5.3H5.8a20 20 0 0 0 0 17.8z"/><path fill="#EA4335" d="M24 12c3 0 5.7 1 7.8 3.1l5.8-5.8C34.1 6.1 29.5 4 24 4A20 20 0 0 0 5.8 15.1l6.8 5.3C14.2 15.6 18.7 12 24 12z"/></svg><span>Google</span></button><button class="apple" type="button" aria-label="المتابعة باستخدام Apple"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M16.37 12.24c.02 2.2 1.93 2.93 1.95 2.94-.02.05-.3 1.04-.99 2.06-.6.88-1.22 1.75-2.2 1.77-.96.02-1.27-.57-2.37-.57s-1.45.55-2.35.59c-.94.03-1.66-.95-2.27-1.82-1.24-1.8-2.19-5.1-.92-7.32.63-1.1 1.75-1.8 2.96-1.82.92-.02 1.8.62 2.37.62.56 0 1.62-.77 2.73-.66.46.02 1.76.19 2.6 1.43-.07.04-1.55.9-1.54 2.78ZM14.57 5.9c.5-.6.83-1.44.74-2.28-.72.03-1.59.48-2.1 1.08-.46.53-.86 1.38-.75 2.2.8.06 1.61-.4 2.11-1Z"/></svg><span>Apple</span></button></div>
+<p class="notice" id="authMessage" role="status">سجّل الدخول أو أنشئ حسابًا للمتابعة إلى المتجر.</p></section>
 <section class="view" id="register"><h2>انضم إلى زين ورهف</h2><p class="sub">أنشئ حسابك لتجربة تسوق عطرية أكثر خصوصية.</p>
-<div class="field"><label>الاسم الكامل</label><input placeholder="الاسم الأول واسم العائلة"></div><div class="field"><label>البريد الإلكتروني</label><input type="email" placeholder="name@example.com"></div><div class="field"><label>رقم الهاتف</label><input type="tel" placeholder="01xxxxxxxxx"></div><div class="field"><label>كلمة المرور</label><input type="password" placeholder="أدخل كلمة المرور"></div><div class="field"><label>تأكيد كلمة المرور</label><input type="password" placeholder="أعد إدخال كلمة المرور"></div><button class="goldbtn" type="button">إنشاء حساب جديد</button><p class="notice">واجهة التسجيل للمعاينة فقط، ولن يتم إنشاء حساب حقيقي في هذه المرحلة.</p></section>
-<section class="view" id="forgot"><a class="back" data-view="login">← العودة لتسجيل الدخول</a><h2 style="margin-top:25px">استعادة كلمة المرور</h2><p class="sub">أدخل البريد الإلكتروني أو رقم الهاتف المسجل لاستعادة حسابك.</p><div class="field"><label>البريد الإلكتروني أو رقم الهاتف</label><input placeholder="بيانات الحساب"></div><button class="goldbtn" type="button">متابعة</button><p class="notice">سيتم تحديد طريقة الاستعادة وربطها لاحقًا.</p></section>
+<div class="field"><label>الاسم الكامل</label><input id="registerName" autocomplete="name" placeholder="الاسم الأول واسم العائلة"></div><div class="field"><label>البريد الإلكتروني</label><input id="registerEmail" type="email" autocomplete="email" placeholder="name@example.com"></div><div class="field"><label>رقم الهاتف</label><input id="registerPhone" type="tel" autocomplete="tel" placeholder="01xxxxxxxxx"></div><div class="field"><label>كلمة المرور</label><input id="registerPassword" type="password" autocomplete="new-password" placeholder="أدخل كلمة المرور"></div><div class="field"><label>تأكيد كلمة المرور</label><input id="registerConfirm" type="password" autocomplete="new-password" placeholder="أعد إدخال كلمة المرور"></div><button class="goldbtn" id="registerSubmit" type="button">إنشاء حساب جديد</button><p class="notice" id="registerMessage" role="status">إنشاء الحساب متاح بالبريد الإلكتروني وكلمة المرور.</p></section>
+<section class="view" id="forgot"><a class="back" data-view="login">← العودة لتسجيل الدخول</a><h2 style="margin-top:25px">استعادة كلمة المرور</h2><p class="sub">أدخل البريد الإلكتروني أو رقم الهاتف المسجل لاستعادة حسابك.</p><div class="field"><label>البريد الإلكتروني أو رقم الهاتف</label><input placeholder="بيانات الحساب"></div><button class="goldbtn" id="forgotSubmit" type="button">متابعة</button><p class="notice">لاستعادة الحساب تواصل مع الدعم مؤقتًا من صفحة حسابك.</p></section>
 <footer class="foot"><span>© 2026 زين ورهف. جميع الحقوق محفوظة.</span><span>تفاصيل تصنع الفخامة</span></footer>
 </section>
 <aside class="showcase"><div class="frame"></div><div class="badge">تجربة عطرية استثنائية · 2026</div><div class="bottle-wrap"><div class="ring"></div><img id="featuredProductImage" class="product-image" src="" alt="صورة عطر حقيقي من منتجات زين ورهف"></div><div class="showcopy"><h3>«عطرك.. بصمتك الخاصة»</h3><p>اختيارات عطرية راقية، بتفاصيل تليق بك وتترك أثرًا لا يُنسى.</p><div class="notes"><span>عود فاخر</span><span>نفحات شرقية</span><span>ثبات وفوحان</span></div></div></aside>
@@ -66,4 +66,46 @@ onValue(ref(db,"products"),snap=>{
  featured.style.visibility="hidden";
  console.warn("تعذر قراءة صور المنتجات من Firebase:",error);
 });
+</script>
+<script type="module">
+import {auth,db,ref,set,createUserWithEmailAndPassword,signInWithEmailAndPassword,updateProfile,GoogleAuthProvider,OAuthProvider,signInWithRedirect,getRedirectResult,onAuthStateChanged} from "./firebase.js";
+const $=id=>document.getElementById(id);
+const msg=(id,text,bad=false)=>{const el=$(id);if(el){el.textContent=text;el.style.color=bad?"#ff9b9b":"#d8c9a4";}};
+const busy=(id,on,text)=>{const b=$(id);if(b){b.disabled=on;if(text)b.textContent=text;}};
+async function finish(user,name="",phone=""){
+ const profile={name:name||user.displayName||"",phone,email:user.email||"",lastLoginAt:Date.now()};
+ try{await set(ref(db,"users/"+user.uid),profile);}catch(e){console.warn("Profile save:",e);}
+ location.replace("./index.html");
+}
+try{
+ const result=await getRedirectResult(auth);
+ if(result?.user) await finish(result.user);
+}catch(e){msg("authMessage",e.message||"تعذر إكمال تسجيل الدخول.",true);}
+onAuthStateChanged(auth,user=>{if(user)location.replace("./index.html");});
+$("loginSubmit").addEventListener("click",async()=>{
+ const email=$("loginEmail").value.trim(),password=$("loginPassword").value;
+ if(!email||!password){msg("authMessage","اكتب البريد الإلكتروني وكلمة المرور.",true);return;}
+ busy("loginSubmit",true,"جارٍ التحقق…");
+ try{const cred=await signInWithEmailAndPassword(auth,email,password);await finish(cred.user);}
+ catch(e){msg("authMessage",e.code==="auth/invalid-credential"?"البريد الإلكتروني أو كلمة المرور غير صحيحة.":e.message,true);}
+ finally{busy("loginSubmit",false,"تسجيل الدخول");}
+});
+$("registerSubmit").addEventListener("click",async()=>{
+ const name=$("registerName").value.trim(),email=$("registerEmail").value.trim(),phone=$("registerPhone").value.trim(),password=$("registerPassword").value,confirm=$("registerConfirm").value;
+ if(!name||!email||!phone||!password){msg("registerMessage","اكمل كل البيانات المطلوبة.",true);return;}
+ if(password.length<6){msg("registerMessage","كلمة المرور لازم تكون 6 أحرف على الأقل.",true);return;}
+ if(password!==confirm){msg("registerMessage","كلمتا المرور غير متطابقتين.",true);return;}
+ busy("registerSubmit",true,"جارٍ إنشاء الحساب…");
+ try{const cred=await createUserWithEmailAndPassword(auth,email,password);await updateProfile(cred.user,{displayName:name});await finish(cred.user,name,phone);}
+ catch(e){msg("registerMessage",e.code==="auth/email-already-in-use"?"البريد ده مسجل بالفعل. سجّل الدخول.":e.message,true);}
+ finally{busy("registerSubmit",false,"إنشاء حساب جديد");}
+});
+async function oauth(provider,id){
+ msg("authMessage","جارٍ تحويلك إلى تسجيل الدخول الآمن…");
+ try{await signInWithRedirect(auth,provider);}
+ catch(e){msg("authMessage",e.code==="auth/unauthorized-domain"?"لازم إضافة نطاق الموقع إلى Authorized domains في Firebase.":e.message,true);}
+}
+$("login").querySelector(".google").addEventListener("click",()=>oauth(new GoogleAuthProvider(),"google"));
+$("login").querySelector(".apple").addEventListener("click",()=>{const p=new OAuthProvider("apple.com");p.addScope("email");p.addScope("name");oauth(p,"apple");});
+$("forgotSubmit").addEventListener("click",()=>{msg("authMessage","استعادة كلمة المرور متاحة من صفحة حسابي بعد الدخول أو عبر دعم المتجر.",true);document.querySelector('[data-view="login"]').click();});
 </script></body></html>
