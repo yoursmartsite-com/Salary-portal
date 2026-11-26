@@ -12,7 +12,8 @@ export const firebaseConfig = {
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import {
-  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, getIdTokenResult,\n  GoogleAuthProvider, OAuthProvider, signInWithRedirect, getRedirectResult,
+  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, getIdTokenResult,
+  GoogleAuthProvider, OAuthProvider, signInWithRedirect, getRedirectResult,
   sendPasswordResetEmail, signOut, onAuthStateChanged, updateProfile,
   RecaptchaVerifier, signInWithPhoneNumber, linkWithPhoneNumber, updatePassword
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
