@@ -7,6 +7,10 @@ on:
       - "omnix-worker/**"
       - ".github/workflows/deploy-omnix-worker.yml"
 
+concurrency:
+  group: omnix-worker-deploy
+  cancel-in-progress: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
