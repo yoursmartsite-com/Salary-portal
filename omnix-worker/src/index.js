@@ -339,6 +339,13 @@ async function route(request,env) {
     return json({ok:true,assignment:record},200,origin);
   }
   const subscriptionMatch=path.match(/^\/api\/subscriptions\/([^/]+)$/);
+  if(subscriptionMatch&&request.method==="DELETE"){
+    const uid=decodeURIComponent(subscriptionMatch[1]);
+    const existing=await db(env,"omnix/subscriptions/"+uid);
+    if(!existing)return json({error:"لا يوجد اشتراك حالي لهذا العميل"},404,origin);
+    await db(env,"omnix/subscriptions/"+uid,"DELETE");
+    return json({ok:true,uid,deleted:true},200,origin);
+  }
   if(subscriptionMatch&&(request.method==="PUT"||request.method==="PATCH")){
     const uid=decodeURIComponent(subscriptionMatch[1]),body=await request.json(),now=Date.now();
     const old=await db(env,"omnix/subscriptions/"+uid)||{};
