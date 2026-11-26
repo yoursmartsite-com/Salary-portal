@@ -410,7 +410,7 @@ function connectOwnerData(){
    if(!program){alert("اختار البرنامج الأول.");return;}
    let targetUrl=(urlInput?.value||"").trim()||program.url;try{const parsed=new URL(targetUrl);if(!["http:","https:"].includes(parsed.protocol))throw new Error();}catch(e){alert("اكتب رابط موقع صحيح يبدأ بـ https://");return;}
    button.disabled=true;button.textContent="جاري الحفظ…";
-   try{const record={programId:program.id,programName:program.name,url:targetUrl,updatedAt:Date.now()};await set(ref(db,"omnix/customerPrograms/"+uid),record);assignments[uid]=record;drawCustomers();}
+   try{const result=await managerApi("/api/assignments/"+encodeURIComponent(uid),{method:"PUT",body:JSON.stringify({programId:program.id,programName:program.name,url:targetUrl})});assignments[uid]=result.assignment;drawCustomers();}
    catch(error){alert("تعذر حفظ تخصيص البرنامج. تأكد من نشر قواعد Firebase الخاصة بـ OMNIX. "+(error.message||""));}
    finally{button.disabled=false;}
   }));
