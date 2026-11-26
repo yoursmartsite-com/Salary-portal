@@ -103,9 +103,9 @@ async function route(request,env) {
     const [assignment,subscription,allNotifications]=await Promise.all([
       db(env,"omnix/customerPrograms/"+user.localId),db(env,"omnix/subscriptions/"+user.localId),db(env,"omnix/notifications")
     ]);
-    const now=Date.now(),expiresAt=Number(subscription?.expiresAt||0);
-    const allowed=!!assignment&&subscription?.status==="active"&&expiresAt>now;
-    const reason=!assignment?"not_assigned":!subscription?"no_subscription":subscription.status!=="active"?"subscription_inactive":expiresAt<=now?"expired":"";
+    const now=Date.now(),expiresAt=Number(subscription?.expiresAt||0),programMismatch=!!subscription?.programId&&subscription.programId!==assignment?.programId;
+    const allowed=!!assignment&&subscription?.status==="active"&&expiresAt>now&&!programMismatch;
+    const reason=!assignment?"not_assigned":!subscription?"no_subscription":subscription.status!=="active"?"subscription_inactive":expiresAt<=now?"expired":programMismatch?"program_mismatch":"";
     const notifications=Object.entries(allNotifications||{}).filter(([,n])=>n.target==="all"||(n.target==="program"&&n.programId===assignment?.programId)||(n.target==="customer"&&n.customerUid===user.localId)).map(([id,n])=>({id,...n})).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)).slice(0,30);
     return json({ok:true,allowed,reason,program:assignment||null,subscription:subscription||null,notifications},200,origin);
   }
