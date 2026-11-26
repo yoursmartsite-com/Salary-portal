@@ -166,6 +166,9 @@ async function route(request,env) {
   if(path==="/api/access"&&request.method==="GET"){
     const user=await verifySignedInUser(request,env);
     const expectedProgramId=String(url.searchParams.get("programId")||"zein-rahaf-store");
+    const programAccess=await db(env,"omnix/programAccess/"+expectedProgramId);
+    if(programAccess?.enabled===false)
+      return json({ok:true,allowed:false,reason:"program_disabled",program:{programId:expectedProgramId,programName:"عطور زين ورهف"}},200,origin);
     if(user.localId===env.OWNER_UID)
       return json({ok:true,allowed:true,owner:true,role:"owner",program:{programId:expectedProgramId,programName:"عطور زين ورهف",url:"https://yoursmartsite-com.github.io/Salary-portal/perfumes/"}},200,origin);
     let claims={};
@@ -190,6 +193,18 @@ async function route(request,env) {
     return json({ok:true,allowed,reason,program:assignment||null,subscription:safeSubscription,notifications,release:safeRelease},200,origin);
   }
   await verifyOwner(request,env);
+  const accessControlMatch=path.match(/^\/api\/program-access\/([a-z0-9-]+)$/);
+  if(accessControlMatch&&request.method==="GET"){
+    const id=accessControlMatch[1],record=await db(env,"omnix/programAccess/"+id);
+    return json({ok:true,programId:id,enabled:record?.enabled!==false,updatedAt:record?.updatedAt||null},200,origin);
+  }
+  if(accessControlMatch&&request.method==="PATCH"){
+    const id=accessControlMatch[1],body=await request.json();
+    if(typeof body.enabled!=="boolean")return json({error:"حالة التشغيل غير صحيحة"},400,origin);
+    const record={programId:id,enabled:body.enabled,updatedAt:Date.now(),updatedBy:env.OWNER_UID};
+    await db(env,"omnix/programAccess/"+id,"PUT",record);
+    return json({ok:true,...record},200,origin);
+  }
   const managerCollection="/omnix/programAdmins/zein-rahaf-store";
   if(path==="/api/program-admins"&&request.method==="GET"){
     const programId=url.searchParams.get("programId")||"zein-rahaf-store";
