@@ -34,7 +34,7 @@ public class MainActivity extends BridgeActivity {
     }
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
         if (updateDialogShown) {
             updateDialogShown = false;
@@ -114,7 +114,7 @@ public class MainActivity extends BridgeActivity {
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         updateExecutor.shutdownNow();
         super.onDestroy();
     }
