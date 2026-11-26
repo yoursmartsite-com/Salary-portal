@@ -2,6 +2,10 @@ name: Build ZEIN & RAHAF Android Release APK
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - "perfumes/**"
+      - ".github/workflows/build-perfumes-android.yml"
 
 permissions:
   contents: write
