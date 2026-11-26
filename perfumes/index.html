@@ -21,7 +21,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:18p
 @media(max-width:360px){.grid{gap:8px}.product{padding:9px}.name{font-size:13px}.foot{font-size:12px}}
 @media(min-width:761px){.app{min-height:850px}.layout{min-height:790px}}
 .admin-only{display:none}.admin-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.admin-add,.admin-edit,.admin-delete{border:0;border-radius:10px;padding:9px 12px;font:700 12px Cairo}.admin-add{background:#171614;color:#e6c875}.admin-edit{background:#f2ece1}.admin-delete{background:#fae8e5;color:#9b3025}.admin-form{display:none;background:#fff;border:1px solid #c59b27;border-radius:16px;padding:14px;margin:10px 0}.admin-form.show{display:block}.admin-form input,.admin-form select{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;margin:5px 0;font:12px Cairo}.admin-form .prices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.admin-form button{border:0;border-radius:10px;padding:10px;font:700 12px Cairo}.admin-save{background:#171614;color:#e6c875}.admin-cancel{background:#f2ece1}</style>
-</head>
+<style id="ZR_LOGIN_GATE">body{visibility:hidden}</style></head>
 <body>
 <div class="app"><div class="topline"></div>
 <header><div><div class="brand-title">زين ورهف</div><div class="brand-sub">ZEIN & RAHAF · PERFUMES</div></div><div class="actions"><button class="icon" id="searchFocus" aria-label="بحث">⌕</button><a class="icon" href="cart.html" aria-label="السلة" style="display:grid;place-items:center;text-decoration:none;color:inherit">🛍<span class="count" id="count">0</span></a></div></header>
@@ -98,5 +98,14 @@ el("adminSave").addEventListener("click",async()=>{const signedUser=auth.current
 onValue(ref(db,"products"),snap=>{if(window.__zrSetProducts){const rows=Object.values(snap.val()||{}).sort((a,b)=>(a.id||0)-(b.id||0));window.__zrSetProducts(rows);}},err=>{window.__zrSetProducts?.([]);console.warn("Products sync unavailable",err)});
 window.addEventListener("zr:datachange",async event=>{if(!activeUid||loading)return;const key=event.detail?.key;if(!paths[key])return;try{await set(ref(db,paths[key]+"/"+activeUid),event.detail.value);}catch(e){console.error("Firebase save failed",e);alert("لم يتم حفظ التعديل على حسابك. راجع قواعد Realtime Database.");}});
 </script>
-<script src="./download-gate.js" defer></script></body>
+<script src="./download-gate.js" defer></script><script type="module" id="ZR_LOGIN_GATE_SCRIPT">
+import {auth,onAuthStateChanged} from "./firebase.js";
+onAuthStateChanged(auth,user=>{
+ if(user){document.body.style.visibility="visible";}
+ else{location.replace("./login-preview.html");}
+},error=>{
+ console.error("Auth gate error:",error);
+ location.replace("./login-preview.html");
+});
+</script></body>
 </html>
