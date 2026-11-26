@@ -201,6 +201,33 @@ button,input,select{font-family:Cairo,Arial,sans-serif}
 }
 @media(max-width:700px){.shell{padding:10px!important}.topbar-heading{gap:9px}.section-menu-toggle{min-height:40px;padding:0 11px;font-size:11px}.topbar{align-items:center}.topbar h1{font-size:20px!important}}
 @media(prefers-reduced-motion:reduce){.sidebar,.section-menu-overlay{transition:none!important}}
+
+/* Mobile drawer: stack navigation items vertically */
+@media(max-width:700px){
+ .sidebar .nav{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  width:100%!important;
+  gap:7px!important;
+  margin-top:14px!important;
+  padding:0 0 8px!important;
+  overflow:visible!important;
+ }
+ .sidebar .nav button{
+  display:flex!important;
+  flex:0 0 auto!important;
+  width:100%!important;
+  min-height:46px!important;
+  justify-content:flex-start!important;
+  padding:11px 14px!important;
+  gap:12px!important;
+  text-align:right!important;
+  font-size:12px!important;
+ }
+ .sidebar .nav button .ico{width:22px!important;flex:0 0 22px!important}
+ .sidebar{overflow-y:auto!important}
+}
 </style>
 </head>
 <body>
