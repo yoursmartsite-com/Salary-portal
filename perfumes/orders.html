@@ -11,7 +11,4 @@ function statusView(status){
 }
 function render(orders){const list=Array.isArray(orders)?orders.map((o,i)=>[o.id||("طلب "+(i+1)),o]):Object.entries(orders||{}).sort((a,b)=>(b[1].createdAt||0)-(a[1].createdAt||0));el.innerHTML=list.length?list.map(([id,o])=>'<div class="order-card"><b>طلب رقم '+safe(id)+'</b><p>الاسم: '+safe(o.name)+'</p><p>رقم الهاتف: '+safe(o.phone)+'</p><p>العنوان: '+safe(o.address)+'</p><b>'+money(o.total)+'</b>'+statusView(o.status||"new")+'<div class="hint">'+(o.items||[]).map(x=>safe(x.name)+" · "+safe(x.size)+" مل × "+safe(x.qty)).join("، ")+'</div></div>').join(""):'<div class="empty">لسه مفيش طلبات مسجلة على الحساب.<br><a href="index.html">ابدأ التسوق</a></div>';}
 onAuthStateChanged(auth,user=>{if(!user){el.innerHTML='<div class="empty">سجّل الدخول لمتابعة طلباتك.<br><a href="account.html">تسجيل الدخول</a></div>';return;}try{onValue(ref(db,"orders/"+user.uid),s=>render(s.exists()?s.val():{}),e=>{el.innerHTML='<div class="empty">تعذر تحميل الطلبات. راجع قواعد Firebase.</div>';console.error(e);});}catch(e){el.innerHTML='<div class="empty">تعذر متابعة الطلبات مباشرة.</div>';console.error(e);}});
-</script><script src="./download-gate.js" defer></script><script type="module" id="ZR_SINGLE_PORTAL_GUARD_SCRIPT">
-import {auth,onAuthStateChanged} from "./firebase.js";
-onAuthStateChanged(auth,user=>{if(user){document.body.style.visibility="visible";}else{location.replace("login-preview.html");}},()=>location.replace("login-preview.html"));
-</script></body></html>
+</script><script src="./download-gate.js" defer></script><script type="module" src="./omnix-access-gate.js"></script></body></html>
