@@ -185,11 +185,11 @@ async function route(request,env) {
     return json({ok:true,id},200,origin);
   }
   if(path==="/api/bootstrap"&&request.method==="GET"){
-    const [users,customerPrograms,subscriptions,notifications,releases,settings]=await Promise.all([
+    const [users,customerPrograms,subscriptions,notifications,releases,settings,programs]=await Promise.all([
       db(env,"users"),db(env,"omnix/customerPrograms"),db(env,"omnix/subscriptions"),
       db(env,"omnix/notifications"),db(env,"omnix/releases"),db(env,"omnix/settings"),db(env,"omnix/programs")
     ]);
-    return json({users:users||{},customerPrograms:customerPrograms||{},subscriptions:subscriptions||{},notifications:notifications||{},releases:releases||{},settings:settings||{},programs:arguments[0]||{}},200,origin);
+    return json({users:users||{},customerPrograms:customerPrograms||{},subscriptions:subscriptions||{},notifications:notifications||{},releases:releases||{},settings:settings||{},programs:programs||{}},200,origin);
   }
   if(path==="/api/customers"&&request.method==="POST"){
     const body=await request.json(),email=String(body.email||"").trim().toLowerCase(),password=String(body.password||""),name=String(body.name||"").trim();
