@@ -266,8 +266,9 @@ async function route(request,env) {
     const programId=String(body.programId||"").trim(),program=await db(env,"omnix/programs/"+programId)||null;
     const profile=await db(env,"users/"+uid)||null;
     if(!profile)return json({error:"العميل غير موجود"},404,origin);
-    if(!programId||!program)return json({error:"البرنامج المحدد غير موجود في سجل OMNIX"},404,origin);
-    const record={programId,programName:program.name||String(body.programName||""),url:String(body.url||program.url||""),updatedAt:Date.now(),updatedBy:env.OWNER_UID};
+    const programName=String(program?.name||body.programName||"").trim(),programUrl=String(body.url||program?.url||"").trim();
+    if(!/^[a-z0-9][a-z0-9-]{1,49}$/.test(programId)||!programName||!/^https:\/\//i.test(programUrl))return json({error:"بيانات البرنامج أو رابط HTTPS غير صحيح"},400,origin);
+    const record={programId,programName,url:programUrl,updatedAt:Date.now(),updatedBy:env.OWNER_UID};
     await db(env,"omnix/customerPrograms/"+uid,"PUT",record);
     return json({ok:true,assignment:record},200,origin);
   }
