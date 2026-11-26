@@ -43,6 +43,67 @@
 .customer-create-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}.customer-create-grid label{display:block;font-size:11px;color:#c5ced8}.customer-create-grid input,.customer-create-grid select{display:block;width:100%;margin-top:6px;min-width:0;padding:11px;border:1px solid var(--line);border-radius:9px;background:#0b121b;color:#fff;font:inherit;font-size:12px;direction:ltr;text-align:left}.customer-create-grid select{direction:rtl;text-align:right}.customer-create-grid .wide{grid-column:1/-1}@media(max-width:520px){.customer-create-grid{grid-template-columns:1fr}.customer-create-grid .wide{grid-column:auto}}
 .manager-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.manager-actions button{padding:8px 12px;border:1px solid #65413c;border-radius:9px;background:#2b1b1b;color:#f0b0a7;font:inherit;font-size:10px}.manager-card{min-width:0}.manager-card .program-details{direction:ltr;text-align:left}
 .customer-tools{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin-top:12px;align-items:center}.customer-tools select,.customer-url{min-width:0;width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:#0b121b;color:#f3f5f8;font:inherit;font-size:11px;direction:ltr;text-align:left}.customer-tools button,.qr-actions button{padding:9px 12px;border:1px solid #80683e;border-radius:9px;background:#302719;color:#f3d99c;font:inherit;font-size:10px}.customer-tools button:disabled{opacity:.5}.qr-panel{display:none;margin-top:12px;padding:13px;border:1px dashed #75603a;border-radius:12px;background:#0c121a;text-align:center}.qr-panel.show{display:block}.qr-panel canvas,.qr-panel img{display:block;margin:0 auto 9px;background:white;padding:8px;border-radius:8px;max-width:100%;height:auto}.qr-caption{font-size:10px;color:var(--muted);overflow-wrap:anywhere;line-height:1.8}.qr-actions{display:flex;justify-content:center;gap:8px;margin-top:9px;flex-wrap:wrap}@media(max-width:420px){.customer-tools{grid-template-columns:1fr}.customer-tools button{width:100%}}
+
+/* OMNIX premium visual refinement */
+:root{--bg:#07090e;--panel:#101722;--panel2:#151e2b;--line:#283342;--gold:#c9a45e;--gold2:#f0d69a;--text:#f6f3ec;--muted:#9aa6b4}
+body{background:radial-gradient(900px 520px at 82% -12%,rgba(185,142,65,.16),transparent 62%),radial-gradient(700px 420px at -12% 42%,rgba(57,83,113,.12),transparent 65%),linear-gradient(145deg,#07090e,#0a1018 58%,#080b11);background-attachment:fixed}
+.login-wrap{background:radial-gradient(ellipse at 50% 35%,rgba(193,151,77,.09),transparent 42%)}
+.login-card{position:relative;overflow:hidden;border:1px solid rgba(201,164,94,.35);border-radius:28px;background:linear-gradient(145deg,rgba(24,32,43,.97),rgba(10,15,23,.98));box-shadow:0 35px 100px rgba(0,0,0,.58),inset 0 1px rgba(255,255,255,.055);backdrop-filter:blur(18px)}
+.login-card:before{content:"";position:absolute;inset:0 12% auto;height:1px;background:linear-gradient(90deg,transparent,#e6c780,transparent);opacity:.8}
+.brand-mark,.side-logo{border-radius:17px;background:linear-gradient(145deg,#4a3920,#171a20 68%);border:1px solid rgba(224,190,119,.72);box-shadow:0 10px 35px rgba(201,164,94,.13),inset 0 1px rgba(255,255,255,.15)}
+.brand h1{font-size:34px;letter-spacing:5px;text-shadow:0 5px 25px rgba(220,184,111,.18)}
+.submit{background:linear-gradient(110deg,#a77d3e,#f0d99f 52%,#bd9655);box-shadow:0 9px 24px rgba(185,143,68,.18);transition:transform .2s,filter .2s}
+.submit:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.shell{gap:19px;padding:19px;grid-template-columns:258px minmax(0,1fr)}
+.sidebar{border-radius:22px;border-color:rgba(130,148,169,.18);background:linear-gradient(180deg,rgba(19,28,40,.96),rgba(10,16,25,.97));box-shadow:0 20px 65px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.035);backdrop-filter:blur(16px)}
+.side-brand{padding:5px 8px 22px;border-color:rgba(130,148,169,.16)}
+.side-brand b{letter-spacing:3px}
+.nav{gap:7px}
+.nav button{position:relative;min-height:45px;border-radius:12px;transition:background .18s,border-color .18s,color .18s,transform .18s}
+.nav button .ico{font-size:17px}
+.nav button.active{background:linear-gradient(100deg,rgba(201,164,94,.17),rgba(201,164,94,.045));border-color:rgba(201,164,94,.32);color:#fff;box-shadow:inset -2px 0 #d8b56e}
+.nav button:hover{transform:translateX(-2px)}
+.main{padding:7px 5px}
+.topbar{margin-bottom:25px}
+.eyebrow{font-size:9px;letter-spacing:2.2px;color:#d4b477}
+.topbar h1{font-size:27px;font-weight:800;letter-spacing:-.4px}
+.owner-chip{border-color:rgba(130,148,169,.2);background:linear-gradient(135deg,rgba(24,34,47,.95),rgba(14,21,31,.95));border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.16)}
+.avatar{background:linear-gradient(145deg,#584528,#292117);border:1px solid rgba(218,184,111,.38)}
+.welcome{padding:30px 32px;border-radius:22px;border-color:rgba(201,164,94,.32);background:radial-gradient(ellipse at 8% 8%,rgba(208,169,95,.17),transparent 46%),linear-gradient(115deg,#1b2532,#111923 68%,#171b20);box-shadow:0 20px 55px rgba(0,0,0,.2),inset 0 1px rgba(255,255,255,.045)}
+.welcome:after{content:"";width:230px;height:230px;left:12px;top:50%;transform:translateY(-50%);border:1px solid rgba(219,184,111,.09);border-radius:50%;font-size:0;box-shadow:0 0 0 22px rgba(219,184,111,.025),0 0 0 48px rgba(219,184,111,.018)}
+.welcome small{letter-spacing:2px}
+.welcome h2{font-size:26px;letter-spacing:-.5px}
+.welcome p{font-size:12px;max-width:700px;color:#b5c0cc}
+.stats{gap:14px;margin:19px 0 26px}
+.stat{position:relative;overflow:hidden;padding:19px;border-radius:17px;border-color:rgba(130,148,169,.18);background:linear-gradient(145deg,rgba(22,32,45,.98),rgba(13,20,30,.98));box-shadow:0 12px 32px rgba(0,0,0,.15);transition:transform .2s,border-color .2s}
+.stat:hover{transform:translateY(-3px);border-color:rgba(201,164,94,.38)}
+.stat:after{content:"";position:absolute;inset:auto 0 0;height:2px;background:linear-gradient(90deg,transparent,rgba(201,164,94,.45),transparent)}
+.stat .top{font-size:11px}
+.stat .symbol,.module .module-icon{border:1px solid rgba(201,164,94,.2);background:linear-gradient(145deg,rgba(201,164,94,.18),rgba(201,164,94,.055));color:#efd49a}
+.stat strong{font-size:28px;font-weight:800}
+.section-head{margin:28px 0 14px}
+.section-head h3{font-size:16px;font-weight:800}
+.section-head span{letter-spacing:1.5px;font-size:9px}
+.modules{gap:14px}
+.module,.program-card{position:relative;overflow:hidden;border-radius:17px;border-color:rgba(130,148,169,.18);background:linear-gradient(145deg,rgba(20,30,43,.98),rgba(12,19,29,.98));box-shadow:0 12px 30px rgba(0,0,0,.13);transition:transform .2s,border-color .2s,box-shadow .2s}
+.module:hover,.program-card:hover{transform:translateY(-3px);border-color:rgba(201,164,94,.34);box-shadow:0 18px 38px rgba(0,0,0,.22)}
+.module{min-height:160px;padding:19px}
+.module .module-icon{width:42px;height:42px;border-radius:13px;font-size:19px}
+.module b{font-size:13px}
+.module p{font-size:10px;color:#a5b1bf}
+.module em{color:#dfc58e;letter-spacing:.3px}
+.notice{border-radius:14px;border-color:rgba(201,164,94,.2);background:linear-gradient(100deg,rgba(54,43,25,.55),rgba(27,26,22,.72));color:#d9c9a5}
+.program-card{padding:19px}
+.program-logo{border-radius:13px;background:linear-gradient(145deg,#3a2d1a,#171c23);border-color:rgba(201,164,94,.35)}
+.program-link{border-radius:10px;background:linear-gradient(110deg,#3b2e1c,#282218);border-color:rgba(201,164,94,.4)}
+.program-link.secondary{background:#151f2b;border-color:rgba(130,148,169,.22)}
+.manager-actions button{border-radius:10px}
+.customer-create-grid input,.customer-create-grid select,.customer-tools select,.customer-url{border-color:rgba(130,148,169,.24);background:#0b121c;border-radius:11px}
+.customer-tools button,.qr-actions button{border-radius:10px;background:linear-gradient(110deg,#3b2e1c,#282218);border-color:rgba(201,164,94,.4)}
+.view.active{animation:omnixEnter .28s ease both}
+@keyframes omnixEnter{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:700px){.shell{padding:10px}.sidebar{border-radius:17px}.side-brand{padding-bottom:10px}.nav button{min-height:39px}.topbar h1{font-size:22px}.welcome{padding:21px;border-radius:18px}.welcome h2{font-size:21px}.welcome:after{width:150px;height:150px;left:-45px}.stat{padding:14px}.stat strong{font-size:23px}.module{padding:13px;border-radius:14px}.program-card{padding:14px}}
+
 </style>
 </head>
 <body>
