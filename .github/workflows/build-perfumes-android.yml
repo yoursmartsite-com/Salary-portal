@@ -76,12 +76,12 @@ jobs:
       - name: Configure release signing
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           set -euo pipefail
-          for name in ANDROID_KEYSTORE_BASE64 ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_ALIAS ANDROID_KEY_PASSWORD; do
+          for name in ANDROID_KEYSTORE_BASE64 ANDROID_STORE_PASSWORD ANDROID_KEY_ALIAS ANDROID_KEY_PASSWORD; do
             if [ -z "${!name}" ]; then
               echo "::error::Missing GitHub Actions secret: $name"
               exit 1
@@ -93,7 +93,7 @@ jobs:
       - name: Build signed release APK
         working-directory: perfumes/android
         env:
-          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
@@ -101,7 +101,7 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleRelease \
             -Pandroid.injected.signing.store.file="$RUNNER_TEMP/zein-rahaf-release.jks" \
-            -Pandroid.injected.signing.store.password="$ANDROID_KEYSTORE_PASSWORD" \
+            -Pandroid.injected.signing.store.password="$ANDROID_STORE_PASSWORD" \
             -Pandroid.injected.signing.key.alias="$ANDROID_KEY_ALIAS" \
             -Pandroid.injected.signing.key.password="$ANDROID_KEY_PASSWORD"
 
