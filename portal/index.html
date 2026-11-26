@@ -163,6 +163,7 @@ $("authForm").addEventListener("submit",async e=>{
   showMessage(messages[error.code]||"حصل خطأ أثناء تسجيل الحساب. "+(error.message||""));
  }finally{busy=false;$("submitBtn").disabled=false;$("submitBtn").textContent=mode==="signup"?"إنشاء الحساب":"تسجيل الدخول";}
 });
+let portalCurrentUser=null;
 async function checkProgramAccess(user){
  const box=$("accessMessage"),links=$("assignedProgramLinks");box.textContent="جارٍ التحقق من الاشتراك…";links.innerHTML="";
  try{
@@ -170,6 +171,7 @@ async function checkProgramAccess(user){
   const response=await fetch("https://omnix-api.fibrahem865.workers.dev/api/access",{headers:{Authorization:"Bearer "+token}});
   const data=await response.json().catch(()=>({}));
   if(!response.ok)throw new Error(data.error||"تعذر التحقق من صلاحية الحساب.");
+  if(data.notifications?.length){const panel=document.createElement("div");panel.style.cssText="margin-top:12px;border:1px solid var(--line);border-radius:12px;padding:12px;background:#15130f";const title=document.createElement("b");title.textContent="إشعاراتك";title.style.cssText="display:block;color:var(--gold2);margin-bottom:8px";panel.append(title);data.notifications.forEach(n=>{const item=document.createElement("div"),h=document.createElement("b"),p=document.createElement("p");h.textContent=n.title||"إشعار";p.textContent=n.message||"";p.style.cssText="font-size:11px;line-height:1.8;color:var(--muted);margin:4px 0 10px";item.append(h,p);panel.append(item);});links.append(panel);}
   if(!data.allowed){const reasons={not_assigned:"لم يتم تخصيص برنامج لهذا الحساب بعد.",no_subscription:"لا يوجد اشتراك مسجل لهذا الحساب.",subscription_inactive:"الاشتراك موقوف أو ملغي.",expired:"انتهت مدة الاشتراك."};box.textContent=reasons[data.reason]||"لا يوجد وصول نشط. تواصل مع مسؤول البرنامج.";return;}
   box.textContent=data.owner?"تم الدخول بحساب المالك.":"اشتراكك نشط.";
   if(data.program?.url){const a=document.createElement("a");a.href=data.program.url;a.target="_blank";a.rel="noopener";a.style.cssText="display:flex;align-items:center;justify-content:space-between;gap:12px;text-decoration:none;color:var(--text);background:#11100e;border:1px solid #756039;border-radius:14px;padding:15px;margin-top:10px";const span=document.createElement("span"),b=document.createElement("b"),small=document.createElement("small");b.textContent=data.program.programName||data.program.name||"البرنامج";b.style.display="block";small.textContent="فتح البرنامج المخصص";small.style.color="var(--muted)";span.append(b,small);const arrow=document.createElement("span");arrow.textContent="←";arrow.style.color="var(--gold2)";a.append(span,arrow);links.append(a);}
@@ -177,9 +179,11 @@ async function checkProgramAccess(user){
  }catch(error){box.textContent=error.message||"تعذر الاتصال بخدمة التحقق.";}
 }
 onAuthStateChanged(auth,user=>{
- if(user){$("authPanel").style.display="none";$("signedPanel").classList.add("is-visible");$("signedEmail").textContent=(user.displayName?user.displayName+" · ":"")+(user.email||"");checkProgramAccess(user);}
- else{$("authPanel").style.display="block";$("signedPanel").classList.remove("is-visible");$("email").value="";$("password").value="";}
+ if(user){portalCurrentUser=user;$("authPanel").style.display="none";$("signedPanel").classList.add("is-visible");$("signedEmail").textContent=(user.displayName?user.displayName+" · ":"")+(user.email||"");checkProgramAccess(user);}
+ else{portalCurrentUser=null;$("authPanel").style.display="block";$("signedPanel").classList.remove("is-visible");$("email").value="";$("password").value="";}
 });
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&portalCurrentUser)checkProgramAccess(portalCurrentUser);});
+setInterval(()=>{if(portalCurrentUser)checkProgramAccess(portalCurrentUser);},60000);
 $("logoutBtn").addEventListener("click",async()=>{try{await signOut(auth);}catch(e){showMessage("تعذر تسجيل الخروج: "+e.message);}});
 </script>
 </body>
