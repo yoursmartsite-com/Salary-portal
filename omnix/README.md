@@ -24,3 +24,10 @@ Creating an ordinary customer account through the public Firebase email/password
 ## Deployment
 If GitHub Pages is already publishing the repository root, the initial page will be available at:
 `https://yoursmartsite-com.github.io/Salary-portal/omnix/`
+
+## Registered AppDeploy application
+- **عطور رهف** is registered in `programs.json` as `rahaf-perfume-store`.
+- Live storefront: https://rahaf-icy8sk.v2.appdeploy.ai/
+- AppDeploy application ID: `rahaf-icy8sk`.
+- Integration checklist and remaining entitlement-enforcement work: `integrations/rahaf-perfume-store.md`.
+- Catalog registration is complete; subscription enforcement is not yet active until the storefront and OMNIX entitlement API are connected and tested.
