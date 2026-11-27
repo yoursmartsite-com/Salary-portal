@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-11-25",
+  "updatedAt": "2026-11-27",
   "programs": [
     {
       "id": "lamma",
@@ -44,6 +44,18 @@
       "stateType": "source",
       "description": "تم العثور على مشروع Android داخل android-app. لم يتم اعتماد رابط تحميل APK من سجل المشروع.",
       "repositoryPath": "android-app"
+    },
+    {
+      "id": "rahaf-perfume-store",
+      "name": "عطور رهف",
+      "mark": "RH",
+      "kind": "متجر عطور إلكتروني",
+      "state": "المتجر المباشر على AppDeploy — سجل OMNIX أُضيف؛ ربط الاشتراك الفعلي قيد الاستكمال",
+      "stateType": "source",
+      "description": "متجر عطور رهف المستقل على AppDeploy. يحتفظ بقاعدة بياناته الحالية والعملاء والطلبات، ويُدار اشتراكه من OMNIX بعد إكمال نقطة تحقق الاستحقاق داخل المتجر.",
+      "url": "https://rahaf-icy8sk.v2.appdeploy.ai/",
+      "appdeployAppId": "rahaf-icy8sk",
+      "repositoryPath": "integrations/rahaf-perfume-store.md"
     }
   ]
 }
