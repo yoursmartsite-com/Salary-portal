@@ -82,8 +82,7 @@ service cloud.firestore {
 
     match /settings/{settingId} {
       allow read: if activeAdminRole()
-        || (isManager() && settingId == 'manager_' + request.auth.uid
-          && resource.data.managerUid == request.auth.uid);
+        || (isManager() && settingId == 'manager_' + request.auth.uid);
       allow create, update: if isOwner()
         || (isManager() && settingId == 'manager_' + request.auth.uid
           && request.resource.data.managerUid == request.auth.uid);
