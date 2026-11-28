@@ -1,4 +1,5 @@
 name: Build and deploy Rahaf to GitHub Pages
+# Asset base path corrected for the GitHub Pages project subdirectory.
 on:
   push:
     branches: [main]
