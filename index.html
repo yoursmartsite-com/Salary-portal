@@ -67,6 +67,12 @@
 .hub-home-art span:nth-child(4){transform:translateY(-8px);background:linear-gradient(145deg,#286d50,#183b40)}
 .hub-home-copy small{font-size:9px;color:#64e7c6;font-weight:900;letter-spacing:1px}.hub-home-copy h2{font-size:clamp(21px,2.5vw,30px);margin:5px 0}.hub-home-copy p{font-size:11px;line-height:1.9;color:#c2d8dc;margin:0 0 10px}.hub-home-copy b{display:inline-block;background:linear-gradient(100deg,#087f70,#18b991);padding:9px 14px;border-radius:10px;font-size:11px}
 @media(max-width:760px){.hub-home-card{grid-template-columns:1fr;gap:5px;padding:14px;margin:12px 0 18px}.hub-home-art{min-height:78px;justify-content:flex-start}.hub-home-art span{width:54px;height:54px;border-radius:15px;font-size:28px}.hub-home-copy h2{font-size:22px}.hub-home-copy p{font-size:10px}}
+
+/* LAMMA interaction polish */
+button,a,.game,.promo,.community-feature,.hub-card{ -webkit-tap-highlight-color:transparent;transition:transform .18s cubic-bezier(.2,.75,.25,1),box-shadow .22s ease,filter .2s ease,border-color .22s ease;}
+button:active,a:active,.game:active,.promo:active{transform:scale(.975);filter:brightness(1.08);}
+button:focus-visible,a:focus-visible{outline:2px solid #a78bfa;outline-offset:3px;}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 </style>
 </head>
 
