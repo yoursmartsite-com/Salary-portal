@@ -1,6 +1,6 @@
 name: Build and deploy Rahaf to GitHub Pages
 # Asset base path corrected for the GitHub Pages project subdirectory.
-# Rebuild after aligning Rahaf activation code format with OMNIX.
+# Rebuild after updating the public activation-code screen and app download button.
 on:
   push:
     branches: [main]
