@@ -1,4 +1,4 @@
-package com.zeinrahaf.store;
+package com.zeinrahaf.perfumes;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -15,7 +15,7 @@ import android.view.View;
 
 public class MainActivity extends Activity {
     private static final int FILE_CHOOSER_REQUEST = 41;
-    private static final String PORTAL_URL = "https://yoursmartsite-com.github.io/Salary-portal/portal/";
+    private static final String PORTAL_URL = "https://yoursmartsite-com.github.io/Salary-portal/rahaf-app/";
     private WebView webView;
     private ValueCallback<Uri[]> fileCallback;
 
