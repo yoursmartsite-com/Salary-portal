@@ -37,3 +37,18 @@ https://yoursmartsite-com.github.io/Salary-portal/field-guard/
 
 ## ملاحظة أمان
 لا تضع Service Account private key في الواجهة أو GitHub. إعداد Firebase Web config الموجود في الواجهة مخصص للعميل، والحماية تعتمد على Authentication وFirestore Security Rules.
+
+## قواعد Firestore
+ملف القواعد الجاهز موجود في `firestore.rules`. نشره على GitHub وحده لا يفعّل القواعد في Firebase.
+
+لتفعيلها:
+1. افتح Firebase Console للمشروع `field-guard-4cbb8`.
+2. افتح Firestore Database ثم تبويب Rules.
+3. استبدل القواعد الحالية بمحتوى الملف `field-guard/firestore.rules`.
+4. اضغط Publish.
+
+قبل النشر، تأكد أن مستند المالك موجود في `admins/{UID}` وبداخله:
+- `active`: Boolean بقيمة `true`
+- `role`: String بقيمة `owner`
+
+المشرف الإضافي يستخدم `role: "admin"` و`active: true`. لا تسمح القواعد بإنشاء حساب مالك من واجهة التطبيق. اختبر حساب المالك والمشرف والعامل بعد النشر.
