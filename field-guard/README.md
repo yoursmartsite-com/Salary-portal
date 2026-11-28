@@ -9,9 +9,10 @@ https://yoursmartsite-com.github.io/Salary-portal/field-guard/
 - Firebase project: `field-guard-4cbb8`
 - Authentication: Email/Password
 - Firestore database: `(default)` في `europe-west1`
-- حسابات المشرفين والمالك يتم التحقق منها من `admins/{uid}`.
-- حسابات العمال يتم التحقق منها من `employees/{uid}`.
-- إضافة العامل من لوحة المشرف تنشئ حساب Firebase Auth منفصلًا ثم تحفظ ملفه في Firestore.
+- حساب المالك والمشرف العام ومدير الفريق يتم التحقق منهم من `admins/{uid}`.
+- يكفي اعتماد المدير مرة واحدة بوضع `active: true` و`role: "manager"` في مستنده داخل `admins/{UID}`.
+- مدير الفريق ينشئ حسابات العمال من داخل لوحة FIELD GUARD؛ ينشأ لكل عامل حساب دخول مستقل وملف `employees/{uid}` مع `managerUid` و`teamId` تلقائيًا، لذلك لا يحتاج العامل إلى اعتماد منفصل داخل `admins`.
+- كل مدير يرى ويدير العمال والسجلات التابعة لفريقه فقط. العامل يرى ملفه وحركاته فقط.
 - لوحة المشرف تقرأ سجلات العمال والحضور والجولات ومناطق العمل والإعدادات من Firestore.
 - العامل يرى ملفه وسجل الحركات الذي يخص UID الخاص به فقط.
 - سجلات الحضور والجولات ومناطق العمل تُحفظ سحابيًا من لوحة المشرف.
@@ -21,8 +22,8 @@ https://yoursmartsite-com.github.io/Salary-portal/field-guard/
 `yoursmartsite-com.github.io`
 
 ## هيكل Firestore
-- `admins/{uid}`: صلاحيات `owner` أو `admin` وحقل `active`.
-- `employees/{uid}`: بيانات العامل وحالة الحساب.
+- `admins/{uid}`: صلاحيات `owner` أو `admin` أو `manager` وحقل `active`.
+- `employees/{uid}`: بيانات العامل وحالة الحساب، مع `managerUid` و`teamId` لربطه بمديره.
 - `attendance/{recordId}`: الحركات، مع `employeeId` و`type` و`timeLabel`.
 - `inspection_rounds/{roundId}`: جولات التفتيش.
 - `work_areas/{areaId}`: مناطق العمل.
@@ -51,4 +52,4 @@ https://yoursmartsite-com.github.io/Salary-portal/field-guard/
 - `active`: Boolean بقيمة `true`
 - `role`: String بقيمة `owner`
 
-المشرف الإضافي يستخدم `role: "admin"` و`active: true`. لا تسمح القواعد بإنشاء حساب مالك من واجهة التطبيق. اختبر حساب المالك والمشرف والعامل بعد النشر.
+المشرف العام يستخدم `role: "admin"` و`active: true`. مدير الفريق يستخدم `role: "manager"` و`active: true`، ويُنشأ له حساب Firebase Authentication أولاً ثم مستند `admins/{UID}` مرة واحدة من المالك. لا تضف العمال إلى `admins`؛ المدير ينشئ حساباتهم من لوحة العمال. لا تسمح القواعد بإنشاء حساب مالك أو مدير من واجهة التطبيق. بعد نشر القواعد اختبر دخول المدير، ثم إنشاء عامل جديد ودخوله، وتأكد أن المدير لا يرى عمال مدير آخر.
