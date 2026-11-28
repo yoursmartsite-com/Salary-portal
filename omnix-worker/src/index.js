@@ -362,7 +362,7 @@ async function route(request,env) {
   if(adminOrder&&request.method==="PUT"){
     await rahafAdmin();const id=decodeURIComponent(adminOrder[1]),body=await request.json(),old=await db(env,"rahafStore/orders/"+id);
     if(!old)return json({error:"الطلب غير موجود"},404,origin);
-    if(adminOrder[2]){const value=String(body.estimatedDeliveryAt||"");if(value&&!/^\\d{4}-\\d{2}-\\d{2}$/.test(value))return json({error:"تاريخ التوصيل غير صحيح"},400,origin);await db(env,"rahafStore/orders/"+id,"PATCH",{estimatedDeliveryAt:value});if(old.userId&&value)await saveRahafNotification(old.userId,"موعد توصيل طلبك","الموعد المتوقع لتوصيل طلبك هو "+value,id);return json({ok:true,estimatedDeliveryAt:value},200,origin);}
+    if(adminOrder[2]){const value=String(body.estimatedDeliveryAt||"");if(value&&!/^\d{4}-\d{2}-\d{2}$/.test(value))return json({error:"تاريخ التوصيل غير صحيح"},400,origin);await db(env,"rahafStore/orders/"+id,"PATCH",{estimatedDeliveryAt:value});if(old.userId&&value)await saveRahafNotification(old.userId,"موعد توصيل طلبك","الموعد المتوقع لتوصيل طلبك هو "+value,id);return json({ok:true,estimatedDeliveryAt:value},200,origin);}
     const status=String(body.status||"");if(!["new","confirmed","preparing","shipped","delivered","cancelled"].includes(status))return json({error:"حالة غير صحيحة"},400,origin);
     await db(env,"rahafStore/orders/"+id,"PATCH",{status});if(old.userId)await saveRahafNotification(old.userId,"حالة طلبك اتحدّثت","حالة طلبك: "+status,id);return json({ok:true},200,origin);
   }
