@@ -186,13 +186,24 @@ async function route(request,env) {
     if(programAccess?.enabled===false||programRecord?.active===false||programExpired)
       return json({ok:true,allowed:false,reason:programExpired?"program_subscription_expired":"program_disabled",program:{programId:expectedProgramId,programName},programSubscription:programAccess?{startAt:programAccess.startAt||null,expiresAt:programAccess.expiresAt||null}:null},200,origin);
     if(user.localId===env.OWNER_UID)
-      return json({ok:true,allowed:true,owner:true,role:"owner",program:{programId:expectedProgramId,programName:programRecord?.name||"عطور زين ورهف",url:programRecord?.url||"https://yoursmartsite-com.github.io/Salary-portal/perfumes/"}},200,origin);
-    let claims={};
-    try{claims=user.customAttributes?JSON.parse(user.customAttributes):{};}catch(_){}
-    if(claims.zeinRahafStoreAdmin===true){
-      const manager=await db(env,"omnix/programAdmins/zein-rahaf-store/"+user.localId);
-      if(manager?.active===true)
-        return json({ok:true,allowed:true,manager:true,role:"manager",program:{programId:"zein-rahaf-store",programName:"عطور زين ورهف",url:"https://yoursmartsite-com.github.io/Salary-portal/perfumes/"}},200,origin);
+      return json({ok:true,allowed:true,owner:true,role:"owner",program:{programId:expectedProgramId,programName:programRecord?.name||"عطور زين ورهف",url:"https://yoursmartsite-com.github.io/Salary-portal/perfumes/"}},200,origin);
+    // One active OMNIX manager grant unlocks the store for every authenticated customer.
+    // Customers keep individual Firebase accounts; they no longer need per-user
+    // customerPrograms assignments or subscriptions for this shared program grant.
+    if(expectedProgramId==="zein-rahaf-store"){
+      const [managerRows,ownManager]=await Promise.all([
+        db(env,"omnix/programAdmins/zein-rahaf-store"),
+        db(env,"omnix/programAdmins/zein-rahaf-store/"+user.localId)
+      ]);
+      const activeManager=Object.values(managerRows||{}).some(row=>row&&row.active===true);
+      if(activeManager){
+        const isManager=ownManager?.active===true;
+        return json({ok:true,allowed:true,manager:isManager,role:isManager?"manager":"customer",
+          accessMode:"active_manager_grant",
+          program:{programId:"zein-rahaf-store",programName:programRecord?.name||"عطور زين ورهف",
+          url:programRecord?.url||"https://yoursmartsite-com.github.io/Salary-portal/perfumes/"}},
+          200,origin);
+      }
     }
     const [subscription,allNotifications,allReleases]=await Promise.all([
       db(env,"omnix/subscriptions/"+user.localId),db(env,"omnix/notifications"),db(env,"omnix/releases")
