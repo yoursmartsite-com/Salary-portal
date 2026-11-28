@@ -1,0 +1,20 @@
+{
+  "name": "RAHAF PERFUME HOUSE",
+  "short_name": "RAHAF",
+  "description": "تسوق عطور رهف",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0b0b0a",
+  "theme_color": "#0b0b0a",
+  "icons": [
+    {
+      "src": "/rahaf-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
