@@ -1,21 +1,23 @@
-# RAHAF Store — GitHub migration snapshot
+# RAHAF PERFUME HOUSE — GitHub migration
 
-This directory contains the source exported from AppDeploy app `rahaf-icy8sk`.
+This is the independent Rahaf storefront source maintained in this repository.
 
-## Important runtime note
+## Deployment target
 
-GitHub Pages only serves static files. It does not execute the AppDeploy backend or its `@appdeploy/sdk` database, authentication, storage, and notification APIs. The React source still imports `@appdeploy/client`, so this snapshot is **not yet a standalone GitHub Pages deployment**.
+- Frontend: GitHub Pages, built from this directory.
+- Authentication and store data: Firebase project `perfumes-12f57`, isolated under the `rahafStore/` namespace.
+- Subscription and activation checks: the OMNIX Worker at `https://omnix-api.fibrahem865.workers.dev/api/rahaf/validate`.
+- Store API: the OMNIX Worker, using Firebase Admin credentials held only as Cloudflare secrets.
 
-The activation verifier in `backend/index.ts` has been changed to call the OMNIX validation endpoint:
+## Important
 
-`POST https://omnix-api.fibrahem865.workers.dev/api/rahaf/validate`
+GitHub Pages is static hosting; it cannot execute a Node backend or protect admin credentials. All privileged operations must be implemented in the OMNIX Worker. Never put Firebase service-account keys, Cloudflare tokens, or other private credentials in this directory.
 
-However, the rest of the backend still uses AppDeploy SDK services. To run independently from GitHub, the next step is to port those routes to a Cloudflare Worker and connect the existing Firebase project / Cloudinary without deleting or migrating customer, product, or order data blindly.
+The React interface and original backend route source are preserved here as migration material. The app is not considered production-ready until the AppDeploy client/SDK imports have been removed, all API routes have been ported to the OMNIX Worker, and the GitHub Pages build and customer/admin flows have passed tests.
 
-## Source of truth and safety
+## Safety
 
-- Original AppDeploy deployment remains untouched at https://rahaf-icy8sk.v2.appdeploy.ai/
-- Existing GitHub Pages store under `/perfumes/` remains untouched.
-- This migration is isolated on branch `rahaf-github-migration`.
-- No production URL was switched and no customer data was copied or deleted.
-- Do not publish this directory as the live app until the backend replacement and build are tested.
+- Existing `/perfumes/` store and Lamma/OMNIX pages are not modified by this migration branch.
+- No existing production data is deleted or overwritten.
+- Rahaf's future database records must be isolated under `rahafStore/` so they cannot collide with the other perfume storefront.
+- Do not switch the live store URL until the independent build and API have been verified.
