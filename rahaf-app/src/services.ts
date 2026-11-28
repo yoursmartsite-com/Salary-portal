@@ -6,7 +6,6 @@ const firebaseApp = initializeApp({
   authDomain: 'perfumes-12f57.firebaseapp.com',
   databaseURL: 'https://perfumes-12f57-default-rtdb.europe-west1.firebasedatabase.app',
   projectId: 'perfumes-12f57',
-  appId: '1:100000000000:web:rahaf-store'
 });
 const firebaseAuth = getAuth(firebaseApp);
 const API_BASE = 'https://omnix-api.fibrahem865.workers.dev';
