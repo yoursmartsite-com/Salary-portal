@@ -56,28 +56,25 @@ async function verifyRahafActivationCode(code: string) {
   if (!normalized || normalized.length > 80) return { allowed: false, reason: 'invalid_code' };
   try {
     const response = await fetch(
-      'https://perfumes-12f57-default-rtdb.europe-west1.firebasedatabase.app/control/rahaf.json',
-      { method: 'GET', headers: { accept: 'application/json' }, cache: 'no-store' }
+      'https://omnix-api.fibrahem865.workers.dev/api/rahaf/validate',
+      {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', accept: 'application/json' },
+        body: JSON.stringify({ code: normalized }),
+      }
     );
     if (!response.ok) {
-      console.error('RAHAF Firebase entitlement lookup returned HTTP', response.status);
+      console.error('OMNIX Rahaf validation returned HTTP', response.status);
       return { allowed: false, reason: 'verification_service_error' };
     }
-    const control = await response.json() as Record<string, any> | null;
-    if (!control || control.status === 'paused') return { allowed: false, reason: 'paused' };
-    const entitlement = control.entitlements?.[normalized];
-    if (!entitlement || entitlement.appId !== 'rahaf-perfumes') return { allowed: false, reason: 'invalid_code' };
-    const startsText = String(entitlement.startsAt || '');
-    const endsText = String(entitlement.endsAt || '');
-    const starts = new Date(startsText.length === 10 ? startsText + 'T00:00:00.000Z' : startsText).getTime();
-    const ends = new Date(endsText.length === 10 ? endsText + 'T23:59:59.999Z' : endsText).getTime();
-    const current = Date.now();
-    if (entitlement.status === 'paused') return { allowed: false, reason: 'paused' };
-    if (!Number.isFinite(starts) || !Number.isFinite(ends) || current > ends) return { allowed: false, reason: 'expired' };
-    if (current < starts) return { allowed: false, reason: 'not_started' };
-    return { allowed: true, reason: 'active', expiresAt: entitlement.endsAt || null };
+    const result = await response.json() as Record<string, any>;
+    return {
+      allowed: result.allowed === true,
+      reason: String(result.reason || (result.allowed === true ? 'active' : 'invalid_code')),
+      expiresAt: result.expiresAt || null,
+    };
   } catch (e) {
-    console.error('RAHAF Firebase entitlement lookup failed', e);
+    console.error('OMNIX Rahaf validation failed', e);
     return { allowed: false, reason: 'verification_service_error' };
   }
 }
