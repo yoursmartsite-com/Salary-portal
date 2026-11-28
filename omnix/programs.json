@@ -62,15 +62,15 @@
       "name": "عطور رهف",
       "mark": "RH",
       "kind": "متجر عطور إلكتروني",
-      "state": "المتجر المباشر على AppDeploy — سجل OMNIX أُضيف؛ ربط الاشتراك الفعلي قيد الاستكمال",
-      "stateType": "source",
+      "state": "تطبيق رهف منشور على GitHub Pages",
+      "stateType": "active",
       "description": "متجر عطور رهف المستقل على AppDeploy. يحتفظ بقاعدة بياناته الحالية والعملاء والطلبات، ويُدار اشتراكه من OMNIX بعد إكمال نقطة تحقق الاستحقاق داخل المتجر.",
-      "url": "https://rahaf-icy8sk.v2.appdeploy.ai/",
+      "url": "https://yoursmartsite-com.github.io/Salary-portal/rahaf-app/",
       "appdeployAppId": "rahaf-icy8sk",
-      "repositoryPath": "integrations/rahaf-perfume-store.md",
-      "controlStatus": "pending",
-      "controlLabel": "كود OMNIX جاهز — تحديث المتجر مطلوب",
-      "controlDetails": "تم تجهيز إصدار أكواد RAH والتحقق منها داخل OMNIX GitHub Worker. المتجر المباشر ما زال يستخدم نقطة التحقق القديمة حتى نشر تحديث Backend الخاص به."
+      "repositoryPath": "rahaf-app",
+      "controlStatus": "connected",
+      "controlLabel": "أكواد الاشتراك والتحقق عبر OMNIX API",
+      "controlDetails": "OMNIX يصدر كود RAH ويحفظه في سجل الاشتراكات وفهرس الأكواد، وتطبيق رهف يتحقق منه مباشرة عبر /api/rahaf/validate. لا يعتمد التطبيق على AppDeploy."
     }
   ]
 }
