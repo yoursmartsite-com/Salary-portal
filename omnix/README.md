@@ -31,3 +31,19 @@ If GitHub Pages is already publishing the repository root, the initial page will
 - AppDeploy application ID: `rahaf-icy8sk`.
 - Integration checklist and remaining entitlement-enforcement work: `integrations/rahaf-perfume-store.md`.
 - Catalog registration is complete; subscription enforcement is not yet active until the storefront and OMNIX entitlement API are connected and tested.
+
+## Project control coverage (2026-11-28)
+
+The dashboard catalog now displays a separate OMNIX integration status for every registered project. This is intentionally distinct from whether the project's files or URL exist.
+
+| Project | Current control status |
+|---|---|
+| لَمّة | Catalogued; subscription enforcement still needs integration |
+| عطور زين ورهف web store | Connected to `/api/access?programId=zein-rahaf-store` |
+| بوابة برامج زين ورهف | Gateway exists; end-to-end subscription flow still needs verification |
+| عطور زين ورهف Android | Intended to share the store entitlement; APK release URL and device flow still need verification |
+| عطور رهف (AppDeploy) | Catalogued; AppDeploy entitlement validation is not complete |
+
+Existing project URLs, Firebase projects, customer accounts, orders, product data, media, and Lamma's Cloudflare room service are not migrated or deleted by this control-center update.
+
+**Important:** the current Worker access gate is explicitly wired to the `zein-rahaf-store` Firebase app. A catalog entry alone does not make another project's users subject to OMNIX subscriptions. Each separate runtime needs its own trusted integration and end-to-end tests before its status can be marked connected.
