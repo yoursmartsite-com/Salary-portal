@@ -62,15 +62,26 @@ function renderName() {
 }
 
 function openModal(id) {
-  $("#" + id)?.classList.add("open");
+  const modal = $("#" + id);
+  if (!modal) return;
+  modal.classList.add("open");
+  if (history.state?.lammaModal !== id) history.pushState({ ...(history.state || {}), lammaModal: id }, "", location.href);
 }
 
 function closeModal(id) {
-  $("#" + id)?.classList.remove("open");
+  const modal = $("#" + id);
+  if (!modal) return;
+  if (history.state?.lammaModal === id) { history.back(); return; }
+  modal.classList.remove("open");
 }
 
+window.addEventListener("popstate", () => {
+  const open = document.querySelector(".modal.open, .auth-modal.open");
+  if (open) open.classList.remove("open");
+});
+
 function setupGameModal(local) {
-  $("#gameModal")?.classList.add("open");
+  openModal("gameModal");
 
   const titles = {
     xo: "إكس أو",
