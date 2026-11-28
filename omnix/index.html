@@ -234,6 +234,13 @@ button,input,select{font-family:Cairo,Arial,sans-serif}
 #loginScreen.hidden{display:none!important}
 #appShell.hidden{display:none!important}
 #appShell:not(.hidden){display:flex}
+
+/* OMNIX tactile controls */
+button,a{ -webkit-tap-highlight-color:transparent; }
+button,a,.module,.program-card,.stat{transition:transform .18s cubic-bezier(.2,.75,.25,1),box-shadow .22s ease,border-color .22s ease,filter .2s ease;}
+button:active,a:active{transform:scale(.975);filter:brightness(1.07);}
+button:focus-visible,a:focus-visible{outline:2px solid var(--gold2,#d7b56d);outline-offset:3px;}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
@@ -674,9 +681,14 @@ $("logoutButton").addEventListener("click",()=>signOut(auth));
 const sectionMenuToggle=$("sectionMenuToggle"),sectionMenuOverlay=$("sectionMenuOverlay"),sectionSidebar=document.querySelector(".sidebar");
 function closeSectionMenu(){sectionSidebar?.classList.remove("drawer-open");sectionMenuOverlay?.classList.remove("show");sectionMenuToggle?.setAttribute("aria-expanded","false");}
 function toggleSectionMenu(){const open=!sectionSidebar?.classList.contains("drawer-open");sectionSidebar?.classList.toggle("drawer-open",open);sectionMenuOverlay?.classList.toggle("show",open);sectionMenuToggle?.setAttribute("aria-expanded",String(open));}
-sectionMenuToggle?.addEventListener("click",toggleSectionMenu);sectionMenuOverlay?.addEventListener("click",closeSectionMenu);
-
-document.querySelectorAll("[data-view]").forEach(button=>button.addEventListener("click",()=>{closeSectionMenu();document.querySelectorAll("[data-view]").forEach(x=>x.classList.toggle("active",x===button));document.querySelectorAll(".view").forEach(x=>x.classList.toggle("active",x.id==="view-"+button.dataset.view));const titles={overview:"نظرة عامة",programs:"البرامج",managers:"مديرو البرامج",customers:"العملاء",subscriptions:"الاشتراكات",updates:"التحديثات",notifications:"الإشعارات",activity:"سجل النشاطات",settings:"الإعدادات"};$("pageTitle").textContent=titles[button.dataset.view]||"OMNIX";if(button.dataset.view==="activity")loadAudit();}));
+const omnixTitles={overview:"نظرة عامة",programs:"البرامج",managers:"مديرو البرامج",customers:"العملاء",subscriptions:"الاشتراكات",updates:"التحديثات",notifications:"الإشعارات",activity:"سجل النشاطات",settings:"الإعدادات"};
+function currentOmnixView(){return document.querySelector("[data-view].active")?.dataset.view||"overview";}
+function applyOmnixView(view){const target=document.querySelector('[data-view="'+view+'"]');if(!target)view="overview";document.querySelectorAll("[data-view]").forEach(x=>x.classList.toggle("active",x.dataset.view===view));document.querySelectorAll(".view").forEach(x=>x.classList.toggle("active",x.id==="view-"+view));$("pageTitle").textContent=omnixTitles[view]||"OMNIX";if(view==="activity")loadAudit();}
+history.replaceState({omnixView:currentOmnixView()},"",location.href);
+sectionMenuToggle?.addEventListener("click",()=>{if(!sectionSidebar?.classList.contains("drawer-open"))history.pushState({omnixView:currentOmnixView(),omnixDrawer:true},"",location.href);toggleSectionMenu();});
+sectionMenuOverlay?.addEventListener("click",closeSectionMenu);
+document.querySelectorAll("[data-view]").forEach(button=>button.addEventListener("click",()=>{const next=button.dataset.view,prev=currentOmnixView();closeSectionMenu();if(next!==prev)history.pushState({omnixView:next},"",location.href);applyOmnixView(next);}));
+window.addEventListener("popstate",event=>{if(sectionSidebar?.classList.contains("drawer-open")){closeSectionMenu();return;}const view=event.state?.omnixView;if(view){applyOmnixView(view);return;}applyOmnixView("overview");history.pushState({omnixView:"overview"},"",location.href);});
 </script>
 
 
