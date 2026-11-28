@@ -696,9 +696,9 @@ document.querySelectorAll("[data-view]").forEach(button=>button.addEventListener
 <div id="pdInstallOverlay" role="dialog" aria-modal="true" aria-labelledby="pdInstallTitle">
   <div class="pd-dialog">
     <div class="pd-icon">📲</div>
-    <h3 id="pdInstallTitle">تطبيقاتنا جاهزة للتثبيت</h3>
-    <p>تقدر تحمّل برامجنا على موبايلك وتفتحها بسهولة في أي وقت.</p>
-    <button class="pd-primary" type="button" id="pdShowDownloads">عرض التطبيقات والتحميل</button>
+    <h3 id="pdInstallTitle">ثبّت تطبيق OMNIX على موبايلك</h3>
+    <p>نزّل تطبيق OMNIX وثبّته على جهازك للوصول لمركز التحكم بسرعة.</p>
+    <a class="pd-primary" id="pdShowDownloads" href="https://github.com/yoursmartsite-com/Salary-portal/releases/download/omnix-android-latest/OMNIX.apk" download style="text-decoration:none">تحميل وتثبيت OMNIX</a>
     <button class="pd-dismiss" type="button" id="pdDismiss">مش دلوقتي</button>
   </div>
 </div>
@@ -708,18 +708,12 @@ document.querySelectorAll("[data-view]").forEach(button=>button.addEventListener
   const isAndroid=/Android/i.test(ua);
   const isStandalone=window.matchMedia?.("(display-mode: standalone)").matches||navigator.standalone===true;
   const overlay=document.getElementById("pdInstallOverlay");
-  const projectKey=location.pathname.split("/").filter(Boolean)[0]||"lamma";
-  const key="projectInstallPromptDismissedV1:"+projectKey;
-  if(isAndroid&&!isStandalone&&!localStorage.getItem(key)){
-    window.setTimeout(()=>overlay?.classList.add("pd-show"),900);
+  // Show the install invitation on every fresh visit on Android; do not persist dismissal.
+  if(isAndroid&&!isStandalone){
+    window.setTimeout(()=>overlay?.classList.add("pd-show"),650);
   }
   document.getElementById("pdDismiss")?.addEventListener("click",()=>{
-    localStorage.setItem(key,"1");overlay?.classList.remove("pd-show");
-  });
-  document.getElementById("pdShowDownloads")?.addEventListener("click",()=>{
     overlay?.classList.remove("pd-show");
-    document.getElementById("projectDownloads")?.scrollIntoView({behavior:"smooth",block:"start"});
-    localStorage.setItem(key,"1");
   });
 })();
 </script>
