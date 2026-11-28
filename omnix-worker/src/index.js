@@ -128,6 +128,11 @@ async function db(env,path,method="GET",body) {
   return data;
 }
 const json=(data,status=200,origin="")=>new Response(JSON.stringify(data),{status,headers:{...corsHeaders(origin),"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store"}});
+function makeRahafActivationCode(){
+  const bytes=new Uint8Array(6);crypto.getRandomValues(bytes);
+  const raw=Array.from(bytes,x=>x.toString(16).padStart(2,"0")).join("").toUpperCase();
+  return "RAH-"+raw.slice(0,6)+"-"+raw.slice(6);
+}
 function safeError(error){return error?.message||"حدث خطأ غير متوقع";}
 async function route(request,env) {
   const url=new URL(request.url),path=url.pathname.replace(/\/+$/,"")||"/";
@@ -135,7 +140,7 @@ async function route(request,env) {
   if(request.method==="OPTIONS") return new Response(null,{status:204,headers:corsHeaders(origin)});
   // Public, non-sensitive health check: allow opening the Worker URL directly in a browser.
   if(path==="/health"&&request.method==="GET") return json({ok:true,service:"OMNIX API",version:"1.0.0"},200,origin);
-  if(origin!==env.ALLOWED_ORIGIN) return json({error:"Origin not allowed"},403,origin);
+  if(origin && origin!==env.ALLOWED_ORIGIN) return json({error:"Origin not allowed"},403,origin);
   if(path==="/api/push/register"&&request.method==="POST"){
     const user=await verifySignedInUser(request,env),body=await request.json();
     const token=String(body.token||"").trim(),platform=String(body.platform||"web");
@@ -202,6 +207,23 @@ async function route(request,env) {
     const release=Object.values(allReleases||{}).filter(r=>r.programId===assignment?.programId).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0))[0]||null;
     const safeRelease=release?{version:String(release.version||""),url:String(release.url||""),notes:String(release.notes||""),forceUpdate:release.forceUpdate===true,createdAt:Number(release.createdAt||0)}:null;
     return json({ok:true,allowed,reason,program:assignment||null,subscription:safeSubscription,notifications,release:safeRelease},200,origin);
+  }
+  if(path==="/api/rahaf/validate"&&request.method==="POST"){
+    const body=await request.json(),code=String(body.code||"").trim().toUpperCase();
+    if(!/^RAH-[A-F0-9]{6}-[A-F0-9]{6}$/.test(code))return json({allowed:false,reason:"invalid_code"},200,origin);
+    const index=await db(env,"omnix/activationCodes/"+code);
+    if(!index||index.programId!=="rahaf-perfume-store")return json({allowed:false,reason:"invalid_code"},200,origin);
+    const [subscription,programAccess,programRecord]=await Promise.all([
+      db(env,"omnix/subscriptions/"+index.uid),db(env,"omnix/programAccess/rahaf-perfume-store"),db(env,"omnix/programs/rahaf-perfume-store")
+    ]);
+    const now=Date.now(),startsAt=Number(subscription?.startAt||0),expiresAt=Number(subscription?.expiresAt||0);
+    const globalExpiry=Number(programAccess?.expiresAt||0);
+    const reason=!subscription||subscription.activationCode!==code||subscription.programId!=="rahaf-perfume-store"?"invalid_code":
+      programAccess?.enabled===false||programRecord?.active===false?"paused":
+      globalExpiry>0&&globalExpiry<=now?"expired":
+      subscription.status!=="active"?"paused":
+      startsAt>now?"not_started":expiresAt<=now?"expired":"active";
+    return json({allowed:reason==="active",reason,programId:"rahaf-perfume-store",expiresAt:subscription?.expiresAt||null},200,origin);
   }
   await verifyOwner(request,env);
   const programSubscriptionMatch=path.match(/^\/api\/program-subscription\/([a-z0-9-]+)$/);
@@ -314,7 +336,7 @@ async function route(request,env) {
     return json({ok:true,items},200,origin);
   }
   if(path==="/api/backup"&&request.method==="GET"){
-    const names=["users","omnix/customerPrograms","omnix/subscriptions","omnix/notifications","omnix/releases","omnix/settings","omnix/programs","omnix/programAdmins","omnix/auditLog"];
+    const names=["users","omnix/customerPrograms","omnix/subscriptions","omnix/notifications","omnix/releases","omnix/settings","omnix/programs","omnix/programAdmins","omnix/activationCodes","omnix/auditLog"];
     const values=await Promise.all(names.map(name=>db(env,name)));
     const data={};
     names.forEach((name,index)=>{data[name]=values[index]||{};});
@@ -385,6 +407,7 @@ async function route(request,env) {
     const uid=decodeURIComponent(subscriptionMatch[1]);
     const existing=await db(env,"omnix/subscriptions/"+uid);
     if(!existing)return json({error:"لا يوجد اشتراك حالي لهذا العميل"},404,origin);
+    if(existing.activationCode)await db(env,"omnix/activationCodes/"+existing.activationCode,"DELETE");
     await db(env,"omnix/subscriptions/"+uid,"DELETE");
     return json({ok:true,uid,deleted:true},200,origin);
   }
@@ -397,7 +420,12 @@ async function route(request,env) {
     if(!["active","paused","cancelled"].includes(status))return json({error:"حالة الاشتراك غير صحيحة"},400,origin);
     const startAt=Number(body.startAt||old.startAt||now);
     if(!Number.isFinite(startAt)||startAt>now+86400000)return json({error:"تاريخ بداية الاشتراك غير صحيح"},400,origin);
-    const record={...old,uid,days,startAt,expiresAt:startAt+days*86400000,status,programId:String(body.programId??old.programId??""),notes:String(body.notes??old.notes??"").slice(0,1000),updatedAt:now,updatedBy:env.OWNER_UID};
+    const programId=String(body.programId??old.programId??"");
+    const activationCode=programId==="rahaf-perfume-store"?(old.programId===programId&&old.activationCode?old.activationCode:makeRahafActivationCode()):"";
+    const record={...old,uid,days,startAt,expiresAt:startAt+days*86400000,status,programId,notes:String(body.notes??old.notes??"").slice(0,1000),...(activationCode?{activationCode}:{}),updatedAt:now,updatedBy:env.OWNER_UID};
+    if(old.activationCode&&old.activationCode!==activationCode)await db(env,"omnix/activationCodes/"+old.activationCode,"DELETE");
+    if(activationCode)await db(env,"omnix/activationCodes/"+activationCode,"PUT",{uid,programId:"rahaf-perfume-store",createdAt:old.activationCode?old.updatedAt||now:now});
+    else delete record.activationCode;
     await db(env,"omnix/subscriptions/"+uid,"PUT",record);
     return json({ok:true,subscription:record},200,origin);
   }
