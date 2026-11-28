@@ -188,66 +188,7 @@ setInterval(()=>{if(portalCurrentUser)checkProgramAccess(portalCurrentUser);},60
 $("logoutBtn").addEventListener("click",async()=>{try{await signOut(auth);}catch(e){showMessage("تعذر تسجيل الخروج: "+e.message);}});
 </script>
 
-<style id="project-downloads-style">
-#projectDownloads{margin:38px auto 20px;max-width:1180px;padding:26px 20px;border:1px solid #b58a4438;border-radius:22px;background:linear-gradient(145deg,#171717,#101014);color:#f7f1e5;font-family:inherit}
-#projectDownloads h2{margin:0 0 7px;text-align:center;font-size:clamp(20px,4vw,28px);color:#e4c27c}
-#projectDownloads .pd-sub{text-align:center;color:#aaa39a;font-size:12px;margin:0 0 20px}
-#projectDownloads .pd-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
-#projectDownloads .pd-card{border:1px solid #6d5734;border-radius:15px;padding:16px;background:#ffffff08;display:flex;flex-direction:column;gap:8px}
-#projectDownloads .pd-card b{font-size:15px;color:#f1d99f}
-#projectDownloads .pd-card small{font-size:11px;color:#b9b2a6;line-height:1.7}
-#projectDownloads .pd-card a{display:block;text-align:center;text-decoration:none;border-radius:10px;padding:10px 12px;background:linear-gradient(110deg,#a77b36,#e4c57d);color:#17130b;font-weight:900;font-size:12px}
-#projectDownloads .pd-foot{text-align:center;color:#817b72;font-size:10px;margin:17px 0 0}
-#pdInstallOverlay{position:fixed;inset:0;z-index:999999;background:#000b;display:none;align-items:center;justify-content:center;padding:18px}
-#pdInstallOverlay.pd-show{display:flex}
-#pdInstallOverlay .pd-dialog{width:min(100%,390px);border:1px solid #b9914f;border-radius:22px;padding:24px;background:linear-gradient(145deg,#211e19,#101014);color:#f8f1e5;text-align:center;box-shadow:0 24px 90px #000b}
-#pdInstallOverlay .pd-icon{font-size:35px;margin-bottom:8px}
-#pdInstallOverlay h3{margin:0 0 8px;color:#e6c982;font-size:21px}
-#pdInstallOverlay p{font-size:13px;line-height:1.9;color:#c2b9aa;margin:0 0 17px}
-#pdInstallOverlay .pd-primary,#pdInstallOverlay .pd-dismiss{width:100%;display:block;border:0;border-radius:11px;padding:12px 14px;font:inherit;font-weight:700;font-size:13px;cursor:pointer;text-decoration:none}
-#pdInstallOverlay .pd-primary{background:linear-gradient(110deg,#a77b36,#e4c57d);color:#17130b}
-#pdInstallOverlay .pd-dismiss{margin-top:8px;background:#ffffff10;color:#e8dfd0}
-@media(max-width:520px){#projectDownloads{margin:26px 10px;padding:20px 13px}}
-</style>
-<section id="projectDownloads" aria-label="تحميل تطبيقاتنا">
-  <h2>حمّل برامجنا على موبايلك</h2>
-  <p class="pd-sub">نسخ أندرويد الرسمية للمشروعات المتاحة — اضغط تحميل وابدأ التثبيت.</p>
-  <div class="pd-grid">
-    <article class="pd-card"><b>رهف للعطور</b><small>تطبيق رهف المتصل بالموقع مباشرة.</small><a href="https://github.com/yoursmartsite-com/Salary-portal/releases/download/rahaf-android-latest/Rahaf-Perfumes.apk" download>تحميل تطبيق رهف</a></article>
-    <article class="pd-card"><b>زين ورهف</b><small>تطبيق بوابة زين ورهف.</small><a href="https://github.com/yoursmartsite-com/Salary-portal/releases/download/android-latest/app-release.apk" download>تحميل زين ورهف</a></article>
-  </div>
-  <p class="pd-foot">تحميل ملفات APK متاح لأجهزة أندرويد فقط.</p>
-</section>
-<div id="pdInstallOverlay" role="dialog" aria-modal="true" aria-labelledby="pdInstallTitle">
-  <div class="pd-dialog">
-    <div class="pd-icon">📲</div>
-    <h3 id="pdInstallTitle">تطبيقاتنا جاهزة للتثبيت</h3>
-    <p>تقدر تحمّل برامجنا على موبايلك وتفتحها بسهولة في أي وقت.</p>
-    <button class="pd-primary" type="button" id="pdShowDownloads">عرض التطبيقات والتحميل</button>
-    <button class="pd-dismiss" type="button" id="pdDismiss">مش دلوقتي</button>
-  </div>
-</div>
-<script id="project-downloads-script">
-(()=> {
-  const ua=navigator.userAgent||"";
-  const isAndroid=/Android/i.test(ua);
-  const isStandalone=window.matchMedia?.("(display-mode: standalone)").matches||navigator.standalone===true;
-  const overlay=document.getElementById("pdInstallOverlay");
-  const projectKey=location.pathname.split("/").filter(Boolean)[0]||"lamma";
-  const key="projectInstallPromptDismissedV1:"+projectKey;
-  if(isAndroid&&!isStandalone&&!localStorage.getItem(key)){
-    window.setTimeout(()=>overlay?.classList.add("pd-show"),900);
-  }
-  document.getElementById("pdDismiss")?.addEventListener("click",()=>{
-    localStorage.setItem(key,"1");overlay?.classList.remove("pd-show");
-  });
-  document.getElementById("pdShowDownloads")?.addEventListener("click",()=>{
-    overlay?.classList.remove("pd-show");
-    document.getElementById("projectDownloads")?.scrollIntoView({behavior:"smooth",block:"start"});
-    localStorage.setItem(key,"1");
-  });
-})();
-</script>
+
 
 </body>
 </html>
