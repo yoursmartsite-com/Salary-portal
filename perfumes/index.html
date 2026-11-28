@@ -37,6 +37,8 @@ header{display:flex;align-items:center;justify-content:space-between;padding:18p
 const $=id=>document.getElementById(id);
 let data=[],adminMode=false;
 let cat="الكل",page="home",cart=JSON.parse(localStorage.getItem("zr_cart")||"[]"),fav=JSON.parse(localStorage.getItem("zr_fav")||"[]"),current=null,size=0,orders=JSON.parse(localStorage.getItem("zr_orders")||"[]");
+history.replaceState({zrPage:"home"},"",location.href);
+window.addEventListener("popstate",event=>{if($("modal")?.classList.contains("show")){$("modal").classList.remove("show");return;}pageChange(event.state?.zrPage||"home",true);});
 window.__zrApplyCloudData=(cloud)=>{cart=Array.isArray(cloud.cart)?cloud.cart:[];fav=Array.isArray(cloud.favorites)?cloud.favorites:[];orders=Array.isArray(cloud.orders)?cloud.orders:[];localStorage.setItem("zr_cart",JSON.stringify(cart));window.dispatchEvent(new CustomEvent("zr:datachange",{detail:{key:"cart",value:cart}}));localStorage.setItem("zr_fav",JSON.stringify(fav));window.dispatchEvent(new CustomEvent("zr:datachange",{detail:{key:"favorites",value:fav}}));localStorage.setItem("zr_orders",JSON.stringify(orders));window.dispatchEvent(new CustomEvent("zr:datachange",{detail:{key:"orders",value:orders}}));draw();if(page!=="home")pageChange(page);};
 window.__zrReadCloudData=()=>({cart,favorites:fav,orders});
 
@@ -44,11 +46,12 @@ const money=n=>n.toLocaleString("ar-EG")+" ج.م";
 function toast(message){$("toast").textContent=message;$("toast").classList.add("show");clearTimeout(window.__toastTimer);window.__toastTimer=setTimeout(()=>$("toast").classList.remove("show"),2200)}
 function draw(){let q=$("search").value.trim().toLowerCase();let list=data.filter(p=>(cat==="الكل"||p.type===cat||(cat==="الأكثر مبيعًا"&&p.tag===cat))&&(!q||p.name.toLowerCase().includes(q)||p.notes.toLowerCase().includes(q)));if(page==="favorites")list=data.filter(p=>fav.includes(p.id));$("products").innerHTML=list.map(p=>'<article class="product" data-open="'+p.id+'"><button class="fav" data-fav="'+p.id+'" aria-label="إضافة للمفضلة">'+'<svg class="zr-ico ic-heart" aria-hidden="true"><use href="#zr-heart"></use></svg>'+'</button><div class="art">'+(p.image?'<img class="product-photo" src="'+p.image+'" alt="'+p.name+'">':'<div class="bottle '+p.art+'"></div>')+'</div><div class="kind">'+p.tag+'</div><div class="name">'+p.name+'</div><div class="notes">'+p.notes+'</div><div class="foot"><span>'+money(p.prices[0])+' <small>/ 30 مل</small></span><button class="add" data-open="'+p.id+'" aria-label="عرض المنتج">'+'<svg class="zr-ico ic-plus" aria-hidden="true"><use href="#zr-plus"></use></svg>'+'</button></div>'+(adminMode?'<div class="admin-toolbar"><button class="admin-edit" data-admin-edit="'+p.id+'"><svg class="zr-ico ic-edit" aria-hidden="true"><use href="#zr-edit"></use></svg> تعديل</button><button class="admin-delete" data-admin-delete="'+p.id+'"><svg class="zr-ico ic-trash" aria-hidden="true"><use href="#zr-trash"></use></svg> حذف</button></div>':'')+'</article>').join("")||'<div class="empty">لا توجد منتجات مطابقة.</div>';$("count").textContent=cart.reduce((n,x)=>n+x.qty,0);$("heading").textContent=page==="favorites"?"قائمة المفضلة":"مختارات زين ورهف";$("resultCount").textContent=list.length+" منتجات"}
 window.__zrSetProducts=list=>{if(Array.isArray(list)){data=list;draw();}};window.__zrGetProducts=()=>data;window.__zrSetAdmin=enabled=>{adminMode=enabled===true;document.getElementById("adminToolbar").style.display=adminMode?"flex":"none";draw();};
-function open(html){$("sheet").innerHTML=html;$("modal").classList.add("show")}function close(){$("modal").classList.remove("show")}
+function open(html){$("sheet").innerHTML=html;$("modal").classList.add("show");if(!history.state?.zrModal)history.pushState({zrPage:page,zrModal:true},"",location.href)}function close(silent=false){if(!silent&&$("modal").classList.contains("show")&&history.state?.zrModal){history.back();return}$("modal").classList.remove("show");if(silent&&history.state?.zrModal)history.replaceState({zrPage:page},"",location.href)}
 function detail(id){current=data.find(p=>p.id===id);size=0;open('<button class="close" data-close>إغلاق</button><div style="clear:both"></div><div class="art" style="margin-top:15px">'+(current.image?'<img class="product-photo" src="'+current.image+'" alt="'+current.name+'">':'<div class="bottle '+current.art+'"></div>')+'</div><div class="kind">'+current.tag+'</div><h2>'+current.name+'</h2><p style="color:#7c756b;font-size:13px">'+current.notes+'</p><h4>اختار الحجم المناسب</h4><div class="sizes">'+[30,50,100,16,22].map((v,i)=>'<button class="size '+(!i?"active":"")+'" data-size="'+i+'" '+(current.prices[i]===undefined||current.prices[i]===null?"disabled":"")+'><strong>'+v+' مل</strong><span>'+(current.prices[i]===undefined||current.prices[i]===null?"السعر غير محدد":money(current.prices[i]))+'</span></button>').join("")+'</div><button class="primary" id="add">أضف إلى السلة — '+money(current.prices[0])+'</button>')}
 function cartView(){let total=cart.reduce((s,x)=>s+x.price*x.qty,0);open('<button class="close" data-close>إغلاق</button><div style="clear:both"></div><h2>سلة التسوق</h2>'+(cart.length?cart.map(x=>'<div class="cartline"><div><b>'+x.name+'</b><div style="color:#7c756b;font-size:11px">'+x.size+' مل · '+money(x.price)+' للقطعة</div></div><div class="qty"><button data-qty="-1" data-id="'+x.id+'" data-size="'+x.size+'">−</button> '+x.qty+' <button data-qty="1" data-id="'+x.id+'" data-size="'+x.size+'">+</button></div></div>').join(""):'<div class="empty">سلتك فارغة حاليًا <svg class="zr-ico ic-bag" aria-hidden="true"><use href="#zr-bag"></use></svg></div>')+(cart.length?'<div class="cartline"><b>الإجمالي</b><b>'+money(total)+'</b></div><button class="primary" id="checkout">متابعة إتمام الطلب</button>':'') )}
-function pageChange(p){
-page=p;close();
+function pageChange(p,fromHistory=false){
+if(!fromHistory&&p!==page)history.pushState({zrPage:p},"","#"+p);
+page=p;close(true);
 document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===p));
 $("homePage").hidden=p!=="home";$("otherPage").hidden=p==="home";
 if(p==="home"){draw();return}
@@ -119,6 +122,15 @@ window.addEventListener("zr:datachange",async event=>{if(!activeUid||loading)ret
 #pdInstallOverlay .pd-primary{background:linear-gradient(110deg,#a77b36,#e4c57d);color:#17130b}
 #pdInstallOverlay .pd-dismiss{margin-top:8px;background:#ffffff10;color:#e8dfd0}
 @media(max-width:520px){#projectDownloads{margin:26px 10px;padding:20px 13px}}
+
+/* ZEIN & RAHAF — tactile motion */
+button,a,.product,.cat,.side-link,.bottom a{ -webkit-tap-highlight-color:transparent; }
+button,.product,.cat,.side-link,.bottom a{transition:transform .18s cubic-bezier(.2,.75,.25,1),box-shadow .22s ease,filter .2s ease,border-color .2s ease;}
+button:active,.cat:active,.side-link:active,.bottom a:active{transform:scale(.965);filter:brightness(1.06);}
+button:focus-visible,a:focus-visible{outline:2px solid var(--gold);outline-offset:3px;}
+.product{animation:zr-card-in .35s both cubic-bezier(.2,.7,.25,1);}
+@keyframes zr-card-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 </style>
 <section id="projectDownloads" aria-label="تحميل تطبيقاتنا">
   <h2>حمّل تطبيق زين ورهف</h2>
