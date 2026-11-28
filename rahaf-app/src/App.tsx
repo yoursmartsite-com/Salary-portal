@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { auth, api, notifications as pushNotifications } from '@appdeploy/client';
+import { auth, api, notifications as pushNotifications } from './services';
 import {
   Search, ShoppingBag, Heart, UserRound, Package, Menu, X, ArrowLeft,
   Sparkles, Plus, Minus, Trash2, LogOut, ShieldCheck, Truck, Check, Bell, CheckCheck,
