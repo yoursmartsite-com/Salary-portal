@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-11-27",
+  "updatedAt": "2026-11-28",
   "programs": [
     {
       "id": "lamma",
@@ -11,7 +11,10 @@
       "stateType": "active",
       "description": "منصة لَمّة الرئيسية. تم العثور على الصفحة الرئيسية وملف تعريف التطبيق داخل المستودع.",
       "url": "https://yoursmartsite-com.github.io/Salary-portal/",
-      "repositoryPath": "index.html"
+      "repositoryPath": "index.html",
+      "controlStatus": "pending",
+      "controlLabel": "ربط الاشتراكات قيد التنفيذ",
+      "controlDetails": "الموقع وبيانات لَمّة يظلان على استضافتهما الحالية. لم يتم توصيل فحص اشتراك OMNIX داخل المنصة بعد."
     },
     {
       "id": "zein-rahaf-store",
@@ -22,7 +25,10 @@
       "stateType": "active",
       "description": "المتجر الإلكتروني وملفات الحساب والطلبات وسلة التسوق والتثبيت موجودة داخل مجلد perfumes.",
       "url": "https://yoursmartsite-com.github.io/Salary-portal/perfumes/",
-      "repositoryPath": "perfumes"
+      "repositoryPath": "perfumes",
+      "controlStatus": "connected",
+      "controlLabel": "التحقق من OMNIX متصل",
+      "controlDetails": "المتجر يتحقق من الصلاحية عبر OMNIX API باستخدام programId=zein-rahaf-store. لا يشمل ذلك تلقائيًا التطبيقات الأخرى."
     },
     {
       "id": "zein-rahaf-portal",
@@ -33,7 +39,10 @@
       "stateType": "active",
       "description": "بوابة البرامج المستقلة، وملفها الرئيسي موجود داخل مجلد portal.",
       "url": "https://yoursmartsite-com.github.io/Salary-portal/portal/",
-      "repositoryPath": "portal/index.html"
+      "repositoryPath": "portal/index.html",
+      "controlStatus": "pending",
+      "controlLabel": "بوابة وسيطة — تحتاج اختبارًا",
+      "controlDetails": "البوابة موجودة، لكن يلزم اختبار مسار الدخول والتحقق من الاشتراك لكل برنامج قبل اعتبارها متصلة بالكامل."
     },
     {
       "id": "zein-rahaf-android",
@@ -43,7 +52,10 @@
       "state": "ملفات المصدر موجودة — رابط APK غير متحقق",
       "stateType": "source",
       "description": "تم العثور على مشروع Android داخل android-app. لم يتم اعتماد رابط تحميل APK من سجل المشروع.",
-      "repositoryPath": "android-app"
+      "repositoryPath": "android-app",
+      "controlStatus": "shared",
+      "controlLabel": "يتبع اشتراك متجر زين ورهف",
+      "controlDetails": "ملفات Android موجودة. ربط صلاحية التطبيق يعتمد على مسار المتجر، ولم يتم اعتماد رابط APK نهائي."
     },
     {
       "id": "rahaf-perfume-store",
@@ -55,7 +67,10 @@
       "description": "متجر عطور رهف المستقل على AppDeploy. يحتفظ بقاعدة بياناته الحالية والعملاء والطلبات، ويُدار اشتراكه من OMNIX بعد إكمال نقطة تحقق الاستحقاق داخل المتجر.",
       "url": "https://rahaf-icy8sk.v2.appdeploy.ai/",
       "appdeployAppId": "rahaf-icy8sk",
-      "repositoryPath": "integrations/rahaf-perfume-store.md"
+      "repositoryPath": "integrations/rahaf-perfume-store.md",
+      "controlStatus": "pending",
+      "controlLabel": "ربط رهف قيد التنفيذ",
+      "controlDetails": "المتجر المستضاف على AppDeploy يحتفظ بقاعدة بياناته الحالية. لم يكتمل تكامل API والتحقق من كود التفعيل."
     }
   ]
 }
