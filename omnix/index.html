@@ -374,9 +374,11 @@ async function loadPrograms(force=false){
   if(!programCatalog.length){grid.innerHTML='<div class="program-empty">لا توجد برامج مسجلة حاليًا.</div>';return;}
   grid.innerHTML=programCatalog.map(p=>{
    const stateClass=p.stateType==="source"?"source":"";
+   const controlClass=p.controlStatus==="connected"?"": "source";
+   const controlLabel=p.controlLabel||"حالة الربط غير محددة";
    const action=p.url?'<a class="program-link" href="'+esc(p.url)+'" target="_blank" rel="noopener">فتح البرنامج ↗</a>':'';
    const repo=p.repositoryPath?'<a class="program-link secondary" href="https://github.com/yoursmartsite-com/Salary-portal/tree/main/'+esc(p.repositoryPath)+'" target="_blank" rel="noopener">ملفات المشروع ↗</a>':'';
-   return '<article class="program-card"><div class="program-card-head"><div class="program-logo">'+esc(p.mark||"APP")+'</div><div><h3>'+esc(p.name)+'</h3><div class="kind">'+esc(p.kind)+'</div></div></div><div class="program-state '+stateClass+'">● '+esc(p.state|| (p.active===false?"متوقف":"نشط"))+'</div><p class="program-details">'+esc(p.description)+'</p><div class="program-actions">'+action+repo+'</div></article>';
+   return '<article class="program-card"><div class="program-card-head"><div class="program-logo">'+esc(p.mark||"APP")+'</div><div><h3>'+esc(p.name)+'</h3><div class="kind">'+esc(p.kind)+'</div></div></div><div class="program-state '+stateClass+'">● '+esc(p.state|| (p.active===false?"متوقف":"نشط"))+'</div><div class="program-state '+controlClass+'">'+esc(controlLabel)+'</div><p class="program-details">'+esc(p.description)+'<br><b>تكامل OMNIX:</b> '+esc(p.controlDetails||"لم يتم توثيق حالة الربط.")+'</p><div class="program-actions">'+action+repo+'</div></article>';
   }).join("");
   grid.dataset.loaded="1";
  }catch(error){count.textContent="تعذر تحميل السجل";grid.innerHTML='<div class="program-empty">'+String(error.message||"حدث خطأ")+' — حدّث الصفحة وحاول مرة أخرى.</div>';}
