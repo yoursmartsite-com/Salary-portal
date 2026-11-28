@@ -1,4 +1,4 @@
-package com.zeinrahaf.zeinrahafstore;
+package com.zeinrahaf.perfumes;
 
 import android.app.AlertDialog;
 import android.content.Intent;
