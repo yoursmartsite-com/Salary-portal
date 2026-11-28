@@ -82,8 +82,10 @@ const KEY='fieldguard-preview-v1';let state=JSON.parse(localStorage.getItem(KEY)
 const $=id=>document.getElementById(id);const save=()=>{localStorage.setItem(KEY,JSON.stringify(state));render();if(cloudReady)return syncCloudState().then(()=>true).catch(e=>{toast('تعذر الحفظ السحابي: '+e.message);return false});return Promise.resolve(true)};
 let currentRole=null,currentUser=null,cloudReady=false,authBusy=false;
 async function loadCloudState(){
+ const managerMode=currentRole==='manager';
+ const scopedRead=(name)=>managerMode?db.collection(name).where('managerUid','==',currentUser.uid).get():db.collection(name).get();
  const [employees,attendance,rounds,zones,settings]=await Promise.all([
-  db.collection('employees').get(),db.collection('attendance').get(),db.collection('inspection_rounds').get(),db.collection('work_areas').get(),db.collection('settings').doc('club').get()
+  scopedRead('employees'),scopedRead('attendance'),scopedRead('inspection_rounds'),scopedRead('work_areas'),db.collection('settings').doc(managerMode?'manager_'+currentUser.uid:'club').get()
  ]);
  state.workers=employees.docs.map(d=>({id:d.id,...d.data()}));
  state.attendance=attendance.docs.map(d=>({id:d.id,...d.data(),time:d.data().timeLabel||''}));
@@ -94,15 +96,15 @@ async function loadCloudState(){
 }
 async function syncCloudState(){
  const batch=db.batch();
- state.attendance.forEach(a=>{const w=state.workers.find(x=>x.name===a.worker);batch.set(db.collection('attendance').doc(String(a.id)),{employeeId:a.employeeId||(w?String(w.id):''),worker:a.worker,type:a.type,timeLabel:a.time,coords:a.coords||''},{merge:true})});
- state.rounds.forEach(r=>batch.set(db.collection('inspection_rounds').doc(String(r.id)),{employeeName:r.worker,timeLabel:r.time,status:r.status},{merge:true}));
- state.zones.forEach((z,i)=>batch.set(db.collection('work_areas').doc('zone_'+i),{name:z},{merge:true}));
- if(state.settings&&currentRole==='owner')batch.set(db.collection('settings').doc('club'),state.settings,{merge:true});
+ state.attendance.forEach(a=>{const w=state.workers.find(x=>x.name===a.worker);batch.set(db.collection('attendance').doc(String(a.id)),{employeeId:a.employeeId||(w?String(w.id):''),worker:a.worker,type:a.type,timeLabel:a.time,coords:a.coords||'',managerUid:currentRole==='manager'?currentUser.uid:(w?.managerUid||null)},{merge:true})});
+ state.rounds.forEach(r=>batch.set(db.collection('inspection_rounds').doc(String(r.id)),{employeeName:r.worker,timeLabel:r.time,status:r.status,managerUid:currentRole==='manager'?currentUser.uid:null},{merge:true}));
+ state.zones.forEach((z,i)=>batch.set(db.collection('work_areas').doc((currentRole==='manager'?currentUser.uid+'_':'')+'zone_'+i),{name:z,managerUid:currentRole==='manager'?currentUser.uid:null},{merge:true}));
+ if(state.settings&&['owner','admin','manager'].includes(currentRole))batch.set(db.collection('settings').doc(currentRole==='manager'?'manager_'+currentUser.uid:'club'),{...state.settings,managerUid:currentRole==='manager'?currentUser.uid:null},{merge:true});
  await batch.commit();
 }
 async function verifyAdmin(user){
  const snap=await db.collection('admins').doc(user.uid).get();
- if(snap.exists&&snap.data().active===true&&['owner','admin'].includes(snap.data().role)){
+ if(snap.exists&&snap.data().active===true&&['owner','admin','manager'].includes(snap.data().role)){
   currentUser=user;currentRole=snap.data().role;document.getElementById('authGate').classList.add('hidden');document.getElementById('employeePortal').classList.add('hidden');await loadCloudState();return true;
  }
  const employee=await db.collection('employees').doc(user.uid).get();
@@ -140,7 +142,7 @@ async function addWorker(){
   if(!window.fieldGuardSecondaryAuth){const app=firebase.initializeApp(firebaseConfig,'FIELD_GUARD_ACCOUNT_CREATOR');window.fieldGuardSecondaryAuth=app.auth()}
   const created=await window.fieldGuardSecondaryAuth.createUserWithEmailAndPassword(email,password);
   const uid=created.user.uid;await window.fieldGuardSecondaryAuth.signOut();
-  await db.collection('employees').doc(uid).set({name,email,phone:$('wPhone').value.trim(),zone:$('wZone').value,shift:$('wShift').value,active:true,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+  await db.collection('employees').doc(uid).set({name,email,phone:$('wPhone').value.trim(),zone:$('wZone').value,shift:$('wShift').value,active:true,managerUid:currentUser.uid,teamId:currentUser.uid,createdBy:currentUser.uid,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
   state.workers.push({id:uid,name,email,phone:$('wPhone').value.trim(),zone:$('wZone').value,shift:$('wShift').value,active:true});
   state.events=state.events||[];state.events.unshift({text:'تمت إضافة العامل '+name,time:now()});closeModal();const saved=await save();toast(saved?'تم إنشاء حساب العامل وحفظه سحابياً':'تم إنشاء الحساب لكن تعذر حفظ بعض السجلات');
  }catch(e){toast('تعذر إنشاء الحساب: '+(e.code||e.message))}
