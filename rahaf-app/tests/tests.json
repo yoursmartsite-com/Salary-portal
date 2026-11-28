@@ -1,0 +1,7 @@
+[
+  {"name":"Storefront browse and filters","viewport":"mobile","covers":["Arabic storefront","category filters","search","product details","reviews"],"expected":"Catalog renders, filters and search work, and product details show their reviews."},
+  {"name":"Customer shopping persistence","viewport":"mobile","covers":["authentication","cart","favorites","checkout","COD","orders","profile"],"expected":"Customer cart, favorites, orders and profile persist across sessions."},
+  {"name":"Owner administration","viewport":"desktop","covers":["owner access","product CRUD","image upload","order management","customer directory","delivery ETA"],"expected":"Only the configured owner can manage products, customers and orders."},
+  {"name":"Review eligibility","viewport":"mobile","covers":["delivered-order review eligibility","review create/update"],"expected":"Only a customer with a delivered purchase can review the purchased product."},
+  {"name":"Security and OMNIX gate","viewport":"mobile","covers":["private orders","private notifications","admin authorization","activation validation"],"expected":"Private data stays private, admin routes are protected, and invalid OMNIX codes are denied."}
+]
