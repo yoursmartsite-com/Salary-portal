@@ -50,8 +50,9 @@ function open(html){$("sheet").innerHTML=html;$("modal").classList.add("show");i
 function detail(id){current=data.find(p=>p.id===id);size=0;open('<button class="close" data-close>إغلاق</button><div style="clear:both"></div><div class="art" style="margin-top:15px">'+(current.image?'<img class="product-photo" src="'+current.image+'" alt="'+current.name+'">':'<div class="bottle '+current.art+'"></div>')+'</div><div class="kind">'+current.tag+'</div><h2>'+current.name+'</h2><p style="color:#7c756b;font-size:13px">'+current.notes+'</p><h4>اختار الحجم المناسب</h4><div class="sizes">'+[30,50,100,16,22].map((v,i)=>'<button class="size '+(!i?"active":"")+'" data-size="'+i+'" '+(current.prices[i]===undefined||current.prices[i]===null?"disabled":"")+'><strong>'+v+' مل</strong><span>'+(current.prices[i]===undefined||current.prices[i]===null?"السعر غير محدد":money(current.prices[i]))+'</span></button>').join("")+'</div><button class="primary" id="add">أضف إلى السلة — '+money(current.prices[0])+'</button>')}
 function cartView(){let total=cart.reduce((s,x)=>s+x.price*x.qty,0);open('<button class="close" data-close>إغلاق</button><div style="clear:both"></div><h2>سلة التسوق</h2>'+(cart.length?cart.map(x=>'<div class="cartline"><div><b>'+x.name+'</b><div style="color:#7c756b;font-size:11px">'+x.size+' مل · '+money(x.price)+' للقطعة</div></div><div class="qty"><button data-qty="-1" data-id="'+x.id+'" data-size="'+x.size+'">−</button> '+x.qty+' <button data-qty="1" data-id="'+x.id+'" data-size="'+x.size+'">+</button></div></div>').join(""):'<div class="empty">سلتك فارغة حاليًا <svg class="zr-ico ic-bag" aria-hidden="true"><use href="#zr-bag"></use></svg></div>')+(cart.length?'<div class="cartline"><b>الإجمالي</b><b>'+money(total)+'</b></div><button class="primary" id="checkout">متابعة إتمام الطلب</button>':'') )}
 function pageChange(p,fromHistory=false){
+close(true);
 if(!fromHistory&&p!==page)history.pushState({zrPage:p},"","#"+p);
-page=p;close(true);
+page=p;
 document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===p));
 $("homePage").hidden=p!=="home";$("otherPage").hidden=p==="home";
 if(p==="home"){draw();return}
