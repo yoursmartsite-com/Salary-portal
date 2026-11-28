@@ -109,7 +109,7 @@ function App() {
     const clearInstallPrompt = () => setInstallPrompt(null);
     window.addEventListener('beforeinstallprompt', captureInstallPrompt);
     window.addEventListener('appinstalled', clearInstallPrompt);
-    if ('serviceWorker' in navigator) navigator.serviceWorker.register(new URL('service-worker.js', import.meta.env.BASE_URL).toString()).catch(() => undefined);
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register(new URL(import.meta.env.BASE_URL + 'service-worker.js', window.location.origin).toString()).catch(() => undefined);
     return () => {
       window.removeEventListener('beforeinstallprompt', captureInstallPrompt);
       window.removeEventListener('appinstalled', clearInstallPrompt);
