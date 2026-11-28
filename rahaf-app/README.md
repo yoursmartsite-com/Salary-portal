@@ -13,7 +13,7 @@ This is the independent Rahaf storefront source maintained in this repository.
 
 GitHub Pages is static hosting; it cannot execute a Node backend or protect admin credentials. All privileged operations must be implemented in the OMNIX Worker. Never put Firebase service-account keys, Cloudflare tokens, or other private credentials in this directory.
 
-The React interface and original backend route source are preserved here as migration material. The app is not considered production-ready until the AppDeploy client/SDK imports have been removed, all API routes have been ported to the OMNIX Worker, and the GitHub Pages build and customer/admin flows have passed tests.
+The React storefront now uses Firebase Authentication and the OMNIX Worker. The legacy AppDeploy backend has been removed. The app is not production-ready until the live Pages deployment and customer/admin flows have passed end-to-end tests.
 
 ## Safety
 
