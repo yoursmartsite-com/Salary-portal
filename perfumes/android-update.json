@@ -1,8 +1,8 @@
 {
-  "versionCode": 2,
-  "minVersionCode": 2,
-  "versionName": "1.0.1",
+  "versionCode": 3,
+  "minVersionCode": 3,
+  "versionName": "1.0.2",
   "apkUrl": "https://github.com/yoursmartsite-com/Salary-portal/releases/download/android-latest/app-release.apk",
   "force": true,
-  "message": "تم إصدار تحديث جديد لتطبيق زين ورهف. يجب تحديث التطبيق الآن للاستمرار في استخدام المتجر."
+  "message": "تم إصدار تطبيق زين ورهف بمعرّف مستقل عن رهف للعطور."
 }
