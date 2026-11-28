@@ -109,7 +109,7 @@ function App() {
     const clearInstallPrompt = () => setInstallPrompt(null);
     window.addEventListener('beforeinstallprompt', captureInstallPrompt);
     window.addEventListener('appinstalled', clearInstallPrompt);
-    if ('serviceWorker' in navigator) navigator.serviceWorker.register('/service-worker.js').catch(() => undefined);
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register(new URL('service-worker.js', import.meta.env.BASE_URL).toString()).catch(() => undefined);
     return () => {
       window.removeEventListener('beforeinstallprompt', captureInstallPrompt);
       window.removeEventListener('appinstalled', clearInstallPrompt);
@@ -134,7 +134,7 @@ function App() {
     }
     setActivationBusy(true);
     try {
-      const result = await api.post('/api/app-access', { code });
+      const result = await api.post('/api/rahaf/validate', { code });
       if (result.data.allowed === true) {
         localStorage.setItem('rahaf-activation-code', code);
         setActivationCode(code);
