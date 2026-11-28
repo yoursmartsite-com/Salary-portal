@@ -32,6 +32,10 @@ body[dir="ltr"] .nav button{text-align:left}body[dir="ltr"] th,body[dir="ltr"] t
 <div id="modal" class="modal hidden" onclick="if(event.target===this)closeModal()"><div class="modalbox"><div class="panelhead"><h3 id="modalTitle">إضافة عامل</h3><button class="btn small" onclick="closeModal()">إغلاق</button></div><div id="modalBody"></div></div></div><div class="toast" id="toast"></div>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script>
+const firebaseConfig={apiKey:"AIzaSyBcAKNEFLwqfnqJt18RsjBjvKIL--e4Tc0",authDomain:"field-guard-4cbb8.firebaseapp.com",projectId:"field-guard-4cbb8",storageBucket:"field-guard-4cbb8.firebasestorage.app",messagingSenderId:"410116232722",appId:"1:410116232722:web:4da348b3f3f691107a6acb"};
+firebase.initializeApp(firebaseConfig);
+const auth=firebase.auth();
+const db=firebase.firestore();
 
 const translations = {
 "نظام إدارة ومتابعة عمال الملعب":"Stadium Workforce Management",
