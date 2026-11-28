@@ -69,8 +69,8 @@
       "appdeployAppId": "rahaf-icy8sk",
       "repositoryPath": "integrations/rahaf-perfume-store.md",
       "controlStatus": "pending",
-      "controlLabel": "ربط رهف قيد التنفيذ",
-      "controlDetails": "المتجر المستضاف على AppDeploy يحتفظ بقاعدة بياناته الحالية. لم يكتمل تكامل API والتحقق من كود التفعيل."
+      "controlLabel": "كود OMNIX جاهز — تحديث المتجر مطلوب",
+      "controlDetails": "تم تجهيز إصدار أكواد RAH والتحقق منها داخل OMNIX GitHub Worker. المتجر المباشر ما زال يستخدم نقطة التحقق القديمة حتى نشر تحديث Backend الخاص به."
     }
   ]
 }
