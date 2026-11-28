@@ -431,14 +431,23 @@ function connectOwnerData(){
     if(!canvas&&!img){alert("أنشئ رمز QR الأول.");return;}
     try{
      const dataUrl=canvas?canvas.toDataURL("image/png"):img.src;
-     const filename="OMNIX-QR-"+uid+".png";
+     const filename="OMNIX-QR-"+uid+".png",actions=panel.querySelector(".qr-actions");
+     let fallback=actions.querySelector(".qr-save-fallback");
+     if(!fallback){
+      fallback=document.createElement("a");fallback.className="qr-save-fallback";
+      fallback.textContent="فتح صورة QR للحفظ يدويًا";
+      fallback.target="_blank";fallback.rel="noopener";
+      fallback.style.cssText="display:block;width:100%;margin-top:10px;padding:11px;border:1px solid var(--gold,#c9a45c);border-radius:10px;color:var(--gold,#c9a45c);text-decoration:none;font-size:13px;font-weight:700";
+      actions.appendChild(fallback);
+     }
+     fallback.href=dataUrl;
      const link=document.createElement("a");link.href=dataUrl;link.download=filename;link.rel="noopener";link.style.display="none";
      document.body.appendChild(link);link.click();link.remove();
-     const actions=panel.querySelector(".qr-actions");
-     let fallback=actions.querySelector(".qr-save-fallback");
-     if(!fallback){fallback=document.createElement("a");fallback.className="qr-save-fallback";fallback.textContent="لو التنزيل لم يبدأ: افتح الصورة واحفظها بالضغط المطوّل";fallback.target="_blank";fallback.rel="noopener";fallback.style.cssText="display:block;margin-top:10px;color:var(--gold,#c9a45c);text-decoration:underline;font-size:13px";actions.appendChild(fallback);}
-     fallback.href=dataUrl;
-    }catch(error){alert("تعذر تجهيز صورة QR. جرّب فتح OMNIX في Chrome.");}
+     button.textContent="إعادة محاولة الحفظ";
+     fallback.textContent="لو التنزيل ما بدأش، اضغط هنا لفتح الصورة ثم اضغط عليها مطولًا واختر حفظ الصورة";
+    }catch(error){
+     alert("تعذر تجهيز صورة QR. افتح OMNIX في Chrome وحاول مرة أخرى.");
+    }
    }));
 customerList.querySelectorAll("[data-edit-customer]").forEach(button=>button.addEventListener("click",async()=>{
     const uid=button.dataset.editCustomer,u=customers[uid]||{},name=prompt("اسم العميل",u.name||""),email=prompt("البريد الإلكتروني",u.email||""),phone=prompt("رقم الهاتف",u.phone||"");
