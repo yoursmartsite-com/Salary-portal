@@ -46,7 +46,7 @@ service cloud.firestore {
       allow get: if activeAdminRole()
         || (signedIn() && request.auth.uid == uid && isActiveEmployee())
         || managerOwns(resource.data);
-      allow list: if activeAdminRole() || isManager();
+      allow list: if activeAdminRole() || managerOwns(resource.data);
       allow create: if activeAdminRole()
         || (isManager() && request.resource.data.managerUid == request.auth.uid
           && request.resource.data.teamId == request.auth.uid);
