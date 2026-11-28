@@ -55,7 +55,7 @@ jobs:
           cp native-android/MainActivity.java android/app/src/main/java/com/zeinrahaf/zeinrahafstore/MainActivity.java
           sed -i "s/versionCode 1/versionCode 3/" android/app/build.gradle
           sed -i "s/versionName '1.0'/versionName '1.0.2'/" android/app/build.gradle
-          grep -q 'versionCode 2' android/app/build.gradle
+          grep -q 'versionCode 3' android/app/build.gradle
 
       - name: Apply ZEIN & RAHAF perfume bottle app icon
         working-directory: perfumes
