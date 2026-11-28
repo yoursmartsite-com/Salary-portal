@@ -597,3 +597,8 @@ body{background:#f7f8fa;color:#202733;font-family:'Tajawal','Cairo',sans-serif}
   object-fit: contain !important;
 }
 .footer-install{display:flex;flex-direction:column;align-items:flex-start;gap:9px}.footer-install>b{font-size:14px;color:#f0d9a2}.footer-install>p{font-size:10px;line-height:1.8;margin:0;color:#a99d86}.footer-install-button{display:flex;align-items:center;justify-content:center;gap:11px;width:100%;min-height:58px;padding:16px 22px;border:2px solid #e9d19a;border-radius:14px;background:linear-gradient(120deg,#b99758,#f5dfad);color:#17130b;font-size:16px;font-weight:900;text-decoration:none;box-shadow:0 8px 26px #c7a45c35;cursor:pointer;transition:transform .2s,box-shadow .2s}.footer-install-button span{font-size:11px;padding:4px 7px;border-radius:6px;background:#17130b;color:#f5dfad;letter-spacing:.6px}.footer-install-button:hover{transform:translateY(-2px);box-shadow:0 8px 22px #c7a45c30}@media(max-width:620px){.footer-install{grid-column:1/-1;padding:17px;border:1px solid #5b492c;border-radius:12px;background:#14130f}.footer-install-button{width:100%}}
+
+/* RAHAF: consistent tactile feedback on links and navigation controls */
+.rahaf-app a,.rahaf-app .mobile-nav button,.rahaf-app .nav button{ -webkit-tap-highlight-color:transparent;transition:transform .18s cubic-bezier(.2,.75,.25,1),box-shadow .22s ease,filter .2s ease;}
+.rahaf-app a:active,.rahaf-app .mobile-nav button:active,.rahaf-app .nav button:active{transform:scale(.97);filter:brightness(1.08);}
+.rahaf-app a:focus-visible,.rahaf-app button:focus-visible{outline:2px solid #d8b875;outline-offset:3px;}
