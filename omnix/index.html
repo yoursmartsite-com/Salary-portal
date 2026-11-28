@@ -426,28 +426,37 @@ function connectOwnerData(){
    panel.querySelector(".qr-caption").textContent=program.name+" — "+url;
    panel.classList.add("show");
   }));
-  customerList.querySelectorAll("[data-download-qr]").forEach(button=>button.addEventListener("click",()=>{
+  customerList.querySelectorAll("[data-download-qr]").forEach(button=>button.addEventListener("click",async()=>{
     const uid=button.dataset.downloadQr,panel=$("customer-qr-"+uid.replace(/[^a-zA-Z0-9_-]/g,"")),canvas=panel?.querySelector("canvas"),img=panel?.querySelector("img");
     if(!canvas&&!img){alert("أنشئ رمز QR الأول.");return;}
-    try{
-     const dataUrl=canvas?canvas.toDataURL("image/png"):img.src;
-     const filename="OMNIX-QR-"+uid+".png",actions=panel.querySelector(".qr-actions");
-     let fallback=actions.querySelector(".qr-save-fallback");
-     if(!fallback){
-      fallback=document.createElement("a");fallback.className="qr-save-fallback";
-      fallback.textContent="فتح صورة QR للحفظ يدويًا";
-      fallback.target="_blank";fallback.rel="noopener";
-      fallback.style.cssText="display:block;width:100%;margin-top:10px;padding:11px;border:1px solid var(--gold,#c9a45c);border-radius:10px;color:var(--gold,#c9a45c);text-decoration:none;font-size:13px;font-weight:700";
-      actions.appendChild(fallback);
-     }
-     fallback.href=dataUrl;
-     const link=document.createElement("a");link.href=dataUrl;link.download=filename;link.rel="noopener";link.style.display="none";
-     document.body.appendChild(link);link.click();link.remove();
-     button.textContent="إعادة محاولة الحفظ";
-     fallback.textContent="لو التنزيل ما بدأش، اضغط هنا لفتح الصورة ثم اضغط عليها مطولًا واختر حفظ الصورة";
-    }catch(error){
-     alert("تعذر تجهيز صورة QR. افتح OMNIX في Chrome وحاول مرة أخرى.");
+    const filename="OMNIX-QR-"+uid+".png",actions=panel.querySelector(".qr-actions");
+    let fallback=actions.querySelector(".qr-save-fallback");
+    if(!fallback){
+     fallback=document.createElement("a");fallback.className="qr-save-fallback";
+     fallback.target="_blank";fallback.rel="noopener";
+     fallback.style.cssText="display:block;width:100%;margin-top:10px;padding:12px;border:1px solid var(--gold,#c9a45c);border-radius:10px;color:var(--gold,#c9a45c);text-decoration:none;font-size:13px;font-weight:700";
+     actions.appendChild(fallback);
     }
+    button.disabled=true;button.textContent="جاري تجهيز الصورة…";
+    try{
+     let blob;
+     if(canvas) blob=await new Promise((resolve,reject)=>canvas.toBlob(value=>value?resolve(value):reject(new Error("canvas export failed")),"image/png"));
+     else {const response=await fetch(img.src);blob=await response.blob();}
+     const blobUrl=URL.createObjectURL(blob);
+     fallback.href=blobUrl;fallback.download=filename;
+     fallback.textContent="اضغط هنا لتنزيل صورة QR";
+     const link=document.createElement("a");link.href=blobUrl;link.download=filename;link.rel="noopener";link.style.cssText="position:fixed;left:-9999px;top:0";
+     document.body.appendChild(link);link.click();link.remove();
+     button.textContent="إعادة تنزيل QR";
+     setTimeout(()=>URL.revokeObjectURL(blobUrl),120000);
+    }catch(error){
+     try{
+      const dataUrl=canvas?canvas.toDataURL("image/png"):img.src;
+      fallback.href=dataUrl;fallback.removeAttribute("download");
+      fallback.textContent="فتح صورة QR — اضغط مطولًا واختر حفظ الصورة";
+      button.textContent="افتح الصورة للحفظ";
+     }catch(e){alert("تعذر تجهيز صورة QR. افتح OMNIX في Chrome وحاول مرة أخرى.");}
+    }finally{button.disabled=false;}
    }));
 customerList.querySelectorAll("[data-edit-customer]").forEach(button=>button.addEventListener("click",async()=>{
     const uid=button.dataset.editCustomer,u=customers[uid]||{},name=prompt("اسم العميل",u.name||""),email=prompt("البريد الإلكتروني",u.email||""),phone=prompt("رقم الهاتف",u.phone||"");
