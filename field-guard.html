@@ -54,10 +54,12 @@ let language=localStorage.getItem('fieldguard-language')||'ar';
 function translateNode(node){
  const raw=node.nodeValue, trimmed=raw.trim();
  if(!trimmed)return;
- let translated=translations[trimmed];
- if(!translated){
+ const reverse=Object.fromEntries(Object.entries(translations).map(([ar,en])=>[en,ar]));
+ let translated=language==='en'?(translations[trimmed]||trimmed):(reverse[trimmed]||trimmed);
+ if(translated===trimmed){
    translated=trimmed;
-   for(const [ar,en] of Object.entries(translations)) if(translated.includes(ar)) translated=translated.split(ar).join(en);
+   const pairs=language==='en'?Object.entries(translations):Object.entries(reverse);
+   for(const [from,to] of pairs) if(translated.includes(from)) translated=translated.split(from).join(to);
  }
  if(translated!==trimmed) node.nodeValue=raw.replace(trimmed,translated);
 }
