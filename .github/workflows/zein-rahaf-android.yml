@@ -1,4 +1,4 @@
-name: Build Zein & Rahaf Android APK
+name: Build Rahaf Website-Connected Android APK
 
 on:
   workflow_dispatch:
@@ -35,16 +35,16 @@ jobs:
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: zein-rahaf-portal-v2-apk
+          name: rahaf-android-apk
           path: android-app/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 30
       - name: Publish portal-enabled APK
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: zein-rahaf-portal-v2
-          name: Zein & Rahaf Android 1.1.0 - Portal
-          body: "This build opens the ZEIN & RAHAF program portal on launch."
+          tag_name: rahaf-android-latest
+          name: Rahaf Android 1.4.0 - Website Connected
+          body: "This Android app opens the live Rahaf website directly. Website updates appear in the app without reinstalling."
           files: android-app/app/build/outputs/apk/debug/app-debug.apk
           overwrite_files: true
           make_latest: false
