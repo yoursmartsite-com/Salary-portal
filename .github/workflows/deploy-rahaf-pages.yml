@@ -1,0 +1,53 @@
+name: Build and deploy Rahaf to GitHub Pages
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/deploy-rahaf-pages.yml"
+      - "rahaf-app/**"
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: rahaf-pages
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout live site (main)
+        uses: actions/checkout@v4
+      - name: Checkout Rahaf app source
+        uses: actions/checkout@v4
+        with:
+          ref: rahaf-github-migration
+          path: rahaf-source
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        working-directory: rahaf-source/rahaf-app
+        run: npm install
+      - name: Build Rahaf
+        working-directory: rahaf-source/rahaf-app
+        run: npm run build
+      - name: Replace only Rahaf published folder
+        run: |
+          rm -rf ./rahaf-app
+          mkdir -p ./rahaf-app
+          cp -a rahaf-source/rahaf-app/dist/. ./rahaf-app/
+          rm -rf ./rahaf-source
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
