@@ -29,7 +29,8 @@ body[dir="ltr"] .nav button{text-align:left}body[dir="ltr"] th,body[dir="ltr"] t
 <section id="reports" class="page hidden"><div class="heading"><div><h2>التقارير</h2><p>ملخص بيانات المعاينة الحالية</p></div><button class="btn gold" onclick="exportCsv()">تصدير CSV</button></div><div class="panel"><div class="stats"><div class="stat"><label>إجمالي الحركات</label><strong id="moves">0</strong></div><div class="stat"><label>إجمالي الجولات</label><strong id="roundCount">0</strong></div><div class="stat"><label>المناطق</label><strong id="zoneCount">0</strong></div><div class="stat"><label>أيام محفوظة</label><strong>اليوم</strong></div></div><p class="muted">التقارير النهائية ستُحسب من سجلات الخادم بعد ربط النظام الحقيقي.</p></div></section>
 <section id="settings" class="page hidden"><div class="heading"><div><h2>إعدادات الموقع</h2><p>بيانات الملعب ونطاق السماح بالحضور</p></div></div><div class="panel"><div class="formgrid"><div class="field"><label>اسم النادي / الملعب</label><input id="clubName" placeholder="اسم النادي"></div><div class="field"><label>نطاق السماح (متر)</label><input id="radius" type="number" min="30" value="150"></div><div class="field"><label>خط العرض (Latitude)</label><input id="lat" placeholder="يتم تحديده لاحقاً"></div><div class="field"><label>خط الطول (Longitude)</label><input id="lng" placeholder="يتم تحديده لاحقاً"></div></div><div class="actions"><button class="btn gold" onclick="saveSettings()">حفظ الإعدادات</button><button class="btn" onclick="getLocation(true)">استخدام موقعي كنقطة الملعب</button></div><p class="muted" id="settingsMsg"></p></div></section>
 </main></div><div class="foot">FIELD GUARD • نسخة أولية للمعاينة — لا تستخدم كسجل دوام رسمي قبل تفعيل الخادم والحماية.</div></div>
-<div id="authGate" class="modal" style="z-index:20"><div class="modalbox"><h2>FIELD GUARD</h2><form id="loginForm"><input id="loginEmail" type="email" placeholder="البريد الإلكتروني" required><input id="loginPassword" type="password" placeholder="كلمة المرور" required><button class="btn gold" type="submit">دخول</button><p id="loginError"></p></form></div></div><div id="modal" class="modal hidden" onclick="if(event.target===this)closeModal()"><div class="modalbox"><div class="panelhead"><h3 id="modalTitle">إضافة عامل</h3><button class="btn small" onclick="closeModal()">إغلاق</button></div><div id="modalBody"></div></div></div><div class="toast" id="toast"></div>
+<div id="authGate" class="modal" style="z-index:20"><div class="modalbox"><h2>FIELD GUARD</h2><form id="loginForm"><input id="loginEmail" type="email" placeholder="البريد الإلكتروني" required><input id="loginPassword" type="password" placeholder="كلمة المرور" required><button class="btn gold" type="submit">دخول</button><p id="loginError"></p></form></div></div><div id="employeePortal" class="modal hidden" style="z-index:19"><div class="modalbox"><div class="panelhead"><h3>حساب العامل</h3><button class="btn small" onclick="logout()">تسجيل الخروج</button></div><h2 id="employeeName"></h2><p id="employeeInfo" class="muted"></p><div class="notice">ستظهر هنا حركات حضورك المسجلة فقط.</div><div id="employeeAttendance"></div></div></div>
+<div id="modal" class="modal hidden" onclick="if(event.target===this)closeModal()"><div class="modalbox"><div class="panelhead"><h3 id="modalTitle">إضافة عامل</h3><button class="btn small" onclick="closeModal()">إغلاق</button></div><div id="modalBody"></div></div></div><div class="toast" id="toast"></div>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script>
 const firebaseConfig={apiKey:"AIzaSyBcAKNEFLwqfnqJt18RsjBjvKIL--e4Tc0",authDomain:"field-guard-4cbb8.firebaseapp.com",projectId:"field-guard-4cbb8",storageBucket:"field-guard-4cbb8.firebasestorage.app",messagingSenderId:"410116232722",appId:"1:410116232722:web:4da348b3f3f691107a6acb"};
@@ -101,11 +102,21 @@ async function syncCloudState(){
 }
 async function verifyAdmin(user){
  const snap=await db.collection('admins').doc(user.uid).get();
- if(!snap.exists||snap.data().active!==true||!['owner','admin'].includes(snap.data().role)){
-  await auth.signOut();document.getElementById('loginError').textContent='الحساب غير معتمد كمشرف داخل FIELD GUARD.';return false;
+ if(snap.exists&&snap.data().active===true&&['owner','admin'].includes(snap.data().role)){
+  currentUser=user;currentRole=snap.data().role;document.getElementById('authGate').classList.add('hidden');document.getElementById('employeePortal').classList.add('hidden');await loadCloudState();return true;
  }
- currentUser=user;currentRole=snap.data().role;document.getElementById('authGate').classList.add('hidden');await loadCloudState();return true;
+ const employee=await db.collection('employees').doc(user.uid).get();
+ if(employee.exists&&employee.data().active!==false){
+  currentUser=user;currentRole='employee';document.getElementById('authGate').classList.add('hidden');document.getElementById('employeePortal').classList.remove('hidden');
+  document.getElementById('employeeName').textContent=employee.data().name||'العامل';
+  document.getElementById('employeeInfo').textContent=(employee.data().zone||'')+' • '+(employee.data().shift||'');
+  const rows=await db.collection('attendance').where('employeeId','==',user.uid).get();
+  document.getElementById('employeeAttendance').innerHTML=rows.empty?'<p class="muted">لا توجد حركات مسجلة.</p>':rows.docs.map(d=>'<p>'+d.data().type+' — '+(d.data().timeLabel||'')+'</p>').join('');
+  return true;
+ }
+ await auth.signOut();document.getElementById('loginError').textContent='الحساب غير معتمد داخل FIELD GUARD.';return false;
 }
+async function logout(){cloudReady=false;currentUser=null;currentRole=null;await auth.signOut();document.getElementById('employeePortal').classList.add('hidden');document.getElementById('authGate').classList.remove('hidden')}
 document.getElementById('loginForm').addEventListener('submit',async e=>{
  e.preventDefault();const msg=document.getElementById('loginError');msg.textContent='جارٍ التحقق…';
  try{const c=await auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value.trim(),document.getElementById('loginPassword').value);await verifyAdmin(c.user)}
