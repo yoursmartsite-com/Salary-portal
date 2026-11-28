@@ -99,7 +99,7 @@ async function syncCloudState(){
  state.attendance.forEach(a=>{const w=state.workers.find(x=>x.name===a.worker);batch.set(db.collection('attendance').doc(String(a.id)),{employeeId:a.employeeId||(w?String(w.id):''),worker:a.worker,type:a.type,timeLabel:a.time,coords:a.coords||'',managerUid:currentRole==='manager'?currentUser.uid:(w?.managerUid||null)},{merge:true})});
  state.rounds.forEach(r=>batch.set(db.collection('inspection_rounds').doc(String(r.id)),{employeeName:r.worker,timeLabel:r.time,status:r.status,managerUid:currentRole==='manager'?currentUser.uid:null},{merge:true}));
  state.zones.forEach((z,i)=>batch.set(db.collection('work_areas').doc((currentRole==='manager'?currentUser.uid+'_':'')+'zone_'+i),{name:z,managerUid:currentRole==='manager'?currentUser.uid:null},{merge:true}));
- if(state.settings&&['owner','admin','manager'].includes(currentRole))batch.set(db.collection('settings').doc(currentRole==='manager'?'manager_'+currentUser.uid:'club'),{...state.settings,managerUid:currentRole==='manager'?currentUser.uid:null},{merge:true});
+ if(state.settings&&['owner','manager'].includes(currentRole))batch.set(db.collection('settings').doc(currentRole==='manager'?'manager_'+currentUser.uid:'club'),{...state.settings,managerUid:currentRole==='manager'?currentUser.uid:null},{merge:true});
  await batch.commit();
 }
 async function verifyAdmin(user){
