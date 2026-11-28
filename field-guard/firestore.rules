@@ -1,0 +1,76 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function adminDoc() {
+      return /databases/$(database)/documents/admins/$(request.auth.uid);
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && exists(adminDoc())
+        && get(adminDoc()).data.active == true
+        && get(adminDoc()).data.role in ['owner', 'admin'];
+    }
+
+    function isOwner() {
+      return signedIn()
+        && exists(adminDoc())
+        && get(adminDoc()).data.active == true
+        && get(adminDoc()).data.role == 'owner';
+    }
+
+    function employeeDoc() {
+      return /databases/$(database)/documents/employees/$(request.auth.uid);
+    }
+
+    function isActiveEmployee() {
+      return signedIn()
+        && exists(employeeDoc())
+        && get(employeeDoc()).data.active != false;
+    }
+
+    match /admins/{uid} {
+      // Every administrator may read their own role document; only owner manages admins.
+      allow get: if signedIn() && (request.auth.uid == uid || isOwner());
+      allow list, create, update, delete: if isOwner();
+    }
+
+    match /employees/{uid} {
+      allow get: if isAdmin() || (signedIn() && request.auth.uid == uid && isActiveEmployee());
+      allow list: if isAdmin();
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /attendance/{recordId} {
+      // Employee list queries must include employeeId == request.auth.uid.
+      allow read: if isAdmin()
+        || (isActiveEmployee() && resource.data.employeeId == request.auth.uid);
+      // Attendance is currently written by the supervisor dashboard only.
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /inspection_rounds/{roundId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /work_areas/{areaId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /settings/{settingId} {
+      allow read: if isAdmin();
+      allow create, update, delete: if isOwner();
+    }
+
+    // Deny all other collections and documents by default.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
