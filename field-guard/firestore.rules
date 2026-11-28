@@ -2,33 +2,35 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    function signedIn() {
-      return request.auth != null;
-    }
-
+    function signedIn() { return request.auth != null; }
     function adminDoc() {
       return /databases/$(database)/documents/admins/$(request.auth.uid);
     }
-
-    function isAdmin() {
+    function activeAdminRole() {
       return signedIn()
         && exists(adminDoc())
         && get(adminDoc()).data.active == true
         && get(adminDoc()).data.role in ['owner', 'admin'];
     }
-
     function isOwner() {
       return signedIn()
         && exists(adminDoc())
         && get(adminDoc()).data.active == true
         && get(adminDoc()).data.role == 'owner';
     }
-
+    function isManager() {
+      return signedIn()
+        && exists(adminDoc())
+        && get(adminDoc()).data.active == true
+        && get(adminDoc()).data.role == 'manager';
+    }
+    function isSupervisor() { return activeAdminRole() || isManager(); }
+    function managerOwns(data) {
+      return isManager() && data.managerUid == request.auth.uid;
+    }
     function employeeDoc() {
       return /databases/$(database)/documents/employees/$(request.auth.uid);
     }
-
     function isActiveEmployee() {
       return signedIn()
         && exists(employeeDoc())
@@ -36,39 +38,58 @@ service cloud.firestore {
     }
 
     match /admins/{uid} {
-      // Every administrator may read their own role document; only owner manages admins.
       allow get: if signedIn() && (request.auth.uid == uid || isOwner());
       allow list, create, update, delete: if isOwner();
     }
 
     match /employees/{uid} {
-      allow get: if isAdmin() || (signedIn() && request.auth.uid == uid && isActiveEmployee());
-      allow list: if isAdmin();
-      allow create, update, delete: if isAdmin();
+      allow get: if activeAdminRole()
+        || (signedIn() && request.auth.uid == uid && isActiveEmployee())
+        || managerOwns(resource.data);
+      allow list: if activeAdminRole() || isManager();
+      allow create: if activeAdminRole()
+        || (isManager() && request.resource.data.managerUid == request.auth.uid
+          && request.resource.data.teamId == request.auth.uid);
+      allow update: if activeAdminRole()
+        || (managerOwns(resource.data)
+          && request.resource.data.managerUid == request.auth.uid
+          && request.resource.data.teamId == request.auth.uid);
+      allow delete: if activeAdminRole() || managerOwns(resource.data);
     }
 
     match /attendance/{recordId} {
-      // Employee list queries must include employeeId == request.auth.uid.
-      allow read: if isAdmin()
+      allow read: if activeAdminRole()
+        || managerOwns(resource.data)
         || (isActiveEmployee() && resource.data.employeeId == request.auth.uid);
-      // Attendance is currently written by the supervisor dashboard only.
-      allow create, update, delete: if isAdmin();
+      allow create, update: if activeAdminRole()
+        || (isManager() && request.resource.data.managerUid == request.auth.uid);
+      allow delete: if activeAdminRole() || managerOwns(resource.data);
     }
 
     match /inspection_rounds/{roundId} {
-      allow read, write: if isAdmin();
+      allow read: if activeAdminRole() || managerOwns(resource.data);
+      allow create, update: if activeAdminRole()
+        || (isManager() && request.resource.data.managerUid == request.auth.uid);
+      allow delete: if activeAdminRole() || managerOwns(resource.data);
     }
 
     match /work_areas/{areaId} {
-      allow read, write: if isAdmin();
+      allow read: if activeAdminRole() || managerOwns(resource.data);
+      allow create, update: if activeAdminRole()
+        || (isManager() && request.resource.data.managerUid == request.auth.uid);
+      allow delete: if activeAdminRole() || managerOwns(resource.data);
     }
 
     match /settings/{settingId} {
-      allow read: if isAdmin();
-      allow create, update, delete: if isOwner();
+      allow read: if activeAdminRole()
+        || (isManager() && settingId == 'manager_' + request.auth.uid
+          && resource.data.managerUid == request.auth.uid);
+      allow create, update: if isOwner()
+        || (isManager() && settingId == 'manager_' + request.auth.uid
+          && request.resource.data.managerUid == request.auth.uid);
+      allow delete: if isOwner() || managerOwns(resource.data);
     }
 
-    // Deny all other collections and documents by default.
     match /{document=**} {
       allow read, write: if false;
     }
