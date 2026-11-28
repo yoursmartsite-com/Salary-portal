@@ -165,16 +165,23 @@ async function route(request,env) {
   }
   if(path==="/api/access"&&request.method==="GET"){
     const user=await verifySignedInUser(request,env);
-    const expectedProgramId=String(url.searchParams.get("programId")||"zein-rahaf-store");
+    // A generic portal request follows the user's assigned program. Store-specific
+    // clients can still pin an explicit programId in the query string.
+    const assignment=await db(env,"omnix/customerPrograms/"+user.localId)||null;
+    const requestedProgramId=String(url.searchParams.get("programId")||"").trim();
+    const expectedProgramId=requestedProgramId||assignment?.programId||"zein-rahaf-store";
+    if(!/^[a-z0-9][a-z0-9-]{1,49}$/.test(expectedProgramId))
+      return json({error:"معرف البرنامج غير صحيح"},400,origin);
     const [programAccess,programRecord]=await Promise.all([
       db(env,"omnix/programAccess/"+expectedProgramId),db(env,"omnix/programs/"+expectedProgramId)
     ]);
     const programExpiry=Number(programAccess?.expiresAt||0);
     const programExpired=programExpiry>0&&programExpiry<=Date.now();
+    const programName=String(assignment?.programName||programRecord?.name||"البرنامج");
     if(programAccess?.enabled===false||programRecord?.active===false||programExpired)
-      return json({ok:true,allowed:false,reason:programExpired?"program_subscription_expired":"program_disabled",program:{programId:expectedProgramId,programName:"عطور زين ورهف"},programSubscription:programAccess?{startAt:programAccess.startAt||null,expiresAt:programAccess.expiresAt||null}:null},200,origin);
+      return json({ok:true,allowed:false,reason:programExpired?"program_subscription_expired":"program_disabled",program:{programId:expectedProgramId,programName},programSubscription:programAccess?{startAt:programAccess.startAt||null,expiresAt:programAccess.expiresAt||null}:null},200,origin);
     if(user.localId===env.OWNER_UID)
-      return json({ok:true,allowed:true,owner:true,role:"owner",program:{programId:expectedProgramId,programName:"عطور زين ورهف",url:"https://yoursmartsite-com.github.io/Salary-portal/perfumes/"}},200,origin);
+      return json({ok:true,allowed:true,owner:true,role:"owner",program:{programId:expectedProgramId,programName:programRecord?.name||"عطور زين ورهف",url:programRecord?.url||"https://yoursmartsite-com.github.io/Salary-portal/perfumes/"}},200,origin);
     let claims={};
     try{claims=user.customAttributes?JSON.parse(user.customAttributes):{};}catch(_){}
     if(claims.zeinRahafStoreAdmin===true){
@@ -182,8 +189,8 @@ async function route(request,env) {
       if(manager?.active===true)
         return json({ok:true,allowed:true,manager:true,role:"manager",program:{programId:"zein-rahaf-store",programName:"عطور زين ورهف",url:"https://yoursmartsite-com.github.io/Salary-portal/perfumes/"}},200,origin);
     }
-    const [assignment,subscription,allNotifications,allReleases]=await Promise.all([
-      db(env,"omnix/customerPrograms/"+user.localId),db(env,"omnix/subscriptions/"+user.localId),db(env,"omnix/notifications"),db(env,"omnix/releases")
+    const [subscription,allNotifications,allReleases]=await Promise.all([
+      db(env,"omnix/subscriptions/"+user.localId),db(env,"omnix/notifications"),db(env,"omnix/releases")
     ]);
     const now=Date.now(),startsAt=Number(subscription?.startAt||0),expiresAt=Number(subscription?.expiresAt||0);
     const assignmentMismatch=assignment?.programId!==expectedProgramId;
