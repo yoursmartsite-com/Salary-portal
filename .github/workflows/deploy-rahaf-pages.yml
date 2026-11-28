@@ -27,9 +27,16 @@ jobs:
       - name: Build
         working-directory: rahaf-app
         run: npm run build
+      - name: Assemble site without replacing existing OMNIX and Lamma pages
+        run: |
+          mkdir -p /tmp/rahaf-pages
+          rsync -a --exclude='.git' --exclude='node_modules' --exclude='dist' ./ /tmp/rahaf-pages/
+          rm -rf /tmp/rahaf-pages/rahaf-app
+          mkdir -p /tmp/rahaf-pages/rahaf-app
+          cp -a rahaf-app/dist/. /tmp/rahaf-pages/rahaf-app/
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: rahaf-app/dist
+          path: /tmp/rahaf-pages
   deploy:
     environment:
       name: github-pages
