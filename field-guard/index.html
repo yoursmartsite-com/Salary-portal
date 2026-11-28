@@ -78,7 +78,36 @@ function applyLanguage(){
 function toggleLanguage(){language=language==='ar'?'en':'ar';localStorage.setItem('fieldguard-language',language);render();applyLanguage()}
 
 const KEY='fieldguard-preview-v1';let state=JSON.parse(localStorage.getItem(KEY)||'null')||{workers:[{id:1,name:'أحمد محمود',phone:'01000000001',zone:'الملعب الرئيسي',shift:'صباحية'},{id:2,name:'محمد علي',phone:'01000000002',zone:'غرف الملابس',shift:'صباحية'},{id:3,name:'محمود حسن',phone:'01000000003',zone:'المدرجات',shift:'مسائية'}],attendance:[],rounds:[],zones:['الملعب الرئيسي','الملعب الفرعي','غرف الملابس','المدرجات','المخازن'],settings:{}};let coords=null;
-const $=id=>document.getElementById(id);const save=()=>{localStorage.setItem(KEY,JSON.stringify(state));render()};const now=()=>new Date().toLocaleString('ar-EG',{dateStyle:'short',timeStyle:'short'});const today=()=>new Date().toLocaleDateString('ar-EG');
+const $=id=>document.getElementById(id);const save=()=>{localStorage.setItem(KEY,JSON.stringify(state));render()};
+let currentRole=null,currentUser=null,cloudReady=false;
+async function loadCloudState(){
+ const [employees,attendance,rounds,zones,settings]=await Promise.all([
+  db.collection('employees').get(),db.collection('attendance').get(),db.collection('inspection_rounds').get(),db.collection('work_areas').get(),db.collection('settings').doc('club').get()
+ ]);
+ state.workers=employees.docs.map(d=>({id:d.id,...d.data()}));
+ state.attendance=attendance.docs.map(d=>({id:d.id,...d.data(),time:d.data().timeLabel||''}));
+ state.rounds=rounds.docs.map(d=>({id:d.id,...d.data(),worker:d.data().employeeName||'',time:d.data().timeLabel||''}));
+ state.zones=zones.docs.map(d=>d.data().name).filter(Boolean);
+ state.settings=settings.exists?settings.data():{};
+ state.events=[];cloudReady=true;localStorage.setItem(KEY,JSON.stringify(state));render();
+}
+async function verifyAdmin(user){
+ const snap=await db.collection('admins').doc(user.uid).get();
+ if(!snap.exists||snap.data().active!==true||!['owner','admin'].includes(snap.data().role)){
+  await auth.signOut();document.getElementById('loginError').textContent='الحساب غير معتمد كمشرف داخل FIELD GUARD.';return false;
+ }
+ currentUser=user;currentRole=snap.data().role;document.getElementById('authGate').classList.add('hidden');await loadCloudState();return true;
+}
+document.getElementById('loginForm').addEventListener('submit',async e=>{
+ e.preventDefault();const msg=document.getElementById('loginError');msg.textContent='جارٍ التحقق…';
+ try{const c=await auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value.trim(),document.getElementById('loginPassword').value);await verifyAdmin(c.user)}
+ catch(err){msg.textContent='تعذر الدخول: '+(err.code||err.message)}
+});
+auth.onAuthStateChanged(async user=>{
+ if(!user){cloudReady=false;currentUser=null;currentRole=null;document.getElementById('authGate').classList.remove('hidden')}
+ else if(!currentRole){try{await verifyAdmin(user)}catch(err){document.getElementById('loginError').textContent='تعذر تحميل بيانات الحساب'}}
+});
+const now=()=>new Date().toLocaleString('ar-EG',{dateStyle:'short',timeStyle:'short'});const today=()=>new Date().toLocaleDateString('ar-EG');
 function toast(s){$('toast').textContent=language==='en'?(translations[s]||s):s;$('toast').style.display='block';setTimeout(()=>$('toast').style.display='none',2600)}
 function go(page){document.querySelectorAll('.page').forEach(x=>x.classList.add('hidden'));$(page).classList.remove('hidden');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===page));render()}
 $('nav').addEventListener('click',e=>{let b=e.target.closest('button[data-page]');if(b)go(b.dataset.page)});
