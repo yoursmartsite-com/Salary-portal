@@ -94,7 +94,7 @@ async function loadCloudState(){
 }
 async function syncCloudState(){
  const batch=db.batch();
- state.attendance.forEach(a=>{const w=state.workers.find(x=>x.name===a.worker);batch.set(db.collection('attendance').doc(String(a.id)),{employeeId:w?String(w.id):'',worker:a.worker,type:a.type,timeLabel:a.time,coords:a.coords||''},{merge:true})});
+ state.attendance.forEach(a=>{const w=state.workers.find(x=>x.name===a.worker);batch.set(db.collection('attendance').doc(String(a.id)),{employeeId:a.employeeId||(w?String(w.id):''),worker:a.worker,type:a.type,timeLabel:a.time,coords:a.coords||''},{merge:true})});
  state.rounds.forEach(r=>batch.set(db.collection('inspection_rounds').doc(String(r.id)),{employeeName:r.worker,timeLabel:r.time,status:r.status},{merge:true}));
  state.zones.forEach((z,i)=>batch.set(db.collection('work_areas').doc('zone_'+i),{name:z},{merge:true}));
  if(state.settings&&currentRole==='owner')batch.set(db.collection('settings').doc('club'),state.settings,{merge:true});
@@ -145,7 +145,7 @@ async function addWorker(){
   state.events=state.events||[];state.events.unshift({text:'تمت إضافة العامل '+name,time:now()});closeModal();save();toast('تم إنشاء حساب العامل وحفظه سحابياً');
  }catch(e){toast('تعذر إنشاء الحساب: '+(e.code||e.message))}
 }
-function recordAttendance(){let id=$('attWorker').value,w=state.workers.find(x=>String(x.id)===String(id));if(!w)return toast('أضف عاملاً أولاً');let type=$('attType').value;state.attendance.unshift({id:Date.now(),worker:w.name,type,time:now(),coords:coords?coords.lat.toFixed(5)+', '+coords.lng.toFixed(5):'غير متاح'});state.events=state.events||[];state.events.unshift({text:type+' — '+w.name,time:now()});save();toast('تم تسجيل الحركة في المعاينة')}
+function recordAttendance(){let id=$('attWorker').value,w=state.workers.find(x=>String(x.id)===String(id));if(!w)return toast('أضف عاملاً أولاً');let type=$('attType').value;state.attendance.unshift({id:Date.now(),employeeId:String(w.id),worker:w.name,type,time:now(),coords:coords?coords.lat.toFixed(5)+', '+coords.lng.toFixed(5):'غير متاح'});state.events=state.events||[];state.events.unshift({text:type+' — '+w.name,time:now()});save();toast('تم تسجيل الحركة في المعاينة')}
 function getLocation(setClub=false){if(!navigator.geolocation)return toast('المتصفح لا يدعم تحديد الموقع');$('geoStatus').textContent='جارٍ تحديد الموقع…';navigator.geolocation.getCurrentPosition(p=>{coords={lat:p.coords.latitude,lng:p.coords.longitude};$('geoStatus').textContent='تم تحديد الموقع: '+coords.lat.toFixed(4)+', '+coords.lng.toFixed(4);if(setClub){$('lat').value=coords.lat;$('lng').value=coords.lng;toast('تم وضع الإحداثيات في الإعدادات — اضغط حفظ')}},e=>{$('geoStatus').textContent='تعذر تحديد الموقع: '+e.message},{enableHighAccuracy:true,timeout:12000})}
 function newRound(){if(!state.workers.length)return toast('أضف عمالاً أولاً');let w=state.workers[Math.floor(Math.random()*state.workers.length)];state.rounds.unshift({id:Date.now(),worker:w.name,time:now(),status:'بانتظار التحقق'});save();toast('تم إنشاء جولة للعامل '+w.name)}
 function addZone(){let z=prompt('اسم المنطقة الجديدة');if(z&&z.trim()){state.zones.push(z.trim());save()}}
