@@ -225,6 +225,147 @@ async function route(request,env) {
       startsAt>now?"not_started":expiresAt<=now?"expired":"active";
     return json({allowed:reason==="active",reason,programId:"rahaf-perfume-store",expiresAt:subscription?.expiresAt||null},200,origin);
   }
+
+  // Rahaf storefront API — isolated from the existing Zein & Rahaf data.
+  const rahafList = async (name) => {
+    const rows = await db(env,"rahafStore/"+name) || {};
+    return Object.entries(rows).map(([id,value])=>({...value,id}));
+  };
+  const rahafUser = async () => verifySignedInUser(request,env);
+  const rahafAdmin = async () => {
+    const user=await rahafUser();
+    if(user.localId===env.OWNER_UID && (user.email||"").toLowerCase()===(env.OWNER_EMAIL||"").toLowerCase()) return user;
+    const role=await db(env,"rahafStore/admins/"+user.localId);
+    if(role?.active===true) return user;
+    throw new Error("غير مصرح بإدارة متجر رهف");
+  };
+  const saveRahafNotification = async (uid,title,body,orderId="") => {
+    await db(env,"rahafStore/notifications","POST",{userId:uid,title,body,orderId,createdAt:new Date().toISOString(),readAt:null});
+  };
+  if(path==="/api/products"&&request.method==="GET"){
+    const items=(await rahafList("products")).filter(p=>p.active!==false&&p.demo!==true).map(p=>({...p,imageUrl:p.imageUrl||p.imagePath||""}));
+    return json({items},200,origin);
+  }
+  const rahafReviewMatch=path.match(/^\/api\/products\/([^/]+)\/reviews$/);
+  if(rahafReviewMatch&&request.method==="GET"){
+    const id=decodeURIComponent(rahafReviewMatch[1]),items=(await rahafList("reviews")).filter(r=>r.productId===id).sort((a,b)=>String(b.createdAt||"").localeCompare(String(a.createdAt||"")));
+    const average=items.length?items.reduce((s,r)=>s+Number(r.rating||0),0)/items.length:0;
+    return json({items,average:Math.round(average*10)/10,count:items.length},200,origin);
+  }
+  if(rahafReviewMatch&&request.method==="POST"){
+    const user=await rahafUser(),body=await request.json(),rating=Number(body.rating),reviewText=String(body.text||"").trim().slice(0,700),productId=decodeURIComponent(rahafReviewMatch[1]);
+    if(!Number.isInteger(rating)||rating<1||rating>5)return json({error:"اختار تقييم من نجمة إلى خمس نجوم"},400,origin);
+    const orders=await rahafList("orders");
+    if(!orders.some(o=>o.userId===user.localId&&o.status==="delivered"&&(o.items||[]).some(i=>i.productId===productId)))return json({error:"التقييم متاح بعد استلام العطر فقط"},403,origin);
+    const reviews=await rahafList("reviews"),old=reviews.find(r=>r.productId===productId&&r.userId===user.localId);
+    const record={productId,userId:user.localId,customerName:user.displayName||"عميل رهف",rating,text:reviewText,createdAt:new Date().toISOString()};
+    if(old)await db(env,"rahafStore/reviews/"+old.id,"PUT",record);else await db(env,"rahafStore/reviews","POST",record);
+    return json({ok:true},200,origin);
+  }
+  if(path==="/api/profile"&&(request.method==="GET"||request.method==="PUT")){
+    const user=await rahafUser(),key="rahafStore/profiles/"+user.localId;
+    if(request.method==="GET"){
+      const p=await db(env,key)||{};
+      return json({profile:{name:p.name||user.displayName||"",phone:p.phone||user.phoneNumber||"",avatarUrl:p.avatarUrl||""}},200,origin);
+    }
+    const body=await request.json(),name=String(body.name||"").trim().slice(0,80),phone=String(body.phone||"").trim().slice(0,20);
+    if(!name)return json({error:"الاسم مطلوب"},400,origin);
+    if(phone&&!/^[0-9+()\\s-]{7,20}$/.test(phone))return json({error:"رقم الموبايل غير صحيح"},400,origin);
+    let avatarUrl=(await db(env,key))?.avatarUrl||"";
+    if(body.avatarBase64){
+      const type=String(body.avatarContentType||"");
+      if(!["image/jpeg","image/png","image/webp"].includes(type)||String(body.avatarBase64).length>4200000)return json({error:"الصورة غير صالحة أو حجمها كبير"},400,origin);
+      const upload=await fetch("https://api.cloudinary.com/v1_1/g21wbsl1/auto/upload",{method:"POST",body:(()=>{const d=new FormData();d.append("file","data:"+type+";base64,"+body.avatarBase64);d.append("upload_preset","zein_rahaf_products");d.append("folder","rahaf-store/avatars");return d;})()});
+      const result=await upload.json();if(!upload.ok||!result.secure_url)return json({error:"تعذر رفع الصورة الشخصية"},502,origin);avatarUrl=result.secure_url;
+    }
+    await db(env,key,"PUT",{name,phone,avatarUrl,updatedAt:new Date().toISOString()});
+    return json({ok:true,profile:{name,phone,avatarUrl}},200,origin);
+  }
+  if(path==="/api/customer-state"&&(request.method==="GET"||request.method==="PUT")){
+    const user=await rahafUser(),key="rahafStore/customerState/"+user.localId;
+    if(request.method==="GET"){const s=await db(env,key)||{};return json({cart:Array.isArray(s.cart)?s.cart:[],favorites:Array.isArray(s.favorites)?s.favorites:[]},200,origin);}
+    const body=await request.json(),cart=Array.isArray(body.cart)?body.cart.slice(0,100):[],favorites=Array.isArray(body.favorites)?[...new Set(body.favorites.map(x=>String(x).slice(0,100)))].slice(0,200):[];
+    if(cart.some(x=>!x||typeof x.name!=="string"||!Number.isInteger(Number(x.qty))||Number(x.qty)<1||!Number.isFinite(Number(x.price))))return json({error:"بيانات الشنطة غير صالحة"},400,origin);
+    await db(env,key,"PUT",{cart,favorites,updatedAt:new Date().toISOString()});return json({ok:true},200,origin);
+  }
+  if(path==="/api/notifications"&&request.method==="GET"){
+    const user=await rahafUser(),items=(await rahafList("notifications")).filter(n=>n.userId===user.localId).sort((a,b)=>String(b.createdAt||"").localeCompare(String(a.createdAt||"")));
+    return json({items},200,origin);
+  }
+  const readNotification=path.match(/^\/api\/notifications\/([^/]+)\/read$/);
+  if(readNotification&&request.method==="PUT"){
+    const user=await rahafUser(),id=decodeURIComponent(readNotification[1]),old=await db(env,"rahafStore/notifications/"+id);
+    if(!old||old.userId!==user.localId)return json({error:"الإشعار غير موجود"},404,origin);
+    await db(env,"rahafStore/notifications/"+id,"PATCH",{readAt:old.readAt||new Date().toISOString()});return json({ok:true},200,origin);
+  }
+  if(path==="/api/notifications/read-all"&&request.method==="POST"){
+    const user=await rahafUser(),items=await rahafList("notifications");
+    await Promise.all(items.filter(n=>n.userId===user.localId&&!n.readAt).map(n=>db(env,"rahafStore/notifications/"+n.id,"PATCH",{readAt:new Date().toISOString()})));
+    return json({ok:true},200,origin);
+  }
+  if(path==="/api/orders"&&request.method==="GET"){
+    const user=await rahafUser(),items=(await rahafList("orders")).filter(o=>o.userId===user.localId).sort((a,b)=>String(b.createdAt||"").localeCompare(String(a.createdAt||"")));
+    return json({items},200,origin);
+  }
+  if(path==="/api/orders"&&request.method==="POST"){
+    const user=await rahafUser(),body=await request.json(),access=await fetch(new URL("/api/rahaf/validate",url.origin),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({code:body.activationCode||""})});
+    const allowed=await access.json();if(!allowed.allowed)return json({error:"كود التشغيل غير صالح أو انتهت مدة اشتراك رهف"},403,origin);
+    if(!Array.isArray(body.items)||!body.items.length||body.items.length>30)return json({error:"السلة غير صالحة"},400,origin);
+    const products=await rahafList("products"),lines=[];let total=0;
+    for(const raw of body.items){const p=products.find(x=>x.id===String(raw.productId)),qty=Number(raw.qty),size=String(raw.size||"50 مل").slice(0,24);
+      if(!p||p.active===false||!Number.isInteger(qty)||qty<1||qty>20)return json({error:"منتج غير متاح أو كمية غير صحيحة"},400,origin);
+      if(Array.isArray(p.sizes)&&p.sizes.length&&!p.sizes.includes(size))return json({error:"الحجم غير متاح"},400,origin);
+      const price=Number(p.sizePrices?.[size]??p.price);if(!Number.isFinite(price)||price<=0)return json({error:"سعر المنتج غير صحيح"},400,origin);
+      total+=price*qty;lines.push({productId:p.id,name:p.name,size,qty,price});
+    }
+    const customerName=String(body.customerName||"").trim().slice(0,100),phone=String(body.phone||"").trim().slice(0,30),address=String(body.address||"").trim().slice(0,500);
+    if(!customerName||!phone||!address)return json({error:"أكمل بيانات التوصيل"},400,origin);
+    const record={userId:user.localId,customerName,phone,address,items:lines,total,status:"new",createdAt:new Date().toISOString(),paymentMethod:"cash_on_delivery"};
+    const saved=await db(env,"rahafStore/orders","POST",record),id=saved?.name;
+    await saveRahafNotification(user.localId,"استلمنا طلبك بنجاح","طلبك رقم "+String(id||"").slice(-6)+" اتسجل، وهنبدأ نتابع تجهيزه معاك.",id||"");
+    const admins=await db(env,"rahafStore/admins")||{},ownerTokens=await db(env,"rahafStore/pushTokens/"+env.OWNER_UID)||{};
+    return json({id,total,status:"new"},201,origin);
+  }
+  const cancelOrder=path.match(/^\/api\/orders\/([^/]+)\/cancel$/);
+  if(cancelOrder&&request.method==="PUT"){
+    const user=await rahafUser(),id=decodeURIComponent(cancelOrder[1]),old=await db(env,"rahafStore/orders/"+id);
+    if(!old||old.userId!==user.localId)return json({error:"الطلب غير موجود"},404,origin);
+    if(!["new","confirmed"].includes(old.status))return json({error:"لا يمكن إلغاء الطلب بعد بدء التجهيز"},409,origin);
+    await db(env,"rahafStore/orders/"+id,"PATCH",{status:"cancelled"});return json({ok:true,status:"cancelled"},200,origin);
+  }
+  if(path==="/api/admin/upload"&&request.method==="POST"){
+    await rahafAdmin();const body=await request.json(),type=String(body.contentType||"");
+    if(typeof body.base64!=="string"||body.base64.length>5500000||!["image/jpeg","image/png","image/webp"].includes(type))return json({error:"الصورة كبيرة أو غير صالحة"},400,origin);
+    const upload=await fetch("https://api.cloudinary.com/v1_1/g21wbsl1/auto/upload",{method:"POST",body:(()=>{const d=new FormData();d.append("file","data:"+type+";base64,"+body.base64);d.append("upload_preset","zein_rahaf_products");d.append("folder","rahaf-store/products");return d;})()});
+    const result=await upload.json();if(!upload.ok||!result.secure_url)return json({error:"فشل رفع الصورة"},502,origin);
+    return json({path:result.secure_url},200,origin);
+  }
+  if(path==="/api/admin/push/subscribe"||path==="/api/push/admin/subscribe"){await rahafAdmin();return json({ok:true},200,origin);}
+  if(path==="/api/admin/products"&&request.method==="POST"||path.match(/^\/api\/admin\/products\/[^/]+$/)&&request.method==="PUT"){
+    await rahafAdmin();const body=await request.json(),name=String(body.name||"").trim().slice(0,100),price=Number(body.price),category=String(body.category||"unisex");
+    if(!name||!Number.isFinite(price)||price<=0||!["men","women","unisex"].includes(category))return json({error:"بيانات العطر غير صحيحة"},400,origin);
+    const record={name,description:String(body.description||"").slice(0,1200),price,category,sizes:Array.isArray(body.sizes)?body.sizes.map(x=>String(x).slice(0,24)).slice(0,10):[],sizePrices:body.sizePrices&&typeof body.sizePrices==="object"?body.sizePrices:{},imagePath:String(body.imagePath||"").slice(0,1000),imageUrl:String(body.imagePath||"").startsWith("http")?String(body.imagePath):"",active:true,updatedAt:Date.now()};
+    const match=path.match(/^\/api\/admin\/products\/([^/]+)$/);
+    if(match){await db(env,"rahafStore/products/"+decodeURIComponent(match[1]),"PUT",record);return json({ok:true},200,origin);}
+    const result=await db(env,"rahafStore/products","POST",record);return json({id:result?.name},201,origin);
+  }
+  const deleteProduct=path.match(/^\/api\/admin\/products\/([^/]+)$/);
+  if(deleteProduct&&request.method==="DELETE"){await rahafAdmin();await db(env,"rahafStore/products/"+decodeURIComponent(deleteProduct[1]),"DELETE");return json({ok:true},200,origin);}
+  if(path==="/api/admin/orders"&&request.method==="GET"){await rahafAdmin();const items=(await rahafList("orders")).sort((a,b)=>String(b.createdAt||"").localeCompare(String(a.createdAt||"")));return json({items},200,origin);}
+  if(path==="/api/admin/customers"&&request.method==="GET"){
+    await rahafAdmin();const orders=await rahafList("orders"),profiles=await db(env,"rahafStore/profiles")||{},customers=new Map();
+    for(const [uid,p] of Object.entries(profiles))customers.set(uid,{userId:uid,name:p.name||"عميل رهف",phone:p.phone||"",ordersCount:0,totalSpent:0,lastOrderAt:""});
+    for(const o of orders){const x=customers.get(o.userId)||{userId:o.userId,name:o.customerName||"عميل رهف",phone:o.phone||"",ordersCount:0,totalSpent:0,lastOrderAt:""};x.ordersCount++;x.totalSpent+=Number(o.total||0);if(String(o.createdAt||"")>x.lastOrderAt)x.lastOrderAt=o.createdAt;if(!x.phone)x.phone=o.phone||"";customers.set(o.userId,x);}
+    return json({items:[...customers.values()]},200,origin);
+  }
+  const adminOrder=path.match(/^\/api\/admin\/orders\/([^/]+)(?:\/(eta))?$/);
+  if(adminOrder&&request.method==="PUT"){
+    await rahafAdmin();const id=decodeURIComponent(adminOrder[1]),body=await request.json(),old=await db(env,"rahafStore/orders/"+id);
+    if(!old)return json({error:"الطلب غير موجود"},404,origin);
+    if(adminOrder[2]){const value=String(body.estimatedDeliveryAt||"");if(value&&!/^\\d{4}-\\d{2}-\\d{2}$/.test(value))return json({error:"تاريخ التوصيل غير صحيح"},400,origin);await db(env,"rahafStore/orders/"+id,"PATCH",{estimatedDeliveryAt:value});if(old.userId&&value)await saveRahafNotification(old.userId,"موعد توصيل طلبك","الموعد المتوقع لتوصيل طلبك هو "+value,id);return json({ok:true,estimatedDeliveryAt:value},200,origin);}
+    const status=String(body.status||"");if(!["new","confirmed","preparing","shipped","delivered","cancelled"].includes(status))return json({error:"حالة غير صحيحة"},400,origin);
+    await db(env,"rahafStore/orders/"+id,"PATCH",{status});if(old.userId)await saveRahafNotification(old.userId,"حالة طلبك اتحدّثت","حالة طلبك: "+status,id);return json({ok:true},200,origin);
+  }
   await verifyOwner(request,env);
   const programSubscriptionMatch=path.match(/^\/api\/program-subscription\/([a-z0-9-]+)$/);
   if(programSubscriptionMatch&&request.method==="GET"){
