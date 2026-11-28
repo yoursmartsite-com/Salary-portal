@@ -85,7 +85,7 @@ $("adminLogout").onclick=async()=>{await signOut(auth);toast("تم تسجيل ا
 #pdInstallOverlay .pd-icon{font-size:35px;margin-bottom:8px}
 #pdInstallOverlay h3{margin:0 0 8px;color:#e6c982;font-size:21px}
 #pdInstallOverlay p{font-size:13px;line-height:1.9;color:#c2b9aa;margin:0 0 17px}
-#pdInstallOverlay .pd-primary,#pdInstallOverlay .pd-dismiss{width:100%;display:block;border:0;border-radius:11px;padding:12px 14px;font:700 13px inherit;cursor:pointer;text-decoration:none}
+#pdInstallOverlay .pd-primary,#pdInstallOverlay .pd-dismiss{width:100%;display:block;border:0;border-radius:11px;padding:12px 14px;font:inherit;font-weight:700;font-size:13px;cursor:pointer;text-decoration:none}
 #pdInstallOverlay .pd-primary{background:linear-gradient(110deg,#a77b36,#e4c57d);color:#17130b}
 #pdInstallOverlay .pd-dismiss{margin-top:8px;background:#ffffff10;color:#e8dfd0}
 @media(max-width:520px){#projectDownloads{margin:26px 10px;padding:20px 13px}}
@@ -116,7 +116,8 @@ $("adminLogout").onclick=async()=>{await signOut(auth);toast("تم تسجيل ا
   const isAndroid=/Android/i.test(ua);
   const isStandalone=window.matchMedia?.("(display-mode: standalone)").matches||navigator.standalone===true;
   const overlay=document.getElementById("pdInstallOverlay");
-  const key="projectInstallPromptDismissedV1";
+  const projectKey=location.pathname.split("/").filter(Boolean)[0]||"lamma";
+  const key="projectInstallPromptDismissedV1:"+projectKey;
   if(isAndroid&&!isStandalone&&!localStorage.getItem(key)){
     window.setTimeout(()=>overlay?.classList.add("pd-show"),900);
   }
